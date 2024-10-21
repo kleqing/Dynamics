@@ -1,4 +1,4 @@
-﻿@model Dynamics.Models.Models.ViewModel.RequestCreateVM
+﻿@model Dynamics.Models.Models.Request
 @{
     ViewData["Title"] = "Create Request";
 }
@@ -15,7 +15,7 @@
     <div class="my-5 px-0 pt-12 w-full flex justify-center">
         <form asp-action="Create" asp-controller="Request" enctype="multipart/form-data" id="dmForm"
               method="post" class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-error"></div>
             <div>
                 <input type="hidden" value="@DateOnly.FromDateTime(DateTime.Now)" asp-for="@Model.CreationDate"/>
                 <input class="hidden" name="cityNameInput">
@@ -29,6 +29,7 @@
                 <input asp-for="@Model.RequestTitle"
                        class="input input-bordered w-full"
                        id="RequestTitle" type="text" placeholder="Enter your request title"/>
+                <span asp-validation-for="RequestTitle" class="text-error"></span>
             </label>
             <label class="form-control">
                 <span class="label label-text font-bold text-lg" for="Content">
@@ -37,6 +38,7 @@
                 <textarea asp-for="@Model.Content"
                            class="textarea textarea-bordered textarea-lg w-full"
                            id="Content" placeholder="Enter your request description" rows="7" style="resize: none"></textarea>
+                <span asp-validation-for="Content" class="text-error"></span>
             </label>
             
             <label  class="form-control">
@@ -46,12 +48,7 @@
                 <input id="file-upload" type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
                 <span class="label label-text text-">Images will help you appeal to more people</span>
             </label>
-            <div class="flex space-x-2">
-                <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
-                    <span>Choose images</span>
-                </label>
-                <input id="file-upload" type="file" name="images" multiple class="hidden">
-            </div>
+            <span asp-validation-for="Attachment" class="text-error"></span>
             <div class="flex gap-12 items-center">
                 <div class="left flex-1">
                     <!-- Email -->
@@ -64,6 +61,7 @@
                             asp-for="@Model.RequestEmail"
                             id="RequestEmail"
                         />
+                        <span asp-validation-for="RequestEmail" class="text-error"></span>
                     </label>
                     <!-- Phonenumber -->
                     <label class="form-control w-full">
@@ -75,6 +73,7 @@
                             asp-for="RequestPhoneNumber"
                             id="RequestPhoneNumber"
                         />
+                        <span asp-validation-for="RequestPhoneNumber" class="text-error"></span>
                     </label>
                     <!-- Address -->
                     <label class="form-control w-full">
@@ -99,6 +98,7 @@
                             asp-for="@Model.Location"
                             id="RequestLocation"
                         />
+                        <span asp-validation-for="Location" class="text-error"></span>
                     </label>
                     <span class="label label-text font-bold text-lg" for="isEmergency">
                         Is this an emergency request?
@@ -124,6 +124,14 @@
     </div>
 </main>
 </body>
+
+@section Scripts
+{
+    @{
+        <partial name="_ValidationScriptsPartial"/>
+    }
+}
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
 let citis = document.getElementById("city");
@@ -171,13 +179,13 @@ let clicked = 0;
 
 function getUserContact(){
     clicked++;
-    var address = '@Html.Raw(Model.UserAddress)';
+    var address = '@ViewBag.UserAddress';
     var streetOnly = address.split(',')[0] || ""; // Split the address and handle case where it might be empty
 
     if (clicked % 2 === 1) {
         // Set the input fields with user's contact information
-        document.getElementById('RequestEmail').value = '@Model.UserEmail';
-        document.getElementById('RequestPhoneNumber').value = '@Model.UserPhoneNumber';
+        document.getElementById('RequestEmail').value = '@ViewBag.UserEmail';
+        document.getElementById('RequestPhoneNumber').value = '@ViewBag.UserPhoneNumber';
         document.getElementById('RequestLocation').value = streetOnly;
 
         // Change the button element
@@ -190,7 +198,7 @@ function getUserContact(){
         contactBtn.innerHTML = 'Use my information as contact <i class="bi bi-check2-circle"></i>';
 
         // Change option for visibility
-        let address = '@Html.Raw(Model.UserAddress)';
+        let address = '@Html.Raw(ViewBag.UserAddress)';
         let parts = address.split(',');
         document.getElementById('pOption').innerHTML = parts[3].trim();
         document.getElementById('dOption').innerHTML = parts[2].trim();

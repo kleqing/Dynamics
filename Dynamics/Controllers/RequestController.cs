@@ -95,38 +95,35 @@ namespace Dynamics.Controllers
 			var userJson = HttpContext.Session.GetString("user");
 			var user  = JsonConvert.DeserializeObject<User>(userJson);
 
-			var viewModel = new RequestCreateVM
-			{
-				UserEmail = user.UserEmail,
-				UserPhoneNumber = user.UserPhoneNumber,
-				UserAddress = user.UserAddress,
-				
-				RequestTitle = string.Empty,
-				Content = string.Empty,
-				CreationDate = null,
-				RequestEmail = string.Empty,
-				RequestPhoneNumber = string.Empty,
-				Location = string.Empty,
-				isEmergency = 0
-			};
-			return View(viewModel);
+			ViewBag.UserEmail = user.UserEmail;
+			ViewBag.UserPhoneNumber = user.UserPhoneNumber;
+			ViewBag.UserAddress = user.UserAddress;
+			return View();
 		}
 		[HttpPost]
 		public async Task<IActionResult> Create(Request obj, List<IFormFile> images, 
 			string? cityNameInput, string? districtNameInput, string? wardNameInput)
 		{
+			if (!Util.ValidateImage(images))
+			{
+				ModelState.AddModelError("Attachment", "Please provide valid images.");
+			}
+			var userJson = HttpContext.Session.GetString("user");
+			var user = JsonConvert.DeserializeObject<User>(userJson);
+
+			ViewBag.UserEmail = user.UserEmail;
+			ViewBag.UserPhoneNumber = user.UserPhoneNumber;
+			ViewBag.UserAddress = user.UserAddress;
+    
+			if (!ModelState.IsValid)
+			{
+				return View();
+			}
 			obj.RequestID = Guid.NewGuid();
 			/*var date = DateOnly.FromDateTime(DateTime.Now);
 			obj.CreationDate = date;*/
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
-			var userId = Guid.Empty;
-			var userJson = HttpContext.Session.GetString("user");
-			if (!string.IsNullOrEmpty(userJson))
-			{
-				var user = JsonConvert.DeserializeObject<User>(userJson);
-				userId = user.UserID;
-			}
-			obj.UserID = userId;
+			var userId = user.UserID;
 			if (images != null && images.Count > 0)
 			{
 				string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + obj.RequestID.ToString(), userId);
@@ -170,10 +167,10 @@ namespace Dynamics.Controllers
 		public async Task<IActionResult> Edit(Request obj, List<IFormFile> images, 
 			string? cityNameInput, string? districtNameInput, string? wardNameInput)
 		{
-			/*if (!ModelState.IsValid)
+			if (!Util.ValidateImage(images))
 			{
-				return View(obj);
-			}*/
+				ModelState.AddModelError("Attachment", "Please provide valid images.");
+			}
 			// Get the currently logged-in user (role and id)
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
 			var user = await _userManager.GetUserAsync(User);
@@ -205,6 +202,10 @@ namespace Dynamics.Controllers
 					existingRequest.Attachment = string.IsNullOrEmpty(existingRequest.Attachment) ? imagePath 
 						: existingRequest.Attachment + "," + imagePath;
 				}
+			}
+			if (!ModelState.IsValid)
+			{
+				return View(existingRequest);
 			}
 			_logger.LogInformation("Edit request");
 			await _requestRepo.UpdateAsync(existingRequest);

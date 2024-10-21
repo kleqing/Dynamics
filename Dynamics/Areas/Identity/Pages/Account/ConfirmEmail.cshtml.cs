@@ -47,6 +47,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
             var result = await _userManager.ConfirmEmailAsync(user, decodedCode);
             if (result.Succeeded)
             {
+                TempData[MyConstants.Success] = "Your email has been confirmed.";
+                TempData[MyConstants.Subtitle] = "Please login again.";
                 return Redirect(Url.Page("./Login"));
                 // // Sign in
                 // await _signInManager.SignInAsync(user, isPersistent: false);

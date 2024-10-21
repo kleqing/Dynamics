@@ -1,17 +1,10 @@
-using AutoMapper;
 using Dynamics.DataAccess.Repository;
-using Dynamics.Models;
-using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
 using Dynamics.Models.Models.ViewModel;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Security.Claims;
 using Dynamics.Services;
-using Dynamics.Models.Models.DTO;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace Dynamics.Controllers
 {
@@ -24,10 +17,11 @@ namespace Dynamics.Controllers
         private readonly IRequestService _requestService;
         private readonly IOrganizationRepository _organizationRepo;
         private readonly IOrganizationService _organizationService;
+        private readonly IPagination _pagination;
 
         public HomeController(IUserRepository userRepo, IRequestRepository requestRepo,
             IProjectRepository projectRepo, IProjectService projectService, IRequestService requestService,
-            IOrganizationRepository organizationRepo, IOrganizationService organizationService)
+            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination)
         {
             _userRepo = userRepo;
             _requestRepo = requestRepo;
@@ -36,6 +30,7 @@ namespace Dynamics.Controllers
             _requestService = requestService;
             _organizationRepo = organizationRepo;
             _organizationService = organizationService;
+            _pagination = pagination;
         }
 
         // // Landing page
@@ -56,54 +51,60 @@ namespace Dynamics.Controllers
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));
             }
 
-            var requests = await _requestRepo.GetRequestsAsync();
-            var requestOverview = _requestService.MapToListRequestOverviewDto(requests);
+            var requestsQueryable = _requestRepo.GetAllQueryable(r => r.Status == 1);
+            var paginatedRequest = await _pagination.PaginateAsync(requestsQueryable, 1, 9);
+            var requestOverview = _requestService.MapToListRequestOverviewDto(paginatedRequest);
 
-            var orgs = await _organizationRepo.GetAll().ToListAsync();
-            var orgsOverview = _organizationService.MapToOrganizationOverviewDtoList(orgs);
+            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1); // Get not banned project
+            var projectsPaginated = await _pagination.PaginateAsync(projectsQueryable, 1, 9); // Use the query and apply the pagination
+            var projectDtos = _projectService.MapToListProjectOverviewDto(projectsPaginated);
 
-            List<Project> projects = await _projectRepo.GetAllAsync();
-            var projectDtos = _projectService.MapToListProjectOverviewDto(projects);
+            var successfulProjectsPaginated = await _pagination.PaginateAsync(projectsQueryable.Where(p => p.ProjectStatus == 2), 1, 9); // Apply filter to get successful only
+            var successfulProjectDtos = _projectService.MapToListProjectOverviewDto(successfulProjectsPaginated);
+
+            var orgsQueryable = _organizationRepo.GetAll();
+            var paginatedOrg = await _pagination.PaginateAsync(orgsQueryable, 1, 9);
+            var orgsOverview = _organizationService.MapToOrganizationOverviewDtoList(paginatedOrg);
 
             var result = new HomepageViewModel
             {
                 Requests = requestOverview,
                 Projects = projectDtos,
                 Organizations = orgsOverview,
+                SuccessfulProjects = successfulProjectDtos,
             };
             return View(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Search(string? query)
+        public async Task<IActionResult> Search(string? q)
         {
-            if (query == null) return RedirectToAction(nameof(Index));
-            string[] args = query.Split("-");
-            TempData["query"] = query;
+            if (q == null) return RedirectToAction(nameof(Index));
+            string[] args = q.Split("-");
+            TempData["query"] = q; // Use for display
+            var query = q.ToLower();
             // Args < 2 search all
             if (args.Length < 2)
             {
-                var requests = await _requestRepo.GetAllAsync();
-                dynamic targets = requests
-                    .Where(r => r.RequestTitle.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+                var requests = _requestRepo.GetAllQueryable();
+                // Dynamic so that it can be assigned again by other
+                dynamic targets = await requests.Where(r => r.RequestTitle.ToLower().Contains(query)).ToListAsync();
                 var requestOverviewDtos = _requestService.MapToListRequestOverviewDto(targets);
 
-                var projects = await _projectRepo.GetAllAsync();
-                targets = projects.Where(r => r.ProjectName.Contains(query, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                var projects = _projectRepo.GetAllQueryable();
+                targets = await projects.Where(r => r.ProjectName.ToLower().Contains(query)).ToListAsync();
                 var projectOverviewDtos = _projectService.MapToListProjectOverviewDto(targets);
 
                 var organizations =
                     await _organizationRepo.GetAllOrganizationsWithExpressionAsync();
-                targets = organizations
-                    .Where(r => r.OrganizationName.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+                targets = organizations.Where(r => r.OrganizationName.ToLower().Contains(query)).ToList();
                 var organizationOverviewDtos = _organizationService.MapToOrganizationOverviewDtoList(targets);
-                
+
                 return View(new HomepageViewModel
                 {
                     Requests = requestOverviewDtos,
                     Projects = projectOverviewDtos,
-                    Organizations = organizationOverviewDtos
+                    Organizations = organizationOverviewDtos,
                 });
             }
             else
@@ -114,9 +115,9 @@ namespace Dynamics.Controllers
 
                 if (type.Contains("req"))
                 {
-                    var requests = await _requestRepo.GetAllAsync();
+                    var requests = _requestRepo.GetAllQueryable();
                     var targets = requests
-                        .Where(r => r.RequestTitle.Contains(target, StringComparison.OrdinalIgnoreCase)).ToList();
+                        .Where(r => r.RequestTitle.ToLower().Contains(target)).ToList();
                     var requestOverviewDtos = _requestService.MapToListRequestOverviewDto(targets);
                     return View(new HomepageViewModel
                     {
@@ -127,8 +128,7 @@ namespace Dynamics.Controllers
                 if (type.Contains("prj"))
                 {
                     var projects = await _projectRepo.GetAllAsync();
-                    var targets = projects.Where(r => r.ProjectName.Contains(target, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
+                    var targets = projects.Where(r => r.ProjectName.ToLower().Contains(target)).ToList();
                     var projectOverviewDtos = _projectService.MapToListProjectOverviewDto(targets);
                     return View(new HomepageViewModel
                     {
@@ -141,11 +141,11 @@ namespace Dynamics.Controllers
                     var organizations =
                         await _organizationRepo.GetAllOrganizationsWithExpressionAsync();
                     var targets = organizations
-                        .Where(r => r.OrganizationName.Contains(target, StringComparison.OrdinalIgnoreCase)).ToList();
+                        .Where(r => r.OrganizationName.ToLower().Contains(target)).ToList();
                     var organizationOverviewDtos = _organizationService.MapToOrganizationOverviewDtoList(targets);
                     return View(new HomepageViewModel
                     {
-                        Organizations = organizationOverviewDtos,
+                        Organizations = organizationOverviewDtos
                     });
                 }
             }

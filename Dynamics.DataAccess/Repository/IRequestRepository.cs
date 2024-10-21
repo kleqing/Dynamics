@@ -15,11 +15,11 @@ namespace Dynamics.DataAccess.Repository
 		/**
 		 * Get all but paginated <br/>
 		 * Default to page 1, 9 entries <br/>
-		 * Return: List of request
+		 * Return: A queryable for later uses
 		 */
-		Task<List<Request>> GetAllAsync(int pageNumber = 1, int pageSize = 9);
+		IQueryable<Request> GetAllQueryable(Expression<Func<Request, bool>>? predicate = null);
 		int CountRequests(Expression<Func<Request, bool>>? predicate = null);
-		Task<IQueryable<Request>> GetAllByIdAsync(string role, Guid id);
+		IQueryable<Request> GetAllById(Guid id);
 		Task<Request> GetAsync(Expression<Func<Request, bool>> filter);
 		Task<Request> GetByIdAsync(Expression<Func<Request, bool>> filter, string role, Guid id);
 		Task AddAsync(Request entity);
@@ -28,8 +28,8 @@ namespace Dynamics.DataAccess.Repository
 		/**
 		 * Get all with possible expression
 		 */
-		public IQueryable<Request> SearchIdFilter(string searchQuery,string filterQuery, Guid userId);
-		public IQueryable<Request> SearchIndexFilterAsync(string searchQuery, string filterQuery);
+		public IQueryable<Request> SearchIdFilterAsync(string searchQuery,string filterQuery, Guid userId);
+		public Task<IQueryable<Request>> SearchIndexFilterAsync(string searchQuery, string filterQuery);
 		public Task<List<Request>> PaginateAsync(IQueryable<Request> requestQuery, int pageNumber, int pageSize);
 	}
 }

@@ -12,6 +12,7 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
+
     Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.UserID.ToString());
 }
 @{
@@ -27,7 +28,7 @@
                       asp-action="Search" asp-controller="Home" method="post">
                     <input
                         type="text"
-                        name="query"
+                        name="q"
                         placeholder="Ex: req-my request name"
                         class="input input-ghost input-bordered w-full h-10"/>
                     <button class="btn btn-sm btn-ghost" type="submit">
@@ -63,7 +64,8 @@
                             <a asp-action="Index" asp-controller="User" asp-route-username="@currentUser.UserFullName">Profile</a>
                         </li>
                         <li>
-                            <a asp-action="Edit" asp-controller="User">Manage profile</a>
+                            <a asp-action="Edit" asp-controller="User">Manage profile 
+                            </a>
                         </li>
                         <li>
                             <a asp-action="MyRequest" asp-controller="Request">My request</a>
@@ -76,9 +78,9 @@
                         </li>
                         <li>
                             <a asp-action="Index" asp-controller="Project" asp-route-id="@currentUser?.UserID">My projects</a>
-                        </li> 
+                        </li>
                         <li>
-                            <a asp-action="ViewAllProjects" asp-controller="Project" >All projects</a>
+                            <a asp-action="ViewAllProjects" asp-controller="Project">All projects</a>
                         </li>
                         <li class="text-rose-500">
                             <a class="flex justify-between" asp-action="Logout" asp-controller="Auth">

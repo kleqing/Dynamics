@@ -9,7 +9,16 @@ public class Pagination : IPagination
         return list.AsQueryable();
     }
 
-    public List<T> PaginationMethod<T>(IQueryable<T> query, int pageNumber, int pageSize) where T : class
+    // To list async so that the query is executed
+    public Task<List<T>> PaginateAsync<T>(IQueryable<T> query, int pageNumber, int pageSize) where T : class
+    {
+        return query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public List<T> Paginate<T>(List<T> query, int pageNumber, int pageSize) where T : class
     {
         return query
             .Skip((pageNumber - 1) * pageSize)

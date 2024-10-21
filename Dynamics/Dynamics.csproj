@@ -30,9 +30,6 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
 		<PackageReference Include="Serilog" Version="4.0.2" />
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
-		<PackageReference Include="Serilog" Version="4.0.2" />
-		<PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 	</ItemGroup>
 
@@ -54,11 +51,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="wwwroot\files\Organization\" />
-		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
-		<PackageReference Include="Serilog" Version="4.0.2" />
-		<PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 	  <Folder Include="wwwroot\files\Organization\" />
 	  <Folder Include="wwwroot\images\Organization\" />
 	  <Folder Include="wwwroot\files\Project\" />
@@ -70,7 +62,6 @@
 
 	<ItemGroup>
 	  <AdditionalFiles Include="Views\Error\PageNotFound.cshtml" />
-	  <AdditionalFiles Include="Views\Payment\Index.cshtml" />
 	  <AdditionalFiles Include="Views\Payment\Index.cshtml" />
 	</ItemGroup>
 

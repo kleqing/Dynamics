@@ -1,17 +1,18 @@
-﻿@model Dynamics.Models.Models.User
+﻿@using Dynamics.Utility
+@model Dynamics.Models.Models.User
 
 
 @{
 ViewData["Title"] = "Details";
 }
-<div class="container mx-auto my-5 p-5">
+<div class="container mx-auto my-5 p-5" style="height: calc(100vh - 143px)">
     <div class="md:flex no-wrap md:-mx-2 ">
         <!-- Left Side -->
         <div class=" md:w-3/12 md:mx-2">
             <!-- Profile Card -->
             <div class="bg-white p-3 border-t-4 border-green-400">
                 <div class="image overflow-hidden">
-                    <img class="h-auto w-full mx-auto"
+                    <img class="h-[300px] object-cover w-full mx-auto"
                          alt="@Model.UserFullName" src="@Model.UserAvatar">
                 </div>
                 <h1 class="text-gray-900 font-bold text-xl leading-8 my-1">@Html.DisplayFor(model => model.UserFullName)</h1>
@@ -21,12 +22,19 @@ ViewData["Title"] = "Details";
                     <li class="flex items-center py-3">
                         <span>Status</span>
                         <span class="ml-auto">
-                            <span class="bg-green-500 py-1 px-2 rounded text-white text-sm">Active</span>
+                            @if (Model.UserRole.Equals(RoleConstants.Banned))
+                            {
+                                <span class="bg-error py-1 px-2 rounded text-white text-sm">Banned</span>
+                            }
+                            else
+                            {
+                                <span class="bg-success py-1 px-2 rounded text-white text-sm">Active</span>
+                            }
                         </span>
                     </li>
                     <li class="flex items-center py-3">
                         <span>Member since</span>
-                        <span class="ml-auto">Nov 07, 2016</span>
+                        <span class="ml-auto">@Html.DisplayFor(m => m.CreatedDate)</span>
                     </li>
                 </ul>
             </div>
@@ -54,8 +62,6 @@ ViewData["Title"] = "Details";
             @*     </div> *@
             @* </div> *@
             @* <!-- End of friends card --> *@
-
-
         </div>
 
 

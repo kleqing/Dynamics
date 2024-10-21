@@ -30,29 +30,28 @@
             <div class="mb-4">
                 <label asp-for="OrganizationResourceID" class="block text-sm font-medium text-gray-700 mb-1">Resource Name</label>
                 <input asp-for="OrganizationResourceID" name="OrganizationResourceID" class="hidden">
-                <input class="w-full input input-primary input-disabled bg-white" value="@currentResource.ResourceName" readonly>
+                <input class="w-full input input-neutral input-bordered bg-white" value="@currentResource.ResourceName" disabled>
             </div>
 
             <div class="mb-4">
                 <label asp-for="Amount" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                <input asp-for="Amount" name="Amount" type="number" id="quantity" placeholder="Enter quantity" class="w-full p-2 border border-gray-300 rounded-md">
+                <input asp-for="Amount" name="Amount" type="number" id="quantity" placeholder="Enter quantity" class="w-full input input-neutral input-bordered rounded-md bg-white">
                 @if (ViewBag.MessageExcessQuantity != null)
                 {
                     <span class="text-red-500 d-inline-flex">
                         @ViewBag.MessageExcessQuantity
                     </span>
-                        
                 }
             </div>
 
             <div class="mb-4">
                 <label asp-for="OrganizationResourceID" class="block text-sm font-medium text-gray-700 mb-1">Resource Unit</label>
-                <input class="w-full p-2 border border-gray-300 rounded-md appearance-none bg-white" value="@currentResource.Unit" readonly>
+                <input class="w-full p-2 input input-neutral input-bordered rounded-md bg-white" value="@currentResource.Unit" disabled>
             </div>
 
             <div class="mb-6">
                 <label for="project" class="block text-sm font-medium text-gray-700 mb-1">Select a project</label>
-                <select name="projectId" id="project" class="w-full p-2 border border-gray-300 rounded-md appearance-none bg-white">
+                <select name="projectId" id="project" class="w-full p-2 input input-neutral input-bordered rounded-md appearance-none bg-white">
                     <option>Options</option>
                     @foreach (var item in currentOrganization.Project)
                     {

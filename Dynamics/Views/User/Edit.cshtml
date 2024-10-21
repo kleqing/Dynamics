@@ -12,10 +12,14 @@
     <title>Edit user</title>
     <link rel="stylesheet" href="~/css/original.css"/>
     <link rel="stylesheet" href="~/css/output.css">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 </head>
 <body class="h-screen flex flex-col">
+<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50" style="display: none; top: 0; min-height: 100vh;">
+    @* This one will always be centered in the backdrop *@
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="loader"></div>
+    </div>
+</div>
 <!-- Edit profile -->
 <div class="flex md:p-6 pb-0 flex-1">
     @Html.Partial("CustomComponent/_UserSidebar", "Edit")
@@ -28,36 +32,33 @@
             <div class="flex flex-col w-1/2">
                 <div asp-validation-summary="ModelOnly" class="text-error"></div>
                 <input type="hidden" asp-for="UserID"/>
-                <label class="form-control w-full">
-                    <div class="label">
+                <div class="form-control w-full">
+                    <label class="label">
                         <span class="label-text font-bold text-lg">Username</span>
-                    </div>
+                    </label>
                     <input type="text" placeholder="Enter new name" asp-for="UserFullName"
                            class="input input-bordered w-full bg-white input-info"
                            name="UserFullName"/>
-                    <br/>
-                    <span asp-validation-for="@Model.UserFullName" class="text-error"></span>
-                </label>
-                <label class="form-control w-full">
-                    <div class="label">
+                    <span asp-validation-for="UserFullName" class="text-error"></span>
+                </div>
+                <div class="form-control w-full">
+                    <label class="label">
                         <span class="label-text font-bold text-lg">Email</span>
-                    </div>
+                    </label>
                     <input type="email" placeholder="Enter new email" asp-for="UserEmail"
                            class="input input-bordered w-full bg-white input-info"
                            name="UserEmail"/>
-                    <br/>
-                    <span asp-validation-for="@Model.UserEmail" class="text-error"></span>
-                </label>
-                <label class="form-control w-full">
-                    <div class="label">
+                    <span asp-validation-for="UserEmail" class="text-error"></span>
+                </div>
+                <div class="form-control w-full">
+                    <label class="label">
                         <span class="label-text font-bold text-lg">Phone number</span>
-                    </div>
+                    </label>
                     <input type="tel" placeholder="Enter new phone" asp-for="UserPhoneNumber"
                            class="input input-bordered w-full bg-white input-info"
                            name="UserPhoneNumber"/>
-                    <br/>
-                    <span asp-validation-for="@Model.UserPhoneNumber" class="text-error"></span>
-                </label>
+                    <span asp-validation-for="UserPhoneNumber" class="text-error"></span>
+                </div>
                 @{
                     var province = "";
                     var district = "";
@@ -113,17 +114,17 @@
                     @* the original one should be located here: *@
                     <input type="hidden" asp-for="UserAddress" name="UserAddress" id="UserAddressStr" value="@Model.UserAddress"/>
                 </label>
-                <br />
+                <br/>
                 <!-- Be careful as this one must strictly follow format YYYY-MM-DD -->
                 <label asp-for="UserDOB" class="form-control w-full">
                     <div class="label">
                         <span class="label-text font-bold text-lg">Date of birth (Month/Day/Year)</span>
                     </div>
                     <input type="date" asp-for="UserDOB"
-                           class="input input-bordered w-full bg-white input-info" value="@ViewBag.UserDOB"
+                           class="input input-bordered w-full bg-white input-info" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
                            name="UserDOB"/>
                 </label>
-                <br />
+                <br/>
                 <input type="hidden" asp-for="UserRole" name="UserRole"/>
                 <label asp-for="UserDescription" class="form-control w-full">
                     <div class="label">
@@ -137,7 +138,7 @@
                             name="UserDescription">
                     </textarea>
                     <br/>
-                    <span asp-validation-for="@Model.UserDescription" class="text-error"></span>
+                    <span asp-validation-for="UserDescription" class="text-error"></span>
                 </label>
                 @* <textarea placeholder="Tell people more about you" class="textarea textarea-bordered textarea-md textarea-info w-full bg-white"></textarea> *@
             </div>
@@ -208,10 +209,26 @@
             }
         };
     }
+    
+    // Check validation for loading screen
+    let myForm = document.getElementById('user-information'); // the form
+    const validateValidClass = "field-validation-valid";
+    const validateErrorClass = "field-validation-error";
+    // Get all validation spans
+    let validationSpans = myForm.getElementsByClassName("field-validation-valid");
+    function isLegit() {
+        for (let v of validationSpans) {
+            if (v.classList.contains(validateErrorClass)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Get stuff for the addresses
     let myBtn = document.querySelector('#update__btn');
     console.log(myBtn)
     myBtn.addEventListener('click', (e) => {
-        e.preventDefault();
         let myForm = document.querySelector('#user-information');
         console.log(myForm)
         // Get the selected text for city, district, and ward
@@ -228,7 +245,12 @@
         userAddr.value = `${homeAddr.value}, ${wardName}, ${districtName}, ${cityName}`
         console.log('User value: ', userAddr);
         console.log(userAddr.value);
-        myForm.submit();
+        if (isLegit()) {
+            loadingModal.style.display = "flex";
+        } else {
+            loadingModal.style.display = "none";
+            e.preventDefault(); // Prevent from submit
+        }
     })
 </script>
 

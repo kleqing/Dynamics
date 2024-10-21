@@ -1,10 +1,8 @@
-using System.Linq.Expressions;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -15,7 +13,7 @@ namespace Dynamics.DataAccess.Repository
         private readonly IProjectMemberRepository _projectMemberRepo;
         private readonly IProjectResourceRepository _projectResourceRepo;
 
-        public ProjectRepository(ApplicationDbContext dbContext, 
+        public ProjectRepository(ApplicationDbContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IProjectMemberRepository projectMemberRepository,
             IProjectResourceRepository projectResourceRepository)
@@ -56,7 +54,6 @@ namespace Dynamics.DataAccess.Repository
                 await _db.SaveChangesAsync();
                 return true;
             }
-
             return false;
         }
 
@@ -69,7 +66,6 @@ namespace Dynamics.DataAccess.Repository
                     .Where(filter)
                     .Include(pr => pr.ProjectMember).ThenInclude(u => u.User)
                     .AsSplitQuery()
-                    .AsSplitQuery()
                     .ToListAsync();
             }
             // Use split query if you are including a collection. tbh it is better to use a projection
@@ -78,8 +74,29 @@ namespace Dynamics.DataAccess.Repository
                 .Include(pr => pr.ProjectResource)
                 .Include(pr => pr.ProjectMember).ThenInclude(u => u.User)
                 .AsSplitQuery()
-                .AsSplitQuery()
                 .ToListAsync();
+        }
+
+        public IQueryable<Project> GetAllQueryable(Expression<Func<Project, bool>>? filter = null)
+        {
+            if (filter != null)
+            {
+                return _db.Projects.Include(pr => pr.ProjectResource)
+                    .Where(filter)
+                    .Include(pr => pr.ProjectMember)
+                    .ThenInclude(pr => pr.User)
+                    .Include(o => o.Organization)
+                    .OrderByDescending(p => p.StartTime)
+                    .AsQueryable()
+                    .AsSplitQuery();
+            }
+            return _db.Projects.Include(pr => pr.ProjectResource)
+                .Include(pr => pr.ProjectMember)
+                .ThenInclude(pr => pr.User)
+                .Include(o => o.Organization)
+                .OrderByDescending(p => p.StartTime)
+                .AsQueryable()
+                .AsSplitQuery();
         }
 
         public async Task<List<Project>> GetAllProjectsAsync()

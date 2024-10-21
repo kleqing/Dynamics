@@ -1,22 +1,25 @@
-﻿@model IEnumerable<Dynamics.Models.Models.Request>
+﻿@using Dynamics.Utility
+@model List<Dynamics.Models.Models.Dto.RequestOverviewDto>
 
 @{
     ViewData["Title"] = "All Request";
+    User user = Accessor.HttpContext.Session.GetCurrentUser();
+    if (user != null) ViewBag.userID = user.UserID;
 }
 <head>
     <link rel="stylesheet" href="wwwroot/css/output.css" />
 </head>
 <body>
 <main class="w-full h-full flex flex-col gap-6 items-center p-16">
-    <div class="p-4 rounded-lg shadow-md border bg-white max-w-xl mt-4 justify-center mx-auto">
+    <div class="p-4 rounded-lg shadow-md border max-w-xl justify-center mx-auto">
         <div class="my-5 flex justify-center">
-            <h1 class="text-center text-3xl">Are you the one in need?</h1>
+            <h1 class="text-center text-3xl">Need help from others ?</h1>
         </div>
 
         <div class="flex justify-center my-5">
             <a asp-action="Create" asp-controller="Request" asp- class="my-5">
-                <button id="createOrgBtn" class="btn btn-wide bg-red-500 text-white rounded-full">
-                    Create your request now!!!
+                <button id="createOrgBtn" class="btn btn-wide btn-primary">
+                    Create your request
                 </button>
             </a>
         </div>
@@ -56,63 +59,15 @@
     }
     else
     {
-        <section class="w-full bg-base-100 flex flex-wrap gap-16 justify-center">
-            @foreach (var item in Model)
-            {
-                <li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide">
-                    <figure>
-                        <a asp-action="Detail" asp-controller="Request" asp-route-organizationId="@item.RequestID">
-                            <img src="@item.Attachment"
-                                 alt="@item.RequestTitle"
-                                 class="w-full object-cover h-48"/>
-                        </a>
-                    </figure>
-                    <div class="card-body p-4 gap-3 w-full">
-                        <!-- Badge left -->
-                        <div class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3">
-                            Request
-                        </div>
-                        <div class="flex flex-col">
-                            <a asp-action="Detail" asp-controller="Request" asp-route-RequestID="@item.RequestID">
-                                <h2
-                                    class="card-title text-cyan-950 font-bold h-14"
-                                    style="display: -webkit-box;
-                                          line-clamp: 2;
-                                          -webkit-line-clamp: 2; /* Limit to 2 lines */
-                                          -webkit-box-orient: vertical;
-                                          overflow: hidden;"
-                                >
-                                    @item.RequestTitle
-                                </h2>
-                            </a>
-                            @{
-                                var address = item.Location ?? "";
-                                var provinceOnly = address.Split(',')[3];
-                            }
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">@item.CreationDate</span>
-                                <span>@provinceOnly</span>
-                            </div>
-                        </div>
-                        <p
-                            style="display: -webkit-box;
-                                    line-clamp: 3;
-                                    -webkit-line-clamp: 3; /* Limit to 3 lines */
-                                    -webkit-box-orient: vertical;
-                                    overflow: hidden;
-                                    margin-bottom: 16px;"
-                        >
-                            @item.Content
-                        </p>
-                        <div class="card-actions justify-center">
-                            <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
-                                Detail
-                            </button>
-                        </div>
-                    </div>
-                </li>
-            }
+        <section class="flex justify-center w-full">
+            <div class="w-full flex flex-wrap gap-4 justify-center">
+                @foreach (var item in Model)
+                {
+                <partial name="CustomComponent/OverviewCard/RequestOverview" model="item"/>
+                }
+            </div>
         </section>
+
     }
     <div class="pagination mt-4 flex justify-center space-x-1.5">
         @if (ViewBag.CurrentPage > 1)

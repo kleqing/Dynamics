@@ -1,10 +1,13 @@
-﻿@model List<Dynamics.Models.Models.Dto.RequestOverviewDto>
+﻿@using Dynamics.Utility
+@model List<Dynamics.Models.Models.Dto.RequestOverviewDto>
 
 @{
     ViewData["Title"] = "My Request";
+    User currentUser = Accessor.HttpContext.Session.GetCurrentUser();
+    if (currentUser != null) ViewBag.userID = currentUser.UserID;
 }
 
-<main class="w-full h-full flex flex-col gap-6 items-center px-32 py-16">
+<main class="w-full h-full flex flex-col gap-6 items-center p-16">
     <a asp-action="Create" asp-controller="Request" class="my-5">
         <button id="createOrgBtn" class="btn btn-primary btn-wide">
             Create new request
@@ -13,7 +16,7 @@
     <h1 class="text-3xl">Manage your requests</h1>
     <div class="flex w-full justify-end items-center gap-2 mb-3">
         <!-- Search form -->
-        <form asp-action="MyRequest" method="get" class="flex gap-2">
+        <form asp-action="MyRequest" method="get" class="flex gap-2 items-center">
             <label class="input input-bordered flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
                      class="h-4 w-4 opacity-70 align-middle">
@@ -51,12 +54,14 @@
     }
     else
     {
-        <ul class="flex flex-col gap-3 w-full shadow-md">
-            @foreach (var item in Model)
-            {
-                <partial name="CustomComponent/OverviewCard/RequestOverview"/>
-            }
-        </ul>
+        <div class="flex justify-center w-full">
+            <ul class="flex gap-4 flex-wrap w-full justify-center container">
+                @foreach (var item in Model)
+                {
+                <partial name="CustomComponent/OverviewCard/RequestOverview" model="item" />
+                }
+            </ul>
+        </div>
     }
 
     <div class="pagination mt-4 flex justify-center space-x-1.5">

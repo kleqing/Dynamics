@@ -29,6 +29,7 @@ namespace Dynamics.DataAccess.Repository
                 return false;
             }
         }
+
         public async Task<Organization?> GetOrganizationAsync(Expression<Func<Organization, bool>> filter)
         {
             var organization = await _db.Organizations.Where(filter).FirstOrDefaultAsync();
@@ -48,6 +49,7 @@ namespace Dynamics.DataAccess.Repository
             {
                 return false;
             }
+
             try
             {
                 _db.Entry(organizationItem).CurrentValues.SetValues(organization);
@@ -58,8 +60,6 @@ namespace Dynamics.DataAccess.Repository
             {
                 return false;
             }
-
-
         }
 
 
@@ -79,7 +79,8 @@ namespace Dynamics.DataAccess.Repository
             }
         }
 
-        public async Task<OrganizationMember?> GetOrganizationMemberAsync(Expression<Func<OrganizationMember, bool>> filter)
+        public async Task<OrganizationMember?> GetOrganizationMemberAsync(
+            Expression<Func<OrganizationMember, bool>> filter)
         {
             var organizationMember = await _db.OrganizationMember.Where(filter).FirstOrDefaultAsync();
             return organizationMember;
@@ -87,12 +88,14 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> UpdateOrganizationMemberAsync(OrganizationMember entity)
         {
-            var organizationItem = await GetOrganizationMemberAsync(om => om.OrganizationID == entity.OrganizationID && om.UserID == entity.UserID);
+            var organizationItem = await GetOrganizationMemberAsync(om =>
+                om.OrganizationID == entity.OrganizationID && om.UserID == entity.UserID);
 
             if (organizationItem == null)
             {
                 return false;
             }
+
             _db.Entry(organizationItem).CurrentValues.SetValues(entity);
             await _db.SaveChangesAsync();
             return true;
@@ -101,7 +104,8 @@ namespace Dynamics.DataAccess.Repository
         //Member out or remove 
         public async Task<bool> DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(Guid organizationId, Guid userId)
         {
-            var organizationMember = await GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == userId);
+            var organizationMember =
+                await GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == userId);
             try
             {
                 _db.OrganizationMember.Remove(organizationMember);
@@ -112,7 +116,6 @@ namespace Dynamics.DataAccess.Repository
             {
                 return false;
             }
-
         }
 
 
@@ -131,13 +134,16 @@ namespace Dynamics.DataAccess.Repository
             }
         }
 
-        public async Task<OrganizationResource> GetOrganizationResourceByOrganizationIDAndResourceIDAsync(Guid organizationId, Guid resourceId)
+        public async Task<OrganizationResource> GetOrganizationResourceByOrganizationIDAndResourceIDAsync(
+            Guid organizationId, Guid resourceId)
         {
-            var organizationResource = await _db.OrganizationResources.Where(or => or.OrganizationID == organizationId && or.ResourceID == resourceId).FirstOrDefaultAsync();
+            var organizationResource = await _db.OrganizationResources
+                .Where(or => or.OrganizationID == organizationId && or.ResourceID == resourceId).FirstOrDefaultAsync();
             return organizationResource;
         }
 
-        public async Task<OrganizationResource> GetOrganizationResourceAsync(Expression<Func<OrganizationResource, bool>> filter)
+        public async Task<OrganizationResource> GetOrganizationResourceAsync(
+            Expression<Func<OrganizationResource, bool>> filter)
         {
             var organizationResource = await _db.OrganizationResources.Where(filter).FirstOrDefaultAsync();
             return organizationResource;
@@ -145,12 +151,15 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> UpdateOrganizationResourceAsync(OrganizationResource entity)
         {
-            var organizationResourceItem = await GetOrganizationResourceByOrganizationIDAndResourceIDAsync(entity.OrganizationID, entity.ResourceID);
+            var organizationResourceItem =
+                await GetOrganizationResourceByOrganizationIDAndResourceIDAsync(entity.OrganizationID,
+                    entity.ResourceID);
 
             if (organizationResourceItem == null)
             {
                 return false;
             }
+
             _db.Entry(organizationResourceItem).CurrentValues.SetValues(entity);
             await _db.SaveChangesAsync();
             return true;
@@ -172,10 +181,8 @@ namespace Dynamics.DataAccess.Repository
         }
 
 
-
-
-
-        public async Task<bool> AddUserToOrganizationTransactionHistoryASync(UserToOrganizationTransactionHistory transactionHistory)
+        public async Task<bool> AddUserToOrganizationTransactionHistoryASync(
+            UserToOrganizationTransactionHistory transactionHistory)
         {
             try
             {
@@ -189,15 +196,20 @@ namespace Dynamics.DataAccess.Repository
             }
         }
 
-        public async Task<UserToOrganizationTransactionHistory> GetUserToOrganizationTransactionHistoryByTransactionIDAsync(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
+        public async Task<UserToOrganizationTransactionHistory>
+            GetUserToOrganizationTransactionHistoryByTransactionIDAsync(
+                Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
         {
-            var userToOrganizationTransactionHistory = await _db.UserToOrganizationTransactionHistories.Where(filter).FirstOrDefaultAsync();
+            var userToOrganizationTransactionHistory =
+                await _db.UserToOrganizationTransactionHistories.Where(filter).FirstOrDefaultAsync();
             return userToOrganizationTransactionHistory;
         }
 
         public async Task<bool> DeleteUserToOrganizationTransactionHistoryByTransactionIDAsync(Guid transactionID)
         {
-            var userToOrganizationTransactionHistory = await GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.TransactionID == transactionID);
+            var userToOrganizationTransactionHistory =
+                await GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto =>
+                    uto.TransactionID == transactionID);
             try
             {
                 _db.UserToOrganizationTransactionHistories.Remove(userToOrganizationTransactionHistory);
@@ -210,21 +222,22 @@ namespace Dynamics.DataAccess.Repository
             }
         }
 
-        public async Task<bool> UpdateUserToOrganizationTransactionHistoryAsync(UserToOrganizationTransactionHistory entity)
+        public async Task<bool> UpdateUserToOrganizationTransactionHistoryAsync(
+            UserToOrganizationTransactionHistory entity)
         {
-            var userToOrganizationTransactionHistoryItem = await GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.TransactionID.Equals(entity.TransactionID));
+            var userToOrganizationTransactionHistoryItem =
+                await GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto =>
+                    uto.TransactionID.Equals(entity.TransactionID));
 
             if (userToOrganizationTransactionHistoryItem == null)
             {
                 return false;
             }
+
             _db.Entry(userToOrganizationTransactionHistoryItem).CurrentValues.SetValues(entity);
             await _db.SaveChangesAsync();
             return true;
         }
-
-
-
 
 
         public async Task<bool> AddOrganizationToProjectHistoryAsync(OrganizationToProjectHistory entity)
@@ -234,7 +247,6 @@ namespace Dynamics.DataAccess.Repository
                 _db.OrganizationToProjectTransactionHistory.Add(entity);
                 await _db.SaveChangesAsync();
                 return true;
-
             }
             catch (Exception ex)
             {
@@ -242,15 +254,18 @@ namespace Dynamics.DataAccess.Repository
             }
         }
 
-        public async Task<OrganizationToProjectHistory> GetOrganizationToProjectHistoryAsync(Expression<Func<OrganizationToProjectHistory, bool>> filter)
+        public async Task<OrganizationToProjectHistory> GetOrganizationToProjectHistoryAsync(
+            Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
-            var organizationToProjectHistory = await _db.OrganizationToProjectTransactionHistory.Where(filter).FirstOrDefaultAsync();
+            var organizationToProjectHistory =
+                await _db.OrganizationToProjectTransactionHistory.Where(filter).FirstOrDefaultAsync();
             return organizationToProjectHistory;
         }
 
         public async Task<bool> DeleteOrganizationToProjectHistoryAsync(Guid transactionId)
         {
-            var organizationToProjectHistory = await GetOrganizationToProjectHistoryAsync(uto => uto.TransactionID.Equals(transactionId));
+            var organizationToProjectHistory =
+                await GetOrganizationToProjectHistoryAsync(uto => uto.TransactionID.Equals(transactionId));
             try
             {
                 _db.OrganizationToProjectTransactionHistory.Remove(organizationToProjectHistory);
@@ -266,15 +281,21 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<List<Organization>> GetAllOrganizationsAsync()
         {
-            IQueryable<Organization> organizations = _db.Organizations.Include(x => x.OrganizationMember).ThenInclude(x => x.User).Include(x => x.OrganizationResource);
+            IQueryable<Organization> organizations = _db.Organizations.Include(x => x.OrganizationMember)
+                .ThenInclude(x => x.User).Include(x => x.OrganizationResource);
             return await organizations.ToListAsync();
         }
+
         public IQueryable<Organization> GetAll()
         {
-            return _db.Organizations.Include(o => o.OrganizationMember).ThenInclude(om => om.User);
+            return _db.Organizations.Include(o => o.OrganizationMember)
+                .ThenInclude(om => om.User)
+                .OrderByDescending(o=> o.StartTime)
+                .ThenBy(o => o.OrganizationID);
         }
 
-        public async Task<List<Organization>> GetAllOrganizationsWithExpressionAsync(Expression<Func<Organization, bool>>? filter = null)
+        public async Task<List<Organization>> GetAllOrganizationsWithExpressionAsync(
+            Expression<Func<Organization, bool>>? filter = null)
         {
             if (filter != null)
             {
@@ -282,18 +303,22 @@ namespace Dynamics.DataAccess.Repository
                     .Where(filter)
                     .Include(o => o.OrganizationMember).ThenInclude(om => om.User).ToListAsync();
             }
+
             return await _db.Organizations.Include(o => o.OrganizationMember).ThenInclude(om => om.User).ToListAsync();
         }
 
         public async Task<Organization> GetOrganizationOfAUser(Guid userId)
         {
-            var OrganizationObj = _db.OrganizationMember.Where(x => x.UserID.Equals(userId) && x.Status == 2).Include("Organization").FirstOrDefaultAsync().Result;
+            var OrganizationObj = _db.OrganizationMember.Where(x => x.UserID.Equals(userId) && x.Status == 2)
+                .Include("Organization").FirstOrDefaultAsync().Result;
             if (OrganizationObj != null)
             {
                 return OrganizationObj.Organization;
             }
+
             return null;
         }
+
         public async Task<Organization> GetOrganizationUserLead(Guid userId)
         {
             var organizationMemberOfUser = _db.OrganizationMember.Where(x => x.UserID.Equals(userId) && x.Status == 2);
@@ -301,34 +326,35 @@ namespace Dynamics.DataAccess.Repository
             {
                 return null;
             }
+
             var organizationUserLead = await organizationMemberOfUser.Include("Organization").FirstOrDefaultAsync();
             if (organizationUserLead == null)
             {
                 return null;
             }
+
             return organizationUserLead.Organization;
         }
+
         public async Task<Guid> GetOrgResourceIDCorresponding(Guid projectResourceID, Guid organizationUserLeadID)
         {
-            var projectResourceObj = await _db.ProjectResources.FirstOrDefaultAsync(x => x.ResourceID.Equals(projectResourceID));
+            var projectResourceObj =
+                await _db.ProjectResources.FirstOrDefaultAsync(x => x.ResourceID.Equals(projectResourceID));
             if (projectResourceObj == null)
             {
                 return Guid.Empty;
             }
+
             var orgResourceObjCorresponding = await _db.OrganizationResources.FirstOrDefaultAsync(
                 x => x.OrganizationID.Equals(organizationUserLeadID)
-                && x.ResourceName.ToLower().Trim().Equals(projectResourceObj.ResourceName.ToLower().Trim())
-                && x.Unit.ToLower().Trim().Equals(projectResourceObj.Unit.ToLower().Trim()));
+                     && x.ResourceName.ToLower().Trim().Equals(projectResourceObj.ResourceName.ToLower().Trim())
+                     && x.Unit.ToLower().Trim().Equals(projectResourceObj.Unit.ToLower().Trim()));
             if (orgResourceObjCorresponding == null)
             {
                 return Guid.Empty;
-
             }
+
             return orgResourceObjCorresponding.ResourceID;
         }
-
-
-
     }
-
 }

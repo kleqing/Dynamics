@@ -6,6 +6,8 @@ using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace Dynamics.Controllers
@@ -138,15 +140,17 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> MyOrganization(Guid userId)
         {
             // All organizations
-            var orgs = _organizationRepository.GetAll();
-            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs.ToList());
-            // My organizations only
+            var orgs = await _organizationRepository.GetAll().ToListAsync();
+            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs);
+            // My organizations where the user joined / owned
             var myOrganizationMembers = await _organizationMemberRepository.GetAllAsync(om => om.UserID == userId);
+            if (myOrganizationMembers.IsNullOrEmpty()) return RedirectToAction("Index", "Organization");
             var myOrgs = new List<Organization>();
             foreach (var organizationMember in myOrganizationMembers)
             {
                 myOrgs.Add(organizationMember.Organization);
             }
+
             var MyOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(myOrgs);
             ViewBag.MyOrgs = MyOrgDtos;
             return View(organizationVMs);

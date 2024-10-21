@@ -1,103 +1,168 @@
 ﻿@inject IHttpContextAccessor Accessor
+@using Dynamics.Utility
 @model Dynamics.Models.Models.Request
 @{
     ViewData["Title"] = "Detail request";
     // take current user
     var userIDString = Accessor.HttpContext.Session.GetString("currentUserID");
 
-    string[] projectImages = new string[1] { ","};
+    string[] projectImages = new string[1] { "," };
     if (Model.Attachment != null)
     {
         projectImages = Model.Attachment.TrimEnd(',', ' ').Split(",");
     }
-    
+
+    User user = Accessor.HttpContext.Session.GetCurrentUser();
+    if (user == null) throw new Exception("WARNING NO USER SESSION");
 }
 
 <!-- container start -->
-<div class="m-w-screen-2xl flex  justify-start relative">
-    @if (Model.UserID.Equals(new Guid(userIDString)))
-    {
-        <!-- edit button -->
-        <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile">
-            <button type="button"
-            class="absolute top-5 w-fit h-fit mx-2 my-2 p-2 " style="right:-5px;">
-                <i class="fa-solid fa-pen-to-square text-4xl text-gray-900"></i>
-            </button>
-        </a>
-    }
-    <div class="relative my-14 ml-8 mr-4 flex flex-col text-xl" style="width: 66%">
-        <!-- part 1-image -->
-        <div class="ml-14 max-w-5xl w-full justify-end items-center">
-            <div class="relative items-center">
-                <!-- Main image container -->
-                <div id="carousel" class=" bg-gray-300 rounded-lg overflow-hidden" style="height:32rem;width:65rem;">
-                    <!-- Images will be inserted here by JavaScript -->
+<main class=" p-16">
+    <p class="text-center font-medium text-3xl mb-8">@Model.RequestTitle</p>
+    <div class="flex justify-between relative gap-16">
+        <div class="flex flex-col text-xl w-3/4">
+            <!-- part 1-image -->
+            <div class="w-full justify-end items-center relative">
+                <div class=" items-center relative">
+                    <!-- Main image container -->
+                    <div id="carousel" class=" bg-gray-300 rounded-lg overflow-hidden relative" style="height:32rem; margin: 0 auto">
+                        <!-- Images will be inserted here by JavaScript -->
+                    </div>
                 </div>
-            </div>
 
-            <!-- Indicator dots  -->
-            <div class="flex justify-center my-10 mt-4 space-x-2 relative">
-                <!-- Navigation buttons -->
-                
-                @foreach (var img in projectImages)
-                {
-                    <div onclick="updateCarouselAsUserWant('@img')" class=" relative w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
-                        <img src="@img" class="w-full h-full items-center rounded-xl">
+                <!-- Indicator dots  -->
+                <div class="flex justify-center my-10 mt-4 space-x-2 relative" id="indicator">
+                    <!-- Navigation buttons -->
+
+                    @foreach (var img in projectImages)
+                    {
+                        <div onclick="updateCarouselAsUserWant('@img')" class="w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
+                            <img src="@img" class="w-full h-full items-center rounded-xl" alt="Request image">
                         </div>
-                }
-                <button id="prevBtn"
-                        class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:14rem;">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                        </path>
-                    </svg>
-                </button>
-                <button id="nextBtn"
-                        class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:14rem;">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                         xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                        </path>
-                    </svg>
-                </button>
+                    }
+                    <button id="prevBtn"
+                            class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:14rem;">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <button id="nextBtn"
+                            class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:14rem;">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
-        <!-- end part 1-image -->
-        <div class="border-t p-6 ">
-            <h2 class="font-semibold mb-2 text-black text-3xl">Contact Information:</h2>
-            <p class="text-gray-600">✉ @Model.RequestEmail</p>
-            <p class="text-gray-600">📞 @Model.RequestPhoneNumber</p>
-            <p class="text-gray-600">🏠 @Model.Location</p>
-        </div>
-        <div class="border-t p-4 mt-0">
-            <h2 class="font-semibold mb-2 text-black text-3xl">Description</h2>
-            <p class="text-gray-600 line-clamp-3">
-              @Model.Content
-            </p>
-            <a href="#" class="text-gray-400 flex justify-center font-normal">View more...</a>
-        </div>
-        <div class="border-t p-4 mt-0">
-            <h2 class="font-semibold mb-2 text-black text-3xl">Requester</h2>
-            <div class="flex justify-start">
-                <div>
-                    <img class="rounded-full w-14 h-14 mx-4 mb-4"
+            <!-- end part 1-image -->
+            <div class="border-t p-6 ">
+                <h2 class="font-semibold mb-2 text-black text-3xl">Contact Information:</h2>
+                <p class="text-gray-600">✉ @Model.RequestEmail</p>
+                <p class="text-gray-600">📞 @Model.RequestPhoneNumber</p>
+                <p class="text-gray-600">🏠 @Model.Location</p>
+            </div>
+            <div class="border-t p-4 mt-0">
+                <h2 class="font-semibold mb-2 text-black text-3xl">Description</h2>
+                <p id="notViewMore" class="text-gray-600 line-clamp-3">
+                    @Model.Content
+                </p>
+                <a onclick="viewMoreDescription()" class="cursor-pointer text-gray-400 flex justify-center font-normal">View more...</a>
+            </div>
+            <div class="border-t p-4 mt-0">
+                <h2 class="font-semibold mb-2 text-black text-3xl">Requester</h2>
+                <div class="flex justify-start">
+                    <div>
+                        <img class="rounded-full w-14 h-14 mx-4 mb-4"
                              src="@Model.User.UserAvatar"
-                         alt="avatar">
-                </div>
-                <div class="flex flex-col ">
-                    <p class="text-gray-600 font-normal">
-                        Requester: <span class="text-black font-bold">
-                           @Model.User.UserFullName
-                        </span>
-                    </p>
+                             alt="avatar">
+                    </div>
+                    <div class="flex flex-col ">
+                        <p class="text-gray-600 font-normal">
+                            Requester:
+                            <span class="text-black font-bold">
+                                @Model.User.UserFullName
+                            </span>
+                        </p>
                         <p class="text-gray-400 font-normal text-base ">Address: @Model.User.UserAddress</p>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
+            @* Show edit button and no accept button *@
+            @if (Model.UserID.Equals(new Guid(userIDString)))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
+                    <button type="button" class="flex items-center gap-8">
+                        Edit request detail <i class="fa-solid fa-pen-to-square text-xl"></i>
+                    </button>
+                </a>
+                <form id="deleteForm" class="btn btn-error btn-md" asp-action="Delete" asp-controller="Request" method="post">
+                    <input type="hidden" name="id" value="@Model.RequestID"/>
+                    <button type="button" class="flex items-center gap-8">
+                        Delete request <i class="fa-regular fa-circle-xmark text-xl"></i>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a asp-action="AcceptRequest" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
+                    <button type="button" class="flex items-center gap-8">
+                        Accept this request!
+                    </button>
+                </a>
+            }
         </div>
     </div>
-</div>
+</main>
 <script>
+    
+</script>
+
+
+<script>
+    // Delete project confirmation
+    let delForm = document.querySelector('#deleteForm');
+    if (delForm != null) {
+        delForm.addEventListener('click', (e) => {
+            Swal.fire({
+                title: "Do you want to delete the request?",
+                text: "You cannot go back",
+                icon: 'warning',
+                showDenyButton: true,
+                showConfirmButton: true,
+                confirmButtonText: "Yes please do",
+                denyButtonText: `No I changed my mind`,
+                customClass: {
+                    confirmButton: "btn btn-md btn-success mr-4",
+                    denyButton: "btn btn-md btn-error",
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Your request has been deleted!",
+                        showConfirmButton: true,
+                        confirmButtonText: "Thanks",
+                        customClass: {
+                            confirmButton: "btn btn-md btn-success",
+                        },
+                        icon: 'success',
+                        buttonsStyling: false,
+                    }).then((result) => {delForm.submit();})
+                } else if (result.isDenied) {
+                }
+            });
+        })
+    }
+    
+    
     @* close modal *@
         function closeModal() {
             document.getElementById('ReportModal').close();
@@ -163,5 +228,10 @@
 
     // Initialize the carousel
     updateCarousel();
+    // View more
+    function viewMoreDescription() {
+        const notViewMore = document.getElementById('notViewMore');
+        notViewMore.classList.toggle('line-clamp-3');
+    }
 
 </script>

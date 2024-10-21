@@ -39,18 +39,34 @@ namespace Dynamics.Controllers
 
         public async Task<IActionResult> ResendConfirmationEmail(string email, string? returnUrl = "~/")
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrl = Url.Page(
-                "/Account/ConfirmEmail",
-                pageHandler: null,
-                values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                protocol: Request.Scheme);
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData[MyConstants.Error] = "Please enter your email address inorder to continue";
+                return Redirect("/Identity/Account/Login");
+            }
 
-            await _emailSender.SendEmailAsync(email, "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-            TempData[MyConstants.Success] = "Confirmation email sent!, please check your mail box";
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Page(
+                    "/Account/ConfirmEmail",
+                    pageHandler: null,
+                    values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+                    protocol: Request.Scheme);
+
+                await _emailSender.SendEmailAsync(email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                TempData[MyConstants.Success] = "Confirmation email sent!, please check your mail box";
+            }
+            catch (Exception e)
+            {
+                TempData[MyConstants.Error] = "Confirmation email could not be sent.";
+                TempData[MyConstants.Subtitle] = e.Message;
+                throw;
+            }
+
             return Redirect("/Identity/Account/Login");
         }
 
@@ -58,6 +74,7 @@ namespace Dynamics.Controllers
         {
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            HttpContext.Session.Clear(); // Clear the session
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }

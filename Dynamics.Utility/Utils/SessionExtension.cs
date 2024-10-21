@@ -45,7 +45,7 @@ namespace Dynamics.Utility
         /**
          * Get the current user set in the session
          */
-        public static User GetCurrentUser(this ISession session)
+        public static User? GetCurrentUser(this ISession session)
         {
             var userJson = session.GetString("user");
             User currentUser;

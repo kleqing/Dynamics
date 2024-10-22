@@ -9,22 +9,22 @@
     </a>
     <div class="card-body p-2 gap-2 w-full">
         <!-- badge left -->
-        <div class="badge badge-secondary absolute top-2 left-2 bg-primary font-bold text-white px-4 py-3 outline-none border-none">
+        <div class="badge badge-primary absolute top-2 left-2 font-bold text-white px-4 py-3 outline-none border-none">
             Organization
         </div>
         <div class="flex flex-col">
-            <a class="card-title text-primary font-bold mb-2 line-clamp-2"
+            <a class="card-title text-primary font-bold mb-2 line-clamp-2 h-14"
                asp-action="Detail" asp-controller="Organization"
                asp-route-organizationId="@Model.OrganizationID">
                 @Model.OrganizationName
             </a>
-            <div class="flex justify-between">
+            <div class="flex justify-between gap-2">
                 <a class="text-neutral hover:text-primary flex-1 line-clamp-2 text-start" asp-action="Index"
                    asp-controller="User"
                    asp-route-username="@Model.OrganizationLeader.UserFullName">
                     @Model.OrganizationLeader.UserFullName
                 </a>
-                <span class="flex-1 text-end line-clamp-2">@Model.OrganizationAddress</span>
+                <span class="flex-1 text-end line-clamp-2 h-12">@Model.OrganizationAddress</span>
             </div>
         </div>
         <p class="line-clamp-3 mb-4">

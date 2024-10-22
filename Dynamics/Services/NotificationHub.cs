@@ -25,7 +25,8 @@ public class NotificationHub : Hub
             var user = await _userRepo.GetUserProjectAsyncNoTracking(u => u.UserFullName == Context.User.Identity.Name);
             
             // store the connection id in the session
-            Context.GetHttpContext().Session.SetString($"{user.UserID.ToString()}_signalr", Context.ConnectionId);
+            // TODO: Use other way instead
+            // Context.GetHttpContext().Session.SetString($"{user.UserID.ToString()}_signalr", Context.ConnectionId);
             // add user to group base on ProjectID
             foreach (var item in user.ProjectMember)
             {

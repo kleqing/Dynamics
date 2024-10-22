@@ -134,79 +134,79 @@
     }
 }
 @*Notification script*@
-<script src="~/js/signalr/signalr.min.js"></script>
-<script>
-    "use strict";
-    // create connection
-    var connection = new signalR.HubConnectionBuilder()
-    .withUrl("/notification")
-    .withAutomaticReconnect()
-    .build();
-
-    connection.onreconnecting((error) => {
-        console.log("Reconnecting to SignalR due to: ", error);
-    });
-
-    connection.onreconnected((connectionId) => {
-        console.log("Reconnected to SignalR with connectionId: ", connectionId);
-    });
-
-    connection.onclose((error) => {
-        console.log("SignalR connection closed due to: ", error);
-    });
-    
-    function addNotification(notification){
-        var notifList = document.querySelector("#notifDropdown");
-        var newNotif = document.createElement("li");
-        
-        if (notification.Status === 0) {
-            newNotif.className = "p-2 bg-blue-100";
-        } else {
-            newNotif.className = "p-2 bg-gray-100";
-        }
-        
-        //list element
-        var link = document.createElement("a");
-        link.href = notification.Link || "#";
-        link.className = "flex justify-between";
-        
-        var messageSpan = document.createElement("span");
-        messageSpan.textContent = notification.Message;
-        
-        var dateSpan = document.createElement("span");
-        dateSpan.className = "text-sm text-gray-500";
-        dateSpan.textContent = new Date(notification.Date).toLocaleDateString();
-        
-        //append
-        link.appendChild(messageSpan);
-        link.appendChild(dateSpan);
-        
-        newNotif.appendChild(link);
-        
-        // add new notification to the top of the list
-        notifList.insertBefore(newNotif, notifList.firstChild);
-    }
-    
-    // function to handle received notifications
-    connection.on("ReceiveNotification",function (message) {
-        var notification = JSON.parse(message);
-        
-        addNotification(notification);
-    })
-    
-    // start the connection
-    connection.start()
-        .then(() => console.log("SignalR Connected"))
-        .catch(function (err) {
-            return console.error(err.toString());
-        });
-
-
-    document.getElementById("btn-notif").addEventListener("click", function (event) {
-        var notif = {"NotificationID":"90d4391b-ba09-4d90-94be-04e01a0fdba7","UserID":"dc6ff684-410f-45d3-8a77-77571e5cc7b6","Message":"You have sent a join request to 12312312 project.","Date":"2024-10-22T12:55:02.3319267+07:00","Link":"https://localhost:7276/Request/Detail/f055f543-a6c2-42b0-97f9-e97cb0011b28","Status":0,"User":null};
-        connection.invoke("SendClientNotification", notif).catch(function (err) {
-            return console.error(err.toString());
-        });
-        event.preventDefault();
-    });
-</script>
+@* <script src="~/js/signalr/signalr.min.js"></script> *@
+@* <script> *@
+@*     "use strict"; *@
+@*     // create connection *@
+@*     var connection = new signalR.HubConnectionBuilder() *@
+@*     .withUrl("/notification") *@
+@*     .withAutomaticReconnect() *@
+@*     .build(); *@
+@* *@
+@*     connection.onreconnecting((error) => { *@
+@*         console.log("Reconnecting to SignalR due to: ", error); *@
+@*     }); *@
+@* *@
+@*     connection.onreconnected((connectionId) => { *@
+@*         console.log("Reconnected to SignalR with connectionId: ", connectionId); *@
+@*     }); *@
+@* *@
+@*     connection.onclose((error) => { *@
+@*         console.log("SignalR connection closed due to: ", error); *@
+@*     }); *@
+@*      *@
+@*     function addNotification(notification){ *@
+@*         var notifList = document.querySelector("#notifDropdown"); *@
+@*         var newNotif = document.createElement("li"); *@
+@*          *@
+@*         if (notification.Status === 0) { *@
+@*             newNotif.className = "p-2 bg-blue-100"; *@
+@*         } else { *@
+@*             newNotif.className = "p-2 bg-gray-100"; *@
+@*         } *@
+@*          *@
+@*         //list element *@
+@*         var link = document.createElement("a"); *@
+@*         link.href = notification.Link || "#"; *@
+@*         link.className = "flex justify-between"; *@
+@*          *@
+@*         var messageSpan = document.createElement("span"); *@
+@*         messageSpan.textContent = notification.Message; *@
+@*          *@
+@*         var dateSpan = document.createElement("span"); *@
+@*         dateSpan.className = "text-sm text-gray-500"; *@
+@*         dateSpan.textContent = new Date(notification.Date).toLocaleDateString(); *@
+@*          *@
+@*         //append *@
+@*         link.appendChild(messageSpan); *@
+@*         link.appendChild(dateSpan); *@
+@*          *@
+@*         newNotif.appendChild(link); *@
+@*          *@
+@*         // add new notification to the top of the list *@
+@*         notifList.insertBefore(newNotif, notifList.firstChild); *@
+@*     } *@
+@*      *@
+@*     // function to handle received notifications *@
+@*     connection.on("ReceiveNotification",function (message) { *@
+@*         var notification = JSON.parse(message); *@
+@*          *@
+@*         addNotification(notification); *@
+@*     }) *@
+@*      *@
+@*     // start the connection *@
+@*     connection.start() *@
+@*         .then(() => console.log("SignalR Connected")) *@
+@*         .catch(function (err) { *@
+@*             return console.error(err.toString()); *@
+@*         }); *@
+@* *@
+@* *@
+@*     document.getElementById("btn-notif").addEventListener("click", function (event) { *@
+@*         var notif = {"NotificationID":"90d4391b-ba09-4d90-94be-04e01a0fdba7","UserID":"dc6ff684-410f-45d3-8a77-77571e5cc7b6","Message":"You have sent a join request to 12312312 project.","Date":"2024-10-22T12:55:02.3319267+07:00","Link":"https://localhost:7276/Request/Detail/f055f543-a6c2-42b0-97f9-e97cb0011b28","Status":0,"User":null}; *@
+@*         connection.invoke("SendClientNotification", notif).catch(function (err) { *@
+@*             return console.error(err.toString()); *@
+@*         }); *@
+@*         event.preventDefault(); *@
+@*     }); *@
+@* </script> *@

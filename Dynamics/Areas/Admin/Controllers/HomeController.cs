@@ -26,9 +26,9 @@ namespace Dynamics.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Check if the user is in the Admin role
             if (User.IsInRole(RoleConstants.Admin))
             {
-
                 // Get top 5 user and organization
                 var top5User = await _adminRepository.GetTop5User();
                 var top5Organization = await _adminRepository.GetTop5Organization();
@@ -42,10 +42,8 @@ namespace Dynamics.Areas.Admin.Controllers
                 // Count organization
                 var organizationCount = await _adminRepository.CountOrganization();
 
-
                 // Count request
                 var requestCount = await _adminRepository.CountRequest();
-
 
                 // Count project
                 var projectCount = await _adminRepository.CountProject();
@@ -76,21 +74,25 @@ namespace Dynamics.Areas.Admin.Controllers
 
         public async Task<ActionResult> ExportTop5User()
         {
+            // Get top 5 user
             var top5User = await _adminRepository.GetTop5User();
 
+            // using EPPlus to create excel file
             using (var package = new ExcelPackage())
             {
+                // Add worksheet
                 var workSheet = package.Workbook.Worksheets.Add("Top 5 Users");
 
-                workSheet.Cells[1, 1].Value = "Top 5 User";
-                workSheet.Cells["A1:D1"].Merge = true;
+                // Add header to the worksheet
+                workSheet.Cells[1, 1].Value = "Top 5 User"; // cell 1
+                workSheet.Cells["A1:D1"].Merge = true; // merge cell
                 workSheet.Cells[1, 1].Style.Font.Size = 14;
                 workSheet.Cells[1, 1].Style.Font.Bold = true;
                 workSheet.Cells["A1:D1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 workSheet.Cells["A1:D1"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 workSheet.Cells["A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-
+                // Add header content to the worksheet
                 workSheet.Cells[2, 1].Value = "Full Name";
                 workSheet.Cells[2, 2].Value = "Email";
                 workSheet.Cells[2, 3].Value = "Phone Number";
@@ -103,6 +105,7 @@ namespace Dynamics.Areas.Admin.Controllers
                     range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
                 }
 
+                // Add user data to the worksheet
                 int recordIndex = 3;
                 foreach (var user in top5User)
                 {
@@ -113,8 +116,10 @@ namespace Dynamics.Areas.Admin.Controllers
                     recordIndex++;
                 }
 
+                // Auto fit column width
                 workSheet.Cells.AutoFitColumns(0);
 
+                // Save the excel file using MemoryStream
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
                 stream.Position = 0;
@@ -124,6 +129,7 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // For other exporting, the process is similar above
         public async Task<ActionResult> ExportTop5Organization()
         {
             var top5Organization = await _adminRepository.GetTop5Organization();

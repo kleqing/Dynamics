@@ -26,6 +26,7 @@ namespace Dynamics.Areas.Admin.Controllers
         }
 
         // GET: Admin/Projects
+        // View list of projects in the database
         public async Task<IActionResult> Index(int? status)
         {
             if (User.IsInRole(RoleConstants.Admin))
@@ -45,6 +46,7 @@ namespace Dynamics.Areas.Admin.Controllers
         }
 
         // GET: Admin/Projects/Details/5
+        // View more details of a project
         public async Task<IActionResult> Details(Guid? id)
         {
             if (User.IsInRole(RoleConstants.Admin))
@@ -58,6 +60,7 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // Change status of a project
         [HttpPost]
         public async Task<JsonResult> ChangeStatus(Guid id)
         {
@@ -73,6 +76,7 @@ namespace Dynamics.Areas.Admin.Controllers
             });
         }
 
+        // Export list of projects to Excel file, function is the same as HomeContoller.cs
         public async Task<IActionResult> Export()
         {
             var listProject = await _adminRepository.ViewProjects();

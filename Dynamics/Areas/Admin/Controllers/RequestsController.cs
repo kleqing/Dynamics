@@ -26,6 +26,7 @@ namespace Dynamics.Areas.Admin.Controllers
         }
 
         // GET: Admin/Requests
+        // View list of requests in the database
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole(RoleConstants.Admin))
@@ -38,6 +39,7 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // Change status of request
         [HttpPost]
         public async Task<JsonResult> ChangeStatus(Guid id, int status)
         {
@@ -55,12 +57,13 @@ namespace Dynamics.Areas.Admin.Controllers
             var request = await _adminRepository.DeleteRequest(id);
             if (request == null)
             {
-                return Json(new { success = false });
+                return Json(new { success = false }); // return delete notification to js with ajax
             }
 
-            return Json(new { success = true });
+            return Json(new { success = true }); 
         }
 
+        // Export request to excel file
         public async Task<IActionResult> Export()
         {
             var listRequest = await _adminRepository.ViewRequest();
@@ -121,12 +124,14 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // Get request information using ajax
         [HttpGet]
         public async Task<JsonResult> GetRequestInfomation(Guid id)
         {
             var request = await _adminRepository.GetRequestInfo(r => r.RequestID == id);
             if (request == null)
             {
+                // request not found
                 return Json(new
                     {
                         success = false,
@@ -135,6 +140,7 @@ namespace Dynamics.Areas.Admin.Controllers
                 );
             }
 
+            // return request information to js with ajax
             return Json(new
             {
                 success = true,

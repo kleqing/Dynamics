@@ -30,7 +30,7 @@ namespace Dynamics.DataAccess.Repository
 
         // Organization
         Task<List<Organization>> ViewOrganization();
-        Task<int> ChnageOrganizationStatus(Guid id);
+        Task<int> ChangeOrganizationStatus(Guid id);
         Task<List<Organization>> GetTop5Organization();
         Task<Organization?> GetOrganization(Expression<Func<Organization, bool>> filter);
 

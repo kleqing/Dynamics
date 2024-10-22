@@ -26,6 +26,7 @@ namespace Dynamics.Areas.Admin.Controllers
         }
 
         // GET: Admin/Reports
+        // View list of reports in the database
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole(RoleConstants.Admin))
@@ -38,6 +39,7 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // Export report to excel file
         public async Task<IActionResult> Export()
         {
             var listReport = await _adminRepository.ViewReport();

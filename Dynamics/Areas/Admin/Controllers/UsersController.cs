@@ -28,6 +28,7 @@ namespace Dynamics.Areas.Admin.Controllers
         }
 
         // GET: Admin/Users
+        // View list of users in the database
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole(RoleConstants.Admin))
@@ -41,6 +42,7 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // Ban a user using ajax
         [HttpPost]
         public async Task<JsonResult> BanUser(Guid id)
         {
@@ -51,6 +53,7 @@ namespace Dynamics.Areas.Admin.Controllers
             });
         }
 
+        // Gain user role as admin or admin to user using ajax
         [HttpPost]
         public async Task<JsonResult> UserAsAdmin(Guid id)
         {
@@ -64,6 +67,7 @@ namespace Dynamics.Areas.Admin.Controllers
             });
         }
 
+        // Export user to excel file
         public async Task<IActionResult> Export()
         {
             var listUser = await _adminRepository.ViewUser();

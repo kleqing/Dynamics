@@ -27,6 +27,7 @@ namespace Dynamics.Areas.Admin.Controllers
         }
 
         // GET: Admin/Organizations
+        // View list of organizations in the database
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole(RoleConstants.Admin))
@@ -39,6 +40,7 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
+        // Get all organization information
         [HttpGet]
         public async Task<JsonResult> GetOrganizationInfo(Guid id)
         {
@@ -52,7 +54,9 @@ namespace Dynamics.Areas.Admin.Controllers
                 });
             }
 
-            var memberCount = await _adminRepository.MemberJoinedOrganization(id);
+            var memberCount = await _adminRepository.MemberJoinedOrganization(id); // Count member joined organization
+
+            // return to js with ajax
             return Json(new
             {
                 success = true,
@@ -70,16 +74,18 @@ namespace Dynamics.Areas.Admin.Controllers
             });
         }
 
+        // Change organization status
         [HttpPost]
         public async Task<JsonResult> ChangeStatus(Guid id)
         {
-            var result = await _adminRepository.ChnageOrganizationStatus(id);
+            var result = await _adminRepository.ChangeOrganizationStatus(id);
             return Json(new
             {
                 Status = result
             });
         }
 
+        // Export function, same as HomeController.cs
         public async Task<IActionResult> Export()
         {
             var listOrganization = await _adminRepository.ViewOrganization();

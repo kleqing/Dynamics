@@ -41,24 +41,25 @@ namespace Dynamics.DataAccess.Repository
             return org;
         }
 
-        public async Task<int> ChnageOrganizationStatus(Guid id)
+        // Change organization status
+        public async Task<int> ChangeOrganizationStatus(Guid id)
         {
             var org = await GetOrganization(c => c.OrganizationID == id);
             if (org != null)
             {
                 switch (org.OrganizationStatus)
                 {
-                    case -1:
-                        org.OrganizationStatus = 1;
+                    case -1: // Cancel
+                        org.OrganizationStatus = 1; // Change to active
                         break;
-                    case 0:
-                        org.OrganizationStatus = 1;
+                    case 0: // Pending
+                        org.OrganizationStatus = 1; // Change to active
                         break;
-                    case 1:
-                        org.OrganizationStatus = -1;
+                    case 1: // Active
+                        org.OrganizationStatus = -1; // Change to cancel
                         break;
                 }
-                _db.Organizations.Update(org);
+                _db.Organizations.Update(org); // Update to db
                 await _db.SaveChangesAsync();
                 return org.OrganizationStatus;
             }
@@ -71,11 +72,11 @@ namespace Dynamics.DataAccess.Repository
                 .GroupBy(pm => pm.OrganizationID)                      // Group OrganizationID
                 .Select(g => new
                 {
-                    OrganizationID = g.Key,
+                    OrganizationID = g.Key,                     // Get OrganizationID
                     ProjectCount = g.Count()                   // Count if organization is in project or not
                 })
-                .OrderBy(x => x.ProjectCount)
-                .Take(5)
+                .OrderBy(x => x.ProjectCount) // Order by project count (asc)
+                .Take(5) // Take the top 5
                 .ToListAsync();
 
             // Get the detailed information of the top 5 users
@@ -86,7 +87,7 @@ namespace Dynamics.DataAccess.Repository
 
             foreach (var org in organization)
             {
-                org.ProjectCount = TopOrganizations.FirstOrDefault(x => x.OrganizationID == org.OrganizationID)?.ProjectCount ?? 0;
+                org.ProjectCount = TopOrganizations.FirstOrDefault(x => x.OrganizationID == org.OrganizationID)?.ProjectCount ?? 0; // Based on ID, get the project count
             }
             return organization;
         }
@@ -99,6 +100,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<Organization?> GetOrganizationInfomation(Expression<Func<Organization, bool>> filter)
         {
+            // Get choosen organization information
             return await _db.Organizations.Where(filter)
                 .Select(
                 org => new Organization
@@ -114,6 +116,7 @@ namespace Dynamics.DataAccess.Repository
                 .FirstOrDefaultAsync();
         }
 
+        // Count member joined organization
         public async Task<int> MemberJoinedOrganization(Guid id)
         {
             return await _db.OrganizationMember.Where(o => o.OrganizationID == id).CountAsync();
@@ -138,6 +141,7 @@ namespace Dynamics.DataAccess.Repository
             return request;
         }
 
+        // Change request status, function is same as 
         public async Task<int> ChangeRequestStatus(Guid id)
         {
             var request = await GetRequest(r => r.RequestID == id);
@@ -173,6 +177,8 @@ namespace Dynamics.DataAccess.Repository
             return request;
         }
 
+
+        // Get choosen request information
         public async Task<Request> GetRequestInfo(Expression<Func<Request, bool>> expression)
         {
             return await _db.Requests.Where(expression)
@@ -189,6 +195,7 @@ namespace Dynamics.DataAccess.Repository
                 })
                 .FirstOrDefaultAsync();
         }
+
         // ---------------------------------------
         // User (View, Ban, Top 5, allow access as admin)
 
@@ -264,6 +271,7 @@ namespace Dynamics.DataAccess.Repository
             return _userManager.GetRolesAsync(authUser).GetAwaiter().GetResult().FirstOrDefault();
         }
 
+        // Change user role in both Auth and Main database
         public async Task ChangeUserRole(Guid id)
         {
             var authUser = await _userManager.FindByIdAsync(id.ToString());
@@ -288,8 +296,6 @@ namespace Dynamics.DataAccess.Repository
 
             await _db.SaveChangesAsync();
         }
-
-
 
         // ---------------------------------------
         // View Recent request (Recent item in dashoard page)
@@ -339,13 +345,13 @@ namespace Dynamics.DataAccess.Repository
             return project;
         }
 
-        public async Task<bool> BanProject(Guid id)
+        public async Task<bool> BanProject(Guid id) // Ban project using ajax
         {
             var project = await GetProjects(r => r.ProjectID == id);
             if (project != null)
             {
                 project.isBanned = !project.isBanned;
-                project.ProjectStatus = project.isBanned ? -1 : 1;
+                project.ProjectStatus = project.isBanned ? -1 : 1; // If project is banned, change status to -1 (cancel). Otherwise, change to 1 (active)
                 await _db.SaveChangesAsync();
                 return project.isBanned;
             }

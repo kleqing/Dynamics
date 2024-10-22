@@ -4,7 +4,6 @@ namespace Dynamics.Models.Models.Dto;
 
 public class OrganizationOverviewDto
 {
-    public Guid OrganizationID { get; set; }
     public User OrganizationLeader { get; set; }
     public string OrganizationName { get; set; }
     public string? OrganizationAddress { get; set; }

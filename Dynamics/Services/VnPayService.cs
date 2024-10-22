@@ -200,7 +200,7 @@ public class VnPayService : IVnPayService
         // Insert to the history table
         await _userToPrj.AddUserDonateRequestAsync(result);
         // Use Huyen's donate resource method to handle
-        await _userToPrj.AcceptedUserDonateRequestAsync(result.TransactionID);
+        await _userToPrj.AcceptUserDonateRequestAsync(result);
     }
 
     private async Task UpdateUserToOrganization(VnPayRequestDto payRequestDto)

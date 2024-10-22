@@ -10,6 +10,7 @@ namespace Dynamics.DataAccess.Repository
 {
     public interface IOrganizationToProjectTransactionHistoryRepository
     {
+        Task<OrganizationToProjectHistory?> GetAsync(Expression<Func<OrganizationToProjectHistory, bool>> filter);
         Task AddAsync(OrganizationToProjectHistory transaction); // Simple add to organizaiton
         Task<bool> AddOrgDonateRequestAsync(OrganizationToProjectHistory? orgDonate);
 
@@ -17,7 +18,8 @@ namespace Dynamics.DataAccess.Repository
             Expression<Func<OrganizationToProjectHistory, bool>> filter);
 
         //accept or deny transaction from org
-        Task<bool> AcceptedOrgDonateRequestAsync(Guid transactionID);
-        Task<bool> DenyOrgDonateRequestAsync(Guid transactionID);
+        Task<bool> AcceptOrgDonateRequestAsync(OrganizationToProjectHistory orgDonate);
+        Task<bool> DenyOrgDonateRequestAsync(OrganizationToProjectHistory orgDonate);
+
     }
 }

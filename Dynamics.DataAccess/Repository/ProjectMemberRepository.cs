@@ -66,13 +66,17 @@ public class ProjectMemberRepository : IProjectMemberRepository
 
     public async Task<bool> AddJoinRequest(Guid memberID, Guid projectID)
     {
-        var res = await _context.ProjectMembers.AddAsync(new ProjectMember
-        { UserID = memberID, ProjectID = projectID, Status = 0 });
+        _context.ChangeTracker.Clear();
+        var newProjectMember = new ProjectMember();
+        var res = await _context.ProjectMembers.AddAsync(newProjectMember);
+        newProjectMember.ProjectID = projectID;
+        newProjectMember.UserID = memberID;
+        newProjectMember.Status = 0;
         await _context.SaveChangesAsync();
         return res != null;
     }
 
-    public async Task<bool> AcceptedJoinRequestAsync(Guid memberID, Guid projectID)
+    public async Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID)
     {
         var memberObj =
             await _context.ProjectMembers.FirstOrDefaultAsync(x =>
@@ -96,7 +100,8 @@ public class ProjectMemberRepository : IProjectMemberRepository
                 x.UserID.Equals(memberID) && x.ProjectID.Equals(projectID));
         if (memberObj != null)
         {
-            _context.ProjectMembers.Remove(memberObj);
+            memberObj.Status = -1;
+            _context.ProjectMembers.Update(memberObj);
             await _context.SaveChangesAsync();
             return true;
         }

@@ -20,12 +20,17 @@ namespace Dynamics.DataAccess.Repository
             _context = context;
             _projectResourceRepo = projectResourceRepository;
         }
+        public Task<OrganizationToProjectHistory?> GetAsync(
+      Expression<Func<OrganizationToProjectHistory, bool>> filter)
+        {
+            return _context.OrganizationToProjectTransactionHistory.Where(filter).FirstOrDefaultAsync();
+        }
 
         public async Task<List<OrganizationToProjectHistory>> GetAllOrganizationDonateAsync(
     Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
             IQueryable<OrganizationToProjectHistory> listOrganizationDonate =
-                _context.OrganizationToProjectTransactionHistory.Include(x => x.ProjectResource).ThenInclude(x => x.Project).Include(x => x.OrganizationResource).ThenInclude(X => X.Organization).Where(filter);
+                _context.OrganizationToProjectTransactionHistory.Include(x => x.ProjectResource).ThenInclude(x => x.Project).Include(x => x.OrganizationResource).ThenInclude(X => X.Organization).Where(filter).OrderByDescending(x => x.Time);
             if (listOrganizationDonate != null)
             {
                 return await listOrganizationDonate.ToListAsync();
@@ -67,11 +72,8 @@ namespace Dynamics.DataAccess.Repository
         }
 
 
-        public async Task<bool> AcceptedOrgDonateRequestAsync(Guid transactionID)
+        public async Task<bool> AcceptOrgDonateRequestAsync(OrganizationToProjectHistory transactionObj)
         {
-            var transactionObj =
-                await _context.OrganizationToProjectTransactionHistory.FirstOrDefaultAsync(x =>
-                    x.TransactionID.Equals(transactionID));
             if (transactionObj != null)
             {
                 //change status of transaction
@@ -80,7 +82,7 @@ namespace Dynamics.DataAccess.Repository
                 await _context.SaveChangesAsync();
 
                 //modify resource of project
-                var addResourceAutomatic = _projectResourceRepo.HandleResourceAutomatic(transactionID, "Organization");
+                var addResourceAutomatic = _projectResourceRepo.HandleResourceAutomatic(transactionObj.TransactionID, "Organization");
                 if (addResourceAutomatic.Result)
                     return true;
                 return false;
@@ -89,11 +91,9 @@ namespace Dynamics.DataAccess.Repository
             return false;
         }
 
-        public async Task<bool> DenyOrgDonateRequestAsync(Guid transactionID)
+        public async Task<bool> DenyOrgDonateRequestAsync(OrganizationToProjectHistory transactionObj)
         {
-            var transactionObj =
-                await _context.OrganizationToProjectTransactionHistory.FirstOrDefaultAsync(x =>
-                    x.TransactionID.Equals(transactionID));
+           
             if (transactionObj != null)
             {
                 //find orgresource
@@ -104,7 +104,8 @@ namespace Dynamics.DataAccess.Repository
                 {
                     orgResource.Quantity += transactionObj.Amount;
                     _context.OrganizationResources.Update(orgResource);
-                    _context.OrganizationToProjectTransactionHistory.Remove(transactionObj);
+                    transactionObj.Status = -1;
+                    _context.OrganizationToProjectTransactionHistory.Update(transactionObj);
                     await _context.SaveChangesAsync();
                     return true;
 

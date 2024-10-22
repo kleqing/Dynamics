@@ -1,8 +1,8 @@
+using System.Linq.Expressions;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -12,16 +12,22 @@ namespace Dynamics.DataAccess.Repository
         private readonly IHttpContextAccessor _accessor;
         private readonly IProjectMemberRepository _projectMemberRepo;
         private readonly IProjectResourceRepository _projectResourceRepo;
+        private readonly IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo;
+        private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepo;
 
         public ProjectRepository(ApplicationDbContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IProjectMemberRepository projectMemberRepository,
-            IProjectResourceRepository projectResourceRepository)
+            IProjectResourceRepository projectResourceRepository,
+            IUserToProjectTransactionHistoryRepository userToProjectTransactionHistoryRepository,
+            IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository)
         {
             this._db = dbContext;
             this._accessor = httpContextAccessor;
             this._projectMemberRepo = projectMemberRepository;
             this._projectResourceRepo = projectResourceRepository;
+            _userToProjectTransactionHistoryRepo = userToProjectTransactionHistoryRepository;
+            _organizationToProjectTransactionHistoryRepo = organizationToProjectTransactionHistoryRepository;
         }
 
         //manage project profile
@@ -30,13 +36,30 @@ namespace Dynamics.DataAccess.Repository
         //shut down
         public async Task<bool> ShutdownProjectAsync(ShutdownProjectVM entity)
         {
-            var projectObj = _db.Projects.FirstOrDefault(x => x.ProjectID.Equals(entity.ProjectID));
+            var projectObj = await _db.Projects.Include(x => x.ProjectMember).Include(x => x.ProjectResource).ThenInclude(x => x.OrganizationToProjectHistory).AsSplitQuery().
+                 Include(x => x.ProjectResource).ThenInclude(x => x.UserToProjectTransactionHistory).AsSplitQuery().
+                 Where(x => x.ProjectID.Equals(entity.ProjectID)).FirstOrDefaultAsync();
             if (projectObj != null)
             {
                 projectObj.ProjectStatus = -1;
                 projectObj.ShutdownReason = entity.Reason;
                 _db.Projects.Update(projectObj);
                 await _db.SaveChangesAsync();
+                foreach (var resouce in projectObj.ProjectResource)
+                {
+                    foreach (var userDonate in  resouce.UserToProjectTransactionHistory.Where(x => x.Status == 0).ToList())
+                    {
+                        await _userToProjectTransactionHistoryRepo.DenyUserDonateRequestAsync(userDonate);
+                    }
+                    foreach (var orgDonate in resouce.OrganizationToProjectHistory.Where(x => x.Status == 0).ToList())
+                    {
+                        await _organizationToProjectTransactionHistoryRepo.DenyOrgDonateRequestAsync(orgDonate);
+                    }
+                }
+                foreach (var member in projectObj.ProjectMember.Where(x=>x.Status==0))
+                {
+                    await _projectMemberRepo.DenyJoinRequestAsync(member.UserID, member.ProjectID);
+                }
                 return true;
             }
 
@@ -45,13 +68,30 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> FinishProjectAsync(FinishProjectVM entity)
         {
-            var projectObj = _db.Projects.FirstOrDefault(x => x.ProjectID.Equals(entity.ProjectID));
+            var projectObj = await _db.Projects.Include(x=>x.ProjectMember).Include(x=>x.ProjectResource).ThenInclude(x=>x.UserToProjectTransactionHistory).AsSplitQuery().
+                Include(x=>x.ProjectResource).ThenInclude(x=>x.UserToProjectTransactionHistory).AsSplitQuery().
+                Where(x => x.ProjectID.Equals(entity.ProjectID)).FirstOrDefaultAsync();
             if (projectObj != null)
             {
                 projectObj.ProjectStatus = 2;
                 projectObj.ReportFile = entity.ReportFile;
                 _db.Projects.Update(projectObj);
                 await _db.SaveChangesAsync();
+                foreach(var resouce in projectObj.ProjectResource)
+                {
+                    foreach (var userDonate in resouce.UserToProjectTransactionHistory.Where(x=>x.Status==0).ToList())
+                    {
+                       await _userToProjectTransactionHistoryRepo.DenyUserDonateRequestAsync(userDonate);
+                    }
+                    foreach (var orgDonate in resouce.OrganizationToProjectHistory.Where(x => x.Status == 0).ToList())
+                    {
+                        await _organizationToProjectTransactionHistoryRepo.DenyOrgDonateRequestAsync(orgDonate);
+                    }
+                }
+                foreach(var member in projectObj.ProjectMember.Where(x => x.Status == 0))
+                {
+                    await _projectMemberRepo.DenyJoinRequestAsync(member.UserID, member.ProjectID);
+                }
                 return true;
             }
             return false;
@@ -115,8 +155,8 @@ namespace Dynamics.DataAccess.Repository
                 .Include(x => x.ProjectResource)
                 .Include(x => x.Organization)
                 .Include(x => x.Request).ThenInclude(x => x.User)
-                .Include(x => x.History).Where(filter)
-                .AsSplitQuery();
+                .Include(x => x.History).
+                AsSplitQuery().Where(filter);
             return project.FirstOrDefaultAsync();
         }
         public async Task<bool> UpdateAsync(Project entity)
@@ -220,6 +260,25 @@ namespace Dynamics.DataAccess.Repository
             _db.Entry(projectResourceItem).CurrentValues.SetValues(entity);
             await _db.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<Project>> SearchIndexFilterAsync(IQueryable<Project> projects, string searchQuery, string filterQuery)
+        {
+            switch (filterQuery)
+            {
+                case "All":
+                    return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower()) ||
+                                                               p.ProjectName.ToLower().Contains(searchQuery.ToLower())||
+                                                               p.ProjectDescription.ToLower().Contains(searchQuery.ToLower()) ||
+                                                               p.ProjectPhoneNumber.Contains(searchQuery)).ToListAsync();
+                case "Name":
+                    return await projects.Where(p => p.ProjectName.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
+                case "Description":
+                    return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
+                
+            }
+
+            return null;
         }
     }
 }

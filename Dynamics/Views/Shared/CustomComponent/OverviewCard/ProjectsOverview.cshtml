@@ -6,23 +6,26 @@
              src="@Model.Attachment"
              alt="Shoes"/>
     </a>
-    <div class="card-body p-2 gap-2 w-full">
+    <div class="card-body p-6 gap-2 w-full">
         <!-- badge left -->
-        <div
-            class="badge badge-success absolute top-2 left-2 bg-success font-bold px-4 py-3 outline-none border-none">
+        <div class="badge absolute top-2 left-2 bg-green-500 text-white font-bold px-4 py-3 outline-none border-none">
             Project
         </div>
+        <!-- badge right -->
+  @*        <div
+             class="badge  absolute top-2 right-2 bg-green-500/30 font-bold px-4 py-3 outline-none border-none">
+             Project
+         </div> *@
         @if (Model.ProjectStatus == 1)
         {
             <div
-                class="badge badge-error absolute top-2 right-2 bg-error font-bold text-white px-4 py-3 outline-none border-none">
+                class="badge  absolute top-2 right-2 bg-red-700 font-bold text-white px-4 py-3 outline-none border-none">
                 On-going
             </div>
         }
         else if (Model.ProjectStatus == 0)
         {
-            <div
-                class="badge badge-accent absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+            <div class="badge absolute bg-red-700 top-2 right-2 font-bold px-4 text-white py-3 outline-none border-none">
                 Preparing
             </div>
         }
@@ -59,7 +62,7 @@
                       max="100">
             </progress>
             <p class="w-full text-success">Raised @Model.ProjectRaisedMoney VND</p>
-            <a class="btn btn-neutral h-8 min-h-0 outline-none border-none"
+            <a class="btn min-h-0 py-4 px-6 bg-blue-700 text-white text-md items-center"
                asp-action="ManageProject" asp-route-id="@Model.ProjectID"
                asp-controller="Project">
                 View project

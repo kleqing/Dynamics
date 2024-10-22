@@ -14,6 +14,7 @@ namespace Dynamics.Models.Models
         public Guid? ProjectResourceID { get; set; }
         public int Status { get; set; }
         public int Amount { get; set; }
+        [MaxLength(100, ErrorMessage = "Message cannot exceed 100 characters.")]
         public string? Message { get; set; }
 		[DataType(DataType.DateTime)]
 		public DateOnly Time { get; set; }

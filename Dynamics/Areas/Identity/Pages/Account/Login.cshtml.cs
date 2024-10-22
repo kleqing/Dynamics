@@ -112,7 +112,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
                                 "You have too many invalid login attempts, please try again later.");
                             return Page();
                         }
-
                         ModelState.AddModelError(string.Empty, "Wrong email or password");
                         return Page();
                     }

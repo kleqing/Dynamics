@@ -40,5 +40,8 @@ namespace Dynamics.DataAccess.Repository
         Task<List<Project>> GetAllAsync(Expression<Func<Project, bool>>? filter = null);
         // Gradually convert get all to this one for pagination
         IQueryable<Project> GetAllQueryable(Expression<Func<Project, bool>>? filter = null);
+
+        Task<List<Project>> SearchIndexFilterAsync(IQueryable<Project> projects, string searchQuery,
+            string filterQuery);
     }
 }

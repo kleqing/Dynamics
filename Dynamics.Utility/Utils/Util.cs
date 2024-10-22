@@ -127,7 +127,7 @@ namespace Dynamics.Utility
                     {
                         await image.CopyToAsync(myfile);
                     }
-                     imagesPath += ("/" + Path.Combine(folder, fileName) + ", ").Replace('\\', '/');                       
+                    imagesPath += ("/" + Path.Combine(folder, fileName) + ", ").Replace('\\', '/');                       
                 }
                 //imagesPath = imagesPath.TrimEnd(',', ' ');
                 return imagesPath;
@@ -141,7 +141,7 @@ namespace Dynamics.Utility
         public async static Task<string> UploadFiles(List<IFormFile> files, string folder)
         {
             string filePath = "";
-            var allowedExtensions = new[] { ".txt",".doc",".xls" ,".xlsx", ".docx", ".pdf",".csv" };
+            var allowedExtensions = new[] { ".doc",".xls" ,".xlsx", ".docx", ".pdf",".csv" };
             try
             {
                 if (files.Count == 0)
@@ -172,6 +172,18 @@ namespace Dynamics.Utility
                 return string.Empty;
             }
 
+        }
+
+        public static bool ValidateImage(List<IFormFile> images)
+        {
+            var okImageExtension = new [] {".jpg", ".png", ".gif", ".webp"};
+
+            foreach (var image in images)
+            {
+                var imageExtension = Path.GetExtension(image.FileName).ToLower();
+                if (!okImageExtension.Contains(imageExtension)) return false;
+            }
+            return true;
         }
 
     }

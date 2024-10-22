@@ -131,7 +131,7 @@ public class ProjectResourceRepository : IProjectResourceRepository
         var existOrgDonate =
             await _context.OrganizationToProjectTransactionHistory.FirstOrDefaultAsync(x =>
                 x.ProjectResourceID.Equals(resourceID));
-        if (deleteItem == null || existUserDonate != null || existOrgDonate != null)
+        if (deleteItem == null || existUserDonate != null || existOrgDonate != null||deleteItem.ResourceName.ToLower().Equals("money"))
         {
             return false;
         }

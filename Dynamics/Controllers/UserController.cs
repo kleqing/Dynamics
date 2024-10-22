@@ -327,7 +327,6 @@ namespace Dynamics.Controllers
                     default:
                         throw new ArgumentException("Invalid type");
                 }
-
                 TempData[MyConstants.Success] = "Cancel successful!";
             }
             catch (Exception e)

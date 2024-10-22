@@ -1,0 +1,77 @@
+﻿@using Dynamics.Models.Models.ViewModel
+@using Dynamics.Utility
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+@model Dynamics.Models.Models.OrganizationToProjectHistory
+
+
+@{
+    ViewData["Title"] = "SendResoueceOrganizationToProject";
+    Layout = "_LayoutOrganizationForm";
+}
+
+@{
+    var currentResource = Accessor.HttpContext.Session.Get<OrganizationResource>(MySettingSession.SESSION_Current_Organization_Resource_KEY);
+    var currentOrganization = Accessor.HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+}
+
+<div class="py-5 pt-12 px-5 flex justify-center">
+    <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
+        <h1 class="text-3xl font-semibold mb-10 text-center ">
+            Send Resource
+        </h1>
+        <form asp-action="SendResourceOrganizationToProject" asp-controller="Organization" class="bg-white p-8 rounded-lg shadow-md w-80">
+            <div>
+                <input asp-for="Status" name="0" class="hidden">
+                <input type="date" asp-for="Time" name="Time" class="hidden">
+            </div>
+           
+            
+            <div class="mb-4">
+                <label asp-for="OrganizationResourceID" class="block text-sm font-medium text-gray-700 mb-1">Resource Name</label>
+                <input asp-for="OrganizationResourceID" name="OrganizationResourceID" class="hidden">
+                <input class="w-full input input-neutral input-bordered bg-white" value="@currentResource.ResourceName" disabled>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Amount" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                <input asp-for="Amount" name="Amount" type="number" id="quantity" placeholder="Enter quantity" class="w-full input input-neutral input-bordered rounded-md bg-white">
+                @if (ViewBag.MessageExcessQuantity != null)
+                {
+                    <span class="text-red-500 d-inline-flex">
+                        @ViewBag.MessageExcessQuantity
+                    </span>
+                }
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="OrganizationResourceID" class="block text-sm font-medium text-gray-700 mb-1">Resource Unit</label>
+                <input class="w-full p-2 input input-neutral input-bordered rounded-md bg-white" value="@currentResource.Unit" disabled>
+            </div>
+
+            <div class="mb-6">
+                <label for="project" class="block text-sm font-medium text-gray-700 mb-1">Select a project</label>
+                <select name="projectId" id="project" class="w-full p-2 input input-neutral input-bordered rounded-md appearance-none bg-white">
+                    <option>Options</option>
+                    @foreach (var item in currentOrganization.Project)
+                    {
+                        <option value="@item.ProjectID">@item.ProjectName</option>
+                    }
+                </select>
+                @if (ViewBag.MessageProject != null)
+                {
+                    <span class="text-red-500 d-inline-flex">
+                        @ViewBag.MessageProject
+                    </span>
+
+                }
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">Send</button>
+        </form>
+
+
+    </div>
+</div>
+
+

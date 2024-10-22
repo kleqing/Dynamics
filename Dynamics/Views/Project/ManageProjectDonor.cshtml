@@ -126,34 +126,31 @@
         }
     </div>
     <!-- pagination -->
-    <nav aria-label="Page navigation example" class="my-6">
-        <ul class="bg-white inline-flex -space-x-px text-md ">
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-100 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 "><span class="pr-2"><i class="fa-solid fa-arrow-left"></i></span>Previous</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">1</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">2</a>
-            </li>
-            <li>
-                <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-100 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 ">3</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">...</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">56</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">57</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 rounded-e-lg hover:bg-gray-100 hover:text-gray-700">Next <span class="pl-2"><i class="items-center fa-solid fa-arrow-right"></i></span></a>
-            </li>
-        </ul>
-    </nav>
+    <div class="pagination mt-4 flex justify-center space-x-1.5">
+        @if (ViewBag.currentPageUD > 1)
+        {
+        <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD - 1,
+        pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
+        </a>
+        }
+
+        @for (int i = 1; i <= ViewBag.totalPagesUD; i++)
+        {
+        <a href="@Url.Action("Index", new { pageNumberUD = i,
+        pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })"
+           class="@(ViewBag.currentPageUD == i ? "btn-primary" : "")">
+            <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
+        </a>
+        }
+        @if (ViewBag.currentPageUD < ViewBag.totalPagesUD)
+        {
+        <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD + 1,
+        pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
+        </a>
+        }
+    </div>
 
     <!-- SECTION 2: ORGANIZATION DONATE-->
      <!-- title -->
@@ -260,34 +257,31 @@
         }
     </div>
     <!-- pagination -->
-    <nav aria-label="Page navigation example" class="my-6">
-        <ul class="bg-white inline-flex -space-x-px text-md ">
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-100 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 "><span class="pr-2"><i class="fa-solid fa-arrow-left"></i></span>Previous</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">1</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">2</a>
-            </li>
-            <li>
-                <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-100 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 ">3</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">...</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">56</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">57</a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 rounded-e-lg hover:bg-gray-100 hover:text-gray-700">Next <span class="pl-2"><i class="items-center fa-solid fa-arrow-right"></i></span></a>
-            </li>
-        </ul>
-    </nav>
+    <div class="pagination mt-4 flex justify-center space-x-1.5">
+        @if (ViewBag.currentPageOD > 1)
+        {
+        <a href="@Url.Action("Index", new { pageNumberOD = ViewBag.currentPageOD - 1,
+        pageNumberUD = ViewBag.currentPageUD, pageSize = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
+        </a>
+        }
+
+        @for (int i = 1; i <= ViewBag.totalPagesOD; i++)
+        {
+        <a href="@Url.Action("Index", new { pageNumberOD = i,
+        pageNumberUD = ViewBag.currentPageUD, pageSize = 10 })"
+           class="@(ViewBag.currentPageOD == i ? "btn-primary" : "")">
+            <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
+        </a>
+        }
+        @if (ViewBag.currentPageOD < ViewBag.totalPagesOD)
+        {
+        <a href="@Url.Action("Index", new { pageNumberOD = ViewBag.currentPageOD + 1,
+        pageNumberUD = ViewBag.currentPageUD, pageSize = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
+        </a>
+        }
+    </div>
 
 </div>
 

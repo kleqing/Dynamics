@@ -72,43 +72,52 @@ namespace Dynamics.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            _logger.LogWarning("LOGIN: GetExternalAuthenticationSchemesAsync");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
             {
-                _logger.LogWarning("LOGIN: FindByEmail");
                 var user = await _userManager.FindByEmailAsync(Input.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt");
+                    ModelState.AddModelError(string.Empty, "Wrong email or password");
                 }
                 else
                 {
-                    if (_userManager.IsInRoleAsync(user, RoleConstants.Banned).Result)
+                    if (await _userManager.IsInRoleAsync(user, RoleConstants.Banned))
                     {
                         ModelState.AddModelError(string.Empty, "User account is banned!");
                         return Page();
                     }
+
                     //Check if verified first before sign in
-                    _logger.LogWarning("LOGIN: Check if user is confirmed");
                     var isEmailConfirmedAsync = await _userManager.IsEmailConfirmedAsync(user);
                     if (!isEmailConfirmedAsync)
                     {
-                        ModelState.AddModelError(string.Empty, "User account is not confirmed!");
+                        var resendConfirmationEmail =
+                            Url.Action("ResendConfirmationEmail", "Auth", new { area = "", email = Input.Email },
+                                Request.Scheme); // Request scheme is used so that it generate the whole url instead of just relative
+                        TempData["ConfirmationEmail"] = resendConfirmationEmail;
+                        ModelState.AddModelError(string.Empty, "Your account is not confirmed!");
                         return Page();
                     }
 
                     _logger.LogWarning("LOGIN: PasswordSignInAsync");
                     var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe,
-                        lockoutOnFailure: false);
+                        lockoutOnFailure: true);
                     if (!result.Succeeded)
                     {
+                        if (await _userManager.IsLockedOutAsync(user))
+                        {
+                            ModelState.AddModelError(string.Empty,
+                                "You have too many invalid login attempts, please try again later.");
+                            return Page();
+                        }
+
                         ModelState.AddModelError(string.Empty, "Wrong email or password");
                         return Page();
                     }
+
                     // SerializeObject for session
-                    
                     _logger.LogWarning("LOGIN: GET BUSINESS USER");
                     var businessUser = await _userRepository.GetAsync(u => u.UserEmail == user.Email);
                     HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
@@ -118,23 +127,19 @@ namespace Dynamics.Areas.Identity.Pages.Account
                     {
                         return RedirectToAction("Index", "Home", new { area = "Admin" });
                     }
-                    else if (result.Succeeded)
+
+                    if (result.Succeeded)
                     {
                         _logger.LogInformation("User logged in.");
                         return Redirect(returnUrl);
                     }
-                    
-                    // TODO: Ban user in da future
-                    if (result.IsLockedOut)
-                    {
-                        _logger.LogWarning("User account locked out.");
-                        return RedirectToPage("./Lockout");
-                    }
+
                     // If we get here, something went wrong.
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Something went wrong, please try again.");
                     return Page();
                 }
             }
+
             // If we got this far, something failed, redisplay form
             return Page();
         }

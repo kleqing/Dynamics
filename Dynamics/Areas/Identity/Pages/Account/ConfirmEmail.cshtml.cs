@@ -47,16 +47,20 @@ namespace Dynamics.Areas.Identity.Pages.Account
             var result = await _userManager.ConfirmEmailAsync(user, decodedCode);
             if (result.Succeeded)
             {
-                // Sign in
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                // Session
-                var businessUser = await _userRepo.GetAsync(u => u.UserID.ToString() == user.Id);
-                HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
-                if (User.IsInRole(RoleConstants.Admin) && result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home", new { area = "Admin" });
-                }
-                return Redirect(returnUrl);
+                TempData[MyConstants.Success] = "Your email has been confirmed.";
+                TempData[MyConstants.Subtitle] = "Please login again.";
+                return Redirect(Url.Page("./Login"));
+                // // Sign in
+                // await _signInManager.SignInAsync(user, isPersistent: false);
+                // // Session
+                // var businessUser = await _userRepo.GetAsync(u => u.UserID.ToString() == user.Id);
+                // HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
+                // HttpContext.Session.SetString("currentUserID", businessUser.UserID.ToString());
+                // if (User.IsInRole(RoleConstants.Admin) && result.Succeeded)
+                // {
+                //     return RedirectToAction("Index", "Home", new { area = "Admin" });
+                // }
+                // return Redirect(returnUrl);
             }
             else
             {

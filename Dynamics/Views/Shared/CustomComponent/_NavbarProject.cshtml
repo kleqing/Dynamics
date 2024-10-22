@@ -13,16 +13,23 @@
     {      
         currentProject = await projectRepo.GetProjectAsync(p => p.ProjectID.Equals(new Guid(currentProjectIDString)));
     }
+
+    var images = currentProject.Attachment;
+    string projectFirstImage = "";
+    if (images != null)
+    {
+        projectFirstImage = images.TrimEnd(',', ' ').Split(",")[0];
+    }
 }
 
 <!-- banner project -->
-<div class=" flex justify-center items-center w-full bg-blue-300" style="height:50vh;">
-    <div class="flex-col">
+<div class=" flex justify-center items-center w-full relative" style="height:50vh;">
+    <img src="@projectFirstImage" class="w-5/6 h-full object-cover blur-md absolute" alt="@currentProject.ProjectName"/>
+    <div class="flex-col z-10 bg-white p-6 rounded">
         @* remind: inject to take project name, organization name *@
         <h2 class="font-serif text-black font-bold text-6xl">@currentProject?.ProjectName</h2>
         <h4 class="font-serif text-slate-500 font-semibold text-4xl">By @currentProject?.Organization.OrganizationName</h4>
     </div>
-
 </div>
 <!-- end banner project -->
 <!-- navbar -->

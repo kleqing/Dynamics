@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Dynamics.Models.Models.Dto.ProjectOverviewDto
-<li class="card w-full max-w-[300px] max-w-64 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
+<li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
     <a asp-action="ManageProject" asp-route-id="@Model.ProjectID" asp-controller="Project">
         <img class="w-full object-cover h-48 rounded-md"
              src="@Model.Attachment"
@@ -10,11 +10,6 @@
         <!-- badge left -->
         <div
             class="badge badge-success absolute top-2 left-2 bg-success font-bold px-4 py-3 outline-none border-none">
-            Project
-        </div>
-        <!-- badge right -->
-        <div
-            class="badge badge-secondary absolute top-2 right-2 bg-success font-bold px-4 py-3 outline-none border-none">
             Project
         </div>
         @if (Model.ProjectStatus == 1)
@@ -41,7 +36,7 @@
             <div class="flex justify-between gap-4">
                 <a class="text-neutral hover:text-primary flex-1 line-clamp-2 text-start" asp-action="Index"
                    asp-controller="User"
-                   asp-route-username="@Model.ProjectLeader.UserFullName">
+                   asp-route-username="By @Model.ProjectLeader.UserFullName">
                     @Model.ProjectLeader.UserFullName
                 </a>
                 <span class="flex-1 text-end line-clamp-2">

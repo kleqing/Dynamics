@@ -15,4 +15,5 @@ public interface IProjectResourceRepository
     Task<bool> UpdateResourceTypeAsync(ProjectResource entity);
 
     Task<bool> DeleteResourceTypeAsync(Guid resourceID);
+    Task UpdateAsync(ProjectResource entity);
 }

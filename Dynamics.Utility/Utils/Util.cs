@@ -1,24 +1,32 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 
 namespace Dynamics.Utility
 {
-    // Account use for cloudinary only
-    internal class AccountCloudinary
-    {
-            
-    }
     public static class Util
     {
         
-        // TODO: Upload images to CDN
-        /**
-         * Save an image to local file <br />
-         * Follow this path: wwwroot/folderpath/id.ext
-         */
+        public static string HmacSHA512(string key, string inputData)
+        {
+            var hash = new StringBuilder();
+            var keyBytes = Encoding.UTF8.GetBytes(key);
+            var inputBytes = Encoding.UTF8.GetBytes(inputData);
+            using (var hmac = new HMACSHA512(keyBytes))
+            {
+                var hashValue = hmac.ComputeHash(inputBytes);
+                foreach (var theByte in hashValue)
+                {
+                    hash.Append(theByte.ToString("x2"));
+                }
+            }
+
+            return hash.ToString();
+        }
         public static string UploadImage(IFormFile image, string folder)
         {
             try

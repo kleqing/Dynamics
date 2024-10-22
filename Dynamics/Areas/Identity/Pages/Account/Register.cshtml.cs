@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using ILogger = Serilog.ILogger;
 
 namespace Dynamics.Areas.Identity.Pages.Account
@@ -50,7 +51,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required] public string Name { get; set; }
+            public string Name { get; set; }
 
             [Required]
             [EmailAddress]
@@ -81,6 +82,20 @@ namespace Dynamics.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (Input.Password != Input.ConfirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords don't match.");
+                return Page();
+            }
+            // Try to get existing user (If we might have) that is in the system
+            var existingUserFullName = await _userRepo.GetAsync(u => u.UserFullName.Equals(Input.Name));
+            var existingUserEmail = await _userRepo.GetAsync(u => u.UserEmail.Equals(Input.Email));
+            // If one of these 2 exists, it means that another user is already has the same name or email
+            if (existingUserEmail != null || existingUserFullName != null)
+            {
+                ModelState.AddModelError("", "Username or email is already taken.");
+                return Page();
+            }
             if (ModelState.IsValid)
             {
                 // If role not exist, create all of our possible role

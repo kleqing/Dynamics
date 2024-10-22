@@ -140,4 +140,15 @@ public class ProjectResourceRepository : IProjectResourceRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task UpdateAsync(ProjectResource entity)
+    {
+        var existingResource = _context.ProjectResources.FirstOrDefault(x => x.ResourceID.Equals(entity.ResourceID));
+        if (existingResource != null)
+        {
+            existingResource.Quantity = entity.Quantity;
+        }
+        _context.ProjectResources.Update(entity);
+        await _context.SaveChangesAsync();
+    }
 }

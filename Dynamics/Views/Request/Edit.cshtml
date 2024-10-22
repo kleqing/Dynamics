@@ -206,7 +206,7 @@ function getUserContact(){
         document.getElementById('pOption').innerHTML = parts[3].trim();
         document.getElementById('dOption').innerHTML = parts[2].trim();
         document.getElementById('wOption').innerHTML = parts[1].trim();
-    }else {
+    } else {
         // Set the input fields to null
         document.getElementById('RequestEmail').value = '';
         document.getElementById('RequestPhoneNumber').value = '';
@@ -227,12 +227,9 @@ function getUserContact(){
     }
 }
 
-let myBtn = document.querySelector('#submitBtn');
-
-myBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    let myForm = document.querySelector('#dmForm')
-    console.log(myForm)
+let myForm = document.querySelector('#dmForm')
+console.log(myForm)
+    myForm.addEventListener('submit', (e) => {
     // Get the selected text for city, district, and ward
     const cityName = citis.options[citis.selectedIndex].text;
     const districtName = districts.options[districts.selectedIndex].text;
@@ -242,7 +239,14 @@ myBtn.addEventListener('click', (e) => {
     document.getElementsByName('cityNameInput')[0].value = cityName;
     document.getElementsByName('districtNameInput')[0].value = districtName;
     document.getElementsByName('wardNameInput')[0].value = wardName;
-    myForm.submit();
+    // Validate here
+        let loadingModal = document.getElementById("loadingModal");
+        if (isLegit()) {
+            loadingModal.style.display = "flex";
+        } else {
+            loadingModal.style.display = "none";
+            e.preventDefault();
+        }
 })
 
 </script>

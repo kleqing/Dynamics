@@ -171,6 +171,7 @@
             @{
                 foreach (var modelProjectJoinRequest in Model.ProjectJoinRequests)
                 {
+                    if (modelProjectJoinRequest.Status >= 2) continue; // Don't display project that user is admin or leader
                     prjCount += 1;
                     <li class="p-4 shadow-md flex justify-between rounded-sm">
                         <!-- Left side -->
@@ -219,8 +220,11 @@
                                 case 1:
                                     <p class="badge badge-success min-w-24">Accepted</p>
                                     break;
+                                case -1:
+                                    <p class="badge badge-success min-w-24">Denied</p>
+                                    break;
                                 default:
-                                    <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p>
+                                    @* <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
                                     break;
                             }
                         </div>
@@ -354,8 +358,6 @@
         @* <div class="divider divider-neutral py-8">End</div> *@
     }
 </section>
-<script>
-    
-</script>
+<partial name="CustomComponent/_SweetAlertToast"/>
 </div>
 </main>

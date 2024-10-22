@@ -457,9 +457,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> JoinProjectRequest(Guid memberID, Guid projectID)
         {
             _logger.LogWarning("JoinProjectRequest get");
-
-            var projectObj =
-                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            var projectObj = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
             if (projectObj?.ProjectStatus == -1)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
@@ -467,6 +465,7 @@ namespace Dynamics.Controllers
             }
 
             var res = await _projectService.SendJoinProjectRequestAsync(projectID, memberID);
+            
             if (res.Equals(MyConstants.Success))
             {
                 // create new notification
@@ -479,7 +478,7 @@ namespace Dynamics.Controllers
                     Link = Url.Action(nameof(ManageProject), "Project", new { id = projectID }, Request.Scheme),
                     Status = 0 // Unread
                 };
-
+                
                 //send notification and save it to database
                 var notificationJson = JsonConvert.SerializeObject(notification);
                 var connectionId = HttpContext.Session.GetString($"{memberID.ToString()}_signalr");

@@ -12,7 +12,8 @@ namespace Dynamics.DataAccess.Repository
         Task<bool> UpdateAsync(User entity);
         Task<User> DeleteById(Guid id);
         Task<User?> GetUserProjectAsync(Expression<Func<User?, bool>> filter);
-        
+        Task<User?> GetUserProjectAsyncNoTracking(Expression<Func<User?, bool>> filter);
+
         // Note: If want to check for role of an identity user, use user manager instead
         // Normal user can be checked by just calling the .UserRole method
         /**

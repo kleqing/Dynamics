@@ -52,7 +52,12 @@ namespace Dynamics.DataAccess.Repository
         {
             return await _db.Users.Include(u => u.ProjectMember).SingleOrDefaultAsync(filter);
         }
-        
+
+        public async Task<User?> GetUserProjectAsyncNoTracking(Expression<Func<User?, bool>> filter)
+        {
+            return await _db.Users.Include(u => u.ProjectMember).AsNoTracking().SingleOrDefaultAsync(filter);
+        }
+
         public async Task<string> GetRoleFromUserAsync(Guid userId)
         {
             var authUser = await _userManager.FindByIdAsync(userId.ToString());

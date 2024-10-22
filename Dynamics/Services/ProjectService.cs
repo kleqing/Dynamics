@@ -539,9 +539,8 @@ public class ProjectService : IProjectService
     public async Task<string> SendJoinProjectRequestAsync(Guid projectID, Guid memberID)
     {
         var existingJoinRequest = _projectMemberRepo
-            .FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.UserID.Equals(memberID) && p.Status == 0).FirstOrDefault();
-        
-        if (existingJoinRequest == null)
+            .FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.UserID.Equals(memberID)).FirstOrDefault();
+        if (existingJoinRequest == null) // Not existed, add new with status = 0
         {
             var res = await _projectMemberRepo.AddJoinRequest(memberID, projectID);
             if (res)
@@ -551,10 +550,14 @@ public class ProjectService : IProjectService
 
             return MyConstants.Error;
         }
-        else
+        if (existingJoinRequest.Status == -1) // Denied, update from -1 -> 0
         {
-            return MyConstants.Warning;
+            existingJoinRequest.Status = 0;
+            var res = await _projectMemberRepo.UpdateAsync(existingJoinRequest);
+            if (res) return MyConstants.Success;
         }
+        // Pending: 0, only warning
+        return MyConstants.Warning;
     }
 
     public async Task<bool> AcceptJoinProjectRequestAllAsync(Guid projectID)

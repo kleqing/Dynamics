@@ -22,15 +22,15 @@ public class NotificationHub : Hub
     {
         try
         {
-            var user = await _userRepo.GetUserProjectAsync(u => u.UserFullName == Context.User.Identity.Name);
+            var user = await _userRepo.GetUserProjectAsyncNoTracking(u => u.UserFullName == Context.User.Identity.Name);
             
             // store the connection id in the session
             Context.GetHttpContext().Session.SetString($"{user.UserID.ToString()}_signalr", Context.ConnectionId);
             // add user to group base on ProjectID
-            // foreach (var item in user.ProjectMember)
-            // {
-            //     await Groups.AddToGroupAsync(Context.ConnectionId, item.ProjectID.ToString());
-            // }
+            foreach (var item in user.ProjectMember)
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, item.ProjectID.ToString());
+            }
 
         }
         catch (Exception ex)

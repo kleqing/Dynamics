@@ -19,7 +19,16 @@ public class NotificationRepository : INotificationRepository
 
     public async Task AddNotificationAsync(Notification notification)
     {
-        await _db.Notifications.AddAsync(notification);
+        try
+        {
+            await _db.Notifications.AddAsync(notification);
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<List<Notification>> GetCurrentUserNotificationsAsync(Guid userId)

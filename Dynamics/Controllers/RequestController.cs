@@ -2,9 +2,11 @@
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
+using Dynamics.Services;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Identity;
 using Dynamics.Utility;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ILogger = Serilog.ILogger;
 
@@ -15,12 +17,16 @@ namespace Dynamics.Controllers
 		private readonly IRequestRepository _requestRepo;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ILogger<RequestController> _logger;
+		private readonly IHubContext<NotificationHub> _notifHubContext;
+		private readonly INotificationRepository _notifRepo;
 
-		public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager, ILogger<RequestController> logger)
+		public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager, ILogger<RequestController> logger, IHubContext<NotificationHub> notifHubContext, INotificationRepository notifRepo)
 		{
 			_requestRepo = requestRepository;
 			_userManager = userManager;
 			_logger = logger;
+			_notifHubContext = notifHubContext;
+			_notifRepo = notifRepo;
 		}
 		public async Task<IActionResult> Index(string searchQuery, string filterQuery, 
 			DateOnly dateFrom, DateOnly dateTo,
@@ -123,10 +129,10 @@ namespace Dynamics.Controllers
 			/*var date = DateOnly.FromDateTime(DateTime.Now);
 			obj.CreationDate = date;*/
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
-			var userId = user.UserID;
+			obj.UserID = user.UserID;
 			if (images != null && images.Count > 0)
 			{
-				string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + obj.RequestID.ToString(), userId);
+				string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + obj.RequestID.ToString(), user.UserID);
 				obj.Attachment = imagePath;
 			}
 			else

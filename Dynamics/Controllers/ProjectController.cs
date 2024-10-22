@@ -18,6 +18,7 @@ using System.Net.WebSockets;
 using Dynamics.Helps;
 using Dynamics.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using static System.Net.Mime.MediaTypeNames;
@@ -33,12 +34,14 @@ namespace Dynamics.Controllers
         private readonly IWebHostEnvironment hostEnvironment;
         private readonly IMapper mapper;
         private readonly IPagination _pagination;
+        private readonly IHubContext<NotificationHub> _notifHubContext;
+        private readonly INotificationRepository _notifRepo;
 
         public ProjectController(IProjectRepository projectRepository,
             IOrganizationRepository organizationRepository,
             IRequestRepository requestRepository,
             IWebHostEnvironment hostEnvironment,
-            IMapper mapper, IPagination pagination)
+            IMapper mapper, IPagination pagination, INotificationRepository notifRepo, IHubContext<NotificationHub> notifHub)
         {
             this.projectRepository = projectRepository;
             this.organizationRepository = organizationRepository;
@@ -46,6 +49,8 @@ namespace Dynamics.Controllers
             this.hostEnvironment = hostEnvironment;
             this.mapper = mapper;
             _pagination = pagination;
+            _notifRepo = notifRepo;
+            _notifHubContext = notifHub;
         }
 
         [Route("Project/Index/{userID}")]
@@ -491,6 +496,26 @@ namespace Dynamics.Controllers
                 var res = await projectRepository.AddJoinRequest(memberID, projectID);
                 if (res)
                 {
+                    // create new notification
+                    var notification = new Notification
+                    {
+                        NotificationID = Guid.NewGuid(),
+                        UserID = memberID,
+                        Message = $"You have sent a join request to {projectObj.ProjectName} project.",
+                        Date = DateTime.Now,
+                        Link = Url.Action(nameof(ManageProject), "Project", new { id = projectID }, Request.Scheme),
+                        Status = 0 // Unread
+                    };
+                    
+                    //send notification and save it to database
+                    var notificationJson = JsonConvert.SerializeObject(notification);
+                    var connectionId = HttpContext.Session.GetString($"{memberID.ToString()}_signalr");
+                    if (connectionId != null)
+                    {
+                        await _notifHubContext.Clients.Client(connectionId).SendAsync(notificationJson);
+                        await _notifRepo.AddNotificationAsync(notification);
+                    }
+                    
                     TempData[MyConstants.Success] = "Join request sent successfully!";
                     return RedirectToAction(nameof(ManageProject), new { id = projectID });
                 }
@@ -560,6 +585,24 @@ namespace Dynamics.Controllers
             var res = await projectRepository.AcceptedJoinRequestAsync(memberID, currentProjectID);
             if (res)
             {
+                var notification = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = memberID,
+                    Message = "Your project join request has been accepted.",
+                    Date = DateTime.Now,
+                    Link = Url.Action(nameof(ReviewJoinRequest), "Project", new { id = currentProjectID }, Request.Scheme),
+                    Status = 0 // Unread
+                };
+                    
+                //send notification and save it to database
+                var notificationJson = JsonConvert.SerializeObject(notification);
+                var connectionId = HttpContext.Session.GetString($"{memberID.ToString()}_signalr");
+                if (connectionId != null)
+                {
+                    await _notifHubContext.Clients.Client(connectionId).SendAsync(notificationJson);
+                    await _notifRepo.AddNotificationAsync(notification);
+                }
                 TempData[MyConstants.Success] = "Join request accepted successfully!";
                 return RedirectToAction(nameof(ReviewJoinRequest), new { id = currentProjectID });
             }

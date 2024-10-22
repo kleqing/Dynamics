@@ -72,6 +72,36 @@ namespace Dynamics.DataAccess.Migrations
                     b.ToTable("Histories");
                 });
 
+            modelBuilder.Entity("Dynamics.Models.Models.Notification", b =>
+                {
+                    b.Property<Guid>("NotificationID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Link")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("NotificationID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("Dynamics.Models.Models.Organization", b =>
                 {
                     b.Property<Guid>("OrganizationID")
@@ -353,9 +383,11 @@ namespace Dynamics.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RequestEmail")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RequestPhoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RequestTitle")
@@ -508,6 +540,17 @@ namespace Dynamics.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Dynamics.Models.Models.Notification", b =>
+                {
+                    b.HasOne("Dynamics.Models.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Dynamics.Models.Models.OrganizationMember", b =>
@@ -705,6 +748,8 @@ namespace Dynamics.DataAccess.Migrations
             modelBuilder.Entity("Dynamics.Models.Models.User", b =>
                 {
                     b.Navigation("Award");
+
+                    b.Navigation("Notifications");
 
                     b.Navigation("OrganizationMember");
 

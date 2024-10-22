@@ -21,13 +21,14 @@ namespace Dynamics.DataAccess
         public virtual DbSet<OrganizationResource> OrganizationResources { get; set; }
         public virtual DbSet<OrganizationToProjectHistory> OrganizationToProjectTransactionHistory { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
-        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<User?> Users { get; set; }
         public virtual DbSet<UserToOrganizationTransactionHistory> UserToOrganizationTransactionHistories { get; set; }
         public virtual DbSet<UserToProjectTransactionHistory> UserToProjectTransactionHistories { get; set; }
         public virtual DbSet<ProjectMember> ProjectMembers { get; set; }
         public virtual DbSet<ProjectResource> ProjectResources { get; set; }
         public virtual DbSet<Request> Requests { get; set; }
         public virtual DbSet<History> Histories { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -58,6 +59,7 @@ namespace Dynamics.DataAccess
     modelBuilder.Entity<Request>().HasKey(r => r.RequestID);
     modelBuilder.Entity<User>().HasKey(u => u.UserID);
     modelBuilder.Entity<History>().HasKey(r => r.HistoryID);
+    modelBuilder.Entity<Notification>().HasKey(n => n.NotificationID);
 
     // Relationships (Foreign Keys)
 
@@ -180,7 +182,11 @@ namespace Dynamics.DataAccess
                 .HasForeignKey(k => k.ProjectResourceID)
                 .OnDelete(DeleteBehavior.NoAction);
 
-           
+           //Notification to User
+           modelBuilder.Entity<Notification>()
+               .HasOne(n => n.User)
+               .WithMany(u => u.Notifications)
+               .HasForeignKey(n => n.UserID);
         }
     }
 }

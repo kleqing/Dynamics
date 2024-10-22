@@ -17,6 +17,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
@@ -52,6 +53,7 @@
 	  <Folder Include="wwwroot\files\Project\" />
 	  <Folder Include="wwwroot\images\Project\Phase\" />
 	  <Folder Include="wwwroot\images\User\" />
+	  <Folder Include="wwwroot\js\signalr\" />
 	</ItemGroup>
 
 	<ItemGroup>

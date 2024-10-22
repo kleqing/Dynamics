@@ -72,7 +72,7 @@ public class ProjectMemberRepository : IProjectMemberRepository
         return res != null;
     }
 
-    public async Task<bool> AcceptedJoinRequestAsync(Guid memberID, Guid projectID)
+    public async Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID)
     {
         var memberObj =
             await _context.ProjectMembers.FirstOrDefaultAsync(x =>
@@ -96,7 +96,8 @@ public class ProjectMemberRepository : IProjectMemberRepository
                 x.UserID.Equals(memberID) && x.ProjectID.Equals(projectID));
         if (memberObj != null)
         {
-            _context.ProjectMembers.Remove(memberObj);
+            memberObj.Status = -1;
+            _context.ProjectMembers.Update(memberObj);
             await _context.SaveChangesAsync();
             return true;
         }

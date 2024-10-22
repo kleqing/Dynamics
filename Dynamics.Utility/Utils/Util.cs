@@ -141,7 +141,7 @@ namespace Dynamics.Utility
         public async static Task<string> UploadFiles(List<IFormFile> files, string folder)
         {
             string filePath = "";
-            var allowedExtensions = new[] { ".txt",".doc",".xls" ,".xlsx", ".docx", ".pdf",".csv" };
+            var allowedExtensions = new[] { ".doc",".xls" ,".xlsx", ".docx", ".pdf",".csv" };
             try
             {
                 if (files.Count == 0)

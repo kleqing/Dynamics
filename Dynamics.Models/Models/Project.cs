@@ -26,6 +26,7 @@ namespace Dynamics.Models.Models
         public string? ReportFile { get; set; }
 
         [Required(ErrorMessage = "The Project Description field is required *")]
+        [MaxLength(500, ErrorMessage = "Project Description cannot be longer than 100 characters.")]
         public string ProjectDescription { get; set; }
         [DataType(DataType.Date)]
         public DateOnly? StartTime { get; set; }

@@ -41,7 +41,7 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
     Expression<Func<UserToProjectTransactionHistory, bool>> filter)
     {
         IQueryable<UserToProjectTransactionHistory> listUserDonate =
-            _context.UserToProjectTransactionHistories.Include(x => x.ProjectResource).ThenInclude(x => x.Project).Include(x => x.User).Where(filter);
+            _context.UserToProjectTransactionHistories.Include(x => x.ProjectResource).ThenInclude(x => x.Project).Include(x => x.User).Where(filter).OrderByDescending(x => x.Time);
         if (listUserDonate != null)
         {
             return await listUserDonate.ToListAsync();
@@ -68,11 +68,9 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
         return false;
     }
     //------review donate request------------------
-    public async Task<bool> AcceptedUserDonateRequestAsync(Guid transactionID)
+    public async Task<bool> AcceptUserDonateRequestAsync(UserToProjectTransactionHistory transactionObj)
     {
-        var transactionObj =
-            await _context.UserToProjectTransactionHistories.FirstOrDefaultAsync(x =>
-                x.TransactionID.Equals(transactionID));
+      
         if (transactionObj != null)
         {
             //change status of transaction
@@ -81,22 +79,20 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
             await _context.SaveChangesAsync();
 
             //modify resource of project
-            var addResourceAutomatic = _projectResourceRepo.HandleResourceAutomatic(transactionID, "User");
-            if (addResourceAutomatic.Result)
+            var addResourceAutomatic = await _projectResourceRepo.HandleResourceAutomatic(transactionObj.TransactionID, "User");
+            if (addResourceAutomatic)
                 return true;
             return false;
         }
         return false;
     }
 
-    public async Task<bool> DenyUserDonateRequestAsync(Guid transactionID)
+    public async Task<bool> DenyUserDonateRequestAsync(UserToProjectTransactionHistory transactionObj)
     {
-        var transactionObj =
-            await _context.UserToProjectTransactionHistories.FirstOrDefaultAsync(x =>
-                x.TransactionID.Equals(transactionID));
         if (transactionObj != null)
         {
-            _context.UserToProjectTransactionHistories.Remove(transactionObj);
+            transactionObj.Status = -1;
+            _context.UserToProjectTransactionHistories.Update(transactionObj);
             await _context.SaveChangesAsync();
             return true;
         }

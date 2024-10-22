@@ -12,7 +12,6 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
-
     Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.UserID.ToString());
 }
 @{

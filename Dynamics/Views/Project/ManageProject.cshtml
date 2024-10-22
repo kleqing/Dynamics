@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json
+@using Microsoft.AspNetCore.Authorization
 @inject IHttpContextAccessor Accessor
 @inject IProjectMemberRepository ProjectMemberRepository
 @model Dynamics.Models.Models.ViewModel.DetailProjectVM
@@ -10,51 +11,47 @@
     var userIDString = Accessor.HttpContext.Session.GetString("currentUserID");
     var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
     var allProjectMember = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)));
+
     Report report = new Report();
-    var beMember = 0;
-    if (allProjectMember != null&& !string.IsNullOrEmpty(userIDString))
-    {
-        if (!allProjectMember.Any(p => p.UserID.Equals(new Guid(userIDString))))
-        {//no join request
-            beMember = -1;
+    List<ProjectMember> ProjectMemberOfUser = null;
+    int? statusProjectMemberOfUser = -1;
+
+    if (!string.IsNullOrEmpty(userIDString))
+    {    
+        ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(userIDString)));
+        if (ProjectMemberOfUser.Count()>0)
+        {
+            statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
         }
-        else if (allProjectMember.Any(p => p.UserID.Equals(new Guid(userIDString)) && p.Status == 0))
-        {//join request
-            beMember = 0;
-        }
-        else if (allProjectMember.Any(p => p.UserID.Equals(new Guid(userIDString)) && p.Status >= 1))
-        {//is member
-            beMember = 1;
-        }          
     }
+         
+   
     string[] projectImages = new string[1] { ","};
     if (Model.CurrentProject.Attachment != null)
     {
         projectImages = Model.CurrentProject.Attachment.TrimEnd(',', ' ').Split(",");
     }
-    var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(userIDString)));
-    var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
     
 }
 
 <!-- container start -->
-<div class="m-w-screen-2xl flex  justify-start relative">
+<div class="m-w-screen-2xl ml-20 flex  justify-start relative">
     @if (statusProjectMemberOfUser>=2)
     {
         <!-- edit button -->
         <a asp-action="UpdateProjectProfile" asp-route-id="@Model.CurrentProject.ProjectID" title="Edit project profile">
             <button type="button"
-            class="absolute top-5 w-fit h-fit mx-2 my-2 p-2 " style="right:-5px;">
-                <i class="fa-solid fa-pen-to-square text-4xl text-gray-900"></i>
+            class="absolute  w-fit h-fit mx-2  p-2 top-2 " style="right:-5px;">
+                <i class="fa-solid fa-pen-to-square text-3xl text-gray-900"></i>
             </button>
         </a>
     }
-    <div class="relative my-14 ml-8 mr-4 flex flex-col text-xl" style="width: 66%">
+    <div class="relative my-12  flex flex-col text-xl" style="width: 66%">
         <!-- part 1-image -->
-        <div class="ml-14 max-w-5xl w-full justify-end items-center">
+        <div class="ml-0  w-full justify-center items-center">
             <div class="relative items-center">
                 <!-- Main image container -->
-                <div id="carousel" class=" bg-gray-300 rounded-lg overflow-hidden" style="height:32rem;width:65rem;">
+                <div id="carousel" class="w-full bg-gray-300 rounded-lg overflow-hidden" style="height:32rem;">
                     <!-- Images will be inserted here by JavaScript -->
                 </div>
             </div>
@@ -89,45 +86,51 @@
         </div>
         <!-- end part 1-image -->
         <div class="border-t p-6 ">
-            <h2 class="font-semibold mb-2 text-black text-3xl">Contact Information:</h2>
-            <p class="text-gray-600">✉ @Model.CurrentProject.ProjectEmail</p>
-            <p class="text-gray-600">📞 @Model.CurrentProject.ProjectPhoneNumber</p>
-            <p class="text-gray-600">🏠 @Model.CurrentProject.ProjectAddress</p>
+            <h2 class="font-semibold mb-2 text-black text-2xl">Contact Information:</h2>
+            <p class="text-gray-600  text-md">✉ @Model.CurrentProject.ProjectEmail</p>
+            <p class="text-gray-600  text-md">📞 @Model.CurrentProject.ProjectPhoneNumber</p>
+            <p class="text-gray-600  text-md">🏠 @Model.CurrentProject.ProjectAddress</p>
         </div>
             <div class="border-t p-4 mt-0">
-                <h2 class="font-semibold mb-2 text-black text-3xl">Timeline</h2>
-                <p class="text-gray-600">Start Date: @Model.CurrentProject.StartTime</p>
-                <p class="text-gray-600">End Date: @Model.CurrentProject.EndTime</p>
+                <h2 class="font-semibold mb-2 text-black text-2xl">Timeline</h2>
+                <p class="text-gray-600  text-md">Start Date: @Model.CurrentProject.StartTime</p>
+                <p class="text-gray-600  text-md">End Date: @Model.CurrentProject.EndTime</p>
             @if (Model.CurrentProject.ProjectStatus == -1)
                     {
-                    <p class="text-gray-600">Status: <span class="text-red-700 font-semibold">Inactive</span></p>
+                    <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">Inactive</span></p>
                     }else if
                 
                 (Model.CurrentProject.ProjectStatus== 0)
                 {
-                <p class="text-gray-600">Status: <span class="text-red-700 font-semibold">Preparing</span></p>
+                <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">Preparing</span></p>
             }
             else if(Model.CurrentProject.ProjectStatus==1)
             {
-                <p class="text-gray-600">Status: <span class="text-red-700 font-semibold">In progress</span></p>
+                <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">In progress</span></p>
             }
             else if (Model.CurrentProject.ProjectStatus == 2)
             {
-                <p class="text-gray-600">Status: <span class="text-red-700 font-semibold">Completed</span></p>
+                <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">Completed</span></p>
                 }
             </div>
         <div class="border-t p-4 mt-0">
-            <h2 class="font-semibold mb-2 text-black text-3xl">Description</h2>
-            <p id="notViewMore" class="text-gray-600 line-clamp-3">
-              @Model.CurrentProject.ProjectDescription
-            </p>
-            <p id="viewMore" class="text-gray-600 hidden">
-                @Model.CurrentProject.ProjectDescription
-            </p>
-            <a onclick="viewMoreDescription()" class="cursor-pointer text-gray-400 flex justify-center font-normal">View more...</a>
+            <h2 class="font-semibold mb-2 text-black text-2xl">Description</h2>
+
+            <details id="descriptionDetails" class="collapse bg-base-200">
+            <summary  class="collapse-title text-md font-medium cursor-pointer">
+                <div id="description-container" class="cursor-pointer" onclick="toggleDescription()">
+                <p class="text-gray-600 text-md line-clamp-3" id="summaryText">
+                    @Model.CurrentProject.ProjectDescription
+                </p>
+                <p class="hidden" id="fullText">
+                    @Model.CurrentProject.ProjectDescription
+                </p>
+                </div>
+            </summary>
+        </details>
         </div>
         <div class="border-t p-4 mt-0">
-            <h2 class="font-semibold mb-2 text-black text-3xl">Organizer</h2>
+            <h2 class="font-semibold mb-2 text-black text-2xl">Organizer</h2>
             <div class="flex justify-start">
                 <div>
                     <img class="rounded-full w-14 h-14 mx-4 mb-4"
@@ -136,11 +139,11 @@
                 </div>
                 <div class="flex flex-col ">
                     <p class="text-gray-600 font-normal">
-                        Project leader: <span class="text-black font-bold">
+                        Project leader: <span class="text-black font-bold  text-md">
                            @Model.CurrentLeaderProject.UserFullName
                         </span>
                     </p>
-                        <p class="text-gray-400 font-normal text-base ">Address: @Model.CurrentLeaderProject.UserAddress</p>
+                        <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentLeaderProject.UserAddress</p>
                 </div>
             </div>
             @if (Model.CurrentProject.Request != null)
@@ -153,11 +156,11 @@
                     </div>
                     <div class="flex flex-col ">
                         <p class="text-gray-600 font-normal">
-                            Requester: <span class="text-black font-bold">
+                            Requester: <span class="text-black font-bold  text-md">
                                 @Model.CurrentProject.Request?.User.UserFullName
                             </span>
                         </p>
-                        <p class="text-gray-400 font-normal text-base ">Address: @Model.CurrentProject.Request?.User.UserAddress</p>
+                        <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentProject.Request?.User.UserAddress</p>
                     </div>
                 </div>
             }          
@@ -165,46 +168,102 @@
         @if (Model.Random5Donors.Count > 0)
         {
             <div class="border-t p-4 mt-0">
-                <h2 class="font-semibold mb-2 text-black text-3xl">Donors</h2>
+                <h2 class="font-semibold mb-2 text-black text-2xl">Donors</h2>
+        <div class="overflow-x-auto">
+            <table class="table table-md">
+                <thead class="bg-gray-300/20 ">
+                    <tr class="text-gray-900 ">
+                        <th></th>
+                        <th class="text-xl">Date</th>
+                        <th class="text-xl">Name</th>
+                        <th class="text-xl">Resource Name</th>
+                        <th class="text-xl">Quantity</th>
+                        <th class="text-xl">Unit</th>
+                        <th class="text-xl">Message</th>
+                        <th class="text-xl">Status</th>
+                        <th class="text-xl">Action</th>
+                    </tr>
+                </thead>
+                <tbody >
+                       @for (int i = 0;i< Model.Random5Donors.Count();i++)
+                    {
+                        var item =  Model.Random5Donors.ElementAt(i);
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-2 text-lg">@(i + 1)</td>
+                            <td class="p-2 text-lg">@item.Time</td>
+                            <td class="p-2 text-lg">@item.User.UserFullName</td>
+                            <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
+                            <td class="p-2 text-lg">@item.Amount</td>
+                            <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
+                            <td class="p-2 text-lg">@item.Message</td>
+                            <td class="p-2 ">
+                                <div class="w-fit">
+                                        @if (item.Status == 1)
+                                        {
+                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
 
-                @foreach (var item in Model.Random5Donors)
-                {
-                    <div class="grid grid-cols-2 py-2 px-6 shadow-md shadow-blue-500/30 rounded-xl items-center">
-                        <div class="flex justify-start ">
-                            <div class=" flex items-center">
-                                <img class="rounded-full w-10 h-10 mr-4 "
-                                     src="@item.User.UserAvatar"
-                                     alt="avatar">
-                            </div>
-                            <div class="flex flex-col ">
-                                <p class="text-black font-bold">@item.User.UserFullName</p>
-                                <p class="text-gray-400 font-normal text-base ">@item.Time</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-col justify-end ml-auto items-end">
-                            <p class="text-green-500 font-bold">+@item.Amount @item.ProjectResource?.Unit</p>
-                            @if (item.ProjectResource.ResourceName.Trim().ToLower().Equals("money"))
-                            {
-                                <p class=" bg-green-500 text-white rounded-3xl w-fit px-8 my-2">Money</p>
-                            }
-                            else
-                            {
-                                <p class=" bg-orange-500 text-white rounded-3xl w-fit px-8 my-2">@item.ProjectResource.ResourceName</p>
-                            }
-                        </div>
-                        <div class="py-2 text-gray-900">@item.Message</div>
-                    </div>
-                }
+                                                <span class="">Accepted</span>
+                                        </div>
+
+                                        }else if(item.Status == -1)
+                                        {
+                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                                            <span class="">Denied</span>
+                                        </div>
+                                        }
+                                </div>
+                            </td>
+                            <td>
+                                <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                                <!-- You can open the modal using ID.showModal() method -->
+                                <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                    <div class="modal-box w-11/12 max-w-5xl">
+                                        <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                        @{
+                                            string[] proofImages = new string[1] { "," };
+                                            if (item.Attachments != null)
+                                            {
+                                                proofImages = item.Attachments.TrimEnd(',', ' ').Split(",");
+                                            }
+                                        }
+                                        <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
+                                            @foreach (var img in proofImages)
+                                            {
+                                                <button onclick="openModal('@img','proof_image')">
+                                                    <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer" />
+                                                </button>
+                                                <dialog id="proof_image" class="modal">
+                                                    <div class="modal-box w-fit h-fit  p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                        <img id="modalImage" alt="current-phase-img" class="h-[80vh] w-auto rounded-xl shadow-md cursor-pointer" />
+                                                    </div>
+                                                    <form method="dialog" class="modal-backdrop ">
+                                                        <button>close</button>
+                                                    </form>
+                                                </dialog>
+                                            }
+                                        </div>
+
+                                    </div>
+                                    <form method="dialog" class="modal-backdrop">
+                                        <button>close</button>
+                                    </form>
+                                </dialog>
+                            </td>
+                    </tr>
+        }
+                </tbody>
+            </table>
+        </div>
+
                 <a asp-action="ManageProjectDonor" asp-route-projectID="@currentProjectID" class="text-gray-400 flex justify-center font-normal">See more donors...</a>
-            </div>
+              </div>
         }       
-    </div>
 
-
+</div>
     <!-- part 1-fundraising -->
     <!-- when using fixed+relative, need to modify top-bottom-left-right to specify the object at fixed/absolute -->
-        <div style="width:28%;" class="sticky top-20 right-15 h-fit flex justify-start">
-    <div class=" flex flex-col text-4xl justify-start shadow-2xl p-6 my-10 mx-2 rounded-3xl bg-white">
+        <div  class="sticky top-20 right-15 h-fit ml-12 mr-20 " style="width:28%;">
+    <div class=" flex flex-col text-4xl justify-start shadow-2xl p-6 my-10 mx-2 rounded-3xl bg-white w-full">
         <span class=" font-bold text-green-500 p-2 tex-6xl">Raised @Model.CurrentAmountOfMoneyDonate VND</span>
         <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 ">
             <div class="bg-green-500 h-3 rounded-full" style="width: @(Model.ProgressDonate >=100?100:Model.ProgressDonate)%"></div>       
@@ -228,9 +287,9 @@
             this project
         </button>
             </a>
-            @if (beMember==-1)
+            @if (statusProjectMemberOfUser == -1)
             {
-                <a asp-action="JoinProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
+                <a asp-action="JoinProjectRequest" asp-route-memberid="@(!string.IsNullOrEmpty(userIDString)?new Guid(userIDString):Guid.Empty)" asp-route-projectid="@currentProjectID">
                     <button style="width:98%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
                         <span class="relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                         Join this project
@@ -238,7 +297,7 @@
                 </button>
                 </a>
             }
-            else if(beMember==0)
+            else if (statusProjectMemberOfUser == 0)
             {
                 <a asp-action="JoinProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
                     <button style="width:98%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
@@ -248,7 +307,7 @@
                     </button>
                 </a>           
             }
-            else if(beMember==1)
+            else if (statusProjectMemberOfUser >= 1)
             {
                 <a asp-action="LeaveProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
                     <button style="width:98%;"class="  relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
@@ -258,16 +317,13 @@
                     </button>
                 </a>
             }
-           @*  <button onclick="showReportForm()" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-            <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
-                Report
-            </span>
-        </button> *@
-            <button onclick="ReportModal.showModal()" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-            <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
+
+            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : "window.location.href='/Identity/Account/Login'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                 Report
             </span>
         </button>
+
     </div>
    
         </div>
@@ -294,25 +350,27 @@
                                 class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
                             Report
                         </button>
-                        <button type="button" onclick="closeModal()" class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
-                            font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
-                            Cancel
-                        </button>
+                    
 
                     </div>
                 </form>
             </div>
         </div>
+        <form method="dialog" class="modal-backdrop">
+                                        <button>close</button>
+                                    </form>
     </dialog>
 
 
 </div>
 
 <script>
-    @* close modal *@
-        function closeModal() {
-            document.getElementById('ReportModal').close();
-        }
+    @*  modal *@
+     function openModal(imgSrc,modalid) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById(modalid).showModal();
+    }
+       
 
     @* handle carousel *@
     const carousel = document.getElementById('carousel');
@@ -375,17 +433,22 @@
     // Initialize the carousel
     updateCarousel();
     @* view more RTCSessionDescription *@
-        function viewMoreDescription() {
-            const notViewMore = document.getElementById('notViewMore');
-            const viewMore = document.getElementById('viewMore');
 
-            if (viewMore.classList.contains('hidden')) {
-                viewMore.classList.remove('hidden');
-                notViewMore.classList.add('hidden');
-            } else {
-                viewMore.classList.add('hidden');
-                notViewMore.classList.remove('hidden');
-            }
-        }
+
+function toggleDescription() {
+    const summaryText = document.getElementById('summaryText');
+    const fullText = document.getElementById('fullText').textContent;
+
+    if (summaryText.classList.contains('line-clamp-3')) {
+        // Hiển thị toàn bộ nội dung
+        summaryText.classList.remove('line-clamp-3');
+        summaryText.textContent = fullText;
+    } else {
+        // Thu gọn nội dung
+        summaryText.classList.add('line-clamp-3');
+        summaryText.textContent = fullText;
+    }
+}
+
 
 </script>

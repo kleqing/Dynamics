@@ -211,7 +211,7 @@ namespace Dynamics.Controllers
 			existingRequest.isEmergency = obj.isEmergency;
 			if (images != null && images.Count > 0)
 			{
-				string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + existingRequest.RequestID.ToString(), userId);
+				string imagePath = await _cloudinaryUploader.UploadMultiImagesAsync(images);
 				// append new images if there are existing images
 				if (!string.IsNullOrEmpty(imagePath))
 				{

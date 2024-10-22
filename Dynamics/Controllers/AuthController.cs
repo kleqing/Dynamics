@@ -29,6 +29,7 @@ namespace Dynamics.Controllers
         {
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+            HttpContext.Session.Clear();
             await _signInManager.SignOutAsync();
             return RedirectToAction("HomePage", "Home");
         }

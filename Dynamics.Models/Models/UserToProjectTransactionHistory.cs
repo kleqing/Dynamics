@@ -16,6 +16,8 @@ namespace Dynamics.Models.Models
 		public int Status { get; set; }
 		[Required]
 		public int Amount { get; set; }
+
+        [MaxLength(100, ErrorMessage = "Message cannot exceed 100 characters.")]
         public string? Message { get; set; }
         [DataType(DataType.Date)]
         public DateOnly Time { get; set; }

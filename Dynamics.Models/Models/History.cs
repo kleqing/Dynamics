@@ -11,9 +11,11 @@ namespace Dynamics.Models.Models
     {
         public Guid HistoryID { get; set; }
         public Guid ProjectID { get; set; }
+        [MaxLength(100, ErrorMessage = "Phase cannot exceed 100 characters.")]
         public string Phase { get; set; }
         [DataType(DataType.Date)]
         public DateOnly Date { get; set; }
+        [MaxLength(500, ErrorMessage = "Content cannot exceed 100 characters.")]
         public string Content { get; set; }
         public string? Attachment { get; set; }
         public virtual Project Project { get; set; }

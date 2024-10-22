@@ -15,7 +15,7 @@
 
 <!-- container start -->
 <div class="m-w-screen-2xl flex  justify-start relative">
-    @if (Model.UserID.Equals(new Guid(userIDString)))
+    @if (!string.IsNullOrEmpty(userIDString) && Model.UserID.Equals(new Guid(userIDString)))
     {
         <!-- edit button -->
         <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile">

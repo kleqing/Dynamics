@@ -15,7 +15,7 @@ public interface IUserToProjectTransactionHistoryRepository
     Expression<Func<UserToProjectTransactionHistory, bool>> filter);
     //accept or deny transaction from user
     Task<bool> AddUserDonateRequestAsync(UserToProjectTransactionHistory? userDonate);
-    Task<bool> AcceptedUserDonateRequestAsync(Guid transactionID);
-    Task<bool> DenyUserDonateRequestAsync(Guid transactionID);
+    Task<bool> AcceptUserDonateRequestAsync(UserToProjectTransactionHistory userDonate);
+    Task<bool> DenyUserDonateRequestAsync(UserToProjectTransactionHistory userDonate);
 }
 

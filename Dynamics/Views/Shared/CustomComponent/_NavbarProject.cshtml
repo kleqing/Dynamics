@@ -16,25 +16,25 @@
 }
 
 <!-- banner project -->
-<div class=" flex justify-center items-center w-full bg-blue-300" style="height:50vh;">
+<div class=" flex justify-center items-center w-full bg-gray-400 opacity-70" style="height:50vh;">
     <div class="flex-col">
         @* remind: inject to take project name, organization name *@
-        <h2 class="font-serif text-black font-bold text-6xl">@currentProject?.ProjectName</h2>
-        <h4 class="font-serif text-slate-500 font-semibold text-4xl">By @currentProject?.Organization.OrganizationName</h4>
+        <h2 class=" text-black font-bold text-6xl">@currentProject?.ProjectName</h2>
+        <h4 class="font-mona-sans text-gray-700 font-semibold text-3xl">By @currentProject?.Organization.OrganizationName</h4>
     </div>
 
 </div>
 <!-- end banner project -->
 <!-- navbar -->
-<nav class="bg-white shadow relative">
+<nav class=" shadow relative " style="background-color:#151D28">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-center">
-            <div class="flex space-x-8 text-2xl font-serif ">
-                <a asp-action="ManageProject" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-blue-600 px-3 py-2 font-bold focus:bg-gray-100">Details</a>
-                <a asp-action="ManageProjectDonor" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-blue-600 px-3 py-2 font-medium">Donors</a>
-                <a asp-action="ManageProjectMember" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-blue-600 px-3 py-2  font-medium">Members</a>
-                <a asp-action="ManageProjectResource" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-blue-600 px-3 py-2  font-medium">Resources</a>
-                <a asp-action="ManageProjectPhaseReport" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-blue-600 px-3 py-2  font-medium">Updates</a>
+            <div class="flex space-x-8 text-2xl ">
+                <a asp-action="ManageProject" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-white px-3 py-2 font-bold focus:bg-gray-800">Details</a>
+                <a asp-action="ManageProjectDonor" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-white px-3 py-2 font-medium">Donors</a>
+                <a asp-action="ManageProjectMember" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-white px-3 py-2  font-medium">Members</a>
+                <a asp-action="ManageProjectResource" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-white px-3 py-2  font-medium">Resources</a>
+                <a asp-action="ManageProjectPhaseReport" asp-route-id="@currentProject?.ProjectID" class="px-4 py-4 text-gray-500 hover:text-white px-3 py-2  font-medium">Updates</a>
             </div>
         </div>
     </div>

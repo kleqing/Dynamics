@@ -43,7 +43,7 @@ public class CloudinaryUploader
     {
         if (checkValid == true && files.Count == 0) return "No file";
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp",".svg" };
         List<string> result = new List<string>();
         foreach (var file in files)
         {

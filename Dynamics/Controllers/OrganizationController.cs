@@ -124,11 +124,12 @@ namespace Dynamics.Controllers
                     Unit = "VND",
                 };
                 await _organizationRepository.AddOrganizationResourceSync(organizationResource);
-
+                TempData[MyConstants.Success] = "Create organization successfully!";
                 return RedirectToAction(nameof(JoinOrganization), new { organizationId = organization.OrganizationID, status = 2, userId = currentUser.UserID });//status 2 : CEOID   0 : processing   1 : membert
             }
             else
-                return View(organization);
+                TempData[MyConstants.Error] = "Create organization failed!";
+            return View(organization);
         }
         
         public async Task<IActionResult> MyOrganization(Guid userId)
@@ -170,9 +171,13 @@ namespace Dynamics.Controllers
                     organization.OrganizationPictures = await _cloudinaryUploader.UploadImageAsync(image);
                 }
                 if(await _organizationRepository.UpdateOrganizationAsync(organization))
-                return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+                {
+                    TempData[MyConstants.Success] = "Update organization successfully!";
+                    return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+                }
 
             }
+            TempData[MyConstants.Error] = "Update organization failed!";
             return View(organization);
         }
 
@@ -197,6 +202,7 @@ namespace Dynamics.Controllers
             {
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
+            TempData[MyConstants.Success] = "Send request successfully!";
             return RedirectToAction(nameof(JoinOrganization), new { organizationId = organizationId, status = 0, userId = currentUser.UserID});
         }
 
@@ -208,54 +214,63 @@ namespace Dynamics.Controllers
 
 
         public async Task<IActionResult> AcceptRquestJoin(Guid organizationId, Guid userId)
-        {
+        {       
             return RedirectToAction(nameof(JoinOrganization), new { organizationId = organizationId, status = 1, userId = userId});
         }
 
 
         public async Task<IActionResult> JoinOrganization(Guid organizationId, int status, Guid userId)
         {
-            
             var organizationMember = new OrganizationMember()
             {
                 UserID = userId,
                 OrganizationID = organizationId,
                 Status = status,
             };
-            
-            if(status == 2 || status == 0)
-            {
-                await _organizationRepository.AddOrganizationMemberSync(organizationMember);
-            }
-            else
-            {
-                await _organizationRepository.UpdateOrganizationMemberAsync(organizationMember);
-            }
 
-            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
-            HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
-
-            if (status == 1)
+            try
             {
-                return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
-            }
+                if (status == 2 || status == 0)
+                {
+                    await _organizationRepository.AddOrganizationMemberSync(organizationMember);
+                     TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                }
+                else
+                {
+                    await _organizationRepository.UpdateOrganizationMemberAsync(organizationMember);
+                     TempData[MyConstants.Success] = "Your membership status has been updated successfully.";
+                }
 
-            return RedirectToAction(nameof(Detail), new { organizationId = organizationId});
+                var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
+                HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
+
+                if (status == 1)
+                {
+                    return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
+                }
+
+                return RedirectToAction(nameof(Detail), new { organizationId = organizationId });
+            }
+            catch (Exception ex)
+            {
+                // If there's an error, notify the user
+                 TempData[MyConstants.Error] = "An error occurred while processing your request.";
+                return RedirectToAction(nameof(Detail), new { organizationId = organizationId });
+            }
         }
+
 
         [HttpPost]
         public async Task<IActionResult> OutOrganization(Guid organizationId, Guid userId)
         {
-            //user out or ban or deny
             var organizationMember = await _organizationRepository.GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == userId);
             var statusUserOut = organizationMember.Status;
-            //out organization
+
             await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, userId);
 
             var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
-            //get current user
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
             if (userString != null)
@@ -263,22 +278,23 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            //deny or deny request
             if (statusUserOut == 0 && currentUser.UserID.Equals(organizationVM.CEO.UserID))
             {
+                 TempData[MyConstants.Success] = "User request denied successfully.";
                 return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
             }
-            else if(statusUserOut == 0)
+            else if (statusUserOut == 0)
             {
+                 TempData[MyConstants.Success] = "You have successfully left the organization.";
                 return RedirectToAction(nameof(Index));
             }
             else
             {
-                //return RedirectToAction(nameof(Detail), new { organizationId = organizationId });
+                 TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
                 return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
-            
         }
+
 
         public async Task<IActionResult> TransferCeoOrganization()
         {
@@ -291,7 +307,6 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
-            // can be use Session current organization
             if (!newCEOID.Equals(currentCEOID))
             {
                 var organizationMemberCurrent = new OrganizationMember()
@@ -309,8 +324,12 @@ namespace Dynamics.Controllers
                     Status = 2,
                 };
                 await _organizationRepository.UpdateOrganizationMemberAsync(organizationMemberNew);
+
+                 TempData[MyConstants.Success] = "CEO transferred successfully.";
                 return RedirectToAction("Index", "EditUser");
             }
+
+             TempData[MyConstants.Error] = "New CEO must be different from the current CEO.";
             return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
         }
 
@@ -379,27 +398,38 @@ namespace Dynamics.Controllers
         {
             if (organizationResource != null)
             {
-                if(await _organizationRepository.AddOrganizationResourceSync(organizationResource))
+                if (await _organizationRepository.AddOrganizationResourceSync(organizationResource))
                 {
                     var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationResource.OrganizationID));
-                    HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM); 
+                    HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
+
+                     TempData[MyConstants.Success] = "Organization resource added successfully.";
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
-                    
             }
+             TempData[MyConstants.Error] = "Invalid organization resource data.";
             return View(organizationResource);
-            
         }
+
 
         public async Task<IActionResult> RemoveOrganizationResource(Guid resourceId)
         {
-            await _organizationRepository.DeleteOrganizationResourceAsync(resourceId);
-
             var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(currentOrganization.OrganizationID));
-            HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
+
+            if (currentOrganization != null)
+            {
+                await _organizationRepository.DeleteOrganizationResourceAsync(resourceId);
+                var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(currentOrganization.OrganizationID));
+                HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
+
+                 TempData[MyConstants.Success] = "Organization resource removed successfully.";
+                return RedirectToAction(nameof(ManageOrganizationResource));
+            }
+
+             TempData[MyConstants.Error] = "Failed to remove organization resource.";
             return RedirectToAction(nameof(ManageOrganizationResource));
         }
+
 
         [HttpGet]
         public async Task<IActionResult> SendResoueceOrganizationToProject(Guid resourceId)
@@ -434,9 +464,9 @@ namespace Dynamics.Controllers
 
                 var projectResource = new ProjectResource();
 
-                foreach(var item in Project.ProjectResource)
+                foreach (var item in Project.ProjectResource)
                 {
-                    if(item.ResourceName.ToUpper().Contains(ResourceSend.ResourceName.ToUpper()) && item.Unit.ToUpper().Contains(ResourceSend.Unit.ToUpper()))
+                    if (item.ResourceName.ToUpper().Contains(ResourceSend.ResourceName.ToUpper()) && item.Unit.ToUpper().Contains(ResourceSend.Unit.ToUpper()))
                     {
                         duplicate = true;
                         projectResource = item;
@@ -446,7 +476,7 @@ namespace Dynamics.Controllers
 
                 if (duplicate)
                 {
-                   organizationToProjectHistory.ProjectResourceID = projectResource.ResourceID;
+                    organizationToProjectHistory.ProjectResourceID = projectResource.ResourceID;
                 }
                 else
                 {
@@ -476,43 +506,48 @@ namespace Dynamics.Controllers
 
                     if (duplicate)
                     {
-                       organizationToProjectHistory.ProjectResourceID = projectResource1.ResourceID;
+                        organizationToProjectHistory.ProjectResourceID = projectResource1.ResourceID;
                     }
                 }
                 if (await _organizationRepository.AddOrganizationToProjectHistoryAsync(organizationToProjectHistory))
                 {
                     ResourceSend.Quantity -= organizationToProjectHistory.Amount;
 
-                    if(await _organizationRepository.UpdateOrganizationResourceAsync(ResourceSend))
+                    if (await _organizationRepository.UpdateOrganizationResourceAsync(ResourceSend))
+                    {
+                         TempData[MyConstants.Success] = "Resource sent to project successfully.";
                         return RedirectToAction(nameof(ManageOrganizationResource));
+                    }
                 }
-                   
+
             }
-            if(organizationToProjectHistory.Amount <= 0 || organizationToProjectHistory.Amount > ResourceSend.Quantity)
+            if (organizationToProjectHistory.Amount <= 0 || organizationToProjectHistory.Amount > ResourceSend.Quantity)
 
                 ViewBag.MessageExcessQuantity = $"*Quantity more than 0 and less than equal {ResourceSend.Quantity}";
 
-            if(projectId == Guid.Empty)
+            if (projectId == Guid.Empty)
             {
                 ViewBag.MessageProject = "*Choose project to send";
             }
+             TempData[MyConstants.Error] = "Failed to send resource to project. Please check your input.";
             return View(organizationToProjectHistory);
         }
-
         public async Task<IActionResult> CancelSendResource(Guid transactionId)
         {
             var transactionHistory = await _organizationRepository.GetOrganizationToProjectHistoryAsync(otp => otp.TransactionID.Equals(transactionId));
-
-            var OrganizationResource = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.Equals(transactionHistory.OrganizationResourceID));
-
-            OrganizationResource.Quantity += transactionHistory.Amount;
-
-            await _organizationRepository.UpdateOrganizationResourceAsync(OrganizationResource);
-
-            await _organizationRepository.DeleteOrganizationToProjectHistoryAsync(transactionId);
-            
+            if (transactionHistory != null)
+            {
+                var OrganizationResource = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.Equals(transactionHistory.OrganizationResourceID));
+                OrganizationResource.Quantity += transactionHistory.Amount;
+                await _organizationRepository.UpdateOrganizationResourceAsync(OrganizationResource);
+                await _organizationRepository.DeleteOrganizationToProjectHistoryAsync(transactionId);
+                 TempData[MyConstants.Success] = "Resource sending transaction canceled successfully.";
+                return RedirectToAction(nameof(ManageOrganizationResource));
+            }
+             TempData[MyConstants.Error] = "Transaction not found. Unable to cancel.";
             return RedirectToAction(nameof(ManageOrganizationResource));
         }
+
 
         public async Task<IActionResult> DonateByMoney()
         {
@@ -551,10 +586,11 @@ namespace Dynamics.Controllers
             {
                 if(await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(transactionHistory))
                 {
+                     TempData[MyConstants.Success] = "Resource donated successfully.";
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }        
             }
-
+             TempData[MyConstants.Error] = "Failed to donate resource.";
             return View(transactionHistory);
         }
 
@@ -570,8 +606,8 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> DenyRequestDonate(Guid transactionId)
         {
 
-            await _organizationRepository.DeleteUserToOrganizationTransactionHistoryByTransactionIDAsync(transactionId);
-
+           var isSuccess =  await _organizationRepository.DeleteUserToOrganizationTransactionHistoryByTransactionIDAsync(transactionId);
+          if(isSuccess)  TempData[MyConstants.Success] = "Request denied successfully."; else  TempData[MyConstants.Error] = "Failed to deny request.";
             return RedirectToAction(nameof(ReviewDonateRequest));
         }
         public async Task<IActionResult> AcceptRquestDonate(Guid transactionId)
@@ -579,15 +615,15 @@ namespace Dynamics.Controllers
             //update table UserToOrganizationTransactionHistory
             var userToOrganizationTransactionHistory = await _organizationRepository.GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.TransactionID.Equals(transactionId));
             userToOrganizationTransactionHistory.Status = 1;
-            await _organizationRepository.UpdateUserToOrganizationTransactionHistoryAsync(userToOrganizationTransactionHistory);
+          var updateTransactionSuccess =  await _organizationRepository.UpdateUserToOrganizationTransactionHistoryAsync(userToOrganizationTransactionHistory);
 
             var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
             //update table resource
             var organizationResource = await _organizationRepository.GetOrganizationResourceByOrganizationIDAndResourceIDAsync(currentOrganization.OrganizationID, userToOrganizationTransactionHistory.ResourceID);
             organizationResource.Quantity += userToOrganizationTransactionHistory.Amount;
-            await _organizationRepository.UpdateOrganizationResourceAsync(organizationResource);
-
+            var updateResourceSuccess = await _organizationRepository.UpdateOrganizationResourceAsync(organizationResource);
+            if (updateTransactionSuccess && updateResourceSuccess)  TempData[MyConstants.Success] = "Request accepted successfully."; else  TempData[MyConstants.Error] = "Failed to accept request.";
             return RedirectToAction(nameof(ManageOrganizationResource));
         }
 

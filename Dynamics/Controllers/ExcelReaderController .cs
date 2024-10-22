@@ -18,10 +18,22 @@ namespace Dynamics.Controllers
     {
 
         IOrganizationRepository _organizationRepository;
+        private readonly IProjectRepository _projectRepo;
+        private readonly IProjectResourceRepository _projectResourceRepo;
+        private readonly IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo;
+        private readonly CloudinaryUploader _cloudinaryUploader;
 
-        public ExcelReaderController(IOrganizationRepository organizationRepository)
+        public ExcelReaderController(IOrganizationRepository organizationRepository,
+            IProjectRepository projectRepository,
+            IProjectResourceRepository projectResourceRepository,
+            IUserToProjectTransactionHistoryRepository userToProjectTransactionHistoryRepository,
+            CloudinaryUploader cloudinaryUploader)
         {
             _organizationRepository = organizationRepository;
+            _projectRepo = projectRepository;
+            _projectResourceRepo = projectResourceRepository;
+            _userToProjectTransactionHistoryRepo = userToProjectTransactionHistoryRepository;
+            _cloudinaryUploader = cloudinaryUploader;
         }
 
         public async Task<ActionResult> Upload(IFormFile file)
@@ -78,17 +90,111 @@ namespace Dynamics.Controllers
                             }
                         }
                     }
-                   return RedirectToAction("ManageOrganizationResource", "Organization");
+                     TempData[MyConstants.Success] = "Send donate requests successfully.";
+                    return RedirectToAction("ManageOrganizationResource", "Organization");
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Error = "Error: " + ex.Message;
+                    //ViewBag.Error = "Error: " + ex.Message;
+                     TempData[MyConstants.Error] = "Error: " + ex.Message;
                     return RedirectToAction("ManageOrganizationResource", "Organization");
                 }
             }
-
-            ViewBag.Error = "Please select a file to upload.";
+             TempData[MyConstants.Error] = "Please select a file to upload.";
+            //ViewBag.Error = "Please select a file to upload.";
             return RedirectToAction("ManageOrganizationResource", "Organization");
+        }
+        public async Task<ActionResult> UploadProjectExcel(IFormFile file,List<IFormFile> images)
+        {
+            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            var currentProjectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.ToString().Equals(currentProjectID));
+
+            if (file != null && file.Length > 0)
+            {
+                try
+                {
+                    var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                    if (resImage.Equals("Wrong extension"))
+                    {
+                        TempData[MyConstants.Error] = "Wrong extension of some proof images file.";
+                        return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
+                    }
+                    else if (resImage.Equals("No file"))
+                    {
+                        TempData[MyConstants.Error] = "Please select at least a proof image to upload.";
+                        return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
+                    }
+
+                    //get current user
+                    var currentUserID = HttpContext.Session.GetString("currentUserID");
+                    string resourceCannotDonate = null;
+                    using (var package = new ExcelPackage(file.OpenReadStream()))
+
+                    {
+                       
+                        var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                        if (worksheet != null)
+                        {
+                            int rowCount = worksheet.Dimension.Rows;
+
+                            for (int row = 2; row <= rowCount; row++) // Assuming first row is header
+                            {
+                                var resource = new ProjectResource()
+                                {
+                                    ResourceName = worksheet.Cells[row, 1].Value?.ToString(),
+                                    Quantity = Convert.ToInt32(worksheet.Cells[row, 2].Value) >= 0 ? Convert.ToInt32(worksheet.Cells[row, 2].Value) : 0,
+                                    Unit = worksheet.Cells[row, 5].Value?.ToString(),
+                                };
+
+                                if (resource.Quantity == 0)
+                                {
+                                    continue;
+                                }
+
+                                // get current resource
+                                var currentResource = await _projectResourceRepo.GetAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
+
+                                var userToProjectTransactionHistory = new UserToProjectTransactionHistory()
+                                {
+                                    ProjectResourceID = currentResource.ResourceID,
+                                    UserID = new Guid(currentUserID),
+                                    Status = 0,
+                                    Time = DateOnly.FromDateTime(DateTime.UtcNow),
+                                    Amount = resource.Quantity.Value,
+                                    Message = worksheet.Cells[row, 6].Value?.ToString(),
+                                };
+                                var quantityAfterDonate = currentResource.Quantity + resource.Quantity.Value;
+                                if(quantityAfterDonate > currentResource.ExpectedQuantity)
+                                {
+                                    resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";
+                                }
+                                else
+                                {
+                                    userToProjectTransactionHistory.Attachments = resImage;
+                                    await _userToProjectTransactionHistoryRepo.AddUserDonateRequestAsync(userToProjectTransactionHistory);
+                                }
+                            }
+                        }
+                    }
+                    if (resourceCannotDonate != null)
+                    {
+                         TempData[MyConstants.Success] = "Send donate requests successfully.";
+                        TempData[MyConstants.Info] = "But donate request of  " + resourceCannotDonate.TrimEnd(',',' ') + " cannot send because of exceed the expected quantity.";
+                    }
+                    else
+                    {
+                        TempData[MyConstants.Success] = "Send donate requests successfully.";
+                    }
+                    return RedirectToAction("ManageProject", "Project", new { id = currentProjectObj.ProjectID });
+                }
+                catch (Exception ex)
+                {
+                     TempData[MyConstants.Error] = "Error: " + ex.Message;
+                    return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
+                }
+            }
+             TempData[MyConstants.Error] = "Please select a file to upload.";
+            return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
         }
     }
 }

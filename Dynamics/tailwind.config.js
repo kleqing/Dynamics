@@ -6,7 +6,11 @@ module.exports = {
         './Areas/**/*.cshtml',
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                'mona-sans': ['Mona-Sans', 'sans-serif'],
+            },
+        },
     },
 
     daisyui: {

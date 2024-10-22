@@ -29,6 +29,7 @@ namespace Dynamics.DataAccess
         public virtual DbSet<ProjectResource> ProjectResources { get; set; }
         public virtual DbSet<Request> Requests { get; set; }
         public virtual DbSet<History> Histories { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -44,22 +45,24 @@ namespace Dynamics.DataAccess
             modelBuilder.Entity<Organization>().HasIndex(o => o.OrganizationName).IsUnique();
             modelBuilder.Entity<Organization>().HasIndex(o => o.OrganizationEmail).IsUnique();
 
-            // Primary Keys
-            modelBuilder.Entity<Report>().HasKey(r => r.ReportID);
-            modelBuilder.Entity<Award>().HasKey(a => a.AwardID);
-            modelBuilder.Entity<OrganizationResource>().HasKey(or => or.ResourceID);
-            modelBuilder.Entity<Organization>().HasKey(o => o.OrganizationID);
-            modelBuilder.Entity<OrganizationToProjectHistory>().HasKey(o => o.TransactionID);
-            modelBuilder.Entity<UserToOrganizationTransactionHistory>().HasKey(u => u.TransactionID);
-            modelBuilder.Entity<UserToProjectTransactionHistory>().HasKey(u => u.TransactionID);
-            modelBuilder.Entity<ProjectResource>().HasKey(pr => pr.ResourceID);
-            modelBuilder.Entity<Project>().HasKey(p => p.ProjectID);
-            modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.ProjectID, pm.UserID });
-            modelBuilder.Entity<OrganizationMember>().HasKey(om => new { om.OrganizationID, om.UserID });
-            modelBuilder.Entity<Request>().HasKey(r => r.RequestID);
-            modelBuilder.Entity<User>().HasKey(u => u.UserID);
-            modelBuilder.Entity<History>().HasKey(h => h.HistoryID);
-            // Relationships (Foreign Keys)
+    // Primary Keys
+    modelBuilder.Entity<Report>().HasKey(r => r.ReportID);
+    modelBuilder.Entity<Award>().HasKey(a => a.AwardID);
+    modelBuilder.Entity<OrganizationResource>().HasKey(or => or.ResourceID);
+    modelBuilder.Entity<Organization>().HasKey(o => o.OrganizationID);
+    modelBuilder.Entity<OrganizationToProjectHistory>().HasKey(o => o.TransactionID);
+    modelBuilder.Entity<UserToOrganizationTransactionHistory>().HasKey(u => u.TransactionID);
+    modelBuilder.Entity<UserToProjectTransactionHistory>().HasKey(u => u.TransactionID);
+    modelBuilder.Entity<ProjectResource>().HasKey(pr => pr.ResourceID);
+    modelBuilder.Entity<Project>().HasKey(p => p.ProjectID);
+    modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.ProjectID, pm.UserID });
+    modelBuilder.Entity<OrganizationMember>().HasKey(om => new { om.OrganizationID, om.UserID });
+    modelBuilder.Entity<Request>().HasKey(r => r.RequestID);
+    modelBuilder.Entity<User>().HasKey(u => u.UserID);
+    modelBuilder.Entity<History>().HasKey(r => r.HistoryID);
+    modelBuilder.Entity<Notification>().HasKey(n => n.NotificationID);
+
+    // Relationships (Foreign Keys)
 
             // Report to User: one user can have many reports
             modelBuilder.Entity<Report>()
@@ -179,12 +182,11 @@ namespace Dynamics.DataAccess
                 .HasForeignKey(k => k.ProjectResourceID)
                 .OnDelete(DeleteBehavior.NoAction);
 
-    // History to Project
-    modelBuilder.Entity<History>()
-        .HasOne(h => h.Project)
-        .WithMany(p => p.History)
-        .HasForeignKey(h => h.ProjectID);
-           
+           //Notification to User
+           modelBuilder.Entity<Notification>()
+               .HasOne(n => n.User)
+               .WithMany(u => u.Notifications)
+               .HasForeignKey(n => n.UserID);
         }
     }
 }

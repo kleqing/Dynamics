@@ -44,6 +44,8 @@ namespace Dynamics
                 // Get user profile
                 googleOptions.ClaimActions.MapJsonKey("picture", "picture");
             });
+            // Add service for notification
+            builder.Services.AddSignalR();
             // Add database
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -112,6 +114,7 @@ namespace Dynamics
                     UserToOragnizationTransactionHistoryVMService>();
             builder.Services.AddScoped<IProjectVMService, ProjectVMService>();
             builder.Services.AddScoped<IOrganizationToProjectHistoryVMService, OrganizationToProjectHistoryVMService>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
             builder.Services.AddScoped<IRequestRepository, RequestRepository>();
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
@@ -197,14 +200,18 @@ namespace Dynamics
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            
+            // Specify hub for clients to connect to
+            app.MapHub<NotificationHub>("/notification");
+                
             app.MapControllers();
-            app.UseRouting();
             app.UseSession();
+            app.UseRouting();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            // These guys must be in order authentication => authorization to work
             app.UseAuthentication();
             app.UseAuthorization();
 

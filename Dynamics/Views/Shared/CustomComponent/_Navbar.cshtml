@@ -1,9 +1,11 @@
 @using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
+@inject INotificationRepository _notifRepo
 
 
 <link rel="stylesheet" href="~/css/output.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <!-- Navbar -->
 @{
     var userString = Accessor.HttpContext.Session.GetString("user");
@@ -13,6 +15,8 @@
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
     Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.UserID.ToString());
+    //get all notification of current user
+    var userNotifs = await _notifRepo.GetCurrentUserNotificationsAsync(currentUser.UserID);
 }
 @{
     if (currentUser != null)
@@ -45,9 +49,37 @@
                 </a>
             </div>
 
-            <div class="flex gap-4 w-full max-w-56 justify-end" style="max-width: 300px">
-                <span class="text-sm text-end line-clamp-1 pr-3">@(currentUser != null ? currentUser.UserFullName : "Invalid user")</span>
-                <i class="fa-regular fa-bell cursor-pointer"></i>
+            <div class="flex gap-4">
+                <button id="btn-notif" class="btn btn-primary">Test notif</button>
+                <span>@(currentUser != null ? currentUser.UserFullName : "Invalid user")</span>
+                
+                <!-- Notification bell icon -->
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="cursor-pointer">
+                        <i class="fa-regular fa-bell cursor-pointer"></i>
+                    </label>
+
+                    <!-- Notification dropdown -->
+                    <ul id="notifDropdown" tabindex="0" class="dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box w-52">
+                        @if (userNotifs?.Any() == true)
+                        {
+                        @foreach (var notif in userNotifs)
+                        {
+                        <!-- Conditional background based on status -->
+                        <li class="p-2 @(notif.Status == 0 ? "bg-blue-100" : "bg-gray-100")">
+                            <a href="@notif.Link" class="flex justify-between">
+                                <span>@notif.Message</span>
+                                <span class="text-sm text-gray-500">@notif.Date.ToString("dd/MM/yyyy hh:mm")</span>
+                            </a>
+                        </li>
+                        }
+                        }
+                        else
+                        {
+                        <li><span>No new notifications</span></li>
+                        }
+                    </ul>
+                </div>
                 <div class="dropdown dropdown-end">
                     <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">
                         <!-- TODO: Insert username avatar here -->
@@ -101,3 +133,80 @@
         <h1 class="text-rose-500 font-bold text-center text-3xl">IsAuthenticated: @User.Identity.IsAuthenticated</h1>
     }
 }
+@*Notification script*@
+<script src="~/js/signalr/signalr.min.js"></script>
+<script>
+    "use strict";
+    // create connection
+    var connection = new signalR.HubConnectionBuilder()
+    .withUrl("/notification")
+    .withAutomaticReconnect()
+    .build();
+
+    connection.onreconnecting((error) => {
+        console.log("Reconnecting to SignalR due to: ", error);
+    });
+
+    connection.onreconnected((connectionId) => {
+        console.log("Reconnected to SignalR with connectionId: ", connectionId);
+    });
+
+    connection.onclose((error) => {
+        console.log("SignalR connection closed due to: ", error);
+    });
+    
+    function addNotification(notification){
+        var notifList = document.querySelector("#notifDropdown");
+        var newNotif = document.createElement("li");
+        
+        if (notification.Status === 0) {
+            newNotif.className = "p-2 bg-blue-100";
+        } else {
+            newNotif.className = "p-2 bg-gray-100";
+        }
+        
+        //list element
+        var link = document.createElement("a");
+        link.href = notification.Link || "#";
+        link.className = "flex justify-between";
+        
+        var messageSpan = document.createElement("span");
+        messageSpan.textContent = notification.Message;
+        
+        var dateSpan = document.createElement("span");
+        dateSpan.className = "text-sm text-gray-500";
+        dateSpan.textContent = new Date(notification.Date).toLocaleDateString();
+        
+        //append
+        link.appendChild(messageSpan);
+        link.appendChild(dateSpan);
+        
+        newNotif.appendChild(link);
+        
+        // add new notification to the top of the list
+        notifList.insertBefore(newNotif, notifList.firstChild);
+    }
+    
+    // function to handle received notifications
+    connection.on("ReceiveNotification",function (message) {
+        var notification = JSON.parse(message);
+        
+        addNotification(notification);
+    })
+    
+    // start the connection
+    connection.start()
+        .then(() => console.log("SignalR Connected"))
+        .catch(function (err) {
+            return console.error(err.toString());
+        });
+
+
+    document.getElementById("btn-notif").addEventListener("click", function (event) {
+        var notif = {"NotificationID":"90d4391b-ba09-4d90-94be-04e01a0fdba7","UserID":"dc6ff684-410f-45d3-8a77-77571e5cc7b6","Message":"You have sent a join request to 12312312 project.","Date":"2024-10-22T12:55:02.3319267+07:00","Link":"https://localhost:7276/Request/Detail/f055f543-a6c2-42b0-97f9-e97cb0011b28","Status":0,"User":null};
+        connection.invoke("SendClientNotification", notif).catch(function (err) {
+            return console.error(err.toString());
+        });
+        event.preventDefault();
+    });
+</script>

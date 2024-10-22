@@ -28,8 +28,11 @@ namespace Dynamics.DataAccess.Repository
 		/**
 		 * Get all with possible expression
 		 */
-		public IQueryable<Request> SearchIdFilterAsync(string searchQuery,string filterQuery, Guid userId);
+		public IQueryable<Request> SearchIdFilter(string searchQuery,string filterQuery, Guid userId);
 		public Task<IQueryable<Request>> SearchIndexFilterAsync(string searchQuery, string filterQuery);
 		public Task<List<Request>> PaginateAsync(IQueryable<Request> requestQuery, int pageNumber, int pageSize);
+
+		public Task<IQueryable<Request>> GetRequestDateFilterAsync(IQueryable<Request> requests, DateOnly dateFrom,
+			DateOnly dateTo);
 	}
 }

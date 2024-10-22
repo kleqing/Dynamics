@@ -20,6 +20,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
@@ -62,6 +63,7 @@
 	  <Folder Include="wwwroot\images\Organization\" />
 	  <Folder Include="wwwroot\files\Project\" />
 	  <Folder Include="wwwroot\images\Project\Phase\" />
+	  <Folder Include="wwwroot\images\User\" />
 	</ItemGroup>
 	<ItemGroup>
 		<UpToDateCheckBuilt Include="tailwind.config.js" Set="Css" />
@@ -86,6 +88,7 @@
 
 	<ItemGroup>
 	  <None Remove="Helps\**" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.10" />
 	</ItemGroup>
 
 	<Target Name="Tailwind" BeforeTargets="Build">

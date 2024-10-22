@@ -20,7 +20,8 @@ namespace Dynamics.DataAccess.Repository
             this._userManager = userManager;
         }
 
-        public async Task<bool> AddAsync(User entity)
+        // TODO: Decide whether we use one database or 2 database for managing the user
+        public async Task<bool> AddAsync(User? entity)
         {
             try
             {
@@ -47,7 +48,11 @@ namespace Dynamics.DataAccess.Repository
 
             return user;
         }
-
+        public async Task<User?> GetUserProjectAsync(Expression<Func<User?, bool>> filter)
+        {
+            return await _db.Users.Include(u => u.ProjectMember).SingleOrDefaultAsync(filter);
+        }
+        
         public async Task<string> GetRoleFromUserAsync(Guid userId)
         {
             var authUser = await _userManager.FindByIdAsync(userId.ToString());
@@ -88,13 +93,13 @@ namespace Dynamics.DataAccess.Repository
             return user;
         }
 
-        async Task<List<User>> GetUsersByUserId(Expression<Func<User, bool>> filter)
+        async Task<List<User?>> GetUsersByUserId(Expression<Func<User?, bool>> filter)
         {
             var users = await _db.Users.Where(filter).ToListAsync();
             return users;
         }
 
-        public async Task<List<User>> GetAllUsersAsync()
+        public async Task<List<User?>> GetAllUsersAsync()
         {
             var users = await _db.Users.ToListAsync();
             return users;

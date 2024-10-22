@@ -261,5 +261,24 @@ namespace Dynamics.DataAccess.Repository
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Project>> SearchIndexFilterAsync(IQueryable<Project> projects, string searchQuery, string filterQuery)
+        {
+            switch (filterQuery)
+            {
+                case "All":
+                    return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower()) ||
+                                                               p.ProjectName.ToLower().Contains(searchQuery.ToLower())||
+                                                               p.ProjectDescription.ToLower().Contains(searchQuery.ToLower()) ||
+                                                               p.ProjectPhoneNumber.Contains(searchQuery)).ToListAsync();
+                case "Name":
+                    return await projects.Where(p => p.ProjectName.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
+                case "Description":
+                    return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
+                
+            }
+
+            return null;
+        }
     }
 }

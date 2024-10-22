@@ -127,7 +127,7 @@ namespace Dynamics.Utility
                     {
                         await image.CopyToAsync(myfile);
                     }
-                     imagesPath += ("/" + Path.Combine(folder, fileName) + ", ").Replace('\\', '/');                       
+                    imagesPath += ("/" + Path.Combine(folder, fileName) + ", ").Replace('\\', '/');                       
                 }
                 //imagesPath = imagesPath.TrimEnd(',', ' ');
                 return imagesPath;
@@ -172,6 +172,18 @@ namespace Dynamics.Utility
                 return string.Empty;
             }
 
+        }
+
+        public static bool ValidateImage(List<IFormFile> images)
+        {
+            var okImageExtension = new [] {".jpg", ".png", ".gif", ".webp"};
+
+            foreach (var image in images)
+            {
+                var imageExtension = Path.GetExtension(image.FileName).ToLower();
+                if (!okImageExtension.Contains(imageExtension)) return false;
+            }
+            return true;
         }
 
     }

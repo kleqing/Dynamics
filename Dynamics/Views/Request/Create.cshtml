@@ -1,4 +1,4 @@
-﻿@model Dynamics.Models.Models.ViewModel.RequestCreateVM
+﻿@model Dynamics.Models.Models.Request
 @{
     ViewData["Title"] = "Create Request";
 }
@@ -37,15 +37,13 @@
             </div>
 
             <label class="form-control">
-                <label class="file-upload-label label-text font-bold text-lg">
+                <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
                     <span>Choose images</span>
                 </label>
                 <input type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
                 <span class="label label-text text-">Images will help you appeal to more people</span>
             </label>
-            @* <div class="flex space-x-2"> *@
-            @*     <input type="file" name="images" multiple class="hidden"> *@
-            @* </div> *@
+            <span asp-validation-for="Attachment" class="text-error"></span>
             <div class="flex gap-12 items-center">
                 <div class="left flex-1">
                     <!-- Email -->
@@ -55,8 +53,9 @@
                             type="text"
                             placeholder="Enter request email"
                             class="input input-bordered w-full"
-                            asp-for="RequestEmail"
-                            id="RequestEmail"/>
+                            asp-for="@Model.RequestEmail"
+                            id="RequestEmail"
+                        />
                         <span asp-validation-for="RequestEmail" class="text-error"></span>
                     </div>
                     <!-- Phonenumber -->
@@ -67,7 +66,8 @@
                             placeholder="Enter request phone number"
                             class="input input-bordered w-full"
                             asp-for="RequestPhoneNumber"
-                            id="RequestPhoneNumber"/>
+                            id="RequestPhoneNumber"
+                        />
                         <span asp-validation-for="RequestPhoneNumber" class="text-error"></span>
                     </div>
                     <!-- Address -->
@@ -90,8 +90,9 @@
                             type="text"
                             placeholder="Enter street and house number"
                             class="input input-bordered w-full"
-                            asp-for="Location"
-                            id="RequestLocation"/>
+                            asp-for="@Model.Location"
+                            id="RequestLocation"
+                        />
                         <span asp-validation-for="Location" class="text-error"></span>
                     </label>
                     <span class="label label-text font-bold text-lg" for="isEmergency">
@@ -125,6 +126,7 @@
     </div>
 </div>
 </body>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 
 @section Scripts {
@@ -177,13 +179,13 @@ let clicked = 0;
 
 function getUserContact(){
     clicked++;
-    var address = '@Html.Raw(Model.UserAddress)';
+    var address = '@ViewBag.UserAddress';
     var streetOnly = address.split(',')[0] || ""; // Split the address and handle case where it might be empty
 
     if (clicked % 2 === 1) {
         // Set the input fields with user's contact information
-        document.getElementById('RequestEmail').value = '@Model.UserEmail';
-        document.getElementById('RequestPhoneNumber').value = '@Model.UserPhoneNumber';
+        document.getElementById('RequestEmail').value = '@ViewBag.UserEmail';
+        document.getElementById('RequestPhoneNumber').value = '@ViewBag.UserPhoneNumber';
         document.getElementById('RequestLocation').value = streetOnly;
 
         // Change the button element
@@ -196,7 +198,7 @@ function getUserContact(){
         contactBtn.innerHTML = 'Use my information as contact <i class="bi bi-check2-circle"></i>';
 
         // Change option for visibility
-        let address = '@Html.Raw(Model.UserAddress)';
+        let address = '@Html.Raw(ViewBag.UserAddress)';
         let parts = address.split(',');
         document.getElementById('pOption').innerHTML = parts[3].trim();
         document.getElementById('dOption').innerHTML = parts[2].trim();

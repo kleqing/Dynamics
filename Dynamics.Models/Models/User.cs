@@ -43,5 +43,6 @@ namespace Dynamics.Models.Models
         public virtual ICollection<OrganizationMember> OrganizationMember { get; set; }
         public virtual ICollection<UserToOrganizationTransactionHistory> UserToOrganizationTransactionHistories { get; set; }
         public virtual ICollection<UserToProjectTransactionHistory> UserToProjectTransactionHistories { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

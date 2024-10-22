@@ -66,8 +66,13 @@ public class ProjectMemberRepository : IProjectMemberRepository
 
     public async Task<bool> AddJoinRequest(Guid memberID, Guid projectID)
     {
-        var res = await _context.ProjectMembers.AddAsync(new ProjectMember
-        { UserID = memberID, ProjectID = projectID, Status = 0 });
+        var newProjectMember = new ProjectMember
+        {
+            UserID = memberID,
+            ProjectID = projectID,
+            Status = 0
+        };
+        var res = await _context.ProjectMembers.AddAsync(newProjectMember);
         await _context.SaveChangesAsync();
         return res != null;
     }

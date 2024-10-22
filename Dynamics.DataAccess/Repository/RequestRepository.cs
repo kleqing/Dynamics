@@ -37,7 +37,7 @@ namespace Dynamics.DataAccess.Repository
             }
         }
 
-        public IQueryable<Request> SearchIdFilterAsync(string searchQuery, string filterQuery, Guid userId)
+        public IQueryable<Request> SearchIdFilter(string searchQuery, string filterQuery, Guid userId)
         {
             var requests = _db.Requests.Include(u => u.User).Where(r => r.RequestID == userId);
             switch (filterQuery)
@@ -176,5 +176,12 @@ namespace Dynamics.DataAccess.Repository
 
             return null;
         }
-    }
+
+        public Task<IQueryable<Request>> GetRequestDateFilterAsync(IQueryable<Request> requests, DateOnly dateFrom, DateOnly dateTo)
+        {
+            var datetimeFrom = DateTime.Parse(dateFrom.ToString("yyyy-MM-dd"));
+            var datetimeTo = DateTime.Parse(dateTo.ToString("yyyy-MM-dd"));
+	        return Task.FromResult(requests.Where(r => r.CreationDate >= datetimeFrom && r.CreationDate <= datetimeTo));
+        }
+	}
 }

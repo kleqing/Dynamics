@@ -25,7 +25,7 @@ public interface IProjectService
     Task<string> GetAllImagesAsync(Guid id, string owner);
     public Task<bool> DeleteImageAsync(string imgPath, Guid phaseID);
     public Task<string> UploadImagesAsync(List<IFormFile> images, string folder);
-    public Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID);
+    public Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID, HttpContext context);
     public Task<string> UpdateProjectProfileAsync(UpdateProjectProfileRequestDto updateProject, List<IFormFile> images);
     //manage member of project------------
     //using this to get leader type User

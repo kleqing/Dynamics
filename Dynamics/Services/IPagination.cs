@@ -8,5 +8,4 @@ public interface IPagination
      * NOTE THIS ONE PAGINATE A LIST IN MEMORY, IT DOES NOT QUERY TO DATABASE OR SOMETHING
      */
     List<T> Paginate<T>(List<T> query, int pageNumber, int pageSize) where T : class;
-
 }

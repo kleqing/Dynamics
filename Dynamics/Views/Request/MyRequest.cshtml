@@ -8,7 +8,7 @@
 }
 
 <body>
-<main class="w-full h-full flex flex-col gap-6 items-center p-32">
+<main class="w-full h-full flex flex-col gap-6 items-center p-16">
     <a asp-action="Create" asp-controller="Request" class="my-5">
         <button id="createOrgBtn" class="btn btn-wide bg-red-500 text-white">
             Create new request
@@ -76,12 +76,15 @@
     }
     else
     {
-        <ul class="flex flex-col gap-3 w-full shadow-md">
-            @foreach (var item in Model)
-            {
+        <div class="flex justify-center w-full">
+            <ul class="gap-4 flex justify-center flex-wrap container">
+                @foreach (var item in Model)
+                {
                 <partial name="CustomComponent/OverviewCard/RequestOverview" model="item" />
-            }
-        </ul>
+                }
+            </ul>
+        </div>
+
     }
 
     <div class="pagination mt-4 flex justify-center space-x-1.5">

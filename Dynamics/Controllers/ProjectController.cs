@@ -382,13 +382,14 @@ namespace Dynamics.Controllers
             {
                 return NotFound("id is empty!");
             }
-
-            var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id));
+            // The session is set in this service
+            HttpContext.Session.SetString("Test data", "Test ne hihi");
+            var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id), HttpContext);
+            HttpContext.Session.SetString("Test data lan 2", "Test ne hihi");
             if (detailProject != null)
             {
                 return View(detailProject);
             }
-
             TempData[MyConstants.Error] = "Fail to get project!";
             return RedirectToAction(nameof(Index), new { id = HttpContext.Session.GetString("currentUserID") });
         }
@@ -756,6 +757,7 @@ namespace Dynamics.Controllers
             int pageSize = 10)
         {
             _logger.LogWarning("ManageProjectDonor get");
+            HttpContext.Session.SetString("Session con song ko vay huhu", "FML");
             ProjectTransactionHistoryVM projectTransactionHistoryVM =
                 await _projectService.ReturnProjectTransactionHistoryVMAsync(projectID);
             if (projectTransactionHistoryVM == null)
@@ -798,6 +800,8 @@ namespace Dynamics.Controllers
 
             ViewData["hasUserDonateRequest"] = hasUserDonateRequest;
             ViewData["hasOrgDonateRequest"] = hasOrgDonateRequest;
+            // Setting session
+            
             return View(projectTransactionHistoryVM);
         }
 

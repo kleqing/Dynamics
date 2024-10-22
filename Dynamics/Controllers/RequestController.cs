@@ -67,7 +67,6 @@ namespace Dynamics.Controllers
 			{
 				return Unauthorized();
 			}
-			var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
 			Guid userId = Guid.Empty;
 			var userJson = HttpContext.Session.GetString("user");
 			if (!string.IsNullOrEmpty(userJson))
@@ -75,6 +74,7 @@ namespace Dynamics.Controllers
 				var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
 				userId = userJsonC.UserID;
 			}
+			
 			var requests = _requestRepo.GetAllById(userId);
 			
 			// search
@@ -91,6 +91,7 @@ namespace Dynamics.Controllers
 			var totalRequest = await requests.CountAsync();
 			var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
 			var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
+			
 			var dtos = _requestService.MapToListRequestOverviewDto(paginatedRequests);
 
 			ViewBag.currentPage = pageNumber;

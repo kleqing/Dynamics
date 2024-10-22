@@ -24,14 +24,14 @@
 
 <!-- List of joining request to an organization -->
 <section class="w-full">
-    <h1 class="text-center text-3xl font-bold mb-2">Manage your join and donation requests</h1>
-    <h2 class="text-center mb-8 text-neutral">
+    <h1 class="text-3xl font-bold mb-2">Manage your join and donation requests</h1>
+    <h2 class="mb-8 text-neutral">
         <i>If you have requested to join an organization, a project or any resources donation, it will appear here</i>
     </h2>
     <!-- This will list the user requests to join organizations -->
     @if (!Model.OrganizationJoinRequests.IsNullOrEmpty())
     {
-        <h1 class="text-3xl font-bold text-center mb-4 underline">Your requests to join organizations:</h1>
+        <h1 class="text-3xl font-bold mb-4 underline">Your requests to join organizations:</h1>
         <!-- Right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             @* Search bar *@
@@ -136,7 +136,7 @@
     <!-- This will list the user requests to join organizations -->
     @if (!Model.ProjectJoinRequests.IsNullOrEmpty())
     {
-        <h1 class="text-3xl font-bold text-center mb-4 underline">Your requests to join projects:</h1>
+        <h1 class="text-3xl font-bold mb-4 underline">Your requests to join projects:</h1>
         <!-- right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             <div class="join">
@@ -242,8 +242,8 @@
 <section class="w-full">
     @if (!Model.ResourcesDonationRequests.IsNullOrEmpty())
     {
-        <h1 class="text-3xl font-bold text-center mb-4 underline">Pending resources donation requests</h1>
-        <h3 class="text-neutral text-center mb-8">
+        <h1 class="text-3xl font-bold mb-4 underline">Pending resources donation requests</h1>
+        <h3 class="text-neutral mb-8">
             <i>Please wait while the receivers confirm your donation.</i>
         </h3>
         <!-- right search bar -->
@@ -278,9 +278,9 @@
 
         <!-- Table of the resources -->
         <div class="overflow-x-auto">
-            <table class="table table-xs">
-                <thead >
-                <tr >
+            <table class="table table-md">
+                <thead class="bg-gray-300/20">
+                <tr class="text-xl text-gray-900">
                     <th ></th >
                     <th > Donation message </th >
                     <th > Resource</th >
@@ -288,8 +288,8 @@
                     <th > Unit </th >
                     <th > Date </th >
                     <th > Sent to </th >
-                    @* <th > Status </th > *@
                     <th> Cancel ?</th>
+                    <th> Images proof </th>
                 </tr >
                 </thead >
                 <tbody >
@@ -297,7 +297,7 @@
                     foreach (var donationRequest in Model.ResourcesDonationRequests)
                     {
                         donCount += 1;
-                        <tr class="hover">
+                        <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
                             <!-- Content - Resource name - Quantity - Unit - Date - Sent to - Status -->
                             <th>@donCount</th>
                             <td>@donationRequest.Message</td>
@@ -330,15 +330,20 @@
                                     </form>
                                 </dialog>
                                 <!-- Open the modal using ID.showModal() method -->
-                                <button type="submit" class="btn btn-error btn-xs tooltip min-h-0" data-tip="Cancel donation ?"
-                                        onclick="document.getElementById('@("dModal" + donCount)').showModal()">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
+                                <div class="w-100 h-100 flex justify-center items-center px-0">
+                                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0 m-auto" data-tip="Cancel donation ?"
+                                            onclick="document.getElementById('@("dModal" + donCount)').showModal()">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <a class="link link-primary showImgLink">Show images</a>
                             </td>
                         </tr>
                     }
                 }
-                </tbody >
+                </tbody>
 
                 @* <tfoot > *@
                 @* <tr > *@
@@ -358,6 +363,11 @@
         @* <div class="divider divider-neutral py-8">End</div> *@
     }
 </section>
+@* Script to display the images if clicked *@
+<script>
+    let showImgLinks = document.querySelector(".showImgLink");
+    
+</script>
 <partial name="CustomComponent/_SweetAlertToast"/>
 </div>
 </main>

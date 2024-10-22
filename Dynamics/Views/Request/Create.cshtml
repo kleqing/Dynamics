@@ -227,21 +227,6 @@ function getUserContact(){
 let myBtn = document.querySelector('#submitBtn');
 let myForm = document.querySelector('#dmForm');
 
-
-function isLegit() {
-    // Check validation for loading screen
-    const validateErrorClass = "field-validation-error";
-    // Get all possible invalid spans
-    let validationSpans = myForm.getElementsByClassName("field-validation-error");
-    console.log('Getting validation spans')
-    console.log(validationSpans)
-    if (!validationSpans || validationSpans.length === 0) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
 myBtn.addEventListener('click', (e) => {
     // e.preventDefault();
     console.log(myForm)
@@ -257,18 +242,7 @@ myBtn.addEventListener('click', (e) => {
     // Set hidden inputs or modify existing ones with the text values
     document.getElementsByName('cityNameInput')[0].value = cityName;
     document.getElementsByName('districtNameInput')[0].value = districtName;
-    document.getElementsByName('wardNameInput')[0].value = wardName;
-    // Get the modal
-    let loadingModal = document.getElementById("loadingModal");
-    if (isLegit()) {
-        console.log('Is valid')
-        loadingModal.style.display = "flex";
-        myForm.submit();
-    } else {
-        console.log('Not valid');
-        loadingModal.style.display = "none";
-        e.preventDefault();
-    }
+    document.getElementsByName('wardNameInput')[0].value = wardName
 })
 
 </script>

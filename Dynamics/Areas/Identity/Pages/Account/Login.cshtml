@@ -3,82 +3,119 @@
 
 @{
     ViewData["Title"] = "Log in";
+    Layout = null;
 }
-<link rel="stylesheet" href="~/css/output.css">
-<link rel="stylesheet" href="~/css/original.css"/>
-<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
-
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Dynamics</title>
+    <link rel="stylesheet" href="~/css/output.css">
+    <link rel="stylesheet" href="~/css/original.css"/>
+</head>
+<body>
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0 0 8px 0;
+        padding: 0
+    }
+</style>
 <section class="vh-100">
-    <div class="container py-4 h-100">
-        <div class="row d-flex align-items-center justify-content-center h-100 mx-4">
-            <div class="col-md-8 col-lg-7 col-xl-6 hidden md:flex justify-content-center align-content-center gap-2 flex-col text-xl font-bold">
-                <h3 class="text-center">“Happiness doesn’t result from what we get, but from what we give."</h3>
-                <h4 class="text-center">
+    <div class="row flex h-full">
+        @* Left *@
+        <div class="w-1/2 flex flex-col justify-center items-center relative h-full">
+            <div class="flex flex-col gap-4 absolute z-10">
+                <h3 class="text-center text-3xl font-bold text-white">"Happiness doesn’t result from what we get, <br/> but from what we give."</h3>
+                <h4 class="text-center text-xl font-bold text-white">
                     <i>Ben Carson</i>
                 </h4>
-                <img src="~/images/loginImage.jpeg"
-                     class="img-fluid" alt="Phone image">
             </div>
-            <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1 rounded-2 p-4 border-solid shadow-lg bg-white">
-                <h2 class="mb-2 text-center">
+            <div class="absolute z-0 w-full h-full" style="filter: brightness(0.5)">
+                <img src="~/images/LoginVerticalResized.jpg" class="w-full h-full object-cover" alt="Phone image">
+            </div>
+        </div>
+        @* Right *@
+        <div class="w-1/2 flex flex-col justify-center items-center">
+            <a class="text-3xl text-center font-bold text-primary mb-8" asp-action="Index" asp-controller="Home" asp-area="">
+                <i>Dynamics</i>
+            </a>
+            <div class="flex flex-col p-8 bg-white shadow-md rounded-md w-full max-w-lg gap-4">
+                <h2 class="mb-2 text-center text-3xl">
                     <b>Login</b>
                 </h2>
-                <form id="account" method="post" class="">
+                <form id="loginForm" method="post" class="flex flex-col gap-4">
                     <!-- Email input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input asp-for="Input.Email" type="email" id="form1Example13" class="form-control form-control-lg"/>
-                        <label asp-for="Input.Email" class="form-label" for="form1Example13">Email address</label>
+                    <div>
+                        <label asp-for="Input.Email" class="label" for="form1Example13">Email address</label>
+                        <input asp-for="Input.Email" type="email" id="form1Example13" class="input input-md input-primary w-full bg-white"/>
                         <br>
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        <span asp-validation-for="Input.Email" class="text-error"></span>
                     </div>
-
                     <!-- Password input -->
-                    <div data-mdb-input-init class="form-outline mb-4">
-                        <input asp-for="Input.Password" type="password" id="form1Example23" class="form-control form-control-lg"/>
-                        <label asp-for="Input.Password" class="form-label" for="form1Example23">Password</label>
+                    <div>
+                        <label asp-for="Input.Password" class="label" for="form1Example23">Password</label>
+                        <input asp-for="Input.Password" type="password" id="form1Example23" class="input input-md input-primary w-full bg-white"/>
                         <br>
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        <span asp-validation-for="Input.Password" class="text-error"></span>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="flex justify-between items-center w-full">
                         <!-- Checkbox -->
-                        <label asp-for="Input.RememberMe" class="form-label">
-                            <input class="form-check-input" asp-for="Input.RememberMe"/>
+                        <label asp-for="Input.RememberMe" class="label">
+                            <input class="checkbox checkbox-primary checkbox-sm transition-all mr-2 rounded-sm" asp-for="Input.RememberMe"/>
                             @Html.DisplayNameFor(m => m.Input.RememberMe)
                         </label>
-                        <a id="forgot-password" asp-page="./ForgotPassword"class="link-primary">Forgot password?</a>
+                        <a id="forgot-password" asp-page="./ForgotPassword" class="link-primary">Forgot password?</a>
                     </div>
-                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
+                    @if (TempData["ConfirmationEmail"] != null)
+                    {
+                        <p>Not received confirmation email? <a href="@TempData["ConfirmationEmail"]" class="link-primary">Click here to resend</a></p>
+                    }
                     <!-- Submit button -->
                     <button type="submit" data-mdb-button-init data-mdb-ripple-init
                             class="btn btn-primary w-full loading-btn"
-                            style="width: 100%; margin-bottom: 12px;"
                             id="login">
                         Sign in
                     </button>
-                    @* <span class="loading loading-spinner loading-md"></span> *@
-                    Don't have an account ? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="link-primary">Register here</a>
+                    <span>
+                        Don't have an account ?
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="link-primary">
+                            Register here
+                        </a>
+                    </span>
                 </form>
 
                 <div class="divider d-flex align-items-center justify-content-center my-2">
                     <p class="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
                 </div>
 
-                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post" class="form-horizontal">
                     <div class="w-full">
                         <p style="width: 100%; display:flex; justify-content: center;">
                             @foreach (var provider in Model.ExternalLogins!)
                             {
-                                <button type="submit" class="login-with-google-btn" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">Login with @provider.DisplayName</button>
+                                <button type="submit" class="login-with-google-btn" name="provider" value="@provider.Name"
+                                        title="Log in using your @provider.DisplayName account">
+                                    Login
+                                    with @provider.DisplayName
+                                </button>
                             }
                         </p>
                     </div>
                 </form>
             </div>
+
         </div>
     </div>
 </section>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial"/>
-}
+@await Html.PartialAsync("CustomComponent/_LoadingModal", "loginForm")
+<partial name="CustomComponent/_SweetAlert"/>
+<partial name="_ValidationScriptsPartial"/>
+</body>
+</html>
+
+@* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/> *@

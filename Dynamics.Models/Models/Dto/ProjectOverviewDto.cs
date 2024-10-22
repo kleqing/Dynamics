@@ -12,13 +12,11 @@ public class ProjectOverviewDto
     public int? ProjectProgress { get; set; }
     public int ProjectRaisedMoney { get; set; }
     public int ProjectStatus { get; set; }
-    
+    public Organization Organization { get; set; }
     public string? Attachment { get; set; }
     public string ProjectDescription { get; set; }
     [DataType(DataType.Date)]
     public DateOnly? StartTime { get; set; }
     [DataType(DataType.Date)]
     public DateOnly? EndTime { get; set; }
-
-    public Organization Organization { get; set; }
 }

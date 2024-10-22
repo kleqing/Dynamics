@@ -7,5 +7,11 @@
         public static string Info = "Info";
         public static string Warning = "Warning";
         public static string Error = "error";
+        public static string Organization = "organization";
+        public static string Project = "project";
+        public static string Allocation = "allocation";
+        public static string Subtitle = "subtitle";
+        public static int DefaultPage = 1;
+        public static int DefaultPageSize = 9;
     }
 }

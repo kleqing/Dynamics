@@ -38,18 +38,21 @@
     <div class="my-5">
         <h1 class="text-center text-3xl">Discover all active organization</h1>
     </div>
-
-    <div class="gap-4 flex flex-wrap justify-center">
-    @{
-        if (!Model.IsNullOrEmpty())
-        {
+    
+    <div class="flex justify-center w-full">
+        <div class="gap-4 flex flex-wrap justify-center container">
+            @{
+            if (!Model.IsNullOrEmpty())
+            {
             foreach (var modelOrganization in Model)
             {
-                <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="modelOrganization"/>
+            <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="modelOrganization"/>
             }
-        }
-    }
+            }
+            }
+        </div>
     </div>
+
 </main>
 
 

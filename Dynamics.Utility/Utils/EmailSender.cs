@@ -11,6 +11,7 @@ namespace Dynamics.Utility
             // Also, if email does not exist, the mail will be redirected into my mail box
             try
             {
+                // My Google information
                 string fromMail = "kietpmde180889@fpt.edu.vn";
                 string fromPassword = @"pucw aypg zxws tjcb";
                 SmtpClient smtpClient = new SmtpClient
@@ -23,14 +24,13 @@ namespace Dynamics.Utility
 
                 MailMessage mail = new MailMessage();
                 mail.Subject = subject;
-                //mail.Subject = "Confirmation Email from Dynamics.com";
                 mail.Body = GenerateEmailTemplate(email, subject, htmlMessage);
 
                 //Setting From , To and CC
                 mail.From = new MailAddress(fromMail);
                 mail.To.Add(new MailAddress(email));
                 //mail.CC.Add(new MailAddress("MyEmailID@gmail.com"));
-                mail.IsBodyHtml = true; // here
+                mail.IsBodyHtml = true; // Enable HTML
                 smtpClient.Send(mail);
             }
             catch (Exception e)

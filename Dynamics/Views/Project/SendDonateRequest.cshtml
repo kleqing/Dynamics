@@ -1,4 +1,8 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using Dynamics.Utility
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
 @inject IProjectMemberRepository ProjectMemberRepository
@@ -16,38 +20,41 @@
     if (userString != null)
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
-    } 
+    }
     var organizationUserLead = await OrganizationRepository.GetOrganizationUserLead(currentUser.UserID);
     var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(currentUser.UserID));
     var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
-var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectLeaderID));
+    var leader = await UserRepository.GetAsync(x => x.UserID == new Guid(currentProjectLeaderID));
 }
 <!-- Donate by money -->
 <section class="md:px-32 my-16">
     <h2 class="text-center font-bold text-2xl mb-6">Donate by money</h2>
-    <form asp-action="SendDonateRequest" method="post" class="donateMoneyForm flex md:gap-32 gap-16">
+    <form asp-action="Pay" asp-controller="Payment" method="post" class="donateMoneyForm flex md:gap-32 gap-16">
+        <input type="hidden" name="TargetType" value="@Model.VnPayRequestDto.TargetType"/>
+        <input type="hidden" name="ResourceID" value="@Model.VnPayRequestDto.ResourceID"/>
+        <input type="hidden" name="TargetId" value="@Model.VnPayRequestDto.TargetId"/>
+        <input type="hidden" Name="FromID" value="@currentUser?.UserID"/>
+        <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID" />
         <!-- Inputs -->
         @if (Model.TypeDonor.Equals("User"))
         {
             <div class="flex-1">
-                <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.UserID" />
                 <!-- Money amount -->
-                <label asp-for="@Model.UserDonate.Amount" class="form-control w-full">
+                <label Name="Amount" class="form-control w-full">
                     <span class="label label-text text-lg">Enter money amount (Unit here)</span>
-                    <input asp-for="@Model.UserDonate.Amount" type="number"
-                           placeholder="Enter money ammount"
-                           class="input input-bordered w-full" min="1" />
+                    <input Name="Amount" type="number"
+                           placeholder="Enter money amount"
+                           class="input input-bordered w-full" min="1"/>
                     <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>
-                   
+
                 </label>
                 <!-- Message (maybe limit them ?) -->
-                <label asp-for="@Model.UserDonate.Message" class="form-control w-full">
+                <label Name="Message" class="form-control w-full">
                     <span class="label label-text text-lg">Leave a message (optional)</span>
-                    <textarea asp-for="@Model.UserDonate.Message" placeholder="Enter message"
+                    <textarea Name="Message" placeholder="Enter message"
                               class="textarea textarea-bordered textarea-md w-full"></textarea>
-                   
+
                 </label>
             </div>
         }
@@ -56,31 +63,31 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
             @* REMIND *@
             <div class="flex-1">
                 <h2 class="w-full max-w-md font-semibold text-blue-600 text-lg"> You are donate as @(organizationUserLead != null ? organizationUserLead.OrganizationName : "Your Organization")</h2>
-                <input type="hidden" asp-for="@Model.OrganizationUserLeadID" />
+                <input type="hidden" Name="FromID"/>
 
                 <!-- Money amount -->
-                <label asp-for="@Model.OrgDonate.Amount" class="form-control w-full">
+                <label Name="Amount" class="form-control w-full">
                     <span class="label label-text text-lg">Enter money amount (Unit here)</span>
-                    <input asp-for="@Model.OrgDonate.Amount" type="number"
-                           placeholder="Enter money ammount"
-                           class="input input-bordered w-full" min="1" />
-                           <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>                  
+                    <input Name="Amount" type="number"
+                           placeholder="Enter money Amount"
+                           class="input input-bordered w-full" min="1"/>
+                    <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>
                 </label>
                 <!-- Message (maybe limit them ?) -->
-                <label asp-for="@Model.OrgDonate.Message" class="form-control w-full">
+                <label Name="Message" class="form-control w-full">
                     <span class="label label-text text-lg">Leave a message (optional)</span>
-                    <textarea asp-for="@Model.OrgDonate.Message" placeholder="Enter message"
+                    <textarea Name="Message" placeholder="Enter message"
                               class="textarea textarea-bordered textarea-md w-full "></textarea>
-                    
+
                 </label>
             </div>
         }
-        
+
         <!-- Buttons -->
         <div class="flex-1 flex flex-col gap-4 justify-center">
             <!-- Button for CEO -->
             <!--if userid is ceoid of a organization[check status of userid in organmember ==2], if yes show the button-->
-      @*       @if (statusProjectMemberOfUser >= 2)
+            @*       @if (statusProjectMemberOfUser >= 2)
             {
                 <div>
                     <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="Organization">
@@ -92,13 +99,13 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
                         Donate as CEO to show your organization's support
                     </p>
                 </div>
-            }      *@     
+            }      *@
             <!-- Other button -->
-            <button type="submit" class="btn btn-success bg-blue-700 text-white w-full font-bold text-lg">Confirm payment</button>
+            <button type="submit" class="btn btn-success bg-blue-700 text-white w-full font-bold text-lg outline-none border-0">Confirm payment</button>
             <a asp-action="ManageProject" asp-route-id="@currentProjectID">
-            <button type="button" class="btn bg-base-200 hover:bg-base-300 font-bold text-lg">
-                Back to project &larr;
-            </button>
+                <button type="button" class="btn bg-base-200 hover:bg-base-300 font-bold text-lg">
+                    Back to project &larr;
+                </button>
             </a>
         </div>
     </form>
@@ -111,11 +118,11 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
     <form id="donateResourceForm" asp-action="SendDonateRequest" class=" flex flex-col justify-center items-center gap-4 mb-8">
         <h3 class="text-center font-bold text-xl">1. Register a donation request</h3>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID" />
-         @if (Model.TypeDonor.Equals("User"))
+        <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID"/>
+        @if (Model.TypeDonor.Equals("User"))
         {
-          <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.UserID" />
-            <input type="hidden" asp-for="@Model.TypeDonor" value="User" />
+            <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.UserID"/>
+            <input type="hidden" asp-for="@Model.TypeDonor" value="User"/>
             <div class="form-control w-full max-w-md">
                 <label asp-for="@Model.UserDonate.ProjectResourceID" class="block mb-2 text-lg font-medium text-gray-900">Select a resource </label>
                 <select asp-for="@Model.UserDonate.ProjectResourceID"
@@ -130,20 +137,20 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
             <label asp-for="@Model.UserDonate.Amount" class="form-control w-full max-w-md">
                 <span class="label label-text text-lg font-medium">Enter amount</span>
                 <input asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter ammount" class="input input-bordered" min="1"/>
-                <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>               
-        </label>
+                <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>
+            </label>
             <label asp-for="@Model.UserDonate.Message" class="form-control w-full max-w-md">
                 <span class="label label-text text-lg">Leave a message (optional)</span>
                 <textarea asp-for="@Model.UserDonate.Message" placeholder="Enter message"
                           class="textarea textarea-bordered textarea-md w-full"></textarea>
-               
+
             </label>
         }
         @if (Model.TypeDonor.Equals("Organization"))
         {
             <h2 class="w-full max-w-md font-semibold text-blue-600 text-lg"> You are donate as @(organizationUserLead != null ? organizationUserLead.OrganizationName : "Your Organization")</h2>
-            <input type="hidden" asp-for="@Model.TypeDonor" value="Organization" />
-            <input type="hidden" asp-for="@Model.OrganizationUserLeadID" />
+            <input type="hidden" asp-for="@Model.TypeDonor" value="Organization"/>
+            <input type="hidden" asp-for="@Model.OrganizationUserLeadID"/>
 
             <!-- Select a resource -->
             <div class="form-control w-full max-w-md">
@@ -160,14 +167,14 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
             <!-- Enter amount -->
             <label asp-for="@Model.OrgDonate.Amount" class="form-control w-full max-w-md">
                 <span class="label label-text text-lg font-medium">Enter amount</span>
-                <input asp-for="@Model.OrgDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="1" />
+                <input asp-for="@Model.OrgDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="1"/>
                 <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>
             </label>
             <label asp-for="@Model.OrgDonate.Message" class="form-control w-full max-w-md">
                 <span class="label label-text text-lg">Leave a message (optional)</span>
                 <textarea asp-for="@Model.OrgDonate.Message" placeholder="Enter message"
                           class="textarea textarea-bordered textarea-md w-full"></textarea>
-               
+
             </label>
         }
         <button type="submit" class="btn btn-primary bg-blue-700 text-white font-bold">Confirm</button>
@@ -182,9 +189,15 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
             <!-- If you already have this script at layout, you won't need it here. It is for displaying the icons -->
             <script src="https://kit.fontawesome.com/ba8c3661b4.js"
                     crossorigin="anonymous"></script>
-            <p><i class="fa-solid fa-at"></i> @leader.UserEmail</p>
-            <p><i class="fa-solid fa-phone"></i> @leader.UserPhoneNumber</p>
-            <p><i class="fa-solid fa-location-dot"></i> @leader.UserAddress</p>
+            <p>
+                <i class="fa-solid fa-at"></i> @leader.UserEmail
+            </p>
+            <p>
+                <i class="fa-solid fa-phone"></i> @leader.UserPhoneNumber
+            </p>
+            <p>
+                <i class="fa-solid fa-location-dot"></i> @leader.UserAddress
+            </p>
         </div>
     </div>
     <!-- Step 3 -->
@@ -195,57 +208,62 @@ var leader = await UserRepository.GetAsync(x=>x.UserID==new Guid(currentProjectL
         <div class="overflow-x-auto">
             <table class="table">
                 <thead>
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Quantity</th>
-                            <th>Status</th>
-                    </tr>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                </tr>
                 </thead>
                 <tbody>
-          @if (Model.TypeDonor.Equals("User"))
-        {
-            for(int i = 0; i < Model.UserTransactionHistory?.Count();i++){
-                var item  = Model.UserTransactionHistory.ElementAt(i);
-                            <tr>
-                                <th>@(i+1)</th>
-                                <td>@item.ProjectResource?.ResourceName</td>
-                                <td>@item.Amount</td>
-                                <td>
-                                    @if (item.Status == 1)
-                                    {
-                                        <div class="badge badge-success min-w-24">Accepted</div>
-                                    }
-                                    else{
-                                         <div class="badge badge-error min-w-24">Pending</div>
-                                        }
-                                </td>
-                            </tr>
-                        }
-                        <!-- row 1 -->
-                    }else if (Model.TypeDonor.Equals("Organization"))
+                @if (Model.TypeDonor.Equals("User"))
+                {
+                    for (int i = 0; i < Model.UserTransactionHistory?.Count(); i++)
                     {
-                        for (int i = 0; i < Model.OrgTransactionHistory?.Count(); i++)
-                        {
-                            var item = Model.OrgTransactionHistory.ElementAt(i);
-                            <tr>
-                                <th>@(i + 1)</th>
-                                <td>@item.ProjectResource?.ResourceName</td>
-                                <td>@item.Amount</td>
-                                <td>
-                                    @if (item.Status == 1)
-                                    {
-                                        <div class="badge badge-success min-w-24">Accepted</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="badge badge-error min-w-24">Pending</div>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                        <!-- row 1 -->
+                        var item = Model.UserTransactionHistory.ElementAt(i);
+                        <tr>
+                            <th>@(i + 1)</th>
+                            <td>@item.ProjectResource?.ResourceName</td>
+                            <td>@item.Amount</td>
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                    <div class="badge badge-success min-w-24">Accepted</div>
+                                }
+                                else
+                                {
+                                    <div class="badge badge-error min-w-24">Pending</div>
+                                }
+                            </td>
+                        </tr>
                     }
+
+                    <!-- row 1 -->
+                }
+                else if (Model.TypeDonor.Equals("Organization"))
+                {
+                    for (int i = 0; i < Model.OrgTransactionHistory?.Count(); i++)
+                    {
+                        var item = Model.OrgTransactionHistory.ElementAt(i);
+                        <tr>
+                            <th>@(i + 1)</th>
+                            <td>@item.ProjectResource?.ResourceName</td>
+                            <td>@item.Amount</td>
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                    <div class="badge badge-success min-w-24">Accepted</div>
+                                }
+                                else
+                                {
+                                    <div class="badge badge-error min-w-24">Pending</div>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                    <!-- row 1 -->
+                }
 
                 </tbody>
             </table>

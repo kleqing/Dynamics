@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using Dynamics.DataAccess;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Models;
 using Dynamics.Models.Models.Dto;
 using Dynamics.Models.Models.DTO;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
-using Microsoft.Build.Evaluation;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Hosting;
+using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq.Expressions;
 using Project = Dynamics.Models.Models.Project;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.AspNetCore.Mvc;
@@ -58,8 +59,8 @@ public class ProjectService : IProjectService
         _projectHistoryRepo = projectHistoryRepository;
         _cloudinaryUploader = cloudinaryUploader;
     }
-    
-    
+
+
     public ProjectOverviewDto MapToProjectOverviewDto(Project p)
     {
         if (p.ProjectMember.IsNullOrEmpty()) throw new Exception("WARNING PROJECT MEMBER IS EMPTY");
@@ -95,14 +96,25 @@ public class ProjectService : IProjectService
 
     public List<ProjectOverviewDto> MapToListProjectOverviewDto(List<Project> projects)
     {
-        var resultDtos = new List<ProjectOverviewDto>();  
+        var resultDtos = new List<ProjectOverviewDto>();
         foreach (var p in projects)
         {
             if (p.ProjectMember.IsNullOrEmpty()) throw new Exception("WARNING PROJECT MEMBER IS EMPTY");
+            if (p.ProjectResource.IsNullOrEmpty()) throw new Exception("WARNING PROJECT RESOURCE IS EMPTY");
             var tempProjectOverviewDto = _mapper.Map<ProjectOverviewDto>(p);
-            // Get leader project
-            var leader = p.ProjectMember.FirstOrDefault(pm => pm.ProjectID == p.ProjectID && pm.Status == 2);
-            if (leader == null) throw new Exception("No leader for project found");
+            // Get leader(s) project (Multiple leader because 
+            var leaders = p.ProjectMember.Where(pm => pm.ProjectID == p.ProjectID && pm.Status >= 2);
+            ProjectMember leader = null;
+            foreach (var l in leaders)
+            {
+                if (l.Status == 3)
+                {
+                    leader = l;
+                    break;
+                }
+                else { leader = l; }
+            }
+            if (leader == null) throw new Exception("No leader for project found for project: " + p.ProjectName);
             tempProjectOverviewDto.ProjectLeader = leader.User;
             tempProjectOverviewDto.ProjectMembers = p.ProjectMember.Count(pm => pm.ProjectID == p.ProjectID);
             tempProjectOverviewDto.ProjectProgress = GetProjectProgress(p);
@@ -126,7 +138,6 @@ public class ProjectService : IProjectService
             else
             {
                 tempProjectOverviewDto.ProjectAddress = p.ProjectAddress;
-
             }
             // Get project first attachment
             if (p.Attachment != null) tempProjectOverviewDto.Attachment = p.Attachment.Split(",").FirstOrDefault();
@@ -135,21 +146,6 @@ public class ProjectService : IProjectService
         return resultDtos;
     }
 
-    // Use for display purpose (Multiple database trips) please exclude it instead
-    public int? GetProjectProgressId(Guid projectId)
-    {
-        var resourceNumbers = _context.ProjectResources
-            .Where(p => p.ProjectID == projectId && p.ResourceName.ToLower().Equals("money"))
-            .Select(resource => new
-            {
-                quantity = resource.Quantity,
-                expectedQuantity = resource.ExpectedQuantity
-            }).FirstOrDefault();
-        if (resourceNumbers == null) return -1;
-        if (resourceNumbers.expectedQuantity == 0) return 0;
-        return resourceNumbers.quantity * 100 / resourceNumbers.expectedQuantity;
-    }
-    
     /**
      * Make sure the param p already included the project resource
      */
@@ -175,7 +171,7 @@ public class ProjectService : IProjectService
         var projectObj = _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectID)).Result;
         if (projectObj != null)
         {
-            var projectResouceMoney = projectObj.ProjectResource.FirstOrDefault(x => x.ResourceName.ToString().ToLower().Trim().Equals("money") && x.Unit.ToLower().Trim().Equals("vnd"));
+            var projectResouceMoney = projectObj.ProjectResource.FirstOrDefault(x => x.ResourceName.ToString().ToLower().Trim().Equals("money"));
             if (projectResouceMoney != null)
             {
                 var progressValue = (double)projectResouceMoney.Quantity / projectResouceMoney.ExpectedQuantity *
@@ -239,7 +235,7 @@ public class ProjectService : IProjectService
                     //get project that user join as a member
                     projectsIAmMember.Add(dto);
                 }
-            }            
+            }
         }
         return new MyProjectVM()
         {
@@ -363,7 +359,7 @@ public class ProjectService : IProjectService
 
     public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
     {
-        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
+        if (string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
         if (phaseID != Guid.Empty)
         {
             var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
@@ -415,11 +411,11 @@ public class ProjectService : IProjectService
         }
         return false;
     }
-    public async Task<string> UploadImagesAsync(List<IFormFile> images,string folder)
+    public async Task<string> UploadImagesAsync(List<IFormFile> images, string folder)
     {
         if (images != null && images.Count() > 0)
         {
-            var resAttachment = await Util.UploadImages(images, $@"{folder}");    
+            var resAttachment = await Util.UploadImages(images, $@"{folder}");
             return resAttachment;
         }
         return string.Empty;
@@ -438,7 +434,7 @@ public class ProjectService : IProjectService
             }
             projectObj.Attachment = resImage;
             var res = await UpdateProjectAlongWithUpdateLeaderAsync(projectObj, updateProject.NewLeaderID);
-            if(!res) return MyConstants.Error;
+            if (!res) return MyConstants.Error;
             return MyConstants.Success;
         }
         return MyConstants.Error;
@@ -466,7 +462,9 @@ public class ProjectService : IProjectService
     //filter users of ProjectMember table
     public List<User> FilterMemberOfProject(Expression<Func<ProjectMember, bool>> filter)
     {
-        IQueryable<ProjectMember> projectMemberList = _context.ProjectMembers.Include(x => x.User).Include(x => x.Project).Where(filter);
+        IQueryable<ProjectMember> projectMemberList = _context.ProjectMembers
+            .Include(x => x.User)
+            .Include(x => x.Project).Where(filter);
         List<User> members = new List<User>();
         if (members != null)
         {
@@ -474,13 +472,11 @@ public class ProjectService : IProjectService
             {
                 members.Add(u.User);
             }
-
             return members;
         }
-
         return null;
     }
-    public async Task<string> SendJoinProjectRequestAsync(Guid projectID,Guid memberID)
+    public async Task<string> SendJoinProjectRequestAsync(Guid projectID, Guid memberID)
     {
         var existingJoinRequest = _projectMemberRepo
                .FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.UserID.Equals(memberID) && p.Status == 0
@@ -521,7 +517,7 @@ public class ProjectService : IProjectService
         }
         return true;
     }
-    public async Task<bool>DenyJoinProjectRequestAllAsync(Guid projectID)
+    public async Task<bool> DenyJoinProjectRequestAllAsync(Guid projectID)
     {
         var allJoinRequest =
              _projectMemberRepo.FilterProjectMember(
@@ -604,7 +600,7 @@ public class ProjectService : IProjectService
         {
             var projectResourceObj = await _projectResourceRepo.GetAsync(x => x.ResourceID.Equals(sendDonateRequestVM.UserDonate.ProjectResourceID));
             var quantityAfterDonate = sendDonateRequestVM.UserDonate.Amount + projectResourceObj.Quantity;
-            if( quantityAfterDonate > projectResourceObj.ExpectedQuantity)
+            if (quantityAfterDonate > projectResourceObj.ExpectedQuantity)
             {
                 return "Exceed";
             }
@@ -642,7 +638,7 @@ public class ProjectService : IProjectService
                     }
                     return MyConstants.Success;
                 }
-               
+
             }
             return MyConstants.Error;
         }
@@ -825,7 +821,7 @@ public class ProjectService : IProjectService
 
         }
         var res = await _projectHistoryRepo.AddPhaseReportAsync(history);
-        if(!res) return MyConstants.Error;
+        if (!res) return MyConstants.Error;
         return MyConstants.Success;
     }
     public async Task<string> EditProjectPhaseReportAsync(History history, List<IFormFile> images)
@@ -844,5 +840,19 @@ public class ProjectService : IProjectService
         var res = await _projectHistoryRepo.EditPhaseReportAsync(history);
         if (!res) return MyConstants.Error;
         return MyConstants.Success;
+    }
+
+    public async Task<List<Project>> GetProjectsWithExpressionAsync(Expression<Func<Project, bool>> filter = null)
+    {
+        if (filter == null)
+        {
+            return await _projectRepo.GetAllQueryable()
+                .Include(p => p.ProjectMember)
+                .Include(p => p.ProjectResource).ToListAsync();
+        }
+        return await _projectRepo.GetAllQueryable()
+            .Include(p => p.ProjectMember)
+            .Include(p => p.ProjectResource)
+            .Where(filter).ToListAsync();
     }
 }

@@ -1,86 +1,102 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Dynamics.DataAccess.Repository;
+﻿using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Identity;
+using Dynamics.Services;
 using Dynamics.Utility;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Web.Mvc;
+using CloudinaryDotNet.Actions;
+using Controller = Microsoft.AspNetCore.Mvc.Controller;
 
 namespace Dynamics.Controllers
 {
     public class RequestController : Controller
     {
         private readonly IRequestRepository _requestRepo;
-        private readonly IUserRepository _userRepo;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<RequestController> _logger;
+        private readonly IRequestService _requestService;
         private readonly CloudinaryUploader _cloudinaryUploader;
 
-        public RequestController(IRequestRepository requestRepository, IUserRepository userRepo,
-            UserManager<IdentityUser> userManager ,CloudinaryUploader cloudinaryUploader)
+        public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager,
+            ILogger<RequestController> logger, IRequestService requestService, CloudinaryUploader cloudinaryUploader)
         {
             _requestRepo = requestRepository;
-            _userRepo = userRepo;
             _userManager = userManager;
+            _logger = logger;
+            _requestService = requestService;
             _cloudinaryUploader = cloudinaryUploader;
         }
 
-        //TODO: implement filter for each field (search)
-        public async Task<IActionResult> Index(string searchQuery, int pageNumber = 1, int pageSize = 12)
+        // View all requests
+        public async Task<IActionResult> Index(string searchQuery, string filterQuery = "All", int pageNumber = 1,
+            int pageSize = 12)
         {
-            var requests = await _requestRepo.GetAllPaginatedAsync(pageNumber, pageSize);
+            // Only get the one that is accepted by admin (status = 1)
+            var requests = _requestRepo.GetAllQueryable(r => r.Status == 1);
+            // search
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                requests = await _requestRepo.SearchIndexFilterAsync(searchQuery);
+                requests = await _requestRepo.SearchIndexFilterAsync(searchQuery, filterQuery);
             }
 
-            var totalRequest = 0;
-            foreach (var request in requests)
-            {
-                totalRequest++;
-            }
+            // if (!dateFrom.ToString("yyyy-MM-dd").Equals("0001-01-01"))
+            // {
+            //     requests = await _requestRepo.GetRequestDateFilterAsync(requests, dateFrom, dateTo);
+            // } 
 
+            // pagination
+            var totalRequest = await requests.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
+            var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
 
             ViewBag.currentPage = pageNumber;
             ViewBag.totalPages = totalPages;
-            return View(requests);
+
+            var requestOverviewDto = _requestService.MapToListRequestOverviewDto(paginatedRequests);
+            return View(requestOverviewDto);
         }
 
-        public async Task<IActionResult> MyRequest(string searchQuery, int pageNumber = 1, int pageSize = 12)
+        [Authorize]
+        public async Task<IActionResult> MyRequest(string searchQuery, string filterQuery = "All", int pageNumber = 1,
+            int pageSize = 12)
         {
+            User currentUser = HttpContext.Session.GetCurrentUser();
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            Guid userId = Guid.Empty;
-            var userJson = HttpContext.Session.GetString("user");
-            if (!string.IsNullOrEmpty(userJson))
-            {
-                var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
-                userId = userJsonC.UserID;
-            }
-
-            var requests = await _requestRepo.GetAllByIdPaginatedAsync(role, userId, pageNumber, pageSize);
-
+            var requests = _requestRepo.GetAllById(currentUser.UserID);
             // search
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                requests = await _requestRepo.SearchIdFilterAsync(searchQuery, userId);
+                requests = _requestRepo.SearchIdFilterAsync(searchQuery, filterQuery, currentUser.UserID);
             }
 
+            //date filter
+            // if (!dateFrom.ToString("yyyy-MM-dd").Equals("0001-01-01"))
+            // {
+            //     requests = await _requestRepo.GetRequestDateFilterAsync(requests, dateFrom, dateTo);
+            // } 
             //pagination
-            var totalRequest = 1 + requests.Count;
+            var totalRequest = await requests.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
+            var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
 
             ViewBag.currentPage = pageNumber;
             ViewBag.totalPages = totalPages;
-            return View(requests);
+
+            // Convert to view models
+            var requestOverviewDto = _requestService.MapToListRequestOverviewDto(paginatedRequests);
+            return View(requestOverviewDto);
         }
 
-        public async Task<IActionResult> Detail(Guid? id)
+        public async Task<IActionResult> Detail(Guid id)
         {
             var request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
             if (request == null)
@@ -113,34 +129,51 @@ namespace Dynamics.Controllers
             return View(viewModel);
         }
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> Create(Request obj, List<IFormFile> images,
             string? cityNameInput, string? districtNameInput, string? wardNameInput)
         {
-            obj.RequestID = Guid.NewGuid();
-            /*var date = DateOnly.FromDateTime(DateTime.Now);
-            obj.CreationDate = date;*/
-            obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
-            var userId = Guid.Empty;
-            var userJson = HttpContext.Session.GetString("user");
-            if (!string.IsNullOrEmpty(userJson))
+            try
             {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-                userId = user.UserID;
+                obj.RequestID = Guid.NewGuid();
+                /*var date = DateOnly.FromDateTime(DateTime.Now);
+                obj.CreationDate = date;*/
+                obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
+                var userId = Guid.Empty;
+                var userJson = HttpContext.Session.GetString("user");
+                if (!string.IsNullOrEmpty(userJson))
+                {
+                    var user = JsonConvert.DeserializeObject<User>(userJson);
+                    userId = user.UserID;
+                }
+
+                obj.UserID = userId;
+                if (images != null && images.Count > 0)
+                {
+                    string imagePath = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                    obj.Attachment = imagePath;
+                }
+                // No Pun
+                // else
+                // {
+                //     obj.Attachment = "/images/Requests/Placeholder/xddFaker.png";
+                // }
+
+                _logger.LogInformation("Request created");
+                await _requestRepo.AddAsync(obj);
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e.Message);
+                TempData[MyConstants.Error] = "Create request failed";
+                foreach (var error in ModelState)
+                {
+                    ModelState.AddModelError(string.Empty, error.Key);
+                }
+
+                return RedirectToAction("Create");
             }
 
-            obj.UserID = userId;
-            if (images != null && images.Count > 0)
-            {
-                // string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + obj.RequestID.ToString(), userId);
-                obj.Attachment = await _cloudinaryUploader.UploadMultiImagesAsync(images);
-            }
-            else
-            {
-                obj.Attachment = "/images/Requests/Placeholder/xddFaker.png";
-            }
-
-            await _requestRepo.AddAsync(obj);
             return RedirectToAction("MyRequest", "Request");
         }
 
@@ -152,105 +185,119 @@ namespace Dynamics.Controllers
             }
 
             // Get the currently logged-in user
+            _logger.LogInformation("Get logged-in user");
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
-            Guid userId = Guid.Empty;
-            var userJson = HttpContext.Session.GetString("user");
-            if (!string.IsNullOrEmpty(userJson))
-            {
-                var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
-                userId = userJsonC.UserID;
-            }
-
-            var request = await _requestRepo.GetByIdAsync(r => r.RequestID.Equals(id), role, userId);
+            var userId = Guid.Parse(user.Id);
+            var request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
             if (request == null)
             {
                 return NotFound();
             }
 
-            if (role == "User" && request.UserID != userId)
+            if (request.UserID != userId)
             {
                 return Forbid(); // If the user is not the owner of the request
             }
 
             return View(request);
-		}
-		[HttpPost]
-		public async Task<IActionResult> Edit(Request obj, List<IFormFile> images, 
-			string? cityNameInput, string? districtNameInput, string? wardNameInput)
-		{
-			/*if (!ModelState.IsValid)
-			{
-				return View(obj);
-			}*/
-			// Get the currently logged-in user (role and id)
-			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
-			var user = await _userManager.GetUserAsync(User);
-			if (user == null)
-			{
-				return Unauthorized();
-			}
-			var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
-			var userId = Guid.Empty;
-			var userJson = HttpContext.Session.GetString("user");
-			if (!string.IsNullOrEmpty(userJson))
-			{
-				var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
-				userId = userJsonC.UserID;
-			}
-			// Get existing request
-			var existingRequest = await _requestRepo.GetByIdAsync(r => r.RequestID.Equals(obj.RequestID), role, userId);
-			if (existingRequest == null)
-			{
-				return NotFound();
-			}
-			if (role == "User")
-			{
-				// If the user is "user", allow them to update only certain fields
-				existingRequest.Content = obj.Content;
-				existingRequest.Location = obj.Location;
-				existingRequest.isEmergency = obj.isEmergency;
-				if (images != null && images.Count > 0)
-				{
-					string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + existingRequest.RequestID.ToString(), userId);
-					// append new images if there are existing images
-					if (!string.IsNullOrEmpty(imagePath))
-					{
-						existingRequest.Attachment = string.IsNullOrEmpty(existingRequest.Attachment) ? imagePath 
-							: existingRequest.Attachment + "," + imagePath;
-					}
-				}
-			}
-			await _requestRepo.UpdateAsync(existingRequest);
-			return RedirectToAction("MyRequest", "Request");
-		}
-		public async Task<IActionResult> Delete(Guid? id)
-		{
-			if (id == null)
-			{
-				return NotFound();
-			}
-			Request request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
-			if (request == null) { return NotFound(); }
-			return View(request);
-		}
-		[HttpPost, ActionName("Delete")]
-		public async Task<IActionResult> DeletePost(Guid? id)
-		{
-			Request request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
-			if (request == null) { return NotFound(); };
-			await _requestRepo.DeleteAsync(request);
-			return RedirectToAction("MyRequest", "Request");
-		}
+        }
 
-		public async Task<IActionResult> AcceptRequest(Guid requestId)
-		{
-			return RedirectToAction("CreateProject", "Project", new { requestId = requestId });
-		}
-	}
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        public async Task<IActionResult> Edit(Request obj, List<IFormFile> images,
+            string? cityNameInput, string? districtNameInput, string? wardNameInput)
+        {
+            try
+            {
+                /*if (!ModelState.IsValid)
+                {
+                    return View(obj);
+                }*/
+                // Get the currently logged-in user (role and id)
+                obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+
+                var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
+                var userId = Guid.Parse(user.Id);
+                // Get existing request
+                _logger.LogInformation("Get existing request");
+                var existingRequest = await _requestRepo.GetAsync(r => r.RequestID.Equals(obj.RequestID));
+                if (existingRequest == null)
+                {
+                    return NotFound();
+                }
+
+                existingRequest.RequestTitle = obj.RequestTitle;
+                existingRequest.Content = obj.Content;
+                existingRequest.RequestEmail = obj.RequestEmail;
+                existingRequest.RequestPhoneNumber = obj.RequestPhoneNumber;
+                existingRequest.Location = obj.Location;
+                existingRequest.isEmergency = obj.isEmergency;
+                if (images != null && images.Count > 0)
+                {
+                    string imagePath = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                    // append new images if there are existing images
+                    if (!string.IsNullOrEmpty(imagePath))
+                    {
+                        existingRequest.Attachment = string.IsNullOrEmpty(existingRequest.Attachment)
+                            ? imagePath
+                            : existingRequest.Attachment + "," + imagePath;
+                    }
+                }
+
+                _logger.LogInformation("Edit request");
+                await _requestRepo.UpdateAsync(existingRequest);
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(e.Message);
+                TempData[MyConstants.Error] = "Update request failed";
+                foreach (var error in ModelState)
+                {
+                    ModelState.AddModelError(string.Empty, error.Key);
+                }
+                return RedirectToAction("Edit");
+            }
+
+            return RedirectToAction("MyRequest", "Request");
+        }
+
+        public async Task<IActionResult> Delete(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Request request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
+            if (request == null)
+            {
+                return NotFound();
+            }
+
+            return View(request);
+        }
+
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.ActionName("Delete")]
+        public async Task<IActionResult> DeletePost(Guid? id)
+        {
+            _logger.LogInformation("Get deleted request");
+            Request request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
+            if (request == null)
+            {
+                return NotFound();
+            }
+            _logger.LogInformation("Delete request");
+            await _requestRepo.DeleteAsync(request);
+            return RedirectToAction("MyRequest", "Request");
+        }
+    }
 }

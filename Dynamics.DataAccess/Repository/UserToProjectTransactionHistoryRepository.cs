@@ -86,7 +86,6 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
                 return true;
             return false;
         }
-
         return false;
     }
 

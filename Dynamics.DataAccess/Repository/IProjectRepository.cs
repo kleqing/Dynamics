@@ -38,5 +38,7 @@ namespace Dynamics.DataAccess.Repository
         Task<bool> UpdateProjectResource(ProjectResource entity);
         //repose of kiet
         Task<List<Project>> GetAllAsync(Expression<Func<Project, bool>>? filter = null);
+        // Gradually convert get all to this one for pagination
+        IQueryable<Project> GetAllQueryable(Expression<Func<Project, bool>>? filter = null);
     }
 }

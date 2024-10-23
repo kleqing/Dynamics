@@ -1,58 +1,86 @@
-﻿@model IEnumerable<Dynamics.Models.Models.Request>
+﻿@using Dynamics.Utility
+@model List<Dynamics.Models.Models.Dto.RequestOverviewDto>
 
 @{
     ViewData["Title"] = "All Request";
+    User user = Accessor.HttpContext.Session.GetCurrentUser();
+    if (user != null) ViewBag.userID = user.UserID;
 }
 <head>
     <link rel="stylesheet" href="wwwroot/css/output.css" />
 </head>
 <body>
 <main class="w-full h-full flex flex-col gap-6 items-center p-16">
-    <div class="p-4 rounded-lg shadow-md border bg-white max-w-xl mt-4 justify-center mx-auto">
+    <div class="p-4 rounded-lg shadow-md border max-w-xl justify-center mx-auto">
         <div class="my-5 flex justify-center">
-            <h1 class="text-center text-3xl">Are you the one in need?</h1>
+            <h1 class="text-center text-3xl">Need help from others ?</h1>
         </div>
 
         <div class="flex justify-center my-5">
             <a asp-action="Create" asp-controller="Request" asp- class="my-5">
-                <button id="createOrgBtn" class="btn btn-wide bg-red-500 text-white rounded-full">
-                    Create your request now!!!
+                <button id="createOrgBtn" class="btn btn-wide btn-primary">
+                    Create your request
                 </button>
             </a>
         </div>
     </div>
 
     <h1 class="text-3xl text-error font-bold text-center mt-4">Discover all active requests</h1>
-    
-    <div class="flex w-full justify-end items-center gap-2 mb-3">
-        <label class="input input-bordered flex items-center gap-2">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                class="h-4 w-4 opacity-70 align-middle"
-            >
-                <path
-                    fill-rule="evenodd"
-                    d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                    clip-rule="evenodd"
-                />
-            </svg>
-            <form asp-action="Index" method="get" class="">
-                <input type="text" name="searchQuery" class="grow align-middle" placeholder="Search something..." />
-            </form>
-        </label>
-        <!-- TODO: Implement filter dropdown -->
-        @*<div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-outline m-1">Filter</div>
-            <ul
-                tabindex="0"
-                class="dropdown-content menu bg-base-100 rounded-box border z-[1] w-52 p-2 shadow-md"
-            >
-                <li><a>Item 1</a></li>
-                <li><a>Item 2</a></li>
-            </ul>
-        </div>*@
+
+    <!-- search bar -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-end mb-6 w-full gap-4">
+        <form asp-action="Index" method="get" class="flex items-center gap-4 w-full max-w-xl">
+            <!-- Search input -->
+            <div class="relative w-full">
+                <label class="sr-only">Search</label>
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                    </svg>
+                </div>
+                <input type="text" name="searchQuery" class="block w-full px-14 py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search for something..." />
+            </div>
+
+            <!-- Filter dropdown -->
+            <input type="hidden" name="filterQuery" id="filterQuery" />
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" id="filterButton" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    Filter
+                </div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box border z-[1] w-52 p-2 shadow-md mt-4">
+                    <li><a onclick="setFilter('All')">All</a></li>
+                    <li><a onclick="setFilter('Title')">Title</a></li>
+                    <li><a onclick="setFilter('Location')">Location</a></li>
+                    <li><a onclick="setFilter('Content')">Content</a></li>
+                </ul>
+            </div>
+
+            <!-- Date range dropdown -->
+            <div class="relative">
+                <button type="button" id="dateButton" class="inline-flex items-center justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    Date
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <!-- Date input dropdown -->
+                <div id="dateDropdown" class="hidden absolute right-0 z-10 mt-2 w-52 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                    <div class="p-4 flex flex-col gap-2">
+                        <div>
+                            <label for="DateFrom" class="block text-sm font-medium text-gray-700">From</label>
+                            <input type="date" name="dateFrom" id="DateFrom" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label for="DateTo" class="block text-sm font-medium text-gray-700">To</label>
+                            <input type="date" name="dateTo" id="DateTo" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search button -->
+            <button type="submit" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+        </form>
     </div>
     @if (!Model.Any())
     {
@@ -60,69 +88,21 @@
     }
     else
     {
-        <section class="w-full bg-base-100 flex flex-wrap gap-16 justify-center">
-            @foreach (var item in Model)
-            {
-                <li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide">
-                    <figure>
-                        <a asp-action="Detail" asp-controller="Request" asp-route-organizationId="@item.RequestID">
-                            <img src="@item.Attachment"
-                                 alt="@item.RequestTitle"
-                                 class="w-full object-cover h-48"/>
-                        </a>
-                    </figure>
-                    <div class="card-body p-4 gap-3 w-full">
-                        <!-- Badge left -->
-                        <div class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3">
-                            Request
-                        </div>
-                        <div class="flex flex-col">
-                            <a asp-action="Detail" asp-controller="Request" asp-route-RequestID="@item.RequestID">
-                                <h2
-                                    class="card-title text-cyan-950 font-bold h-14"
-                                    style="display: -webkit-box;
-                                          line-clamp: 2;
-                                          -webkit-line-clamp: 2; /* Limit to 2 lines */
-                                          -webkit-box-orient: vertical;
-                                          overflow: hidden;"
-                                >
-                                    @item.RequestTitle
-                                </h2>
-                            </a>
-                            @* @{ *@
-                            @* var address = item.Location ?? ""; *@
-                            @* var provinceOnly = address.Split(',')[3]; *@
-                            @* } *@
-                            <div class="flex justify-between">
-                                <span class="text-gray-400">@item.CreationDate</span>
-                                <span>@item.Location</span>
-                            </div>
-                        </div>
-                        <p
-                            style="display: -webkit-box;
-                                    line-clamp: 3;
-                                    -webkit-line-clamp: 3; /* Limit to 3 lines */
-                                    -webkit-box-orient: vertical;
-                                    overflow: hidden;
-                                    margin-bottom: 16px;"
-                        >
-                            @item.Content
-                        </p>
-                        <div class="card-actions justify-center">
-                            <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
-                                Detail
-                            </button>
-                        </div>
-                    </div>
-                </li>
-            }
+        <section class="flex justify-center w-full">
+            <div class="w-full flex flex-wrap gap-4 justify-center">
+                @foreach (var item in Model)
+                {
+                    <partial name="CustomComponent/OverviewCard/RequestOverview" model="item"/>
+                }
+            </div>
         </section>
+
     }
-    <div class="pagination join flex gap-2 mt-6">
+    <div class="pagination mt-4 flex justify-center space-x-1.5">
         @if (ViewBag.CurrentPage > 1)
         {
             <a href="@Url.Action("Index", new { pageNumber = ViewBag.currentPage - 1, pageSize = 12 })">
-                <button class="join-item btn btn-ghost">Previous</button>
+                <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
             </a>
         }
 
@@ -130,16 +110,36 @@
         {
             <a href="@Url.Action("Index", new { pageNumber = i, pageSize = 12 })"
                class="@(ViewBag.CurrentPage == i ? "btn-primary" : "")">
-                <button class="join-item btn btn-ghost">@i</button>
+                <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
             </a>
         }
 
         @if (ViewBag.CurrentPage < ViewBag.totalPages)
         {
             <a href="@Url.Action("Index", new { pageNumber = ViewBag.currentPage + 1, pageSize = 12 })">
-                <button class="join-item btn btn-ghost">Next</button>
+                <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
             </a>
         }
     </div>
-    </main>
+</main>
+<script>
+    function setFilter(filter) {
+        document.getElementById("filterQuery").value = filter;
+        document.getElementById("filterButton").innerHTML = filter;
+    }
+    // dropdown for date
+    const dateButton = document.getElementById('dateButton');
+    const dateDropdown = document.getElementById('dateDropdown');
+
+    dateButton.addEventListener('click', () => {
+        dateDropdown.classList.toggle('hidden');
+    });
+
+    // Close the dropdown if clicked outside
+    window.addEventListener('click', function(e) {
+        if (!dateButton.contains(e.target) && !dateDropdown.contains(e.target)) {
+            dateDropdown.classList.add('hidden');
+        }
+    });
+</script>
 </body>

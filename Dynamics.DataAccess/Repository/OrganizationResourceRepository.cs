@@ -1,28 +1,37 @@
 ﻿using System.Linq.Expressions;
 using Dynamics.Models.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dynamics.DataAccess.Repository;
 
 public class OrganizationResourceRepository : IOrganizationResourceRepository
 {
+    private readonly ApplicationDbContext _context;
+
+    public OrganizationResourceRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
     public Task<List<OrganizationResource>> GetAllAsync()
     {
         throw new NotImplementedException();
     }
 
-    public Task<OrganizationResource> GetAsync(Expression<Func<OrganizationResource, bool>> predicate)
+    public async Task<OrganizationResource?> GetAsync(Expression<Func<OrganizationResource, bool>> predicate)
+    {
+        return await _context.OrganizationResources.FirstOrDefaultAsync(predicate);
+    }
+
+    public Task<bool> CreateAsync(OrganizationResource organizationResource)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> CreateAsync(OrganizationResource project)
+    public async Task UpdateAsync(OrganizationResource organizationResource)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> UpdateAsync(OrganizationResource project)
-    {
-        throw new NotImplementedException();
+        var existing = await GetAsync(or => or.ResourceID == organizationResource.ResourceID);
+        _context.Entry(existing).CurrentValues.SetValues(organizationResource);
+        await _context.SaveChangesAsync();
     }
 
     public Task<OrganizationResource> DeleteAsync(Expression<Func<OrganizationResource, bool>> predicate)

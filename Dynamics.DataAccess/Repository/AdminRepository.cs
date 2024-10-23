@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using CloudinaryDotNet.Actions;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -16,13 +17,16 @@ namespace Dynamics.DataAccess.Repository
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IUserRepository _userRepository;
         private readonly AuthDbContext _authDbContext;
 
-        public AdminRepository(ApplicationDbContext db, AuthDbContext authDbContext, UserManager<IdentityUser> userManager)
+        public AdminRepository(ApplicationDbContext db, AuthDbContext authDbContext, UserManager<IdentityUser> userManager
+        , IUserRepository userRepository)
         {
             _db = db;
             _authDbContext = authDbContext;
             this._userManager = userManager;
+            _userRepository = userRepository;
         }
 
         // ---------------------------------------
@@ -181,7 +185,11 @@ namespace Dynamics.DataAccess.Repository
                 // If user is banned, remove admin role (change to user)
                 if (user.isBanned)
                 {
-                    user.UserRole = "user";
+                    await _userRepository.AddToRoleAsync(id, RoleConstants.Banned);
+                }
+                else
+                {
+                    await _userRepository.AddToRoleAsync(id, RoleConstants.User);
                 }
                 await _db.SaveChangesAsync();
                 return user.isBanned;  // Return ban value (true/false)

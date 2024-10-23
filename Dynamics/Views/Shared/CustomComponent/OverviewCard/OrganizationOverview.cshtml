@@ -1,46 +1,98 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Dynamics.Models.Models.Dto.OrganizationOverviewDto
-<li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
+<li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
     <a asp-action="Detail" asp-controller="Organization"
        asp-route-organizationId="@Model.OrganizationID">
         <img class="w-full object-cover h-48 rounded-md"
              src="@Model.OrganizationPictures"
-             alt="@Model.OrganizationName"/>
+             alt="@Model.OrganizationName" />
     </a>
     <div class="card-body p-2 gap-2 w-full">
         <!-- badge left -->
-        <div
-            class="badge badge-secondary absolute top-2 left-2 bg-primary font-bold text-white px-4 py-3 outline-none border-none">
+        <div class="badge badge-primary absolute top-2 left-2 font-bold text-white px-4 py-3 outline-none border-none">
             Organization
         </div>
         <div class="flex flex-col">
-            <a class="card-title text-primary font-bold mb-2 line-clamp-2"
+            <a class="card-title text-primary font-bold mb-2 line-clamp-2 h-14"
                asp-action="Detail" asp-controller="Organization"
                asp-route-organizationId="@Model.OrganizationID">
                 @Model.OrganizationName
             </a>
-            <div class="flex justify-between">
+            <div class="flex justify-between gap-2">
                 <a class="text-neutral hover:text-primary flex-1 line-clamp-2 text-start" asp-action="Index"
                    asp-controller="User"
                    asp-route-username="@Model.OrganizationLeader.UserFullName">
                     @Model.OrganizationLeader.UserFullName
                 </a>
-                <span class="flex-1 text-end line-clamp-2">@Model.OrganizationAddress</span>
+                <span class="flex-1 text-end line-clamp-2 h-12">@Model.OrganizationAddress</span>
             </div>
         </div>
         <p class="line-clamp-3 mb-4">
             @Model.OrganizationDescription
         </p>
         <div class="card-actions justify-center flex-col items-center">
-            <div class="flex w-full flex-start items-center gap-2 text-base-content">
-                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
-                </svg>
-                <span>@Model.OrganizationMemberCount members</span>
+            <div class="flex w-full justify-between items-center gap-2 text-base-content">
+                <div class="flex gap-2 items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                    </svg>
+                    <span>@Model.OrganizationMemberCount members</span>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <span>@Html.DisplayFor(m => m.StartTime)</span>
+                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </div>
             </div>
-            <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                <button class="btn btn-neutral h-8 min-h-0 outline-none border-none" type="submit">Join into organization Now</button>
-            </form>
+            @{
+                bool isJoined = false;
+                bool isGuest = false; // We cannot determine the guest's id
+                var organizationMemberTemp = new OrganizationMember();
+                foreach (var organizationMember in Model.OrganizationMember)
+                {
+                    if (ViewBag.UserID == null)
+                    {
+                        isGuest = true;
+                        break;
+                    }
+                    if (organizationMember.UserID.Equals(ViewBag.UserID))
+                    {
+                        isJoined = true;
+                        organizationMemberTemp = organizationMember;
+                    }
+                }
+                // Limit guest behaviour
+                if (!isGuest)
+                {
+                    if (!isJoined)
+                    {
+                        <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                            <input value="@ViewBag.UserID" name="userId" type="hidden">
+                            <button class="btn btn-primary h-8 min-h-0 outline-none border-none" type="submit">Join this organization now!</button>
+                        </form>
+                    }
+
+                    switch (organizationMemberTemp.Status)
+                    {
+                        case 0:
+                            <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                <button class="btn btn-secondary h-8 min-h-0 outline-none border-none">Processing join request</button>
+                            </a>
+                            break;
+                        case > 0:
+                            <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                <button class="btn btn-neutral h-8 min-h-0 outline-none border-none" type="submit">View detail organization</button>
+                            </a>
+                            break;
+                    }
+                } else
+                {
+                    <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID" class="btn btn-neutral h-8 min-h-0 outline-none border-none">
+                        View detail organization
+                    </a>
+                }
+            }
         </div>
     </div>
 </li>

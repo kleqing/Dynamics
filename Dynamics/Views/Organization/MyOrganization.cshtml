@@ -1,7 +1,8 @@
-﻿@model IEnumerable<Dynamics.Models.Models.ViewModel.OrganizationVM>
+﻿@model List<Dynamics.Models.Models.Dto.OrganizationOverviewDto>
 @{
     ViewData["Title"] = "MyOrganization";
 }
+@using Dynamics.Models.Models.Dto
 @using Dynamics.Utility
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
@@ -12,144 +13,43 @@
     if (userString != null)
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
+        ViewBag.userID = currentUser.UserID;
     }
 }
-<main class="flex flex-col items-center">
-    <div class="container my-5 p-5 pt-12">
+<main class="flex flex-col items-center p-16">
+    <div class="pt-12 w-full">
         <div class="my-5 flex justify-center">
             <h1 class="text-center text-3xl">Your organization: </h1>
         </div>
-
-        @foreach(var item in Model)
-        {
-
-
-        if (!currentUser.UserID.Equals(item.CEO.UserID))
-        {
-        continue;
-        }
-        <div class="flex justify-center">
-            <div class="card bg-base-100 w-96 shadow-xl ">
-                <figure>
-                    <div class="relative">
-                        <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                            <img src="@(item.OrganizationPictures ?? "https://via.placeholder.com/300x200")"
-                                 alt="@item.OrganizationName" />
-                        </a>
-                        <div class="absolute top-2 left-8">
-                            <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Organization</p>
-
-                        </div>
-                    </div>
-
-                </figure>
-                <div class="card-body">
-                    <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                        <h2 class="card-title">@item.OrganizationName</h2>
-                    </a>
-                    <h4>Start date: @item.StartTime</h4>
-                    <p>@item.OrganizationDescription</p>
-                    <div class="card-actions justify-center my-5">
-                        <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                            <button class="btn btn-primary">View Detail organization</button>
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div class="gap-4 flex justify-center flex-wrap w-full">
+            @foreach (var item in Model)
+            {
+                if (!currentUser.UserID.Equals(item.OrganizationLeader.UserID)) continue; // Get the one that user is CEO of
+                <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="item"/>
+                break; // Since is CEO of one only, we break here;
+            }
         </div>
-        }
     </div>
 
-    <div class="container my-5 p-5 pt-12">
-
+    <div class="pt-12 w-full">
         <div class="my-5 flex justify-center">
             <h1 class="text-center text-3xl">Organization that you are a member of:</h1>
         </div>
-
-
-        <div class="grid grid-cols-3 gap-4 ml-5 flex justify-center">
-            @foreach (var item in Model)
-            {
-
-                var organizationMemberTemp = new OrganizationMember();
-                //xet member of a org
-                foreach (var organizationMember in item.OrganizationMember)
-                {
-                    if (organizationMember.UserID.Equals(currentUser.UserID))
+        <div class="gap-4 flex justify-center flex-wrap w-full">
+            @{
+                // Get only the organization that user is member of:
+                if (ViewBag.MyOrgs != null)
+                    foreach (var org in ViewBag.MyOrgs)
                     {
-                        organizationMemberTemp = organizationMember;
-                        break;
+                        <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="org"/>
                     }
-                }
-                if (organizationMemberTemp.Status == 0)
-                {
-                    <div class="flex justify-center">
-                        <div class="card bg-base-100 w-96 shadow-xl ">
-                            <figure>
-                                <div class="relative">
-                                    <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                        <img src="@(item.OrganizationPictures ?? "https://via.placeholder.com/300x200")"
-                                             alt="@item.OrganizationName" />
-                                    </a>
-                                    <div class="absolute top-2 left-8">
-                                        <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Organization</p>
-
-                                    </div>
-                                </div>
-
-                            </figure>
-                            <div class="card-body">
-                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                    <h2 class="card-title">@item.OrganizationName</h2>
-                                </a>
-                                <h4>Start date: @item.StartTime</h4>
-                                <p>@item.OrganizationDescription</p>
-                                <div class="card-actions justify-center my-5">
-                                    <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                        <button class="btn btn-primary">Processing Accpect request join Organization</button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-                else if (currentUser.UserID.Equals(item.CEO.UserID))
-                {
-                    continue;
-                }
-                else
-                {
-                    <div class="card bg-base-100 w-96 shadow-xl ">
-                        <figure>
-                            <div class="relative">
-                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                    <img src="@(item.OrganizationPictures ?? "https://via.placeholder.com/300x200")"
-                                         alt="@item.OrganizationName" />
-                                </a>
-                                <div class="absolute top-2 left-8">
-                                    <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Organization</p>
-
-                                </div>
-                            </div>
-
-                        </figure>
-                        <div class="card-body">
-                            <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                <h2 class="card-title">@item.OrganizationName</h2>
-                            </a>
-                            <h4>Start date: @item.StartTime</h4>
-                            <p>@item.OrganizationDescription</p>
-                            <div class="card-actions justify-center my-5">
-                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                    <button class="btn btn-primary">View Detail organization</button>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                }
-
             }
+            @* @foreach (var item in Model) *@
+            @* { *@
+            @*     if (currentUser.UserID.Equals(item.OrganizationLeader.UserID)) continue; // Skip the one that user is CEO of *@
+            @*     // The card already check the status of the user *@
+            @*     <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="item"/> *@
+            @* } *@
         </div>
-
     </div>
 </main>

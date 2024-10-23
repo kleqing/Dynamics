@@ -39,12 +39,11 @@ public class UserToOrganizationTransactionHistoryRepository : IUserToOrganizatio
         Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
     {
         return _context.UserToOrganizationTransactionHistories.Where(filter).FirstOrDefaultAsync();
-
     }
 
-    public Task<bool> Add(UserToOrganizationTransactionHistory entity)
+    public async Task AddAsync(UserToOrganizationTransactionHistory entity)
     {
-        throw new NotImplementedException();
+        await _context.UserToOrganizationTransactionHistories.AddAsync(entity);
     }
 
     public Task<bool> Update(UserToOrganizationTransactionHistory entity)

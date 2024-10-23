@@ -13,6 +13,13 @@
     {      
         currentProject = await projectRepo.GetProjectAsync(p => p.ProjectID.Equals(new Guid(currentProjectIDString)));
     }
+
+    var images = currentProject.Attachment;
+    string projectFirstImage = "";
+    if (images != null)
+    {
+        projectFirstImage = images.TrimEnd(',', ' ').Split(",")[0];
+    }
 }
 
 <!-- banner project -->
@@ -22,7 +29,6 @@
         <h2 class=" text-black font-bold text-6xl">@currentProject?.ProjectName</h2>
         <h4 class="font-mona-sans text-gray-700 font-semibold text-3xl">By @currentProject?.Organization.OrganizationName</h4>
     </div>
-
 </div>
 <!-- end banner project -->
 <!-- navbar -->

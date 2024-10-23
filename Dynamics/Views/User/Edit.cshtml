@@ -1,19 +1,17 @@
-﻿@using Azure.Core
-@using Dynamics.Models.AuthModels
-@using Microsoft.CodeAnalysis.Operations
-@model Dynamics.Models.Models.User
+﻿@model Dynamics.Models.Models.User
 
 @{
     ViewData["Title"] = "Edit";
+    Layout = "CustomLayout/_LayoutWithNavbarOnly";
 }
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Edit page</title>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <title>Edit user</title>
+    <link rel="stylesheet" href="~/css/original.css"/>
+    <link rel="stylesheet" href="~/css/output.css">
 </head>
 <body class="h-screen flex flex-col">
 <!-- Edit profile -->
@@ -22,43 +20,39 @@
     <!-- Main content -->
     <div class="divider divider-horizontal"></div>
     <form asp-action="Edit" asp-controller="User" enctype="multipart/form-data" method="post"
-          id="user-information" class="flex flex-col gap-4 justify-center items-center flex-1">
+          id="user-information" class="flex flex-col gap-4 justify-center items-center flex-1 bg-white rounded-md shadow-md p-12 ">
         <h1 class="font-bold text-center text-3xl">Change user profile</h1>
-        <div class="flex justify-around p-12 w-full h-full bg-white rounded shadow-md">
+        <div class="flex justify-around w-full h-full">
             <div class="flex flex-col w-1/2">
                 <div asp-validation-summary="ModelOnly" class="text-error"></div>
                 <input type="hidden" asp-for="UserID"/>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Username</span>
-                    </div>
-                    <!-- TODO: Subtitute the input here and all the input below with correct user values -->
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text font-bold text-lg">Username</span>
+                    </label>
                     <input type="text" placeholder="Enter new name" asp-for="UserFullName"
                            class="input input-bordered w-full bg-white input-info"
                            name="UserFullName"/>
-                    <br/>
-                    <span asp-validation-for="@Model.UserFullName" class="text-error"></span>
-                </label>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Email</span>
-                    </div>
+                    <span asp-validation-for="UserFullName" class="text-error"></span>
+                </div>
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text font-bold text-lg">Email</span>
+                    </label>
                     <input type="email" placeholder="Enter new email" asp-for="UserEmail"
                            class="input input-bordered w-full bg-white input-info"
                            name="UserEmail"/>
-                    <br/>
-                    <span asp-validation-for="@Model.UserEmail" class="text-error"></span>
-                </label>
-                <label class="form-control w-full">
-                    <div class="label">
-                        <span class="label-text">Phone number</span>
-                    </div>
+                    <span asp-validation-for="UserEmail" class="text-error"></span>
+                </div>
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text font-bold text-lg">Phone number</span>
+                    </label>
                     <input type="tel" placeholder="Enter new phone" asp-for="UserPhoneNumber"
                            class="input input-bordered w-full bg-white input-info"
                            name="UserPhoneNumber"/>
-                    <br/>
-                    <span asp-validation-for="@Model.UserPhoneNumber" class="text-error"></span>
-                </label>
+                    <span asp-validation-for="UserPhoneNumber" class="text-error"></span>
+                </div>
                 @{
                     var province = "";
                     var district = "";
@@ -91,7 +85,7 @@
                     }
                 }
                 <label class="form-control w-full">
-                    <span class="label label-text">Request address</span>
+                    <span class="label label-text font-bold text-lg">User address</span>
                     <div>
                         <select class="select select-bordered w-full mb-4 bg-white select-primary" id="city" aria-label=".form-select-sm">
                             <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
@@ -114,19 +108,21 @@
                     @* the original one should be located here: *@
                     <input type="hidden" asp-for="UserAddress" name="UserAddress" id="UserAddressStr" value="@Model.UserAddress"/>
                 </label>
+                <br/>
                 <!-- Be careful as this one must strictly follow format YYYY-MM-DD -->
                 <label asp-for="UserDOB" class="form-control w-full">
                     <div class="label">
-                        <span class="label-text">Date of birth (Month/Day/Year)</span>
+                        <span class="label-text font-bold text-lg">Date of birth (Month/Day/Year)</span>
                     </div>
                     <input type="date" asp-for="UserDOB"
-                           class="input input-bordered w-full bg-white input-info" value="@ViewBag.UserDOB"
+                           class="input input-bordered w-full bg-white input-info" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
                            name="UserDOB"/>
                 </label>
+                <br/>
                 <input type="hidden" asp-for="UserRole" name="UserRole"/>
                 <label asp-for="UserDescription" class="form-control w-full">
                     <div class="label">
-                        <span class="label-text">User description</span>
+                        <span class="label-text font-bold text-lg">User description</span>
                     </div>
                     <textarea
                             placeholder="Tell people more about you"
@@ -136,12 +132,11 @@
                             name="UserDescription">
                     </textarea>
                     <br/>
-                    <span asp-validation-for="@Model.UserDescription" class="text-error"></span>
+                    <span asp-validation-for="UserDescription" class="text-error"></span>
                 </label>
                 @* <textarea placeholder="Tell people more about you" class="textarea textarea-bordered textarea-md textarea-info w-full bg-white"></textarea> *@
-
             </div>
-            <div class="flex flex-col gap-2 font-bold">
+            <div class="flex flex-col gap-2 font-bold text-lg">
                 <h3>Profile picture</h3>
                 <label for="changeProfile" class="relative hover:scale-105 duration-150 transition-all hover:cursor-pointer">
                     <input type="hidden" name="UserAvatar" asp-for="UserAvatar" value="@Model.UserAvatar"/>
@@ -156,15 +151,15 @@
                 </label>
             </div>
         </div>
-        <div id="buttons" class="flex gap-2">
-            <input type="button" value="Save" id="update__btn" class="btn btn-info rounded-btn min-w-40"/>
+        <div id="buttons" class="flex gap-2 w-fu">
+            <input type="submit" value="Save" id="update__btn" class="btn btn-primary rounded-btn min-w-40"/>
         </div>
     </form>
     <!-- End content -->
 </div>
 <!-- End edit profile -->
-<partial name="CustomComponent/_Footer"/>
 <partial name="_ValidationScriptsPartial"/>
+<partial name="CustomComponent/_SweetAlertToast"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 @* Get all the address information before submit *@
 <script>
@@ -208,11 +203,13 @@
             }
         };
     }
+
+    
+    // Get stuff for the addresses
     let myBtn = document.querySelector('#update__btn');
+    let myForm = document.querySelector('#user-information');
     console.log(myBtn)
-    myBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        let myForm = document.querySelector('#user-information');
+    myForm.addEventListener('submit', (e) => {
         console.log(myForm)
         // Get the selected text for city, district, and ward
         const cityName = cities.options[cities.selectedIndex].text;
@@ -228,7 +225,6 @@
         userAddr.value = `${homeAddr.value}, ${wardName}, ${districtName}, ${cityName}`
         console.log('User value: ', userAddr);
         console.log(userAddr.value);
-        myForm.submit();
     })
 </script>
 

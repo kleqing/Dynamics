@@ -29,6 +29,8 @@ namespace Dynamics.Models.Models
         public string? UserDescription { get; set; }
         public string UserRole { get; set; }
         public bool isBanned { get; set; }
+        [DataType(DataType.DateTime)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         [NotMapped]
         public int ProjectCount { get; set; }
@@ -41,5 +43,6 @@ namespace Dynamics.Models.Models
         public virtual ICollection<OrganizationMember> OrganizationMember { get; set; }
         public virtual ICollection<UserToOrganizationTransactionHistory> UserToOrganizationTransactionHistories { get; set; }
         public virtual ICollection<UserToProjectTransactionHistory> UserToProjectTransactionHistories { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }

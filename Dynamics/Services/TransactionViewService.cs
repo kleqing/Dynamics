@@ -11,12 +11,10 @@ namespace Dynamics.Services;
 public class TransactionViewService : ITransactionViewService
 {
     private readonly ApplicationDbContext _context;
-    private readonly IUserToOrganizationTransactionHistoryRepository _userToOrgRepo;
 
-    public TransactionViewService(ApplicationDbContext context, IUserToOrganizationTransactionHistoryRepository userToOrgRepo)
+    public TransactionViewService(ApplicationDbContext context)
     {
         _context = context;
-        _userToOrgRepo = userToOrgRepo;
     }
 
     public async Task<List<UserTransactionDto>> GetUserToOrganizationTransactionDTOsAsync(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)

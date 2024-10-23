@@ -171,6 +171,29 @@
             </div>
         </div>
     </div>
+    <!-- pagination -->
+    <div class="pagination mt-4 flex justify-center space-x-1.5">
+        @if (ViewBag.currentPagePM > 1)
+        {
+        <a href="@Url.Action("Index", new { pageNumberPM = ViewBag.currentPagePM - 1, pageSize = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
+        </a>
+        }
+
+        @for (int i = 1; i <= ViewBag.totalPagesPM; i++)
+        {
+        <a href="@Url.Action("Index", new { pageNumberPM = i, pageSize = 10 })"
+           class="@(ViewBag.currentPagePM == i ? "btn-primary" : "")">
+            <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
+        </a>
+        }
+        @if (ViewBag.currentPagePM < ViewBag.totalPagesPM)
+        {
+        <a href="@Url.Action("Index", new { pageNumberPM = ViewBag.currentPagePM + 1, pageSize = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
+        </a>
+        }
+    </div>
 </div>
 <!--PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP-->
 <!-- end container -->

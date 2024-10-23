@@ -38,6 +38,12 @@ namespace Dynamics.DataAccess.Repository
 
             return null;
         }
+
+        public async Task AddAsync(OrganizationToProjectHistory transaction)
+        {
+            await _context.AddAsync(transaction);
+        }
+
         public async Task<bool> AddOrgDonateRequestAsync(OrganizationToProjectHistory? orgDonate)
         {
             if (orgDonate != null)
@@ -47,13 +53,12 @@ namespace Dynamics.DataAccess.Repository
                 {
                     orgDonate.Amount = 1;
                 }
-
                 orgDonate.Status = 0;
                 orgDonate.Time = DateOnly.FromDateTime(DateTime.Now);
                 await _context.OrganizationToProjectTransactionHistory.AddAsync(orgDonate);
-                //find orgresource
+                //find org resource
                 var orgResource = await _context.OrganizationResources.FirstOrDefaultAsync(x => x.ResourceID == orgDonate.OrganizationResourceID);
-                //update value orgresource
+                //update value org resource
                 if (orgResource != null)
                 {
                     orgResource.Quantity -= orgDonate.Amount;

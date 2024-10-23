@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamics.Models.Models.Dto;
 
 namespace Dynamics.Models.Models.ViewModel
 {
@@ -16,5 +17,6 @@ namespace Dynamics.Models.Models.ViewModel
         public OrganizationToProjectHistory? OrgDonate { get; set; }
         public List<UserToProjectTransactionHistory>? UserTransactionHistory { get; set; }
         public List<OrganizationToProjectHistory>? OrgTransactionHistory { get; set; }
+        public VnPayRequestDto VnPayRequestDto { get; set; }
     }
 }

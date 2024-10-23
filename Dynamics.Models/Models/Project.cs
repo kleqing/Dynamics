@@ -1,11 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dynamics.Models.Models
 {
@@ -32,7 +26,7 @@ namespace Dynamics.Models.Models
         public string? ReportFile { get; set; }
 
         [Required(ErrorMessage = "The Project Description field is required *")]
-        [MaxLength(500, ErrorMessage = "Project Description cannot be longer than 100 characters.")]
+        [MaxLength(1000, ErrorMessage = "Project Description cannot be longer than 1000 characters.")]
         public string ProjectDescription { get; set; }
         [DataType(DataType.Date)]
         public DateOnly? StartTime { get; set; }

@@ -1,11 +1,8 @@
 using System.Linq.Expressions;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-using System.Text;
-using System.Net.WebSockets;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -18,7 +15,7 @@ namespace Dynamics.DataAccess.Repository
         private readonly IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo;
         private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepo;
 
-        public ProjectRepository(ApplicationDbContext dbContext, 
+        public ProjectRepository(ApplicationDbContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IProjectMemberRepository projectMemberRepository,
             IProjectResourceRepository projectResourceRepository,
@@ -109,7 +106,6 @@ namespace Dynamics.DataAccess.Repository
                     .Where(filter)
                     .Include(pr => pr.ProjectMember).ThenInclude(u => u.User)
                     .AsSplitQuery()
-                    .AsSplitQuery()
                     .ToListAsync();
             }
             // Use split query if you are including a collection. tbh it is better to use a projection
@@ -118,8 +114,29 @@ namespace Dynamics.DataAccess.Repository
                 .Include(pr => pr.ProjectResource)
                 .Include(pr => pr.ProjectMember).ThenInclude(u => u.User)
                 .AsSplitQuery()
-                .AsSplitQuery()
                 .ToListAsync();
+        }
+
+        public IQueryable<Project> GetAllQueryable(Expression<Func<Project, bool>>? filter = null)
+        {
+            if (filter != null)
+            {
+                return _db.Projects.Include(pr => pr.ProjectResource)
+                    .Where(filter)
+                    .Include(pr => pr.ProjectMember)
+                    .ThenInclude(pr => pr.User)
+                    .Include(o => o.Organization)
+                    .OrderByDescending(p => p.StartTime)
+                    .AsQueryable()
+                    .AsSplitQuery();
+            }
+            return _db.Projects.Include(pr => pr.ProjectResource)
+                .Include(pr => pr.ProjectMember)
+                .ThenInclude(pr => pr.User)
+                .Include(o => o.Organization)
+                .OrderByDescending(p => p.StartTime)
+                .AsQueryable()
+                .AsSplitQuery();
         }
 
         public async Task<List<Project>> GetAllProjectsAsync()
@@ -139,7 +156,7 @@ namespace Dynamics.DataAccess.Repository
                 .Include(x => x.Organization)
                 .Include(x => x.Request).ThenInclude(x => x.User)
                 .Include(x => x.History).
-                AsSplitQuery().AsSplitQuery().Where(filter);
+                AsSplitQuery().Where(filter);
             return project.FirstOrDefaultAsync();
         }
         public async Task<bool> UpdateAsync(Project entity)
@@ -245,5 +262,23 @@ namespace Dynamics.DataAccess.Repository
             return true;
         }
 
+        public async Task<List<Project>> SearchIndexFilterAsync(IQueryable<Project> projects, string searchQuery, string filterQuery)
+        {
+            switch (filterQuery)
+            {
+                case "All":
+                    return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower()) ||
+                                                               p.ProjectName.ToLower().Contains(searchQuery.ToLower())||
+                                                               p.ProjectDescription.ToLower().Contains(searchQuery.ToLower()) ||
+                                                               p.ProjectPhoneNumber.Contains(searchQuery)).ToListAsync();
+                case "Name":
+                    return await projects.Where(p => p.ProjectName.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
+                case "Description":
+                    return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
+                
+            }
+
+            return null;
+        }
     }
 }

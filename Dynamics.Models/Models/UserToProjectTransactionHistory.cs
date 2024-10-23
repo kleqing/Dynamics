@@ -9,7 +9,6 @@ namespace Dynamics.Models.Models
 {
     public class UserToProjectTransactionHistory
     {
-		
 		public Guid TransactionID { get; set; }
         public Guid ProjectResourceID { get; set; }
         public Guid UserID { get; set; }

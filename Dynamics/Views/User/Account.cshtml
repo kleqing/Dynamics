@@ -45,14 +45,15 @@
         }
         else
         {
-            <form asp-action="ChangePassword" asp-controller="User" method="post" class="flex flex-col gap-4 justify-start items-center flex-1 px-16 w-1/2">
+            <form asp-action="ChangePassword" asp-controller="User" method="post"
+                  class="flex flex-col gap-4 justify-start items-center w-full p-16 bg-white">
                 <h2 class="mb-4 text-center text-3xl">
                     <b>Change password</b>
                 </h2>
                 <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
                 @if (currentUser.UserID != null)
                 {
-                    <input type="hidden" asp-for="@Model.UserId" value="@currentUser.UserID" />
+                    <input type="hidden" asp-for="@Model.UserId" value="@currentUser.UserID"/>
                 }
 
                 @* Old password *@
@@ -62,7 +63,7 @@
                            placeholder="Please enter your old password"
                            class="input input-bordered w-full bg-white input-info"
                            asp-for="@Model.OldPassword"
-                           name="OldPassword" />
+                           name="OldPassword"/>
                     <span asp-validation-for="OldPassword" class="text-error"></span>
                 </label>
                 @* New password *@
@@ -72,7 +73,7 @@
                            placeholder="Please enter your new password"
                            class="input input-bordered w-full bg-white input-info"
                            asp-for="@Model.NewPassword"
-                           name="NewPassword" />
+                           name="NewPassword"/>
                     <span asp-validation-for="NewPassword" class="text-error"></span>
                 </label>
 
@@ -82,7 +83,7 @@
                     <input type="password"
                            placeholder="Please enter your confirm new password"
                            class="input input-bordered w-full bg-white input-info"
-                           asp-for="@Model.ConfirmPassword" />
+                           asp-for="@Model.ConfirmPassword"/>
                     <span asp-validation-for="ConfirmPassword" class="text-error"></span>
                 </label>
                 <button type="submit" data-mdb-button-init data-mdb-ripple-init
@@ -96,6 +97,3 @@
     <!-- End content -->
 </main>
 <!-- End edit profile -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-<partial name="CustomComponent/_ToastNotif" />
-<partial name="_ValidationScriptsPartial" />

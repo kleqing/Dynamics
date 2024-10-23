@@ -33,7 +33,7 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<List<Notification>> GetCurrentUserNotificationsAsync(Guid userId)
     {
-        return await _db.Notifications.Where(n => n.UserID == userId).ToListAsync();
+        return await _db.Notifications.Where(n => n.UserID == userId).OrderByDescending(n => n.Date).ToListAsync();
     }
 
     public async Task DeleteAsync(Notification notification)
@@ -54,5 +54,20 @@ public class NotificationRepository : INotificationRepository
             _db.Notifications.Update(notif);
             await _db.SaveChangesAsync();
         }
+    }
+
+    public async Task<Notification> GetNotificationByIdAsync(Guid notificationId)
+    {
+        return await _db.Notifications.FirstOrDefaultAsync(n => n.NotificationID == notificationId);
+    }
+
+    public async Task MarkAllAsReadAsync(Guid userId)
+    {
+        var notifications = await _db.Notifications.Where(n => n.UserID == userId && n.Status == 0).ToListAsync();
+        foreach (var notif in notifications)
+        {
+            notif.Status = 1;
+        }
+        await _db.SaveChangesAsync();
     }
 }

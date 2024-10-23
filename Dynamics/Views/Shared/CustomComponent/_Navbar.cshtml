@@ -6,6 +6,17 @@
 
 <link rel="stylesheet" href="~/css/output.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@*<style>
+    /* Hide the close icon by default */
+    .fa-circle-xmark {
+        display: none;
+    }
+
+    /* Show the close icon when hovering over the notification */
+    li:hover .fa-circle-xmark {
+        display: inline-block;
+    }
+</style>*@
 <!-- Navbar -->
 @{
     var userString = Accessor.HttpContext.Session.GetString("user");
@@ -50,24 +61,34 @@
             </div>
 
             <div class="flex gap-4">
-                <button id="btn-notif" class="btn btn-primary">Test notif</button>
                 <span>@(currentUser != null ? currentUser.UserFullName : "Invalid user")</span>
                 
                 <!-- Notification bell icon -->
                 <div class="dropdown dropdown-end">
                     <label tabindex="0" class="cursor-pointer">
-                        <i class="fa-regular fa-bell cursor-pointer"></i>
+                        @*change the icon when there is new notification*@
+                        <i class="@(userNotifs?.Any(n => n.Status == 0) == true ? "fa-solid fa-bell fa-shake" : "fa-regular fa-bell") cursor-pointer"></i>
                     </label>
 
                     <!-- Notification dropdown -->
-                    <ul id="notifDropdown" tabindex="0" class="dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box w-52">
-                        @if (userNotifs?.Any() == true)
+                    <ul id="notifDropdown" tabindex="0" class="dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box" style="width: 32.5rem;">
+
+                    @if (userNotifs?.Any() == true)
                         {
+                            <li>
+                                <button class="btn btn-sm btn-primary" onclick="MarkAllAsRead()">Read All</button>
+                            </li>
                         @foreach (var notif in userNotifs)
                         {
                         <!-- Conditional background based on status -->
-                        <li class="p-2 @(notif.Status == 0 ? "bg-blue-100" : "bg-gray-100")">
-                            <a href="@notif.Link" class="flex justify-between">
+                        <li class="p-2 relative hover:bg-blue-100 flex">
+                            <!-- Close icon, hidden by default and shown on hover -->
+                            <i id="delNotif"
+                               style="display: none"
+                               class="fa-solid fa-circle-xmark absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hidden hover:text-red-700 cursor-pointer" 
+                               onclick="DeleteNotification(event, '@notif.NotificationID')"></i>
+                            <a href="@notif.Link" class="flex justify-between items-center @(notif.Status == 0 ? "bg-blue-100" : "bg-gray-300") rounded-lg" 
+                               onclick="MarkAsRead(event, '@notif.NotificationID', '@notif.Link')">
                                 <span>@notif.Message</span>
                                 <span class="text-sm text-gray-500">@notif.Date.ToString("dd/MM/yyyy hh:mm")</span>
                             </a>
@@ -76,7 +97,7 @@
                         }
                         else
                         {
-                        <li><span>No new notifications</span></li>
+                        <li><span>No notifications</span></li>
                         }
                     </ul>
                 </div>
@@ -133,6 +154,80 @@
         <h1 class="text-rose-500 font-bold text-center text-3xl">IsAuthenticated: @User.Identity.IsAuthenticated</h1>
     }
 }
+
+@*Mark as read notification script*@
+<script>
+    function MarkAsRead(event, notificationId, link) {
+        event.preventDefault(); // Prevent the page from navigating away immediately
+
+        $.ajax({
+            url: '@Url.Action("MarkNotificationAsRead", "Notification")',
+            type: 'POST',
+            data: {notificationId: notificationId},
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = link; // Navigate to the link after the notification is marked as read
+                }
+            },
+            error: function() {
+                // If the ajax request fails, user can still navigate to the link
+                window.location.href = link;
+            }
+        });
+    }
+
+
+    function MarkAllAsRead(){
+        $.ajax({
+            url: '@Url.Action("MarkAllNotificationAsRead", "Notification")',
+            type: 'Post',
+            success: function (response){
+                if (response.success){
+                   location.reload(); // Reload to reflect changes
+                }
+            }
+        })
+    }
+    
+    function DeleteNotification(event, notificationId){
+    event.preventDefault();
+        $.ajax({
+            url: '@Url.Action("DeleteNotification", "Notification")',
+            type: 'POST',
+            data: {notificationId: notificationId},
+            success: function(response) {
+                if (response.success){
+                    location.reload(); // Reload to reflect changes
+                }
+            }
+        });
+    }
+    
+    // need this script to hide the delete notif button
+    document.addEventListener("DOMContentLoaded", function() {
+        // Find all notification list items
+        const notificationItems = document.querySelectorAll('li');
+
+        // Add hover event listeners to toggle the close icon visibility
+        notificationItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const closeIcon = item.querySelector('#delNotif');
+                if (closeIcon) {
+                    closeIcon.style.display = 'inline-block';
+                }
+            });
+
+            item.addEventListener('mouseleave', function() {
+                const closeIcon = item.querySelector('#delNotif');
+                if (closeIcon) {
+                    closeIcon.style.display = 'none';
+                }
+            });
+        });
+    });
+
+</script>
+
 @*Notification script*@
 @* <script src="~/js/signalr/signalr.min.js"></script> *@
 @* <script> *@

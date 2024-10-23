@@ -44,8 +44,6 @@ namespace Dynamics
                 // Get user profile
                 googleOptions.ClaimActions.MapJsonKey("picture", "picture");
             });
-            // Add service for notification
-            builder.Services.AddSignalR();
             // Add database
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -140,6 +138,7 @@ namespace Dynamics
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IRequestService, RequestService>();
             builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
             // VNPAY Service
             builder.Services.AddTransient<IVnPayService, VnPayService>();
             builder.Services.AddScoped<IPagination, Pagination>();
@@ -200,9 +199,6 @@ namespace Dynamics
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
-            // Specify hub for clients to connect to
-            app.MapHub<NotificationHub>("/notification");
                 
             app.MapControllers();
             app.UseSession();

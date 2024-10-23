@@ -4,23 +4,30 @@
 @{
     Layout = "CustomLayout/_LayoutWithNavbarOnly";
     ViewData["Title"] = "Activity history";
+    int count = 0;
 }
 
 <main class="flex md:p-6 pb-0 flex-1 min-h-screen">
-    @* Left *@
-    @Html.Partial("CustomComponent/_UserSidebar", "History")
-    <div class="divider divider-horizontal"></div>
-    @* Right *@
-    <div class="w-full flex flex-col gap-6 items-center p-16 bg-white rounded-md shadow-md">
-        <div class="w-full flex justify-center gap-4">
-            <div role="tablist" class="tabs tabs-bordered">
-                <a asp-action="History" asp-controller="User" class="tab tab-active">Transaction history</a>
-                <a asp-action="RequestsStatus" asp-controller="User" class="tab">Requests status</a>
+@* Left *@
+@Html.Partial("CustomComponent/_UserSidebar", "History")
+<div class="divider divider-horizontal"></div>
+@* Right *@
+<div class="w-full flex flex-col gap-6 items-center py-4 rounded-md shadow-md">
+    <nav class="shadow w-full" style="background-color:#151D28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-center">
+                <div class="flex space-x-8 text-2xl">
+                    <a asp-action="History" asp-controller="User" class="text-white px-3 py-2 font-bold focus:bg-gray-800">Transaction history</a>
+                    <a asp-action="RequestsStatus" asp-controller="User" class="text-gray-500 hover:text-white px-3 py-2 font-medium">Requests status</a>
+                </div>
             </div>
         </div>
-
-        <h1 class="text-3xl font-bold">Succeeded donations</h1>
-
+    </nav>
+    <section class="p-8">
+        <div class="w-full">
+            <h1 class="text-3xl font-bold text-start">Succeeded donations</h1>
+            <h2 class="text-neutral text-start">View your past successful donations</h2>
+        </div>
         <!-- Right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             @* Search bar *@
@@ -54,128 +61,81 @@
         <ul class="flex flex-col gap-2 w-full">
             <!-- An activity -->
             @{
-                if (Model.userTransactions.IsNullOrEmpty())
-                {
-                    <h3 class="font-bold text-center text-2xl">You haven't donated anything yet! Go out there and do some charity</h3>
-                }
-                else
-                {
+            if (Model.userTransactions.IsNullOrEmpty())
+            {
+            <h3 class="font-bold text-center text-2xl">No information available.</h3>
+            }
+            else
+            {
+            <div class="overflow-x-auto">
+                <table class="table table-md">
+                    <thead class="bg-gray-300/20">
+                    <tr class="text-xl text-gray-900">
+                        <th ></th >
+                        <th > User information </th >
+                        <th > Message </th >
+                        <th > Destination </th >
+                        <th > Quantity </th >
+                        <th > Type </th >
+                        <th > Date </th >
+                    </tr >
+                    </thead >
+                    <tbody >
+                    @{
                     foreach (var transaction in Model.userTransactions)
                     {
-                        <li class="p-4 shadow-md flex justify-between rounded-md">
-                            <!-- Left side -->
-                            <div class="flex flex-col gap-2">
-                                <!-- User profile + time -->
-                                <div class="flex gap-2">
-                                    <div class="avatar">
-                                        <div class="w-12 rounded-full">
-                                            <img src="@transaction.User.UserAvatar"/>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="font-bold">@transaction.User.UserFullName</p>
-                                        <p class="text-neutral">@Html.DisplayFor(m => transaction.Time)</p>
+                    count += 1;
+                    <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
+                        <!-- User date | Message | Target | resource | type -->
+                        <th>@count</th>
+                        <td>
+                            <div class="flex gap-2">
+                                <div class="avatar">
+                                    <div class="w-12 rounded-full">
+                                        <img src="@transaction.User.UserAvatar"/>
                                     </div>
                                 </div>
-                                <!-- Desc -->
-                                <div class="text-info">
-                                    @(transaction.Message ?? "No message")
-                                </div>
-                                <!-- Donate to what -->
                                 <div>
-                                    Donated to: @transaction.Target
+                                    <p class="font-bold">@transaction.User.UserFullName</p>
                                 </div>
                             </div>
-
-                            <!-- Right side -->
-                            <div class="flex flex-col items-end gap-2 min-w-48 font-semibold">
-                                <p class="text-success">@transaction.Amount @transaction.Unit</p>
-                                <!-- Type of donation -->
-                                @if (transaction.ResourceName.Equals("money", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    <p class="badge badge-success min-w-24">Money</p>
-                                }
-                                else
-                                {
-                                    <p class="badge badge-warning min-w-24">Resources</p>
-                                }
-                            </div>
-                        </li>
+                        </td>
+                        <td>
+                            <p class="text-info">
+                                @(transaction.Message ?? "No message")
+                            </p>
+                        </td>
+                        <td>
+                            <p class="">
+                                Donated to: @transaction.Target
+                            </p>
+                        </td>
+                        <td>
+                            <p class="text-success">@transaction.Amount @transaction.Unit</p>
+                        </td>
+                        <td>
+                            <!-- Type of donation -->
+                            @if (transaction.ResourceName.Equals("money", StringComparison.OrdinalIgnoreCase))
+                            {
+                            <p class="badge badge-success min-w-24">Money</p>
+                            }
+                            else
+                            {
+                            <p class="badge badge-warning min-w-24">Resources</p>
+                            }
+                        </td>
+                        <td>
+                            <p class="">@Html.DisplayFor(m => transaction.Time)</p>
+                        </td>
+                    </tr>
                     }
-                }
+                    }
+                    </tbody>
+                </table >
+            </div>
             }
-            @* <li class="p-4 shadow-md flex justify-between rounded-md"> *@
-            @*     <!-- Left side --> *@
-            @*     <div class="flex flex-col gap-2"> *@
-            @*         <!-- User profile + time --> *@
-            @*         <div class="flex gap-2"> *@
-            @*             <div class="avatar"> *@
-            @*                 <div class="w-12 rounded-full"> *@
-            @*                     <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"/> *@
-            @*                 </div> *@
-            @*             </div> *@
-            @*             <div> *@
-            @*                 <p class="font-bold">Username</p> *@
-            @*                 <p class="text-neutral">Time</p> *@
-            @*             </div> *@
-            @*         </div> *@
-            @*         <!-- Desc --> *@
-            @*         <div class="text-info"> *@
-            @*             Inital budget huhuhuhuhu Lorem ipsum dolor sit amet consectetur adipisicing elit. *@
-            @*             Incidunt repellat placeat quos aspernatur ipsum optio velit ipsa assumenda *@
-            @*             exercitationem et voluptatum blanditiis quaerat, inventore, expedita, deserunt *@
-            @*             similique fuga modi. Accusamus. *@
-            @*         </div> *@
-            @*         <!-- Donate to what --> *@
-            @*         <div> *@
-            @*             Donated to: Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quisquam, porro. *@
-            @*         </div> *@
-            @*     </div> *@
-            @* *@
-            @*     <!-- Right side --> *@
-            @*     <div class="flex flex-col items-end gap-2 min-w-48 font-semibold"> *@
-            @*         <p class="text-success">123.123.123 VND</p> *@
-            @*         <!-- Type of donation --> *@
-            @*         <p class="badge badge-success min-w-24">Money</p> *@
-            @*     </div> *@
-            @* </li> *@
-            @* *@
-            @* <!-- An activity --> *@
-            @* <li class="p-4 shadow-md flex justify-between rounded-md"> *@
-            @*     <!-- Left side --> *@
-            @*     <div class="flex flex-col gap-2"> *@
-            @*         <!-- User profile + time --> *@
-            @*         <div class="flex gap-2"> *@
-            @*             <div class="avatar"> *@
-            @*                 <div class="w-12 rounded-full"> *@
-            @*                     <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"/> *@
-            @*                 </div> *@
-            @*             </div> *@
-            @*             <div> *@
-            @*                 <p class="font-bold">Username</p> *@
-            @*                 <p class="text-neutral">Time</p> *@
-            @*             </div> *@
-            @*         </div> *@
-            @*         <!-- Desc --> *@
-            @*         <div class="text-info"> *@
-            @*             Inital budget huhuhuhuhu Lorem ipsum dolor sit amet consectetur adipisicing elit. *@
-            @*             Incidunt repellat placeat quos aspernatur ipsum optio velit ipsa assumenda *@
-            @*             exercitationem et voluptatum blanditiis quaerat, inventore, expedita, deserunt *@
-            @*             similique fuga modi. Accusamus. *@
-            @*         </div> *@
-            @*         <!-- Donate to what --> *@
-            @*         <div> *@
-            @*             Donated to: Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quisquam, porro. *@
-            @*         </div> *@
-            @*     </div> *@
-            @* *@
-            @*     <!-- Right side --> *@
-            @*     <div class="flex flex-col items-end gap-2 min-w-48 font-semibold"> *@
-            @*         <p class="text-success">123 cái</p> *@
-            @*         <!-- Type of donation --> *@
-            @*         <p class="badge badge-warning min-w-24">Resources</p> *@
-            @*     </div> *@
-            @* </li> *@
+            }
         </ul>
-    </div>
+    </section>
+</div>
 </main>

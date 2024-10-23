@@ -14,24 +14,31 @@
 @Html.Partial("CustomComponent/_UserSidebar", "History")
 <div class="divider divider-horizontal"></div>
 @* Right *@
-<div class="w-full h-full flex flex-col gap-12 items-center p-16 bg-white rounded-sm">
-<div class="w-full flex justify-center gap-4">
-    <div role="tablist" class="tabs tabs-bordered">
-        <a asp-action="History" asp-controller="User" class="tab">Transaction history</a>
-        <a asp-action="RequestsStatus" asp-controller="User" class="tab tab-active">Requests status</a>
-    </div>
-</div>
+<div class="w-full h-full py-4 rounded-sm">
+@* Navbar  *@
 
-<!-- List of joining request to an organization -->
-<section class="w-full">
-    <h1 class="text-3xl font-bold mb-2">Manage your join and donation requests</h1>
-    <h2 class="mb-8 text-neutral">
-        <i>If you have requested to join an organization, a project or any resources donation, it will appear here</i>
-    </h2>
-    <!-- This will list the user requests to join organizations -->
-    @if (!Model.OrganizationJoinRequests.IsNullOrEmpty())
-    {
-        <h1 class="text-3xl font-bold mb-4 underline">Your requests to join organizations:</h1>
+<nav class="shadow relative w-full" style="background-color:#151D28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-center">
+            <div class="flex space-x-8 text-2xl">
+                <a asp-action="History" asp-controller="User" class="text-gray-500 hover:text-white px-3 py-2 font-medium">Transaction history</a>
+                <a asp-action="RequestsStatus" asp-controller="User" class="text-white px-3 py-2 font-bold focus:bg-gray-800">Requests status</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="p-8 flex flex-col gap-12">
+    <!-- List of joining request to an organization -->
+    <section class="w-full">
+        <h1 class="text-3xl font-bold mb-2">Manage your join and donation requests</h1>
+        <h2 class="mb-8 text-neutral">
+            <i>If you have requested to join an organization, a project or any resources donation, it will appear here</i>
+        </h2>
+        <!-- This will list the user requests to join organizations -->
+        @if (!Model.OrganizationJoinRequests.IsNullOrEmpty())
+        {
+        <h1 class="text-3xl font-bold mb-4 ">Your requests to join organizations:</h1>
         <!-- Right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             @* Search bar *@
@@ -66,77 +73,77 @@
         <!-- List of activity -->
         <ul class="flex flex-col gap-2 w-full">
             @{
-                foreach (var modelOrganizationJoinRequest in Model.OrganizationJoinRequests)
-                {
-                    orgCount += 1;
-                    <li class="p-4 shadow-md flex justify-between items-center rounded-sm">
-                        <!-- Left side -->
-                        <div class="flex flex-col gap-2">
-                            <div class="flex gap-2">
-                                <span class="font-bold">@orgCount.</span>
-                                <span>@modelOrganizationJoinRequest.Organization.OrganizationName</span>
+            foreach (var modelOrganizationJoinRequest in Model.OrganizationJoinRequests)
+            {
+            orgCount += 1;
+            <li class="p-4 shadow-md flex justify-between items-center rounded-sm">
+                <!-- Left side -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <span class="font-bold">@orgCount.</span>
+                        <span>@modelOrganizationJoinRequest.Organization.OrganizationName</span>
+                    </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="flex items-center justify-end gap-2 min-w-48 font-semibold">
+                    @switch (modelOrganizationJoinRequest.Status)
+                    {
+                    case 0:
+                    <p class="badge badge-primary min-w-24 relative">Pending</p>
+                    <dialog id="@("oModal" + orgCount)" class="modal">
+                        <div class="modal-box">
+                            <form method="dialog">
+                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                            </form>
+                            <h3 class="text-lg font-bold">Are you sure?</h3>
+                            <p class="py-4">You are about to cancel your request</p>
+                            <div class="modal-action gap-4">
+                                <form asp-action="CancelJoinRequest" asp-controller="User" method="post" class="btn btn-error btn-sm">
+                                    <input type="hidden" name="userID" value="@modelOrganizationJoinRequest.UserID"/>
+                                    <input type="hidden" name="targetID" value="@modelOrganizationJoinRequest.OrganizationID"/>
+                                    <input type="hidden" name="type" value="organization"/>
+                                    <button type="submit">Confirm</button>
+                                </form>
+                                <form method="dialog" class="btn btn-primary btn-sm">
+                                    <button>Go back</button>
+                                </form>
                             </div>
                         </div>
-
-                        <!-- Right side -->
-                        <div class="flex items-center justify-end gap-2 min-w-48 font-semibold">
-                            @switch (modelOrganizationJoinRequest.Status)
-                            {
-                                case 0:
-                                    <p class="badge badge-primary min-w-24 relative">Pending</p>
-                                    <dialog id="@("oModal" + orgCount)" class="modal">
-                                        <div class="modal-box">
-                                            <form method="dialog">
-                                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                                            </form>
-                                            <h3 class="text-lg font-bold">Are you sure?</h3>
-                                            <p class="py-4">You are about to cancel your request</p>
-                                            <div class="modal-action gap-4">
-                                                <form asp-action="CancelJoinRequest" asp-controller="User" method="post" class="btn btn-error btn-sm">
-                                                    <input type="hidden" name="userID" value="@modelOrganizationJoinRequest.UserID"/>
-                                                    <input type="hidden" name="targetID" value="@modelOrganizationJoinRequest.OrganizationID"/>
-                                                    <input type="hidden" name="type" value="organization"/>
-                                                    <button type="submit">Confirm</button>
-                                                </form>
-                                                <form method="dialog" class="btn btn-primary btn-sm">
-                                                    <button>Go back</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <form method="dialog" class="modal-backdrop">
-                                            <button>close</button>
-                                        </form>
-                                    </dialog>
-                                    <!-- Open the modal using ID.showModal() method -->
-                                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0" data-tip="Cancel request?"
-                                            onclick="document.getElementById('@("oModal" + orgCount)').showModal()">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
-                                    break;
-                                case 1:
-                                    <p class="badge badge-success min-w-24">Accepted</p>
-                                    break;
-                                default:
-                                    @* <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
-                                    break;
-                            }
-                        </div>
-                    </li>
-                }
+                        <form method="dialog" class="modal-backdrop">
+                            <button>close</button>
+                        </form>
+                    </dialog>
+                    <!-- Open the modal using ID.showModal() method -->
+                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0" data-tip="Cancel request?"
+                            onclick="document.getElementById('@("oModal" + orgCount)').showModal()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    break;
+                    case 1:
+                    <p class="badge badge-success min-w-24">Accepted</p>
+                    break;
+                    default:
+                    @* <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
+                    break;
+                    }
+                </div>
+            </li>
+            }
             }
         </ul>
         @* // End list *@
         @* <div class="divider divider-neutral py-8"></div> *@
-    }
-</section>
-@* End list of organization request *@
+        }
+    </section>
+    @* End list of organization request *@
 
-<!-- List of joining request to a project -->
-<section class="w-full">
-    <!-- This will list the user requests to join organizations -->
-    @if (!Model.ProjectJoinRequests.IsNullOrEmpty())
-    {
-        <h1 class="text-3xl font-bold mb-4 underline">Your requests to join projects:</h1>
+    <!-- List of joining request to a project -->
+    <section class="w-full">
+        <!-- This will list the user requests to join organizations -->
+        @if (!Model.ProjectJoinRequests.IsNullOrEmpty())
+        {
+        <h1 class="text-3xl font-bold mb-4 ">Your requests to join projects:</h1>
         <!-- right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             <div class="join">
@@ -169,80 +176,79 @@
         <!-- List of activity -->
         <ul class="flex flex-col gap-2 w-full">
             @{
-                foreach (var modelProjectJoinRequest in Model.ProjectJoinRequests)
-                {
-                    if (modelProjectJoinRequest.Status >= 2) continue; // Don't display project that user is admin or leader
-                    prjCount += 1;
-                    <li class="p-4 shadow-md flex justify-between rounded-sm">
-                        <!-- Left side -->
-                        <div class="flex flex-col gap-2">
-                            <div class="flex gap-2">
-                                <span class="font-bold">@prjCount.</span>
-                                <span>@modelProjectJoinRequest.Project.ProjectName</span>
+            foreach (var modelProjectJoinRequest in Model.ProjectJoinRequests)
+            {
+            if (modelProjectJoinRequest.Status >= 2) continue; // Don't display project that user is admin or leader
+            prjCount += 1;
+            <li class="p-4 shadow-md flex justify-between rounded-sm">
+                <!-- Left side -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <span class="font-bold">@prjCount.</span>
+                        <span>@modelProjectJoinRequest.Project.ProjectName</span>
+                    </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="flex items-center justify-end gap-2 min-w-48 font-semibold">
+                    @switch (modelProjectJoinRequest.Status)
+                    {
+                    case 0:
+                    <div class="badge badge-primary min-w-24 relative">Pending</div>
+                    <dialog id="@("pModal" + prjCount)" class="modal">
+                        <div class="modal-box">
+                            <form method="dialog">
+                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                            </form>
+                            <h3 class="text-lg font-bold">Are you sure?</h3>
+                            <p class="py-4">You are about to cancel your request</p>
+                            <div class="modal-action gap-4">
+                                <form asp-action="CancelJoinRequest" asp-controller="User" method="post" class="btn btn-error btn-sm">
+                                    <input type="hidden" name="userID" value="@modelProjectJoinRequest.UserID"/>
+                                    <input type="hidden" name="targetID" value="@modelProjectJoinRequest.ProjectID"/>
+                                    <input type="hidden" name="type" value="project"/>
+                                    <button type="submit">Confirm</button>
+                                </form>
+                                <form method="dialog" class="btn btn-primary btn-sm">
+                                    <button>Go back</button>
+                                </form>
                             </div>
                         </div>
-
-                        <!-- Right side -->
-                        <div class="flex items-center justify-end gap-2 min-w-48 font-semibold">
-                            @switch (modelProjectJoinRequest.Status)
-                            {
-                                case 0:
-                                    <div class="badge badge-primary min-w-24 relative">Pending</div>
-                                    <dialog id="@("pModal" + prjCount)" class="modal">
-                                        <div class="modal-box">
-                                            <form method="dialog">
-                                                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                                            </form>
-                                            <h3 class="text-lg font-bold">Are you sure?</h3>
-                                            <p class="py-4">You are about to cancel your request</p>
-                                            <div class="modal-action gap-4">
-                                                <form asp-action="CancelJoinRequest" asp-controller="User" method="post" class="btn btn-error btn-sm">
-                                                    <input type="hidden" name="userID" value="@modelProjectJoinRequest.UserID"/>
-                                                    <input type="hidden" name="targetID" value="@modelProjectJoinRequest.ProjectID"/>
-                                                    <input type="hidden" name="type" value="project"/>
-                                                    <button type="submit">Confirm</button>
-                                                </form>
-                                                <form method="dialog" class="btn btn-primary btn-sm">
-                                                    <button>Go back</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <form method="dialog" class="modal-backdrop">
-                                            <button>close</button>
-                                        </form>
-                                    </dialog>
-                                    <!-- Open the modal using ID.showModal() method -->
-                                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0" data-tip="Cancel request?"
-                                            onclick="document.getElementById('@("pModal" + prjCount)').showModal()">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
-                                    break;
-                                case 1:
-                                    <p class="badge badge-success min-w-24">Accepted</p>
-                                    break;
-                                case -1:
-                                    <p class="badge badge-success min-w-24">Denied</p>
-                                    break;
-                                default:
-                                    @* <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
-                                    break;
-                            }
-                        </div>
-                    </li>
-                }
+                        <form method="dialog" class="modal-backdrop">
+                            <button>close</button>
+                        </form>
+                    </dialog>
+                    <!-- Open the modal using ID.showModal() method -->
+                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0" data-tip="Cancel request?"
+                            onclick="document.getElementById('@("pModal" + prjCount)').showModal()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    break;
+                    case 1:
+                    <p class="badge badge-success min-w-24">Accepted</p>
+                    break;
+                    case -1:
+                    <p class="badge badge-success min-w-24">Denied</p>
+                    break;
+                    default:
+                    @* <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
+                    break;
+                    }
+                </div>
+            </li>
+            }
             }
         </ul>
         @* <div class="divider divider-neutral py-8"></div> *@
-    }
-</section>
-@* End list of project request *@
+        }
+    </section>
+    @* End list of project request *@
 
-
-<!-- Pending donation requests -->
-<section class="w-full">
-    @if (!Model.ResourcesDonationRequests.IsNullOrEmpty())
-    {
-        <h1 class="text-3xl font-bold mb-4 underline">Pending resources donation requests</h1>
+    <!-- Pending donation requests -->
+    <section class="w-full">
+        @if (!Model.ResourcesDonationRequests.IsNullOrEmpty())
+        {
+        <h1 class="text-3xl font-bold mb-4 ">Pending resources donation requests</h1>
         <h3 class="text-neutral mb-8">
             <i>Please wait while the receivers confirm your donation.</i>
         </h3>
@@ -294,75 +300,63 @@
                 </thead >
                 <tbody >
                 @{
-                    foreach (var donationRequest in Model.ResourcesDonationRequests)
-                    {
-                        donCount += 1;
-                        <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
-                            <!-- Content - Resource name - Quantity - Unit - Date - Sent to - Status -->
-                            <th>@donCount</th>
-                            <td>@donationRequest.Message</td>
-                            <td>@donationRequest.ResourceName</td>
-                            <td>@donationRequest.Amount</td>
-                            <td>@donationRequest.Unit</td>
-                            <td>@Html.DisplayFor(u => donationRequest.Time)</td>
-                            <td>@donationRequest.Target</td>
-                            <td>
-                                <dialog id="@("dModal" + donCount)" class="modal">
-                                    <div class="modal-box">
-                                        <form method="dialog">
-                                            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                                        </form>
-                                        <h3 class="text-lg font-bold">Are you sure?</h3>
-                                        <p class="py-4">You are about to cancel your donation</p>
-                                        <div class="modal-action gap-4">
-                                            <form asp-action="CancelDonation" asp-controller="User" method="post" class="btn btn-error btn-sm">
-                                                <input type="hidden" name="transactionID" value="@donationRequest.TransactionID"/>
-                                                <input type="hidden" name="type" value="@donationRequest.Type"/>
-                                                <button type="submit">Confirm</button>
-                                            </form>
-                                            <form method="dialog" class="btn btn-primary btn-sm">
-                                                <button>Go back</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <form method="dialog" class="modal-backdrop">
-                                        <button>close</button>
+                foreach (var donationRequest in Model.ResourcesDonationRequests)
+                {
+                donCount += 1;
+                <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
+                    <!-- Content - Resource name - Quantity - Unit - Date - Sent to - Status -->
+                    <th>@donCount</th>
+                    <td>@donationRequest.Message</td>
+                    <td>@donationRequest.ResourceName</td>
+                    <td>@donationRequest.Amount</td>
+                    <td>@donationRequest.Unit</td>
+                    <td>@Html.DisplayFor(u => donationRequest.Time)</td>
+                    <td>@donationRequest.Target</td>
+                    <td>
+                        <dialog id="@("dModal" + donCount)" class="modal">
+                            <div class="modal-box">
+                                <form method="dialog">
+                                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                                </form>
+                                <h3 class="text-lg font-bold">Are you sure?</h3>
+                                <p class="py-4">You are about to cancel your donation</p>
+                                <div class="modal-action gap-4">
+                                    <form asp-action="CancelDonation" asp-controller="User" method="post" class="btn btn-error btn-sm">
+                                        <input type="hidden" name="transactionID" value="@donationRequest.TransactionID"/>
+                                        <input type="hidden" name="type" value="@donationRequest.Type"/>
+                                        <button type="submit">Confirm</button>
                                     </form>
-                                </dialog>
-                                <!-- Open the modal using ID.showModal() method -->
-                                <div class="w-100 h-100 flex justify-center items-center px-0">
-                                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0 m-auto" data-tip="Cancel donation ?"
-                                            onclick="document.getElementById('@("dModal" + donCount)').showModal()">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
+                                    <form method="dialog" class="btn btn-primary btn-sm">
+                                        <button>Go back</button>
+                                    </form>
                                 </div>
-                            </td>
-                            <td>
-                                <a class="link link-primary showImgLink">Show images</a>
-                            </td>
-                        </tr>
-                    }
+                            </div>
+                            <form method="dialog" class="modal-backdrop">
+                                <button>close</button>
+                            </form>
+                        </dialog>
+                        <!-- Open the modal using ID.showModal() method -->
+                        <div class="w-100 h-100 flex justify-center items-center px-0">
+                            <button type="submit" class="btn btn-error btn-xs tooltip min-h-0 m-auto" data-tip="Cancel donation ?"
+                                    onclick="document.getElementById('@("dModal" + donCount)').showModal()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <a class="link link-primary showImgLink">Show images</a>
+                    </td>
+                </tr>
+                }
                 }
                 </tbody>
-
-                @* <tfoot > *@
-                @* <tr > *@
-                @*     <th ></th > *@
-                @*     <th > Donation content </th > *@
-                @*     <th > Resource </th > *@
-                @*     <th > Quantity </th > *@
-                @*     <th > Unit </th > *@
-                @*     <th > Date </th > *@
-                @*     <th > Sent to </th > *@
-                @*     $1$ <th > Status </th > #1# *@
-                @*     <th> Cancel ?</th> *@
-                @* </tr > *@
-                @* </tfoot > *@
             </table >
         </div>
-        @* <div class="divider divider-neutral py-8">End</div> *@
-    }
-</section>
+        }
+    </section>
+</div>
+
+
 @* Script to display the images if clicked *@
 <script>
     let showImgLinks = document.querySelector(".showImgLink");

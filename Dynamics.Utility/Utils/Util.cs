@@ -27,6 +27,7 @@ namespace Dynamics.Utility
 
             return hash.ToString();
         }
+        
         public static string UploadImage(IFormFile image, string folder)
         {
             try

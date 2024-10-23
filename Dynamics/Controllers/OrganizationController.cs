@@ -143,13 +143,13 @@ namespace Dynamics.Controllers
             // All organizations
             var orgs = await _organizationRepository.GetAll().ToListAsync();
             var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs);
-            // My organizations where the user joined / owned
+            // My organizations where the user joined but not the CEO of
             var myOrganizationMembers = await _organizationMemberRepository.GetAllAsync(om => om.UserID == userId);
             if (myOrganizationMembers.IsNullOrEmpty()) return RedirectToAction("Index", "Organization");
             var myOrgs = new List<Organization>();
             foreach (var organizationMember in myOrganizationMembers)
             {
-                myOrgs.Add(organizationMember.Organization);
+                if (organizationMember.Status != 2) myOrgs.Add(organizationMember.Organization);
             }
 
             var MyOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(myOrgs);

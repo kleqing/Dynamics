@@ -16,11 +16,11 @@
 <body class="h-screen flex flex-col">
 <!-- Edit profile -->
 <div class="flex md:p-6 pb-0 flex-1">
-    @Html.Partial("CustomComponent/_UserSidebar", "Edit")
+    @await Html.PartialAsync("CustomComponent/_UserSidebar", "Edit")
     <!-- Main content -->
     <div class="divider divider-horizontal"></div>
     <form asp-action="Edit" asp-controller="User" enctype="multipart/form-data" method="post"
-          id="user-information" class="flex flex-col gap-4 justify-center items-center flex-1 bg-white rounded-md shadow-md p-12 ">
+          id="user-information" class="flex flex-col gap-4 justify-center items-center flex-1 rounded-md shadow-md p-12 ">
         <h1 class="font-bold text-center text-3xl">Change user profile</h1>
         <div class="flex justify-around w-full h-full">
             <div class="flex flex-col w-1/2">
@@ -31,7 +31,7 @@
                         <span class="label-text font-bold text-lg">Username</span>
                     </label>
                     <input type="text" placeholder="Enter new name" asp-for="UserFullName"
-                           class="input input-bordered w-full bg-white input-info"
+                           class="input input-bordered w-full bg-white input-primary"
                            name="UserFullName"/>
                     <span asp-validation-for="UserFullName" class="text-error"></span>
                 </div>
@@ -39,8 +39,8 @@
                     <label class="label">
                         <span class="label-text font-bold text-lg">Email</span>
                     </label>
-                    <input type="email" placeholder="Enter new email" asp-for="UserEmail"
-                           class="input input-bordered w-full bg-white input-info"
+                    <input type="email" disabled placeholder="Enter new email" asp-for="UserEmail"
+                           class="input input-bordered w-full bg-white input-primary"
                            name="UserEmail"/>
                     <span asp-validation-for="UserEmail" class="text-error"></span>
                 </div>
@@ -49,7 +49,7 @@
                         <span class="label-text font-bold text-lg">Phone number</span>
                     </label>
                     <input type="tel" placeholder="Enter new phone" asp-for="UserPhoneNumber"
-                           class="input input-bordered w-full bg-white input-info"
+                           class="input input-bordered w-full bg-white input-primary"
                            name="UserPhoneNumber"/>
                     <span asp-validation-for="UserPhoneNumber" class="text-error"></span>
                 </div>
@@ -115,7 +115,7 @@
                         <span class="label-text font-bold text-lg">Date of birth (Month/Day/Year)</span>
                     </div>
                     <input type="date" asp-for="UserDOB"
-                           class="input input-bordered w-full bg-white input-info" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
+                           class="input input-bordered w-full bg-white input-primary" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
                            name="UserDOB"/>
                 </label>
                 <br/>
@@ -126,7 +126,7 @@
                     </div>
                     <textarea
                             placeholder="Tell people more about you"
-                            class="textarea textarea-bordered textarea-md textarea-info w-full bg-white"
+                            class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"
                             asp-for="UserDescription"
                             rows="5"
                             name="UserDescription">
@@ -134,7 +134,7 @@
                     <br/>
                     <span asp-validation-for="UserDescription" class="text-error"></span>
                 </label>
-                @* <textarea placeholder="Tell people more about you" class="textarea textarea-bordered textarea-md textarea-info w-full bg-white"></textarea> *@
+                @* <textarea placeholder="Tell people more about you" class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"></textarea> *@
             </div>
             <div class="flex flex-col gap-2 font-bold text-lg">
                 <h3>Profile picture</h3>

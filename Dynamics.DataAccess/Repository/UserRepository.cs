@@ -104,10 +104,9 @@ namespace Dynamics.DataAccess.Repository
             return users;
         }
 
-        public async Task<List<User?>> GetAllUsersAsync()
+        public IQueryable<User> GetUsersQueryable()
         {
-            var users = await _db.Users.ToListAsync();
-            return users;
+            return _db.Users;
         }
 
         //

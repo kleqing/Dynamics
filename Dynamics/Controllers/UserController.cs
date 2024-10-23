@@ -124,8 +124,9 @@ namespace Dynamics.Controllers
                 // Update the session as well
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));
                 TempData[MyConstants.Success] = "User updated!";
-                if (currentUser.UserDOB != null)
-                    ViewBag.UserDOB = currentUser.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
+                // Set for display
+                if (user.UserDOB != null)
+                    ViewBag.UserDOB = user.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
             }
             catch (Exception e)
             {

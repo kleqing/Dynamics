@@ -6,7 +6,7 @@
 <div class="flex justify-center text-3xl font-bold text-red-500 w-full bg-gray-100" style="margin-top: 100px;"> Discorver all active charities project</div>
 
 <!-- container -->
-<div class="flex flex-col mx-auto relative w-3/4  my-10">
+<div class="w-full min-h-screen p-16">
     <!-- search bar -->
     <div class="flex relative justify-end mb-6 w-full">
         <div class="flex gap-x-6">
@@ -59,75 +59,11 @@
         </div>
     </div>
     <!-- list project -->
-    <div class="w-full flex justify-start gap-x-0 gap-y-4 flex-wrap">
+    <div class="gap-4 flex flex-wrap justify-center w-full">
         @foreach(var item in Model.allActiveProjects)
         {
-            <div class=" card bg-base-100 w-96 shadow-xl mx-5 my-2">
-                <div class="relative">
-                    @if (item.Attachment != null)
-                    {
-                        item.Attachment = item.Attachment.TrimEnd(',', ' ').Split(",")[0];
-                    }
-                    <figure>
-                        <a asp-action="ManageProject" asp-controller="Project" asp-route-id="@item.ProjectID">
-                            <img src="@(item.Attachment ?? "https://localhost:7276/images/Organization/0.jpg")" alt="Ảnh dự án" class="w-96 h-64 object-cover">
-                        </a>
-                    </figure>
-                    <div class="">
-                        <div class="absolute top-2 left-8">
-                            <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Project</p>
-
-                        </div>
-                        <div class="absolute top-2 right-8">
-                            @if (item.ProjectStatus == -1)
-                            {
-                                <p class="bg-gray-300 text-black text-lg font-semibold px-2 py-0.5 rounded-full">Inactive</p>
-                            }
-                            @if (item.ProjectStatus == 0)
-                            {
-                                <p class="bg-pink-300 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Preparing</p>
-                            }
-
-                            @if (item.ProjectStatus == 1)
-                            {
-                                <p class="bg-red-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">On-going</p>
-                            }
-
-                            @if (item.ProjectStatus == 2)
-                            {
-                                <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Completed</p>
-                            }
-                        </div>
-                    </div>
-
-                </div>
-                <div class="p-3 card-body">
-                    <a asp-action="ManageProject" asp-controller="Project" asp-route-id="@item.ProjectID">
-                        <h1 class="card-title">@item.ProjectName</h1>
-                    </a>
-                    <div class="flex justify-between items-center text-xs  mb-2">
-                        <h3 class="text-sm">By @item.Organization.OrganizationName</h3>
-                        <h3 class="text-sm">@item.ProjectAddress</h3>
-                    </div>
-                    <p class=" text-base mb-3 line-clamp-3">
-                        @item.ProjectDescription
-                    </p>
-                    <div class="flex items-center text-xs text-gray-500 mb-2">
-                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
-                        </svg>
-                        <h2 class="text-sm font-semibold">@item.ProjectMembers volunteer</h2>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 ">
-                        <div class="bg-green-500 h-3 rounded-full" style="width: @(item.ProjectProgress >=100?100:item.ProjectProgress)%"></div>
-                    </div>
-                    <div class="text-green-500 font-semibold text-xl">
-                        Raised  @item.ProjectRaisedMoney VND
-                    </div>
-                </div>
-            </div>
+            <partial name="CustomComponent/OverviewCard/ProjectsOverview" model="item"/>
         }
-      
     </div>
 
 </div>

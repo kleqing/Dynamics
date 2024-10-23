@@ -6,7 +6,7 @@ namespace Dynamics.DataAccess.Repository
 {
     public interface IUserRepository
     {
-        Task<List<User?>> GetAllUsersAsync();
+        IQueryable<User> GetUsersQueryable();
         Task<User?> GetAsync(Expression<Func<User?, bool>> filter);
         Task<bool> AddAsync(User? entity);
         Task<bool> UpdateAsync(User entity);
@@ -33,7 +33,6 @@ namespace Dynamics.DataAccess.Repository
          * The default role after deletion is User
          */
         Task DeleteRoleFromUserAsync(Guid userId, string roleName = RoleConstants.User);
-
         //Task<bool> GetBanAsync(Guid userId);
     }
 }

@@ -83,9 +83,9 @@ namespace Dynamics.Controllers
         {
             //get project that user has joined
             var projectMemberList = _projectMemberRepo.FilterProjectMember(x =>
-                x.UserID.Equals(userID) && x.Status >= 0 && x.Project.ProjectStatus >= 0);
-            List<Models.Models.Project> projectsIAmMember = new List<Models.Models.Project>();
-            List<Models.Models.Project> projectsILead = new List<Models.Models.Project>();
+                x.UserID.Equals(userID) && x.Status >= 1 && x.Project.ProjectStatus >= 0); // (Don't show the ones that are pending)
+            List<Project> projectsIAmMember = new List<Project>();
+            List<Project> projectsILead = new List<Project>();
             foreach (var projectMember in projectMemberList)
             {
                 var project = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectMember.ProjectID));
@@ -99,7 +99,7 @@ namespace Dynamics.Controllers
                     }
                     else
                     {
-                        //get project that user join as a member
+                        //get project that user join as a member 
                         projectsIAmMember.Add(project);
                     }
                 }

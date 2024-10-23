@@ -32,11 +32,6 @@ namespace Dynamics.Controllers
             _emailSender = emailSender;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         public async Task<IActionResult> ResendConfirmationEmail(string email, string? returnUrl = "~/")
         {
             if (string.IsNullOrEmpty(email))
@@ -69,6 +64,33 @@ namespace Dynamics.Controllers
 
             return Redirect("/Identity/Account/Login");
         }
+
+        // public async Task<IActionResult> UnbindFromGoogle()
+        // {
+        //     var user = HttpContext.Session.GetCurrentUser();
+        //     var identiyUser = await _userManager.FindByIdAsync(user.UserID.ToString());
+        //     var logins = await _userManager.GetLoginsAsync(identiyUser);
+        //     
+        //     _userManager.RemoveLoginAsync()
+        // }
+
+        public async Task<IActionResult> AddPasswordToAccount(ChangePasswordDto changePasswordDto)
+        {
+            var user = HttpContext.Session.GetCurrentUser();
+            var identiyUser = await _userManager.FindByIdAsync(user.UserID.ToString());
+            if (identiyUser == null) throw new Exception("No user found");
+            var result = _userManager.AddPasswordAsync(identiyUser, changePasswordDto.NewPassword);
+            if (result.Result.Succeeded)
+            {
+                TempData[MyConstants.Success] = "Password added to account successfully";
+            }
+            else
+            {
+                TempData[MyConstants.Error] = "Password could not be added to the account";
+            }
+            return RedirectToAction("Edit", "User");
+        }
+        
 
         public async Task<IActionResult> Logout()
         {

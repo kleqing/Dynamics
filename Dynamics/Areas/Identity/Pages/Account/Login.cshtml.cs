@@ -15,6 +15,8 @@ using Dynamics.Utility;
 using Dynamics.Models.Models;
 using Dynamics.Utility;
 using Dynamics.Models.Models;
+using AutoMapper.Execution;
+using Microsoft.CodeAnalysis;
 
 namespace Dynamics.Areas.Identity.Pages.Account
 {
@@ -113,9 +115,13 @@ namespace Dynamics.Areas.Identity.Pages.Account
                     else if (result.Succeeded)
                     {
                         _logger.LogInformation("User logged in.");
+                        if (returnUrl.Contains("JoinProjectRequest"))
+                        {
+                            returnUrl = returnUrl.Replace("memberid=00000000-0000-0000-0000-000000000000", $"memberid={businessUser.UserID.ToString()}");
+                        }
                         return Redirect(returnUrl);
                     }
-                    
+
                     // TODO: Ban user in da future
                     if (result.IsLockedOut)
                     {

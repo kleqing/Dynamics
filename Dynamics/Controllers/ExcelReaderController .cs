@@ -164,11 +164,11 @@ namespace Dynamics.Controllers
                                     Message = worksheet.Cells[row, 6].Value?.ToString(),
                                 };
                                 var quantityAfterDonate = currentResource.Quantity + resource.Quantity.Value;
-                                if(quantityAfterDonate > currentResource.ExpectedQuantity)
+                                if(quantityAfterDonate > currentResource.ExpectedQuantity || resource.Quantity == 0)
                                 {
                                     resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";
                                 }
-                                else
+                                else if (quantityAfterDonate < currentResource.ExpectedQuantity && resource.Quantity > 0)
                                 {
                                     userToProjectTransactionHistory.Attachments = resImage;
                                     await _userToProjectTransactionHistoryRepo.AddUserDonateRequestAsync(userToProjectTransactionHistory);

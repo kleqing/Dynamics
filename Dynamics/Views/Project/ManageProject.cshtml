@@ -318,7 +318,7 @@
                 </a>
             }
 
-            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : "window.location.href='/Identity/Account/Login'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : $"window.location.href='/Identity/Account/Login?returnUrl={Uri.EscapeDataString($"~/Project/ManageProject?id={currentProjectID}")}'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
                 <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                 Report
             </span>
@@ -350,8 +350,6 @@
                                 class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
                             Report
                         </button>
-                    
-
                     </div>
                 </form>
             </div>

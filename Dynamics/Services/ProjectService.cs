@@ -271,7 +271,7 @@ public class ProjectService : IProjectService
         };
         return result;
     }
-    public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID)
+    public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID,HttpContext httpContext)
     {
         var projectObj =
                  await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
@@ -283,11 +283,11 @@ public class ProjectService : IProjectService
             {
                 projectObj.Request = request;
             }
-            _accessor.HttpContext.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
+            httpContext.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
             var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
-            _accessor.HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
+            httpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
             var ceoOfProject = FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectObj.ProjectID);
-            _accessor.HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
+            httpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
 
             List<string> statistic = await GetStatisticOfProjectAsync(projectObj.ProjectID);
             DetailProjectVM detailProjectVM = new DetailProjectVM()
@@ -308,6 +308,111 @@ public class ProjectService : IProjectService
         }
         return null;
     }
+
+    //get images
+    public async Task<string> GetAllImagesAsync(Guid id, string owner)
+    {
+        var resImgPath = "";
+        if (!string.IsNullOrEmpty(owner) && owner.Equals("Project"))
+        {
+            var projectObj = await _context.Projects.FirstOrDefaultAsync(x => x.ProjectID.Equals(id));
+            if (projectObj != null)
+            {
+                resImgPath = projectObj.Attachment;
+            }
+        }
+        else if (!string.IsNullOrEmpty(owner) && owner.Equals("Phase"))
+        {
+            var historyObj = await _context.Histories.FirstOrDefaultAsync(x => x.HistoryID.Equals(id));
+            if (historyObj != null)
+            {
+                resImgPath = historyObj.Attachment;
+            }
+        }
+
+        return resImgPath;
+    }
+
+    public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
+    {
+        if(string.IsNullOrEmpty(imgPath)) return false;
+        if (phaseID != Guid.Empty)
+        {
+            var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
+            var historyObj =
+                await _projectHistoryRepo.GetAllPhaseReportsAsync(x => x.HistoryID.Equals(phaseID));
+            if (historyObj != null && allImagesOfPhase != null)
+            {
+                if (allImagesOfPhase.Length > 0)
+                {
+                    foreach (var img in allImagesOfPhase.Split(','))
+                    {
+                        if (img.Equals(imgPath))
+                        {
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1? allImagesOfPhase.Replace(img, ""): allImagesOfPhase.Replace(img + ",","");
+                        }
+                    }
+
+                    historyObj[0].Attachment = allImagesOfPhase;
+                }
+
+                var res = await _projectHistoryRepo.EditPhaseReportAsync(historyObj[0]);
+                if (res) return true;
+            }
+        }
+        else
+        {
+            var currentProjectID = _accessor.HttpContext.Session.GetString("currentProjectID");
+            var allImagesOfProject =
+                    await GetAllImagesAsync(new Guid(currentProjectID), "Project");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
+            if (projectObj != null && allImagesOfProject != null)
+            {
+                if (allImagesOfProject.Length > 0)
+                {
+                    foreach (var img in allImagesOfProject.Split(','))
+                    {
+                        if (img.Equals(imgPath))
+                        {
+                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img + ",", "");
+                        }
+                    }
+
+                    projectObj.Attachment = allImagesOfProject;
+                }
+                var res = await _projectRepo.UpdateAsync(projectObj);
+                if (res) return true;
+            }
+        }
+        return false;
+    }
+    public async Task<string> UploadImagesAsync(List<IFormFile> images,string folder)
+    {
+        if (images != null && images.Count() > 0)
+        {
+            var resAttachment = await Util.UploadImages(images, $@"{folder}");    
+            return resAttachment;
+        }
+        return string.Empty;
+    }
+    public async Task<string> UpdateProjectProfileAsync(UpdateProjectProfileRequestDto updateProject, List<IFormFile> images)
+    {
+
+        _logger.LogWarning("update 1 here");
+        var projectObj = _mapper.Map<Dynamics.Models.Models.Project>(updateProject);
+        if (projectObj != null)
+        {
+            //var resImage = await UploadImagesAsync(images, @"images\Project");
+            var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+            if (resImage.Equals("Wrong extension")) return resImage;
+            projectObj.Attachment = !resImage.Equals("No file")? resImage:projectObj.Attachment;
+            var res = await UpdateProjectAlongWithUpdateLeaderAsync(projectObj, updateProject.NewLeaderID);
+            if(!res) return MyConstants.Error;
+            return MyConstants.Success;
+        }
+        return MyConstants.Error;
+    }
     public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
     {
         _logger.LogWarning("update project is here");
@@ -316,7 +421,7 @@ public class ProjectService : IProjectService
         //updating 2 member who is new and old leader of project
         var oldProjectLeaderUser = _accessor.HttpContext.Session.GetString("currentProjectLeaderID");
         _logger.LogWarning("old leader is here");
-        var oldProjectLeader = _projectMemberRepo.FilterProjectMember(x => x.UserID.Equals(oldProjectLeaderUser) && x.ProjectID.Equals(entity.ProjectID)).FirstOrDefault();
+        var oldProjectLeader = _projectMemberRepo.FilterProjectMember(x => x.UserID.Equals(new Guid(oldProjectLeaderUser)) && x.ProjectID.Equals(entity.ProjectID)).FirstOrDefault();
         _logger.LogWarning("new leader is here");
         var newProjectLeader = await _context.ProjectMembers.FirstOrDefaultAsync(x =>
             x.UserID.Equals(newProjectLeaderID) && x.ProjectID.Equals(entity.ProjectID));
@@ -349,111 +454,6 @@ public class ProjectService : IProjectService
         }
         return true;
     }
-    //get images
-    public async Task<string> GetAllImagesAsync(Guid id, string owner)
-    {
-        var resImgPath = "";
-        if (!string.IsNullOrEmpty(owner) && owner.Equals("Project"))
-        {
-            var projectObj = await _context.Projects.FirstOrDefaultAsync(x => x.ProjectID.Equals(id));
-            if (projectObj != null)
-            {
-                resImgPath = projectObj.Attachment;
-            }
-        }
-        else if (!string.IsNullOrEmpty(owner) && owner.Equals("Phase"))
-        {
-            var historyObj = await _context.Histories.FirstOrDefaultAsync(x => x.HistoryID.Equals(id));
-            if (historyObj != null)
-            {
-                resImgPath = historyObj.Attachment;
-            }
-        }
-
-        return resImgPath;
-    }
-
-    public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
-    {
-        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
-        if (phaseID != Guid.Empty)
-        {
-            var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
-            var historyObj =
-                await _projectHistoryRepo.GetAllPhaseReportsAsync(x => x.HistoryID.Equals(phaseID));
-            if (historyObj != null && allImagesOfPhase != null)
-            {
-                if (allImagesOfPhase.Length > 0)
-                {
-                    foreach (var img in allImagesOfPhase.Split(','))
-                    {
-                        if (img.Equals(imgPath))
-                        {
-                            allImagesOfPhase = allImagesOfPhase.Replace(img + ",", "");
-                        }
-                    }
-
-                    historyObj[0].Attachment = allImagesOfPhase;
-                }
-
-                var res = await _projectHistoryRepo.EditPhaseReportAsync(historyObj[0]);
-                if (res) return true;
-            }
-        }
-        else
-        {
-            var currentProjectID = _accessor.HttpContext.Session.GetString("currentProjectID");
-            var allImagesOfProject =
-                    await GetAllImagesAsync(new Guid(currentProjectID), "Project");
-            var projectObj =
-                await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
-            if (projectObj != null && allImagesOfProject != null)
-            {
-                if (allImagesOfProject.Length > 0)
-                {
-                    foreach (var img in allImagesOfProject.Split(','))
-                    {
-                        if (img.Equals(imgPath))
-                        {
-                            allImagesOfProject = allImagesOfProject.Replace(img + ",", "");
-                        }
-                    }
-
-                    projectObj.Attachment = allImagesOfProject;
-                }
-                var res = await _projectRepo.UpdateAsync(projectObj);
-                if (res) return true;
-            }
-        }
-        return false;
-    }
-    public async Task<string> UploadImagesAsync(List<IFormFile> images,string folder)
-    {
-        if (images != null && images.Count() > 0)
-        {
-            var resAttachment = await Util.UploadImages(images, $@"{folder}");    
-            return resAttachment;
-        }
-        return string.Empty;
-    }
-    public async Task<string> UpdateProjectProfileAsync(UpdateProjectProfileRequestDto updateProject, List<IFormFile> images)
-    {
-
-        _logger.LogWarning("update 1 here");
-        var projectObj = _mapper.Map<Dynamics.Models.Models.Project>(updateProject);
-        if (projectObj != null)
-        {
-            //var resImage = await UploadImagesAsync(images, @"images\Project");
-            var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
-            if (resImage.Equals("Wrong extension")) return resImage;
-            projectObj.Attachment = !resImage.Equals("No file")? resImage:null;
-            var res = await UpdateProjectAlongWithUpdateLeaderAsync(projectObj, updateProject.NewLeaderID);
-            if(!res) return MyConstants.Error;
-            return MyConstants.Success;
-        }
-        return MyConstants.Error;
-    }
-
 
     //working with member of project-----------------------------------------------------------------------------------------
     //get leader of project
@@ -501,7 +501,12 @@ public class ProjectService : IProjectService
 
         if (existingJoinRequest == null)
         {
-            var res = await _projectMemberRepo.AddJoinRequest(memberID, projectID);
+            var res = await _projectMemberRepo.AddJoinRequest(new ProjectMember()
+            {
+                UserID = memberID,
+                ProjectID = projectID,
+                Status = 0
+            });
             if (res)
             {
                 return MyConstants.Success;

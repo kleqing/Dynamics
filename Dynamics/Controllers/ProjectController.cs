@@ -77,6 +77,10 @@ namespace Dynamics.Controllers
         {
             return View(await _projectService.ReturnMyProjectVMAsync(userID));
         }
+        public IActionResult NoData(string msg)
+        {
+            return View((object)msg);
+        }
 
         public async Task<IActionResult> ViewAllProjects()
         {
@@ -221,7 +225,7 @@ namespace Dynamics.Controllers
             {
                 if(member.UserID != projectDto.NewLeaderID && member.UserID != currentProjectCEO)
                 {
-                    var isOwnerSomewhere = _projectMemberRepo.FilterProjectMember(x => x.UserID == member.UserID && x.Status >= 2);
+                    var isOwnerSomewhere = _projectMemberRepo.FilterProjectMember(x => x.UserID == member.UserID && x.Status >= 2 && x.Project.ProjectStatus > 0);
                     if (isOwnerSomewhere.Count == 0) MemberList.Add(new SelectListItem { Text = member.UserFullName, Value = member.UserID.ToString() });
                     continue;
                 }
@@ -301,11 +305,11 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> ManageProject(string id)
         {
             _logger.LogWarning("ManageProject get");
-            if (string.IsNullOrEmpty(id.ToString()) || id.Equals(00000000 - 0000 - 0000 - 0000 - 000000000000))
+            if (string.IsNullOrEmpty(id.ToString()) || id.Equals(Guid.Empty))
             {
                 return NotFound("id is empty!");
             }
-           var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id));
+           var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id),HttpContext);
             if(detailProject != null)
             {
                 return View(detailProject);
@@ -412,8 +416,7 @@ namespace Dynamics.Controllers
                 if (checkIsLeader || checkIsCEO)
                 {
                     TempData[MyConstants.Warning] = "You can not leave the project!";
-                    TempData[MyConstants.Info] = checkIsLeader ? "Transfer team leader rights if you still want to leave the project." : null;
-                    TempData[MyConstants.Info] = checkIsCEO ? "Leave project is not allowed while you are CEO." : null;
+                    TempData[MyConstants.Info] = checkIsLeader ? "Transfer team leader rights if you still want to leave the project." : (checkIsCEO?"Leave project is not allowed while you are CEO." : null);
                     return RedirectToAction(nameof(ManageProject), new { id = projectID });
                 }
                 var res = await _projectMemberRepo.DenyJoinRequestAsync(new Guid(currentUserID), projectID);
@@ -806,9 +809,9 @@ namespace Dynamics.Controllers
         {
             _logger.LogWarning("ManageProjectResource get");
             var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
-            if (allResource == null)
+            if (allResource.Count() ==0)
             {
-                return NotFound();
+                return RedirectToAction("NoData", new {msg = "No resource has been created"});
             }
 
             return View(allResource);
@@ -920,9 +923,9 @@ namespace Dynamics.Controllers
             _logger.LogWarning("ManageProjectPhaseReport get");
             var allUpdate =
                 await _projectHistoryRepo.GetAllPhaseReportsAsync(u => u.ProjectID.Equals(projectID));
-            if (allUpdate == null)
+            if (allUpdate.ToList().Count() ==0)
             {
-                return NotFound();
+                return RedirectToAction("NoData", new { msg = "No update has been created" });
             }
             allUpdate = allUpdate.OrderByDescending(x => x.Date).ToList();
             return View(allUpdate);

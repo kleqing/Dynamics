@@ -118,13 +118,15 @@ namespace Dynamics.DataAccess.Repository
             {
                 return _db.Requests.Where(predicate)
                     .Include(x => x.User)
-                    .OrderByDescending(r => r.CreationDate)
+                    .OrderByDescending(r => r.isEmergency)
+                    .ThenByDescending(r => r.CreationDate)
                     .AsQueryable();
             }
 
             var requests = _db.Requests
                 .Include(r => r.User)
-                .OrderByDescending(r => r.CreationDate)
+                .OrderByDescending(r => r.isEmergency)
+                .ThenByDescending(r => r.CreationDate)
                 .AsQueryable();
             return (requests);
         }

@@ -26,9 +26,9 @@ public class ProjectMemberRepository : IProjectMemberRepository
     {
         if (predicate is null)
         {
-            return await _context.ProjectMembers.Include(pm => pm.User).FirstOrDefaultAsync();
+            return await _context.ProjectMembers.Include(pm => pm.User).Include(pm => pm.Project).FirstOrDefaultAsync();
         }
-        return await _context.ProjectMembers.Where(predicate).Include(pm => pm.User).FirstOrDefaultAsync();
+        return await _context.ProjectMembers.Where(predicate).Include(pm => pm.User).Include(pm => pm.Project).FirstOrDefaultAsync();
     }
 
     public Task<bool> CreateAsync(ProjectMember project)

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Dynamics.Models
+namespace Dynamics.Models.Dto
 {
     public class ChangePasswordDto
     {

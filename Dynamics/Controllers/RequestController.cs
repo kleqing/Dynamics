@@ -4,6 +4,7 @@ using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -15,20 +16,16 @@ namespace Dynamics.Controllers
 		private readonly IRequestRepository _requestRepo;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ILogger<RequestController> _logger;
-		private readonly IHubContext<NotificationHub> _notifHubContext;
-		private readonly INotificationRepository _notifRepo;
 		private readonly IRequestService _requestService;
 		private readonly CloudinaryUploader _cloudinaryUploader;
 		
 		public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager,
-			ILogger<RequestController> logger, IHubContext<NotificationHub> notifHubContext,
-			INotificationRepository notifRepo, IRequestService? requestService, CloudinaryUploader? cloudinaryUploader)
+			ILogger<RequestController> logger,
+			IRequestService? requestService, CloudinaryUploader? cloudinaryUploader)
 		{
 			_requestRepo = requestRepository;
 			_userManager = userManager;
 			_logger = logger;
-			_notifHubContext = notifHubContext;
-			_notifRepo = notifRepo;
 			_requestService = requestService;
 			_cloudinaryUploader = cloudinaryUploader;
 		}
@@ -123,6 +120,19 @@ namespace Dynamics.Controllers
 			{
 				ModelState.AddModelError("Attachment", "Please provide valid images.");
 			}
+			if (wardNameInput.Equals("Choose ward/commune"))
+			{
+				ModelState.AddModelError("", "Please choose ward/commune of your request.");
+			}
+			if (districtNameInput.Equals("Choose district"))
+			{
+				ModelState.AddModelError("", "Please choose district of your request.");
+			}
+			if (cityNameInput.Equals("Choose province"))
+			{
+				ModelState.AddModelError("", "Please choose province of your request.");
+			}
+			
 			var userJson = HttpContext.Session.GetString("user");
 			var user = JsonConvert.DeserializeObject<User>(userJson);
 
@@ -187,6 +197,20 @@ namespace Dynamics.Controllers
 			{
 				ModelState.AddModelError("Attachment", "Please provide valid images.");
 			}
+
+			if (wardNameInput.Equals("Choose ward/commune"))
+			{
+				ModelState.AddModelError("", "Please choose ward/commune of your request.");
+			}
+			if (districtNameInput.Equals("Choose district"))
+			{
+				ModelState.AddModelError("", "Please choose district of your request.");
+			}
+			if (cityNameInput.Equals("Choose province"))
+			{
+				ModelState.AddModelError("", "Please choose province of your request.");
+			}
+			
 			// Get the currently logged-in user (role and id)
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
 			var user = await _userManager.GetUserAsync(User);
@@ -194,8 +218,6 @@ namespace Dynamics.Controllers
 			{
 				return Unauthorized();
 			}
-			var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
-			var userId = Guid.Parse(user.Id);
 			// Get existing request
 			_logger.LogInformation("Get existing request");
 			var existingRequest = await _requestRepo.GetAsync(r => r.RequestID.Equals(obj.RequestID));

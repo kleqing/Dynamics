@@ -29,6 +29,7 @@ namespace Dynamics.Controllers
         private readonly IOrganizationService _orgDisplayService;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IOrganizationResourceRepository _organizationResourceRepository;
+        private readonly INotificationService _notificationService;
         private readonly IUserToOrganizationTransactionHistoryRepository _userToOrganziationTransactionHistoryRepository;
         private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepository;
         private readonly ITransactionViewService _transactionViewService;
@@ -41,7 +42,7 @@ namespace Dynamics.Controllers
             IProjectVMService projectVMService,
             IOrganizationToProjectHistoryVMService organizationToProjectHistoryVMService,
             CloudinaryUploader cloudinaryUploader, IOrganizationService orgDisplayService, IOrganizationMemberRepository organizationMemberRepository
-            , IOrganizationResourceRepository organizationResourceRepository,
+            , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
             IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
             ITransactionViewService transactionViewService)
@@ -58,6 +59,7 @@ namespace Dynamics.Controllers
             _orgDisplayService = orgDisplayService;
             _organizationMemberRepository = organizationMemberRepository;
             _organizationResourceRepository = organizationResourceRepository;
+            _notificationService = notificationService;
             _userToOrganziationTransactionHistoryRepository = userToOrganizationTransactionHistoryRepository;
             _organizationToProjectTransactionHistoryRepository = organizationToProjectTransactionHistoryRepository;
             _transactionViewService = transactionViewService;

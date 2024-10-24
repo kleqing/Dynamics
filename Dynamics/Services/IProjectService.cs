@@ -38,8 +38,8 @@ public interface IProjectService
     public Task<SendDonateRequestVM> ReturnSendDonateRequestVMAsync(Guid projectID, string donor);
     Task<string> SendDonateRequestAsync(SendDonateRequestVM sendDonateRequestVM,List<IFormFile> images);
     public Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID);
-    Task<bool> AcceptDonateProjectRequestAllAsync(Guid projectID,string donor,List<IFormFile> proofImages);
-    Task<bool>DenyDonateProjectRequestAllAsync(Guid projectID,string donor,string reasonToDeny);
+    Task<bool> AcceptDonateProjectRequestAllAsync(Guid projectID,string donor,List<IFormFile> proofImages, string link);
+    Task<bool>DenyDonateProjectRequestAllAsync(Guid projectID,string donor,string reasonToDeny, string link);
     //manage project resource--------------
     Task<string> UpdateProjectResourceTypeAsync(ProjectResource projectResource);
     //manage project phase report---------

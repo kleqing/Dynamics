@@ -224,6 +224,9 @@ namespace Dynamics.Controllers
 
                 if (await _organizationRepository.UpdateOrganizationAsync(organization))
                 {
+                    var link = Url.Action(nameof(Detail), "Organization", new { id = organization.OrganizationID },
+                        Request.Scheme);
+                    await _notificationService.UpdateOrganizationNotificationAsync(organization.OrganizationID, link);
                     TempData[MyConstants.Success] = "Update organization successfully!";
                     return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
                 }
@@ -286,12 +289,18 @@ namespace Dynamics.Controllers
                 if (status == 2 || status == 0)
                 {
                     await _organizationRepository.AddOrganizationMemberSync(organizationMember);
-                     TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                    TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                    var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
+                        Request.Scheme);
+                    await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "send");
                 }
                 else
                 {
                     await _organizationRepository.UpdateOrganizationMemberAsync(organizationMember);
-                     TempData[MyConstants.Success] = "Your membership status has been updated successfully.";
+                    TempData[MyConstants.Success] = "Your membership status has been updated successfully.";
+                    var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
+                        Request.Scheme);
+                    await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "join");
                 }
 
                 var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
@@ -333,17 +342,26 @@ namespace Dynamics.Controllers
 
             if (statusUserOut == 0 && currentUser.UserID.Equals(organizationVM.CEO.UserID))
             {
-                 TempData[MyConstants.Success] = "User request denied successfully.";
+                TempData[MyConstants.Success] = "User request denied successfully.";
+                var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
+                    Request.Scheme);
+                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "deny");
                 return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
             }
             else if (statusUserOut == 0)
             {
-                 TempData[MyConstants.Success] = "You have successfully left the organization.";
+                TempData[MyConstants.Success] = "You have successfully left the organization.";
+                var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
+                    Request.Scheme);
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "left");
                 return RedirectToAction(nameof(Index));
             }
             else
             {
-                 TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
+                TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
+                var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
+                    Request.Scheme);
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "remove");
                 return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
         }
@@ -378,11 +396,14 @@ namespace Dynamics.Controllers
                 };
                 await _organizationRepository.UpdateOrganizationMemberAsync(organizationMemberNew);
 
-                 TempData[MyConstants.Success] = "CEO transferred successfully.";
-                return RedirectToAction("Index", "EditUser");
+                var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
+                    Request.Scheme);
+                await _notificationService.TransferOrganizationCeoNotificationAsync(newCEOID, currentCEOID, organizationId, link);
+                TempData[MyConstants.Success] = "CEO transferred successfully.";
+                return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
 
-             TempData[MyConstants.Error] = "New CEO must be different from the current CEO.";
+            TempData[MyConstants.Error] = "New CEO must be different from the current CEO.";
             return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
         }
 
@@ -406,6 +427,7 @@ namespace Dynamics.Controllers
         {
 
             var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+            
 
             //var UserToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryIsAccept(currentOrganization.OrganizationID);
 
@@ -464,12 +486,15 @@ namespace Dynamics.Controllers
                 {
                     var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationResource.OrganizationID));
                     HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
-
-                     TempData[MyConstants.Success] = "Organization resource added successfully.";
+                    
+                    TempData[MyConstants.Success] = "Organization resource added successfully.";
+                    var link = Url.Action(nameof(Detail), "Organization", new {organizationId = organizationResource.OrganizationID},
+                        Request.Scheme);
+                    await _notificationService.ProcessOrganizationResourceNotificationAsync(organizationResource.ResourceID, link, "add");
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
             }
-             TempData[MyConstants.Error] = "Invalid organization resource data.";
+            TempData[MyConstants.Error] = "Invalid organization resource data.";
             return View(organizationResource);
         }
 
@@ -480,15 +505,18 @@ namespace Dynamics.Controllers
 
             if (currentOrganization != null)
             {
-                await _organizationRepository.DeleteOrganizationResourceAsync(resourceId);
                 var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(currentOrganization.OrganizationID));
                 HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
-                 TempData[MyConstants.Success] = "Organization resource removed successfully.";
+                TempData[MyConstants.Success] = "Organization resource removed successfully.";
+                var link = Url.Action(nameof(Detail), "Organization", new {organizationId = currentOrganization.OrganizationID},
+                    Request.Scheme);
+                await _notificationService.ProcessOrganizationResourceNotificationAsync(resourceId, link, "remove");
+                await _organizationRepository.DeleteOrganizationResourceAsync(resourceId);
                 return RedirectToAction(nameof(ManageOrganizationResource));
             }
 
-             TempData[MyConstants.Error] = "Failed to remove organization resource.";
+            TempData[MyConstants.Error] = "Failed to remove organization resource.";
             return RedirectToAction(nameof(ManageOrganizationResource));
         }
 
@@ -504,7 +532,7 @@ namespace Dynamics.Controllers
             {
                 OrganizationResourceID = currentResource.ResourceID,
                 Status = 0,
-                Time = DateOnly.FromDateTime(DateTime.UtcNow),
+                Time = DateOnly.FromDateTime(DateTime.Now),
             };
 
             return View(organizationToProjectHistory);
@@ -577,7 +605,10 @@ namespace Dynamics.Controllers
 
                     if (await _organizationRepository.UpdateOrganizationResourceAsync(resourceSent))
                     {
-                         TempData[MyConstants.Success] = "Resource sent to project successfully.";
+                        TempData[MyConstants.Success] = "Resource sent to project successfully.";
+                        var link = Url.Action(nameof(Detail), "Organization", new {organizationId = resourceSent.OrganizationID},
+                            Request.Scheme);
+                        await _notificationService.OrganizationSendToProjectNotificationAsync(resourceSent, projectId, link, "sent");
                         return RedirectToAction(nameof(ManageOrganizationResource));
                     }
                 }
@@ -611,10 +642,14 @@ namespace Dynamics.Controllers
                 OrganizationResource.Quantity += transactionHistory.Amount;
                 await _organizationRepository.UpdateOrganizationResourceAsync(OrganizationResource);
                 await _organizationRepository.DeleteOrganizationToProjectHistoryAsync(transactionId);
-                 TempData[MyConstants.Success] = "Resource sending transaction canceled successfully.";
+                
+                TempData[MyConstants.Success] = "Resource sending transaction canceled successfully.";
+                var link = Url.Action(nameof(Detail), "Organization", new {organizationId = OrganizationResource.OrganizationID},
+                    Request.Scheme);
+                await _notificationService.OrganizationSendToProjectNotificationAsync(OrganizationResource, transactionHistory.ProjectResource.ProjectID, link, "unsent");
                 return RedirectToAction(nameof(ManageOrganizationResource));
             }
-             TempData[MyConstants.Error] = "Transaction not found. Unable to cancel.";
+            TempData[MyConstants.Error] = "Transaction not found. Unable to cancel.";
             return RedirectToAction(nameof(ManageOrganizationResource));
         }
 
@@ -688,7 +723,7 @@ namespace Dynamics.Controllers
                 ResourceID = resourceId,
                 UserID = currentUser.UserID,
                 Status = 0,
-                Time = DateOnly.FromDateTime(DateTime.UtcNow),
+                Time = DateOnly.FromDateTime(DateTime.Now),
             };
             return View(userToOrganizationTransactionHistory);
         }
@@ -703,6 +738,11 @@ namespace Dynamics.Controllers
                     transactionHistory.Attachments = resImages;
                     if (await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(transactionHistory))
                     {
+                        var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+                        var link = Url.Action(nameof(ReviewDonateRequest), "Organization", "",
+                            Request.Scheme);
+                        await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, 
+                            transactionHistory.TransactionID, link, "donate");
                         TempData[MyConstants.Success] = "Resource donated successfully.";
                         return RedirectToAction(nameof(ManageOrganizationResource));
                     }
@@ -758,7 +798,14 @@ namespace Dynamics.Controllers
                 userToOrganizationTransactionHistory.Message += $"\nReason Deny Your Request: {reason}";
                 var updateTransactionSuccess = await _organizationRepository.UpdateUserToOrganizationTransactionHistoryAsync(userToOrganizationTransactionHistory);
 
-                if (updateTransactionSuccess) TempData[MyConstants.Success] = "Request denied successfully.";
+                if (updateTransactionSuccess)
+                {
+                    TempData[MyConstants.Success] = "Request denied successfully.";
+                    var link = Url.Action(nameof(MyDonors), "Organization", "",
+                        Request.Scheme);
+                    await _notificationService.ProcessOrganizationDonationNotificationAsync(userToOrganizationTransactionHistory.OrganizationResource.OrganizationID, 
+                        userToOrganizationTransactionHistory.TransactionID, link, "deny");
+                }
                
             }
             else TempData[MyConstants.Error] = "Failed to deny request.";
@@ -785,6 +832,10 @@ namespace Dynamics.Controllers
                 if (updateTransactionSuccess && updateResourceSuccess)
                 {
                     TempData[MyConstants.Success] = "Request accepted successfully.";
+                    var link = Url.Action(nameof(MyDonors), "Organization", "",
+                        Request.Scheme);
+                    await _notificationService.ProcessOrganizationDonationNotificationAsync(userToOrganizationTransactionHistory.OrganizationResource.OrganizationID, 
+                        userToOrganizationTransactionHistory.TransactionID, link, "accept");
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
 

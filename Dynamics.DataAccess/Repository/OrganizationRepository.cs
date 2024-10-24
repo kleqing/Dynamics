@@ -260,7 +260,7 @@ namespace Dynamics.DataAccess.Repository
             Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
             var organizationToProjectHistory =
-                await _db.OrganizationToProjectTransactionHistory.Where(filter).FirstOrDefaultAsync();
+                await _db.OrganizationToProjectTransactionHistory.Where(filter).Include(h => h.ProjectResource).FirstOrDefaultAsync();
             return organizationToProjectHistory;
         }
 

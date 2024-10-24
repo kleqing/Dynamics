@@ -1,5 +1,5 @@
-﻿using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
+﻿using Dynamics.Models.Dto;
+using Dynamics.Models.Models;
 using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;

@@ -1,6 +1,7 @@
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.DTO;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
 using Dynamics.Utility;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Dynamics.Controllers
 {

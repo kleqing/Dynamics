@@ -14,11 +14,12 @@ namespace Dynamics.Services
             _db = db;
         }
 
-        public async Task<List<OrganizationToProjectHistory>> GetAllOrganizationToProjectHistoryByPendingAsync(Guid organizationId)
+        public async Task<List<OrganizationToProjectHistory>> GetAllOrganizationToProjectHistoryAsync(Guid organizationId)
         {
-            var result = await _db.OrganizationToProjectTransactionHistory.Where(otp => otp.Status == 0)
+            var result = await _db.OrganizationToProjectTransactionHistory
                                   .Where(otp => otp.OrganizationResource.OrganizationID.Equals(organizationId))
                                   .OrderByDescending(otp => otp.Time)
+                                  .ThenBy(otp => otp.Status)
                                   .Include(otp => otp.OrganizationResource)
                                   .Include(otp => otp.ProjectResource)
                                            .ThenInclude(pr => pr.Project)
@@ -30,8 +31,10 @@ namespace Dynamics.Services
                                        Status = otp.Status,
                                        Time = otp.Time,
                                        Amount = otp.Amount,
+                                       Attachments = otp.Attachments,
                                        OrganizationResource = otp.OrganizationResource,
                                        ProjectResource = otp.ProjectResource,
+                                       Message = otp.Message,
 
                                    })
                                    .ToListAsync();
@@ -56,6 +59,7 @@ namespace Dynamics.Services
                                        Amount = otp.Amount,
                                        OrganizationResource = otp.OrganizationResource,
                                        ProjectResource = otp.ProjectResource,
+                                       Message = otp.Message,
 
                                    })
                                    .ToListAsync();

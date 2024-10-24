@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Dynamics.Models.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace Dynamics.Models.Models.ViewModel;
+namespace Dynamics.Models.Dto;
 
 public class UserTransactionDto
 {
@@ -15,5 +16,6 @@ public class UserTransactionDto
     public DateOnly Time { get; set; }
     public int Status { get; set; }
     public string Target { get; set; }
+    public string Attachments { get; set; }
     public string Type { get; set; }
 }

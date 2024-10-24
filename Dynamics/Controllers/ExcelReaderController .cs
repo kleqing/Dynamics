@@ -36,12 +36,24 @@ namespace Dynamics.Controllers
             _cloudinaryUploader = cloudinaryUploader;
         }
 
-        public async Task<ActionResult> Upload(IFormFile file)
+        public async Task<ActionResult> Upload(IFormFile file, List<IFormFile> images)
         {
             if (file != null && file.Length > 0)
             {
                 try
                 {
+                    var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                    if (resImage.Equals("Wrong extension"))
+                    {
+                        TempData[MyConstants.Error] = "Wrong extension of some proof images file.";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
+                    else if (resImage.Equals("No file"))
+                    {
+                        TempData[MyConstants.Error] = "Please select at least a proof image to upload.";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
+
                     var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
                     //get current user
@@ -84,6 +96,7 @@ namespace Dynamics.Controllers
                                     Time = DateOnly.FromDateTime(DateTime.UtcNow),
                                     Amount = resource.Quantity,
                                     Message = worksheet.Cells[row, 4].Value?.ToString(),
+                                    Attachments = resImage,
                                 };
 
                                 await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(userToOrganizationTransactionHistory);

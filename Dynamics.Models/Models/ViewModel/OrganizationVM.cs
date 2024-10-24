@@ -25,6 +25,8 @@ namespace Dynamics.Models.Models.ViewModel
 
         public int Projects { get; set; }
         public int Members { get; set; }
+
+        public int joinRequests { get; set; }
         public List<OrganizationMember> OrganizationMember { get; set; }
         public List<Project> Project { get; set; }
         public List<OrganizationResource> OrganizationResource { get; set; }

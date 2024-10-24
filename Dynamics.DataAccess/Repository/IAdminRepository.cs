@@ -15,22 +15,29 @@ namespace Dynamics.DataAccess.Repository
         Task<List<Request>> ViewRequest();
         Task<Request?> GetRequest(Expression<Func<Request, bool>> filter);
         Task<int> ChangeRequestStatus(Guid id);
-        public Task<Request> DeleteRequest(Guid id);
+        Task<Request> DeleteRequest(Guid id);
+        // 2024-10-17
+        Task<Request> GetRequestInfo(Expression<Func<Request, bool>> expression);
 
         // User   
         Task<List<User>> ViewUser();
         Task<bool> BanUserById(Guid id);
         Task<List<User>> GetTop5User();
         Task<User?> GetUser(Expression<Func<User, bool>> filter);
-        public Task ChangeUserRole(Guid id);
-        public Task<string> GetUserRole(Guid id);
+        Task ChangeUserRole(Guid id);
+        Task<string> GetUserRole(Guid id);
 
 
         // Organization
         Task<List<Organization>> ViewOrganization();
-        Task<bool> BanOrganizationById(Guid id);
+        Task<int> ChangeOrganizationStatus(Guid id);
         Task<List<Organization>> GetTop5Organization();
         Task<Organization?> GetOrganization(Expression<Func<Organization, bool>> filter);
+
+        // 2024-10-16
+        Task<Organization?> GetOrganizationInfomation(Expression<Func<Organization, bool>> filter);
+        Task<int> MemberJoinedOrganization(Guid id);
+
 
         // 2024-9-30
         // Recent item
@@ -45,10 +52,10 @@ namespace Dynamics.DataAccess.Repository
 
         // 2024-10-2
         // Project
-        public Task<List<Project>> ViewProjects();
+        Task<List<Project>> ViewProjects();
         //public Task<List<Project>> ViewProjectsDetail(Guid id);
-        public Task<Project?> GetProjects(Expression<Func<Project, bool>> filter);
-        public Task<bool> BanProject(Guid id);
+        Task<Project?> GetProjects(Expression<Func<Project, bool>> filter);
+        Task<bool> BanProject(Guid id);
 
         // 2024-10-4
         // Report

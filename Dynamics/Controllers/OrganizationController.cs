@@ -1,14 +1,17 @@
 ﻿using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System.Web.Helpers;
 
 namespace Dynamics.Controllers
 {
@@ -27,6 +30,9 @@ namespace Dynamics.Controllers
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IOrganizationResourceRepository _organizationResourceRepository;
         private readonly INotificationService _notificationService;
+        private readonly IUserToOrganizationTransactionHistoryRepository _userToOrganziationTransactionHistoryRepository;
+        private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepository;
+        private readonly ITransactionViewService _transactionViewService;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -36,7 +42,10 @@ namespace Dynamics.Controllers
             IProjectVMService projectVMService,
             IOrganizationToProjectHistoryVMService organizationToProjectHistoryVMService,
             CloudinaryUploader cloudinaryUploader, IOrganizationService orgDisplayService, IOrganizationMemberRepository organizationMemberRepository
-            , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService)
+            , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
+            IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
+            IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
+            ITransactionViewService transactionViewService)
         {
 
             _organizationRepository = organizationRepository;
@@ -51,6 +60,9 @@ namespace Dynamics.Controllers
             _organizationMemberRepository = organizationMemberRepository;
             _organizationResourceRepository = organizationResourceRepository;
             _notificationService = notificationService;
+            _userToOrganziationTransactionHistoryRepository = userToOrganizationTransactionHistoryRepository;
+            _organizationToProjectTransactionHistoryRepository = organizationToProjectTransactionHistoryRepository;
+            _transactionViewService = transactionViewService;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -89,13 +101,24 @@ namespace Dynamics.Controllers
 
         //POST: /Organizations/Create
         [HttpPost]
-        public async Task<IActionResult> Create(Organization organization, IFormFile image)
+        public async Task<IActionResult> Create(Organization organization, List<IFormFile> images)
         {
             //set picture for Organization
-            if (image != null)
+            if (images.Count != 0)
             {
                 // organization.OrganizationPictures = Util.UploadImage(image, @"images\Organization");
-                organization.OrganizationPictures = await _cloudinaryUploader.UploadImageAsync(image);
+                var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
+                {
+                    organization.OrganizationPictures = resImages;
+
+                }
+                else
+                {
+                    TempData[MyConstants.Error] = resImages.Equals("No file")
+                   ? "No file to upload!"
+                   : "Extension of some files is wrong!";
+                }
             }
 
             //get current user
@@ -181,24 +204,30 @@ namespace Dynamics.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Organization organization, IFormFile image)
+        public async Task<IActionResult> Edit(Organization organization, List<IFormFile> images)
         {
             // can be use Session current organization
             if (organization != null)
             {
-                if (image != null)
+                var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
                 {
-                    // organization.OrganizationPictures = Util.UploadImage(image, @"images\Organization");
-                    organization.OrganizationPictures = await _cloudinaryUploader.UploadImageAsync(image);
+                    organization.OrganizationPictures += "," + resImages;
+                    
                 }
-                if(await _organizationRepository.UpdateOrganizationAsync(organization))
+                else
                 {
-                    var link = Url.Action(nameof(Detail), "Organization", new { organizationId = organization.OrganizationID },
-                        Request.Scheme);
-                    await _notificationService.UpdateOrganizationNotificationAsync(organization.OrganizationID, link);
+                    TempData[MyConstants.Error] = resImages.Equals("No file")
+                   ? "No file to upload!"
+                   : "Extension of some files is wrong!";
+                }
+
+                if (await _organizationRepository.UpdateOrganizationAsync(organization))
+                {
                     TempData[MyConstants.Success] = "Update organization successfully!";
                     return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
                 }
+                
 
             }
             TempData[MyConstants.Error] = "Update organization failed!";
@@ -377,17 +406,26 @@ namespace Dynamics.Controllers
         {
 
             var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-            //requets donate is accpected
-            var UserToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryIsAccept(currentOrganization.OrganizationID);
 
-            var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByPendingAsync(currentOrganization.OrganizationID);
-            var OrganizationToProjectHistorysAccepting = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByAcceptingAsync(currentOrganization.OrganizationID);
+            //var UserToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryIsAccept(currentOrganization.OrganizationID);
 
-            HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key, OrganizationToProjectHistorysPending);
-            HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
+            //var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryAsync(currentOrganization.OrganizationID);
+            //var OrganizationToProjectHistorysAccepting = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByAcceptingAsync(currentOrganization.OrganizationID);
 
+            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key, OrganizationToProjectHistorysPending);
+            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
 
-            return View(UserToOrganizationTransactionHistoryInAOrganizations);
+            var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto => uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0);
+            var orgToPrj = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto => uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
+
+            var userToOrgTransactionDtos = await _transactionViewService.GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
+            var orgToPrjTransactionDtos = await _transactionViewService.GetOrganizationToProjectTransactionDtosAsync(orgToPrj);
+
+            var total = new List<OrganizationTransactionDto>();
+            total.AddRange(userToOrgTransactionDtos);
+            total.AddRange(orgToPrjTransactionDtos);
+
+            return View(total);
         }
 
         //Manage Resource
@@ -397,7 +435,7 @@ namespace Dynamics.Controllers
             var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(currentOrganization.OrganizationID));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
-            var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByPendingAsync(currentOrganization.OrganizationID);
+            var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryAsync(currentOrganization.OrganizationID);
             HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key, OrganizationToProjectHistorysPending);
             return View(organizationVM);
         }
@@ -473,12 +511,16 @@ namespace Dynamics.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendResourceOrganizationToProject(OrganizationToProjectHistory transaction, Guid projectId)
+        public async Task<IActionResult> SendResourceOrganizationToProject(OrganizationToProjectHistory transaction, Guid projectId, List<IFormFile> file)
         {
             var resourceSent = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.Equals(transaction.OrganizationResourceID));
+            var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(file);
 
-            if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity)
+
+            if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity && !(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
             {
+                transaction.Attachments = resImages;
+
                 var project = await _projectVMService.GetProjectAsync(p => p.ProjectID.Equals(projectId));
                 bool duplicate = false;
                 var projectResource = new ProjectResource();
@@ -549,6 +591,15 @@ namespace Dynamics.Controllers
             {
                 ViewBag.MessageProject = "*Choose project to send";
             }
+            if (resImages.Equals("Wrong extension") || resImages.Equals("No file"))
+            {
+                TempData[MyConstants.Error] = resImages.Equals("No file")
+                  ? "No file to upload!"
+                  : "Extension of some files is wrong!";
+
+                ViewBag.Images =  resImages.Equals("Wrong extension") ? "*Wrong extension" :  "*Please upload at least one image proof";
+            }
+           
             return View(transaction);
         }
         public async Task<IActionResult> CancelSendResource(Guid transactionId)
@@ -642,20 +693,36 @@ namespace Dynamics.Controllers
             return View(userToOrganizationTransactionHistory);
         }
         [HttpPost]
-        public async Task<IActionResult> DonateByResource(UserToOrganizationTransactionHistory transactionHistory)
+        public async Task<IActionResult> DonateByResource(UserToOrganizationTransactionHistory transactionHistory, List<IFormFile> file)
         {
             if (transactionHistory != null)
-            {
-                if (await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(transactionHistory))
+            { 
+                var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(file);
+                if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")) && transactionHistory.Amount > 0)
                 {
-                    var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-                    var link = Url.Action(nameof(Detail), "Organization", new { organizationId = currentOrganization.OrganizationID }, Request.Scheme);
-                    await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, transactionHistory.TransactionID, link, "donate");
-                    TempData[MyConstants.Success] = "Resource donated successfully.";
-                    return RedirectToAction(nameof(ManageOrganizationResource));
+                    transactionHistory.Attachments = resImages;
+                    if (await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(transactionHistory))
+                    {
+                        TempData[MyConstants.Success] = "Resource donated successfully.";
+                        return RedirectToAction(nameof(ManageOrganizationResource));
+                    }
+                }    
+                else if(resImages.Equals("Wrong extension"))
+                {
+                    ViewBag.Images = "*Wrong extension";
                 }
+                else if(resImages.Equals("No file"))
+                {
+                    ViewBag.Images = "*Please upload at least one image proof";
+                }
+
+                if (transactionHistory.Amount <= 0)
+                {
+                    ViewBag.Amount = "*Amount > 0";
+                }
+                TempData[MyConstants.Error] = "Failed to donate resource.";
+
             }
-            TempData[MyConstants.Error] = "Failed to donate resource.";
             return View(transactionHistory);
         }
 
@@ -668,39 +735,76 @@ namespace Dynamics.Controllers
             return View(userToOrganizationTransactionHistoryInAOrganizations);
         }
 
-        public async Task<IActionResult> DenyRequestDonate(Guid transactionId)
+        public async Task<IActionResult> MyDonors()
         {
-
-           var isSuccess =  await _organizationRepository.DeleteUserToOrganizationTransactionHistoryByTransactionIDAsync(transactionId);
-           if (isSuccess)
-           {
-               TempData[MyConstants.Success] = "Request denied successfully.";
-               var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-               var link = Url.Action(nameof(Detail), "Organization", new { organizationId = currentOrganization.OrganizationID }, Request.Scheme);
-               await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, transactionId, link, "deny");
-           } else  TempData[MyConstants.Error] = "Failed to deny request.";
-           return RedirectToAction(nameof(ReviewDonateRequest));
-        }
-        public async Task<IActionResult> AcceptRquestDonate(Guid transactionId)
-        {
-            //update table UserToOrganizationTransactionHistory
-            var userToOrganizationTransactionHistory = await _organizationRepository.GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.TransactionID.Equals(transactionId));
-            userToOrganizationTransactionHistory.Status = 1;
-          var updateTransactionSuccess =  await _organizationRepository.UpdateUserToOrganizationTransactionHistoryAsync(userToOrganizationTransactionHistory);
-
-            var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-
-            //update table resource
-            var organizationResource = await _organizationRepository.GetOrganizationResourceByOrganizationIDAndResourceIDAsync(currentOrganization.OrganizationID, userToOrganizationTransactionHistory.ResourceID);
-            organizationResource.Quantity += userToOrganizationTransactionHistory.Amount;
-            var updateResourceSuccess = await _organizationRepository.UpdateOrganizationResourceAsync(organizationResource);
-            if (updateTransactionSuccess && updateResourceSuccess)
+            var userString = HttpContext.Session.GetString("user");
+            User currentUser = null;
+            if (userString != null)
             {
-                TempData[MyConstants.Success] = "Request accepted successfully.";
-                var link = Url.Action(nameof(Detail), "Organization", new { organizationId = currentOrganization.OrganizationID }, Request.Scheme);
-                await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, userToOrganizationTransactionHistory.TransactionID, link, "accept");
-            } else  TempData[MyConstants.Error] = "Failed to accept request.";
-            return RedirectToAction(nameof(ManageOrganizationResource));
+                currentUser = JsonConvert.DeserializeObject<User>(userString);
+            }
+
+            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryByUserID(currentUser.UserID);
+            return View(userToOrganizationTransactionHistoryInAOrganizations);
+        }
+
+        public async Task<IActionResult> DenyRequestDonate(Guid transactionId, string reason)
+        {
+            if(reason != null)
+            {
+                //update table UserToOrganizationTransactionHistory
+                var userToOrganizationTransactionHistory = await _organizationRepository.GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.TransactionID.Equals(transactionId));
+                userToOrganizationTransactionHistory.Status = -1;
+                userToOrganizationTransactionHistory.Message += $"\nReason Deny Your Request: {reason}";
+                var updateTransactionSuccess = await _organizationRepository.UpdateUserToOrganizationTransactionHistoryAsync(userToOrganizationTransactionHistory);
+
+                if (updateTransactionSuccess) TempData[MyConstants.Success] = "Request denied successfully.";
+               
+            }
+            else TempData[MyConstants.Error] = "Failed to deny request.";
+            return RedirectToAction(nameof(ReviewDonateRequest));
+        }
+        public async Task<IActionResult> AcceptRquestDonate(Guid transactionId, List<IFormFile> proofImages)
+        {
+            var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(proofImages);
+            if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
+            {
+
+                //update table UserToOrganizationTransactionHistory
+                var userToOrganizationTransactionHistory = await _organizationRepository.GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.TransactionID.Equals(transactionId));
+                userToOrganizationTransactionHistory.Status = 1;
+                userToOrganizationTransactionHistory.Attachments = resImages;
+                var updateTransactionSuccess = await _organizationRepository.UpdateUserToOrganizationTransactionHistoryAsync(userToOrganizationTransactionHistory);
+
+                var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+
+                //update table resource
+                var organizationResource = await _organizationRepository.GetOrganizationResourceByOrganizationIDAndResourceIDAsync(currentOrganization.OrganizationID, userToOrganizationTransactionHistory.ResourceID);
+                organizationResource.Quantity += userToOrganizationTransactionHistory.Amount;
+                var updateResourceSuccess = await _organizationRepository.UpdateOrganizationResourceAsync(organizationResource);
+                if (updateTransactionSuccess && updateResourceSuccess)
+                {
+                    TempData[MyConstants.Success] = "Request accepted successfully.";
+                    return RedirectToAction(nameof(ManageOrganizationResource));
+                }
+
+                else
+                {
+                    
+                    TempData[MyConstants.Error] = "Failed to accept request.";
+                    return RedirectToAction( nameof(ReviewDonateRequest));
+                }
+
+            }
+            else
+            {
+                TempData[MyConstants.Error] = resImages.Equals("No file")
+                   ? "No file to upload!"
+                   : "Extension of some files is wrong!";
+                return RedirectToAction(nameof(ReviewDonateRequest));
+            }
+            
+           
         }
 
     }

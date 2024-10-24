@@ -114,5 +114,16 @@ namespace Dynamics.DataAccess.Repository
 
             return false;
         }
+
+        public IQueryable<OrganizationToProjectHistory> GetAllAsQueryable(Expression<Func<OrganizationToProjectHistory, bool>>? filter)
+        {
+            return filter == null ? _context.OrganizationToProjectTransactionHistory : 
+                _context.OrganizationToProjectTransactionHistory
+                .OrderByDescending(otp => otp.Time)
+                .ThenBy(otp => otp.Status)
+                .Include(otp => otp.OrganizationResource)
+                .Where(filter);
+
+        }
     }
 }

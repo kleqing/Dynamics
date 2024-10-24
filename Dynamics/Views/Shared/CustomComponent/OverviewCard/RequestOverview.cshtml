@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@model Dynamics.Models.Models.Dto.RequestOverviewDto
+@model Dynamics.Models.Dto.RequestOverviewDto
 
 <li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md @(Model.isEmergency == 1 ? "border-solid rounded-md border-2 border-rose-500" : "")">
     <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID">

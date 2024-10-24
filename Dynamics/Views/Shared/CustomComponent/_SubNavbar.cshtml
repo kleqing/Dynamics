@@ -17,18 +17,75 @@
     var currentOrganization = Accessor.HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 }
 
-<div class="flex justify-center   mt-6">
-    <nav class="flex gap-6">
-        @* <a href="#" class="text-blue-500 border-b-2 border-blue-500 pb-2 px-4 text-xl font-medium">Member</a> *@
-        <a asp-action="ManageOrganizationMember" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-blue-500 pb-2 px-5 text-2xl font-medium">Member</a>
-        <a asp-action="ManageOrganizationResource" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-blue-500 pb-2 px-5 text-2xl font-medium">Resources</a>
-        @if (currentUser.UserID.Equals(currentOrganization.CEO.UserID))
-        {
-            <a asp-action="ReviewDonateRequest" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-gray-500 pb-2 px-5 text-2xl font-medium">Request Donate</a>
-        }
+<!-- Tabs Navigation -->
+<div class="mb-6 px-8">
+    <div class="border-b border-gray-200">
+        <nav class="flex justify-center -mb-px">
+            <a asp-action="ManageOrganizationMember" asp-controller="Organization">
+                <button class="tab-button active whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-blue-500 text-blue-600"
+                        onclick="switchTab('members')">
+                    Members
+                </button>
+            </a>
+           
+            <a asp-action="ManageOrganizationResource" asp-controller="Organization">
+                <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        onclick="switchTab('resources')">
+                    Resources
+                </button>
+            </a>
 
-        <a asp-action="ManageOrganizationProject" asp-controller="Organization" class="border-b-2 border-gray-300 border-blue text-gray-500 pb-2 px-5 text-2xl font-medium">Projects</a>
-        <a asp-action="ManageOrganizationTranactionHistory" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-gray-500 pb-2 px-5 text-2xl font-medium">Transaction history</a>
-
-    </nav>
+            
+            
+            @if (currentUser.UserID.Equals(currentOrganization.CEO.UserID))
+            {
+                <a asp-action="ReviewDonateRequest" asp-controller="Organization">
+                    <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        onclick="switchTab('donate')">
+                        Request Donate
+                    </button>
+                </a>
+            }
+            else
+            {
+                <a asp-action="MyDonors" asp-controller="Organization">
+                    <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                            onclick="switchTab('donate')">
+                        My Donors
+                    </button>
+                </a>
+            }
+           
+            <a asp-action="ManageOrganizationProject" asp-controller="Organization">
+                <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        onclick="switchTab('projects')">
+                    Projects
+                </button>
+            </a>
+            
+            <a asp-action="ManageOrganizationTranactionHistory" asp-controller="Organization">
+                <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                        onclick="switchTab('transactions')">
+                    Transaction History
+                </button>
+            </a>
+            
+        </nav>
+    </div>
 </div>
+
+<script>
+    function switchTab(tabId) {
+        
+        // Update tab button styles
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('border-blue-500', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+
+        // Add active styles to clicked tab
+        const activeButton = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+        activeButton.classList.add('border-blue-500', 'text-blue-600');
+    }
+</script>

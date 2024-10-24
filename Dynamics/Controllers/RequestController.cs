@@ -4,6 +4,7 @@ using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -119,6 +120,19 @@ namespace Dynamics.Controllers
 			{
 				ModelState.AddModelError("Attachment", "Please provide valid images.");
 			}
+			if (wardNameInput.Equals("Choose ward/commune"))
+			{
+				ModelState.AddModelError("", "Please choose ward/commune of your request.");
+			}
+			if (districtNameInput.Equals("Choose district"))
+			{
+				ModelState.AddModelError("", "Please choose district of your request.");
+			}
+			if (cityNameInput.Equals("Choose province"))
+			{
+				ModelState.AddModelError("", "Please choose province of your request.");
+			}
+			
 			var userJson = HttpContext.Session.GetString("user");
 			var user = JsonConvert.DeserializeObject<User>(userJson);
 
@@ -183,6 +197,20 @@ namespace Dynamics.Controllers
 			{
 				ModelState.AddModelError("Attachment", "Please provide valid images.");
 			}
+
+			if (wardNameInput.Equals("Choose ward/commune"))
+			{
+				ModelState.AddModelError("", "Please choose ward/commune of your request.");
+			}
+			if (districtNameInput.Equals("Choose district"))
+			{
+				ModelState.AddModelError("", "Please choose district of your request.");
+			}
+			if (cityNameInput.Equals("Choose province"))
+			{
+				ModelState.AddModelError("", "Please choose province of your request.");
+			}
+			
 			// Get the currently logged-in user (role and id)
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
 			var user = await _userManager.GetUserAsync(User);
@@ -240,6 +268,11 @@ namespace Dynamics.Controllers
 			_logger.LogInformation("Delete request");
 			await _requestRepo.DeleteAsync(request);
 			return RedirectToAction("MyRequest", "Request");
+		}
+
+		public async Task<IActionResult> AcceptRequest(Guid requestId)
+		{
+			return RedirectToAction("CreateProject", "Project", new { requestId = requestId });
 		}
 	}
 }

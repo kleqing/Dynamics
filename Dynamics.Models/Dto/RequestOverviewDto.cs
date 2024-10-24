@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Dynamics.Models.Models.Dto;
+namespace Dynamics.Models.Dto;
 
 public class RequestOverviewDto
 {

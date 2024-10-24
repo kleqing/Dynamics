@@ -1,4 +1,4 @@
-﻿using Dynamics.DataAccess.Repository;
+using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
 using Google.Apis.Sheets.v4.Data;

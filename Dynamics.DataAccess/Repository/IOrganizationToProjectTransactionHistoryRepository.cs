@@ -21,5 +21,7 @@ namespace Dynamics.DataAccess.Repository
         Task<bool> AcceptOrgDonateRequestAsync(OrganizationToProjectHistory orgDonate);
         Task<bool> DenyOrgDonateRequestAsync(OrganizationToProjectHistory orgDonate);
 
+        IQueryable<OrganizationToProjectHistory> GetAllAsQueryable(Expression<Func<OrganizationToProjectHistory, bool>>? filter);
+
     }
 }

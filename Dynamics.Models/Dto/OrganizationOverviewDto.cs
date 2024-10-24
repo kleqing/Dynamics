@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Dynamics.Models.Models;
 using Microsoft.SqlServer.Server;
 
-namespace Dynamics.Models.Models.Dto;
+namespace Dynamics.Models.Dto;
 
 public class OrganizationOverviewDto
 {

@@ -14,4 +14,6 @@ public interface INotificationService
     Task AddProjectResourceNotificationAsync(Guid projectId, string link);
     Task InviteProjectMemberRequestNotificationAsync(Project projectObj, User member, string linkUser, string linkLeader);
     Task ProcessInviteProjectMemberRequestNotificationAsync(Project project, User member, string link, string type);
+    Task UpdateOrganizationNotificationAsync(Guid organizationId, string link);
+    Task ProcessOrganizationDonationNotificationAsync(Guid organizationId, Guid? transId, string link, string type);
 }

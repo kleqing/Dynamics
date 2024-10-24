@@ -36,7 +36,6 @@ namespace Dynamics.Controllers
         private readonly ILogger<ProjectController> _logger;
         IOrganizationVMService _organizationService;
         private readonly IPagination _pagination;
-        private readonly INotificationRepository _notifRepo;
         private readonly INotificationService _notificationService;
 
         public ProjectController(IProjectRepository _projectRepo,
@@ -49,7 +48,7 @@ namespace Dynamics.Controllers
             IProjectHistoryRepository projectHistoryRepository,
             IReportRepository reportRepository,
             IWebHostEnvironment hostEnvironment,
-            IMapper mapper, IPagination pagination, INotificationRepository notifRepo,
+            IMapper mapper, IPagination pagination,
             IProjectService projectService,
             CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
             IOrganizationVMService organizationService, INotificationService notificationService)
@@ -64,7 +63,6 @@ namespace Dynamics.Controllers
             this._projectHistoryRepo = projectHistoryRepository;
             this.hostEnvironment = hostEnvironment;
             _pagination = pagination;
-            _notifRepo = notifRepo;
             this._mapper = mapper;
             this._projectService = projectService;
             _reportRepo = reportRepository;
@@ -742,7 +740,7 @@ namespace Dynamics.Controllers
                 }
                 else if (res.Equals(MyConstants.Success))
                 {
-                    var link = Url.Action(nameof(ManageProjectDonor), "Project", new { id = sendDonateRequestVM.ProjectID },
+                    var link = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = sendDonateRequestVM.ProjectID },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync(sendDonateRequestVM.ProjectID, Guid.Empty, link, "donate");
                     return Json(new { success = true, message = "Your donation request was sent successfully!" });
@@ -909,7 +907,7 @@ namespace Dynamics.Controllers
                                 transactionObj);
                         }
 
-                        var link = Url.Action(nameof(ManageProject), "Project", new { id = transactionObj.ProjectResource.ProjectID.ToString() },
+                        var link = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = transactionObj.ProjectResource.ProjectID },
                             Request.Scheme);
                         await _notificationService.ProcessProjectDonationNotificationAsync
                             (transactionObj.ProjectResource.ProjectID, transactionObj.TransactionID, link, "AcceptUserDonate");
@@ -924,7 +922,7 @@ namespace Dynamics.Controllers
                                 transactionOrgObj);
                         }
 
-                        var link2 = Url.Action(nameof(ManageProject), "Project", new { id = transactionOrgObj.ProjectResource.ProjectID.ToString() },
+                        var link2 = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = transactionOrgObj.ProjectResource.ProjectID },
                             Request.Scheme);
                         await _notificationService.ProcessProjectDonationNotificationAsync
                             (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2, "AcceptOrgDonate");
@@ -960,7 +958,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> AcceptDonateRequestAll(string donor, List<IFormFile> proofImages)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            var link = Url.Action(nameof(ManageProject), "Project", new { id = currentProjectID },
+            var link = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = new Guid(currentProjectID) },
                 Request.Scheme);
             var res = await _projectService.AcceptDonateProjectRequestAllAsync(new Guid(currentProjectID), donor,
                 proofImages, link);
@@ -996,7 +994,7 @@ namespace Dynamics.Controllers
                         res = await _userToProjectTransactionHistoryRepo.DenyUserDonateRequestAsync(transactionObj);
                     }
 
-                    var link = Url.Action(nameof(ManageProject), "Project", new { id = transactionObj.ProjectResource.ProjectID.ToString() },
+                    var link = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = transactionObj.ProjectResource.ProjectID },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync
                         (transactionObj.ProjectResource.ProjectID, transactionObj.TransactionID, link, "DenyUserDonate");
@@ -1011,7 +1009,7 @@ namespace Dynamics.Controllers
                             transactionOrgObj);
                     }
 
-                    var link2 = Url.Action(nameof(ManageProject), "Project", new { id = transactionOrgObj.ProjectResource.ProjectID.ToString() },
+                    var link2 = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = transactionOrgObj.ProjectResource.ProjectID },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync
                         (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2, "DenyOrgDonate");
@@ -1039,7 +1037,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> DenyDonateRequestAll(string donor, string reasonToDeny)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            var link = Url.Action(nameof(ManageProject), "Project", new { id = currentProjectID },
+            var link = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = new Guid(currentProjectID) },
                 Request.Scheme);
             var res = await _projectService.DenyDonateProjectRequestAllAsync(new Guid(currentProjectID), donor,
                 reasonToDeny, link);

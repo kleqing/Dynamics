@@ -26,6 +26,7 @@ namespace Dynamics.Controllers
         private readonly IOrganizationService _orgDisplayService;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IOrganizationResourceRepository _organizationResourceRepository;
+        private readonly INotificationService _notificationService;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -35,7 +36,7 @@ namespace Dynamics.Controllers
             IProjectVMService projectVMService,
             IOrganizationToProjectHistoryVMService organizationToProjectHistoryVMService,
             CloudinaryUploader cloudinaryUploader, IOrganizationService orgDisplayService, IOrganizationMemberRepository organizationMemberRepository
-            , IOrganizationResourceRepository organizationResourceRepository)
+            , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService)
         {
 
             _organizationRepository = organizationRepository;
@@ -49,6 +50,7 @@ namespace Dynamics.Controllers
             _orgDisplayService = orgDisplayService;
             _organizationMemberRepository = organizationMemberRepository;
             _organizationResourceRepository = organizationResourceRepository;
+            _notificationService = notificationService;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -191,6 +193,9 @@ namespace Dynamics.Controllers
                 }
                 if(await _organizationRepository.UpdateOrganizationAsync(organization))
                 {
+                    var link = Url.Action(nameof(Detail), "Organization", new { organizationId = organization.OrganizationID },
+                        Request.Scheme);
+                    await _notificationService.UpdateOrganizationNotificationAsync(organization.OrganizationID, link);
                     TempData[MyConstants.Success] = "Update organization successfully!";
                     return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
                 }
@@ -643,11 +648,14 @@ namespace Dynamics.Controllers
             {
                 if (await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(transactionHistory))
                 {
-                     TempData[MyConstants.Success] = "Resource donated successfully.";
+                    var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+                    var link = Url.Action(nameof(Detail), "Organization", new { organizationId = currentOrganization.OrganizationID }, Request.Scheme);
+                    await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, transactionHistory.TransactionID, link, "donate");
+                    TempData[MyConstants.Success] = "Resource donated successfully.";
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
             }
-             TempData[MyConstants.Error] = "Failed to donate resource.";
+            TempData[MyConstants.Error] = "Failed to donate resource.";
             return View(transactionHistory);
         }
 
@@ -664,8 +672,14 @@ namespace Dynamics.Controllers
         {
 
            var isSuccess =  await _organizationRepository.DeleteUserToOrganizationTransactionHistoryByTransactionIDAsync(transactionId);
-          if(isSuccess)  TempData[MyConstants.Success] = "Request denied successfully."; else  TempData[MyConstants.Error] = "Failed to deny request.";
-            return RedirectToAction(nameof(ReviewDonateRequest));
+           if (isSuccess)
+           {
+               TempData[MyConstants.Success] = "Request denied successfully.";
+               var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+               var link = Url.Action(nameof(Detail), "Organization", new { organizationId = currentOrganization.OrganizationID }, Request.Scheme);
+               await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, transactionId, link, "deny");
+           } else  TempData[MyConstants.Error] = "Failed to deny request.";
+           return RedirectToAction(nameof(ReviewDonateRequest));
         }
         public async Task<IActionResult> AcceptRquestDonate(Guid transactionId)
         {
@@ -680,7 +694,12 @@ namespace Dynamics.Controllers
             var organizationResource = await _organizationRepository.GetOrganizationResourceByOrganizationIDAndResourceIDAsync(currentOrganization.OrganizationID, userToOrganizationTransactionHistory.ResourceID);
             organizationResource.Quantity += userToOrganizationTransactionHistory.Amount;
             var updateResourceSuccess = await _organizationRepository.UpdateOrganizationResourceAsync(organizationResource);
-            if (updateTransactionSuccess && updateResourceSuccess)  TempData[MyConstants.Success] = "Request accepted successfully."; else  TempData[MyConstants.Error] = "Failed to accept request.";
+            if (updateTransactionSuccess && updateResourceSuccess)
+            {
+                TempData[MyConstants.Success] = "Request accepted successfully.";
+                var link = Url.Action(nameof(Detail), "Organization", new { organizationId = currentOrganization.OrganizationID }, Request.Scheme);
+                await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, userToOrganizationTransactionHistory.TransactionID, link, "accept");
+            } else  TempData[MyConstants.Error] = "Failed to accept request.";
             return RedirectToAction(nameof(ManageOrganizationResource));
         }
 

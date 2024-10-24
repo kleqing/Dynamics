@@ -288,7 +288,7 @@ public class ProjectService : IProjectService
         };
         return result;
     }
-    public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID)
+    public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID, HttpContext context)
     {
         var projectObj =
             await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
@@ -300,11 +300,11 @@ public class ProjectService : IProjectService
             {
                 projectObj.Request = request;
             }
-            _accessor.HttpContext.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
+            context.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
             var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
-            _accessor.HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
+            context.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
             var ceoOfProject = FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectObj.ProjectID);
-            _accessor.HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
+            context.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
 
             List<string> statistic = await GetStatisticOfProjectAsync(projectObj.ProjectID);
             DetailProjectVM detailProjectVM = new DetailProjectVM()
@@ -324,47 +324,6 @@ public class ProjectService : IProjectService
             }
         }
         return null;
-    }
-    public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
-    {
-        _logger.LogWarning("update project is here");
-        var res = await _projectRepo.UpdateAsync(entity);
-        if (!res) return false;
-        //updating 2 member who is new and old leader of project
-        var oldProjectLeaderUser = _accessor.HttpContext.Session.GetString("currentProjectLeaderID");
-        _logger.LogWarning("old leader is here");
-        var oldProjectLeader = _projectMemberRepo.FilterProjectMember(x => x.UserID.Equals(oldProjectLeaderUser) && x.ProjectID.Equals(entity.ProjectID)).FirstOrDefault();
-        _logger.LogWarning("new leader is here");
-        var newProjectLeader = await _context.ProjectMembers.FirstOrDefaultAsync(x =>
-            x.UserID.Equals(newProjectLeaderID) && x.ProjectID.Equals(entity.ProjectID));
-        var ceoOfProjectID = _accessor.HttpContext.Session.GetString("currentProjectCEOID");
-        if (oldProjectLeader != null && newProjectLeader != null &&
-            !oldProjectLeader.UserID.Equals(newProjectLeader.UserID))
-        {
-            if (oldProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
-            {
-                oldProjectLeader.Status = 2;
-            }
-            else
-            {
-                oldProjectLeader.Status = 1;
-            }
-
-            _logger.LogWarning("update old leader is here");
-            await _projectMemberRepo.UpdateAsync(oldProjectLeader);
-            if (newProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
-            {
-                newProjectLeader.Status = 2;
-            }
-            else
-            {
-                newProjectLeader.Status = 3;
-            }
-            _logger.LogWarning("update new leader is here");
-            await _projectMemberRepo.UpdateAsync(newProjectLeader);
-            return true;
-        }
-        return true;
     }
     //get images
     public async Task<string> GetAllImagesAsync(Guid id, string owner)
@@ -468,7 +427,7 @@ public class ProjectService : IProjectService
             //var resImage = await UploadImagesAsync(images, @"images\Project");
             var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
             if (resImage.Equals("Wrong extension")) return resImage;
-            projectObj.Attachment = !resImage.Equals("No file")? resImage:null;
+            projectObj.Attachment = !resImage.Equals("No file")? resImage : projectObj.Attachment;
             var res = await UpdateProjectAlongWithUpdateLeaderAsync(projectObj, updateProject.NewLeaderID);
             if (!res) return MyConstants.Error;
             return MyConstants.Success;

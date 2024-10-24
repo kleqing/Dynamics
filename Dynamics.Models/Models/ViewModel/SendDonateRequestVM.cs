@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dynamics.Models.Models.Dto;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
 
 namespace Dynamics.Models.Models.ViewModel
 {

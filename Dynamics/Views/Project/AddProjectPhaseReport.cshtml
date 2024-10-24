@@ -92,13 +92,13 @@
     function thisFileUpload() {
         document.getElementById("Attachment").click();
     };
-   const maxFiles = 8;
+   const maxFiles = 6;
     // Event listener to update the file name after the file is selected
     document.getElementById("Attachment").addEventListener('change', function () {
         if (document.getElementById("Attachment").files.length > 0) {
              
             if (document.getElementById("Attachment").files.length > maxFiles) {
-           document.getElementById("notificationImgMessage").innerText = "You can upload a maximum of 8 files.";
+           document.getElementById("notificationImgMessage").innerText = "You can upload a maximum of 6 files.";
             document.getElementById("notificationImgMessage").style.display = "block";
             input.value = '';  // Reset the input if the file limit is exceeded
         }else{

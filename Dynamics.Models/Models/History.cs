@@ -15,7 +15,7 @@ namespace Dynamics.Models.Models
         public string Phase { get; set; }
         [DataType(DataType.Date)]
         public DateOnly Date { get; set; }
-        [MaxLength(500, ErrorMessage = "Content cannot exceed 100 characters.")]
+        [MaxLength(1000, ErrorMessage = "Content cannot exceed 1000 characters.")]
         public string Content { get; set; }
         public string? Attachment { get; set; }
         public virtual Project Project { get; set; }

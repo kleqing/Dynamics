@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dynamics.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class Notif : Migration
+    public partial class addnotitable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -60,6 +60,16 @@ namespace Dynamics.DataAccess.Migrations
                 oldType: "nvarchar(max)");
 
             migrationBuilder.AlterColumn<string>(
+                name: "ProjectAddress",
+                table: "Projects",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "",
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
                 name: "Unit",
                 table: "ProjectResources",
                 type: "nvarchar(100)",
@@ -99,8 +109,8 @@ namespace Dynamics.DataAccess.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "Content",
                 table: "Histories",
-                type: "nvarchar(500)",
-                maxLength: 500,
+                type: "nvarchar(1000)",
+                maxLength: 1000,
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
@@ -184,6 +194,14 @@ namespace Dynamics.DataAccess.Migrations
                 oldMaxLength: 1000);
 
             migrationBuilder.AlterColumn<string>(
+                name: "ProjectAddress",
+                table: "Projects",
+                type: "nvarchar(max)",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "nvarchar(max)");
+
+            migrationBuilder.AlterColumn<string>(
                 name: "Unit",
                 table: "ProjectResources",
                 type: "nvarchar(max)",
@@ -226,8 +244,8 @@ namespace Dynamics.DataAccess.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(500)",
-                oldMaxLength: 500);
+                oldType: "nvarchar(1000)",
+                oldMaxLength: 1000);
         }
     }
 }

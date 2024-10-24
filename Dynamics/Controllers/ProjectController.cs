@@ -140,10 +140,6 @@ namespace Dynamics.Controllers
             });
         }
 
-        public async Task<IActionResult> ViewAllProjects()
-        {
-            return View(await _projectService.ReturnMyProjectVMAsync(userID));
-        }
         public IActionResult NoData(string msg)
         {
             return View((object)msg);
@@ -297,7 +293,7 @@ namespace Dynamics.Controllers
             {
                 if (member.UserID != projectDto.NewLeaderID && member.UserID != currentProjectCEO)
                 {
-                    var isOwnerSomewhere = _projectMemberRepo.FilterProjectMember(x => x.UserID == member.UserID && x.Status >= 2 && x.Project.ProjectStatus > 0);
+                    var isOwnerSomewhere = _projectMemberRepo.FilterProjectMember(x => x.UserID == member.UserID && x.Status >= 2 &&(x.Project.ProjectStatus == 0 || x.Project.ProjectStatus == 1));
                     if (isOwnerSomewhere.Count == 0) MemberList.Add(new SelectListItem { Text = member.UserFullName, Value = member.UserID.ToString() });
                     continue;
                 }
@@ -522,7 +518,7 @@ namespace Dynamics.Controllers
                 var checkIsCEO = currentUserID.Equals(currentProjectCEOID);
                 if (checkIsLeader || checkIsCEO)
                 {
-                    TempData[MyConstants.Warning] = "You can not leave the project!";
+                    //TempData[MyConstants.Warning] = "You can not leave the project!";
                     TempData[MyConstants.Info] = checkIsLeader ? "Transfer team leader rights if you still want to leave the project." : (checkIsCEO?"Leave project is not allowed while you are CEO." : null);
                     return RedirectToAction(nameof(ManageProject), new { id = projectID });
                 }
@@ -720,36 +716,38 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> SendDonateRequest(SendDonateRequestVM sendDonateRequestVM,
             List<IFormFile> images)
         {
-            _logger.LogWarning("SendDonateRequest post");
-            var res = await _projectService.SendDonateRequestAsync(sendDonateRequestVM, images);
-            if (!string.IsNullOrEmpty(res))
+            if (ModelState.IsValid)
             {
-                if (res.Equals("No file") || res.Equals("Wrong extension"))
+                _logger.LogWarning("SendDonateRequest post");
+                var res = await _projectService.SendDonateRequestAsync(sendDonateRequestVM, images);
+                if (!string.IsNullOrEmpty(res))
                 {
-                    return Json(new
+                    if (res.Equals("No file") || res.Equals("Wrong extension"))
                     {
-                        success = false,
-                        message = res.Equals("No file")
-                            ? "Please upload at least one proof image!"
-                            : "Some files have the wrong extension!"
-                    });
-                }
+                        return Json(new
+                        {
+                            success = false,
+                            message = res.Equals("No file")
+                                ? "Please upload at least one proof image!"
+                                : "Some files have the wrong extension!"
+                        });
+                    }
 
-                if (res.Equals("Exceed"))
-                {
-                    // Return JSON response with failure message
-                    return Json(new
+                    if (res.Equals("Exceed"))
                     {
-                        success = false,
-                        message = "Cannot send resource that causes current quantity exceed expected quantity !"
-                    });
-                }
-                else if (res.Equals(MyConstants.Success))
-                {
-                    return Json(new { success = true, message = "Your donation request was sent successfully!" });
+                        // Return JSON response with failure message
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Cannot send resource that causes current quantity exceed expected quantity !"
+                        });
+                    }
+                    else if (res.Equals(MyConstants.Success))
+                    {
+                        return Json(new { success = true, message = "Your donation request was sent successfully!" });
+                    }
                 }
             }
-
             return Json(new { success = false, message = "Fail to send your donation request!" });
         }
 

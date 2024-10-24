@@ -16,47 +16,40 @@
         ViewBag.userID = currentUser.UserID;
     }
 }
-<main class="flex flex-col items-center">
-    <div class="container my-5 p-5 pt-12">
+<main class="flex flex-col items-center p-16">
+    <div class="pt-12 w-full">
         <div class="my-5 flex justify-center">
             <h1 class="text-center text-3xl">Your organization: </h1>
         </div>
-        <div class="flex justify-center w-full">
-            <div class="gap-4 flex justify-center flex-wrap">
-                @foreach (var item in Model)
-                {
+        <div class="gap-4 flex justify-center flex-wrap w-full">
+            @foreach (var item in Model)
+            {
                 if (!currentUser.UserID.Equals(item.OrganizationLeader.UserID)) continue; // Get the one that user is CEO of
                 <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="item"/>
                 break; // Since is CEO of one only, we break here;
-                }
-            </div>
+            }
         </div>
     </div>
 
-    <div class="container my-5 p-5 pt-12">
+    <div class="pt-12 w-full">
         <div class="my-5 flex justify-center">
             <h1 class="text-center text-3xl">Organization that you are a member of:</h1>
         </div>
-
-        <div class="flex justify-center w-full">
-            <div class="gap-4 flex justify-center flex-wrap">
-                @{
+        <div class="gap-4 flex justify-center flex-wrap w-full">
+            @{
                 // Get only the organization that user is member of:
                 if (ViewBag.MyOrgs != null)
-                foreach (var org in ViewBag.MyOrgs)
-                {
-                <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="org"/>
-                }
-                }
-                @* @foreach (var item in Model) *@
-                @* { *@
-                @*     if (currentUser.UserID.Equals(item.OrganizationLeader.UserID)) continue; // Skip the one that user is CEO of *@
-                @*     // The card already check the status of the user *@
-                @*     <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="item"/> *@
-                @* } *@
-            </div>
+                    foreach (var org in ViewBag.MyOrgs)
+                    {
+                        <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="org"/>
+                    }
+            }
+            @* @foreach (var item in Model) *@
+            @* { *@
+            @*     if (currentUser.UserID.Equals(item.OrganizationLeader.UserID)) continue; // Skip the one that user is CEO of *@
+            @*     // The card already check the status of the user *@
+            @*     <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="item"/> *@
+            @* } *@
         </div>
-        
-
     </div>
 </main>

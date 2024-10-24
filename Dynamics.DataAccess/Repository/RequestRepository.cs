@@ -75,7 +75,8 @@ namespace Dynamics.DataAccess.Repository
             {
                 case "All":
                     requests = _db.Requests
-                        .Where(r => r.RequestTitle.Contains(searchQuery) || r.Content.Contains(searchQuery) || r.Location.Contains(searchQuery))
+                        .Where(r => r.RequestTitle.Contains(searchQuery) || r.Content.Contains(searchQuery) ||
+                                    r.Location.Contains(searchQuery))
                         .OrderBy(r => r.CreationDate);
                     break;
                 case "Title":
@@ -94,6 +95,7 @@ namespace Dynamics.DataAccess.Repository
                         .OrderBy(r => r.CreationDate);
                     break;
             }
+
             return Task.FromResult(requests);
         }
 
@@ -149,7 +151,8 @@ namespace Dynamics.DataAccess.Repository
 
         public IQueryable<Request> GetAllById(Guid id)
         {
-            var query = _db.Requests.Where(r => r.UserID == id);
+            var query = _db.Requests.Where(r => r.UserID == id)
+                .Include(u => u.User);
             return (query);
         }
 
@@ -177,11 +180,12 @@ namespace Dynamics.DataAccess.Repository
             return null;
         }
 
-        public Task<IQueryable<Request>> GetRequestDateFilterAsync(IQueryable<Request> requests, DateOnly dateFrom, DateOnly dateTo)
+        public Task<IQueryable<Request>> GetRequestDateFilterAsync(IQueryable<Request> requests, DateOnly dateFrom,
+            DateOnly dateTo)
         {
             var datetimeFrom = DateTime.Parse(dateFrom.ToString("yyyy-MM-dd"));
             var datetimeTo = DateTime.Parse(dateTo.ToString("yyyy-MM-dd"));
-	        return Task.FromResult(requests.Where(r => r.CreationDate >= datetimeFrom && r.CreationDate <= datetimeTo));
+            return Task.FromResult(requests.Where(r => r.CreationDate >= datetimeFrom && r.CreationDate <= datetimeTo));
         }
-	}
+    }
 }

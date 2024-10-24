@@ -10,15 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
 using Project = Dynamics.Models.Models.Project;
-using static System.Net.Mime.MediaTypeNames;
-using Microsoft.AspNetCore.Mvc;
-using Dynamics.Models.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using AutoMapper.Execution;
-using Microsoft.CodeAnalysis;
-using System.Drawing;
-using Dynamics.Controllers;
 
 namespace Dynamics.Services;
 
@@ -112,8 +103,10 @@ public class ProjectService : IProjectService
             if (p.ProjectMember.IsNullOrEmpty()) throw new Exception("WARNING PROJECT MEMBER IS EMPTY");
             if (p.ProjectResource.IsNullOrEmpty()) throw new Exception("WARNING PROJECT RESOURCE IS EMPTY");
             var tempProjectOverviewDto = _mapper.Map<ProjectOverviewDto>(p);
-            // Get leader(s) project (Multiple leader because 
+            // Get leader(s) project
             var leaders = p.ProjectMember.Where(pm => pm.ProjectID == p.ProjectID && pm.Status >= 2);
+            // If project has a leader with status = 3 => That person is leader
+            // If project has no leader, but a CEO (Status = 2) => That person will be leader
             ProjectMember leader = null;
             foreach (var l in leaders)
             {
@@ -122,12 +115,13 @@ public class ProjectService : IProjectService
                     leader = l;
                     break;
                 }
-                else
+                if (l.Status == 2)
                 {
                     leader = l;
+                    break;
                 }
+                
             }
-
             if (leader == null) throw new Exception("No leader for project found for project: " + p.ProjectName);
             tempProjectOverviewDto.ProjectLeader = leader.User;
             tempProjectOverviewDto.ProjectMembers = p.ProjectMember.Count(pm => pm.ProjectID == p.ProjectID);
@@ -294,7 +288,7 @@ public class ProjectService : IProjectService
         return result;
     }
 
-    public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID)
+    public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID, HttpContext context)
     {
         var projectObj =
             await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
@@ -306,12 +300,11 @@ public class ProjectService : IProjectService
             {
                 projectObj.Request = request;
             }
-
-            _accessor.HttpContext.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
+            context.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
             var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
-            _accessor.HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
+            context.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
             var ceoOfProject = FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectObj.ProjectID);
-            _accessor.HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
+            context.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
 
             List<string> statistic = await GetStatisticOfProjectAsync(projectObj.ProjectID);
             DetailProjectVM detailProjectVM = new DetailProjectVM()
@@ -330,7 +323,6 @@ public class ProjectService : IProjectService
                 return detailProjectVM;
             }
         }
-
         return null;
     }
 

@@ -4,6 +4,7 @@ using Dynamics.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dynamics.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241024160203_updateDb_ver2.2")]
+    partial class updateDb_ver22
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,14 +134,14 @@ namespace Dynamics.DataAccess.Migrations
                     b.Property<string>("OrganizationPictures")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OrganizationStatus")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly?>("ShutdownDay")
                         .HasColumnType("date");
 
                     b.Property<DateOnly>("StartTime")
                         .HasColumnType("date");
-
-                    b.Property<bool>("isBanned")
-                        .HasColumnType("bit");
 
                     b.HasKey("OrganizationID");
 

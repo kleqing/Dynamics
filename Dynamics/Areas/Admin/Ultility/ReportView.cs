@@ -9,7 +9,7 @@ namespace Dynamics.Areas.Admin.Ultility
         {
             return type switch
             {
-                "User" => "bg-danger",
+                "User" => "bg-secondary",
                 "Project" => "bg-success",
                 "Organization" => "bg-info",  
                 _ => "bg-secondary" // Default

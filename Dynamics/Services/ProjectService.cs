@@ -29,6 +29,7 @@ public class ProjectService : IProjectService
     private readonly IHttpContextAccessor _accessor;
     private readonly IRequestRepository _requestRepo;
     private readonly ILogger<ProjectService> _logger;
+    private readonly INotificationService _notificationService;
 
     public ProjectService(IMapper mapper, IProjectRepository projectRepo,
         IProjectResourceRepository projectResourceRepo,
@@ -40,9 +41,10 @@ public class ProjectService : IProjectService
         IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
         IProjectHistoryRepository projectHistoryRepository,
         CloudinaryUploader cloudinaryUploader,
-        ILogger<ProjectService> logger)
+        ILogger<ProjectService> logger, INotificationService notificationService)
     {
         _logger = logger;
+        _notificationService = notificationService;
         _mapper = mapper;
         _projectRepo = projectRepo;
         _projectResourceRepo = projectResourceRepo;
@@ -694,7 +696,7 @@ public class ProjectService : IProjectService
     }
 
     public async Task<bool> AcceptDonateProjectRequestAllAsync(Guid projectID, string donor,
-        List<IFormFile> proofImages)
+        List<IFormFile> proofImages, string link)
     {
         var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(proofImages);
         if (resImage.Equals("Wrong extension") || resImage.Equals("No file"))
@@ -720,6 +722,8 @@ public class ProjectService : IProjectService
                         {
                             return false;
                         }
+                        await _notificationService.ProcessProjectDonationNotificationAsync
+                            (projectID, userDonate.TransactionID, link, "AcceptUserDonate");
                     }
 
                     break;
@@ -741,6 +745,8 @@ public class ProjectService : IProjectService
                         {
                             return false;
                         }
+                        await _notificationService.ProcessProjectDonationNotificationAsync
+                            (projectID, orgDonate.TransactionID, link, "AcceptOrgDonate");
                     }
 
                     break;
@@ -750,7 +756,7 @@ public class ProjectService : IProjectService
         return true;
     }
 
-    public async Task<bool> DenyDonateProjectRequestAllAsync(Guid projectID, string donor, string reasonToDeny)
+    public async Task<bool> DenyDonateProjectRequestAllAsync(Guid projectID, string donor, string reasonToDeny, string link)
     {
         switch (donor)
         {
@@ -771,6 +777,8 @@ public class ProjectService : IProjectService
                     {
                         return false;
                     }
+                    await _notificationService.ProcessProjectDonationNotificationAsync
+                        (projectID, userDonate.TransactionID, link, "DenyUserDonate");
                 }
 
                 break;
@@ -791,6 +799,8 @@ public class ProjectService : IProjectService
                     {
                         return false;
                     }
+                    await _notificationService.ProcessProjectDonationNotificationAsync
+                        (projectID, orgDonate.TransactionID, link, "DenyOrgDonate");
                 }
 
                 break;

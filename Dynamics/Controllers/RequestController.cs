@@ -15,20 +15,16 @@ namespace Dynamics.Controllers
 		private readonly IRequestRepository _requestRepo;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ILogger<RequestController> _logger;
-		private readonly IHubContext<NotificationHub> _notifHubContext;
-		private readonly INotificationRepository _notifRepo;
 		private readonly IRequestService _requestService;
 		private readonly CloudinaryUploader _cloudinaryUploader;
 		
 		public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager,
-			ILogger<RequestController> logger, IHubContext<NotificationHub> notifHubContext,
-			INotificationRepository notifRepo, IRequestService? requestService, CloudinaryUploader? cloudinaryUploader)
+			ILogger<RequestController> logger,
+			IRequestService? requestService, CloudinaryUploader? cloudinaryUploader)
 		{
 			_requestRepo = requestRepository;
 			_userManager = userManager;
 			_logger = logger;
-			_notifHubContext = notifHubContext;
-			_notifRepo = notifRepo;
 			_requestService = requestService;
 			_cloudinaryUploader = cloudinaryUploader;
 		}
@@ -194,8 +190,6 @@ namespace Dynamics.Controllers
 			{
 				return Unauthorized();
 			}
-			var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
-			var userId = Guid.Parse(user.Id);
 			// Get existing request
 			_logger.LogInformation("Get existing request");
 			var existingRequest = await _requestRepo.GetAsync(r => r.RequestID.Equals(obj.RequestID));

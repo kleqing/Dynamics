@@ -60,35 +60,37 @@
                     </label>
 
                     <!-- Notification dropdown -->
-                    <ul id="notifDropdown" tabindex="0" class="dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box" style="width: 32.5rem;">
-
-                    @if (userNotifs?.Any() == true)
+                    <ul id="notifDropdown"
+                        tabindex="0"
+                        class="overflow-y-scroll max-h-[65vh] overflow-x-hidden dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box w-[32.5rem]">
+                        @if (userNotifs?.Any() == true)
                         {
                             <li>
                                 <button class="btn btn-sm btn-primary" onclick="MarkAllAsRead()">Read All</button>
                             </li>
-                        @foreach (var notif in userNotifs)
-                        {
-                        <!-- Conditional background based on status -->
-                        <li class="p-2 relative hover:bg-blue-100 flex">
-                            <!-- Close icon, hidden by default and shown on hover -->
-                            <i id="delNotif"
-                               style="display: none"
-                               class="fa-solid fa-circle-xmark absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hidden hover:text-red-700 cursor-pointer" 
-                               onclick="DeleteNotification(event, '@notif.NotificationID')"></i>
-                            <a href="@notif.Link" class="flex justify-between items-center @(notif.Status == 0 ? "bg-blue-100" : "bg-gray-300") rounded-lg" 
-                               onclick="MarkAsRead(event, '@notif.NotificationID', '@notif.Link')">
-                                <span>@notif.Message</span>
-                                <span class="text-sm text-gray-500">@notif.Date.ToString("dd/MM/yyyy hh:mm")</span>
-                            </a>
-                        </li>
-                        }
+                            @foreach (var notif in userNotifs)
+                            {
+                                <!-- Conditional background based on status -->
+                                <li class="p-2 relative hover:bg-blue-100 flex">
+                                    <!-- Close icon, hidden by default and shown on hover -->
+                                    <i id="delNotif"
+                                       style="display: none"
+                                       class="fa-solid fa-circle-xmark absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hidden hover:text-red-700 cursor-pointer"
+                                       onclick="DeleteNotification(event, '@notif.NotificationID')"></i>
+                                    <a href="@notif.Link" class="flex justify-between items-center @(notif.Status == 0 ? "bg-blue-100" : "bg-gray-300") rounded-lg"
+                                       onclick="MarkAsRead(event, '@notif.NotificationID', '@notif.Link')">
+                                        <span>@notif.Message</span>
+                                        <span class="text-sm text-gray-500">@notif.Date.ToString("dd/MM/yyyy hh:mm")</span>
+                                    </a>
+                                </li>
+                            }
                         }
                         else
                         {
-                        <li><span>No notifications</span></li>
+                            <li><span>No notifications</span></li>
                         }
                     </ul>
+
                 </div>
                 <div class="dropdown dropdown-end">
                     <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">

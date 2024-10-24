@@ -1,5 +1,6 @@
 using Dynamics.Models.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Dynamics.DataAccess.Repository;
 
@@ -69,5 +70,9 @@ public class NotificationRepository : INotificationRepository
             notif.Status = 1;
         }
         await _db.SaveChangesAsync();
+    }
+    public async Task<Notification> GetNotificationAsync(Expression<Func<Notification, bool>> filter)
+    {
+        return await _db.Notifications.FirstOrDefaultAsync(filter);
     }
 }

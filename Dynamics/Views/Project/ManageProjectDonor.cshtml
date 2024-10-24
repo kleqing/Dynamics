@@ -31,10 +31,31 @@
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
     <!--SECTION 1: USER DONATE-->
     <!-- title -->
-    <h2 class=" text-black font-bold text-3xl text-center my-4">User transaction history</h2>
+  
     <!-- PART 1 -->
-    <div class="flex relative justify-between my-2" style="width:92%">
-        <div class="flex gap-x-6">
+    <div class="flex relative justify-between my-2 w-full px-20">
+        <div> <h2 class=" text-black font-bold text-3xl text-center my-4">User transaction history</h2></div>
+        <!-- request button -->
+        <div class="flex gap-x-6 items-center">
+            <div class="relative">
+                @if (statusProjectMemberOfUser >= 2)
+                {
+                    <a asp-action="ReviewUserDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
+                        <div class="relative inline-flex">
+                            <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                                Review
+                                donate request
+                            </button>
+                            @if (ViewData["hasUserDonateRequest"] != null && (bool)ViewData["hasUserDonateRequest"])
+                            {
+                                <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
+                                </span>
+                            }
+                        </div>
+                    </a>
+                }
+
+            </div>
             <!-- choose filer/search & button review donate request -->
             <form class="max-w-md  flex items-center">
                 <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
@@ -80,26 +101,7 @@
             </div>
         </div>
        
-        <!-- request button -->
-        <div class="relative">
-            @if (statusProjectMemberOfUser >= 2)
-            {
-                <a asp-action="ReviewUserDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                    <div class="relative inline-flex">
-                        <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
-                            Review
-                            donate request
-                        </button>
-                        @if (ViewData["hasUserDonateRequest"] != null && (bool)ViewData["hasUserDonateRequest"])
-                        {
-                            <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
-                            </span>
-                        }
-                    </div>
-                </a>
-            }
-          
-        </div>
+  
       
     </div>
 
@@ -224,10 +226,31 @@
 
     <!-- SECTION 2: ORGANIZATION DONATE-->
      <!-- title -->
-    <h2 class=" text-black font-bold text-3xl text-center my-4">Organization transaction history</h2>
+   
     <!-- PART 1 -->
-    <div class="flex relative justify-between my-2 " style="width:92%;">
-        <div class="flex gap-x-6">
+    <div class="flex relative justify-between my-2 w-full px-20">
+        <div> <h2 class=" text-black font-bold text-3xl text-center my-4">Organization transaction history</h2></div>
+        <div class="flex gap-x-6 items-center">
+            <!-- request button -->
+            <div class="relative">
+                @if (statusProjectMemberOfUser == 3 || (!string.IsNullOrEmpty(currentProjectLeaderID) && !string.IsNullOrEmpty(currentProjectCEOID) && !string.IsNullOrEmpty(currentUserID) && currentProjectLeaderID.Equals(currentProjectCEOID) && currentUserID.Equals(currentProjectLeaderID)))
+                {
+                    <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
+                        <div class="relative inline-flex">
+                            <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                                Review
+                                donate request
+                            </button>
+                            @if (ViewData["hasOrgDonateRequest"] != null && (bool)ViewData["hasOrgDonateRequest"])
+                            {
+                                <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
+                                </span>
+                            }
+                        </div>
+                    </a>
+                }
+
+            </div>
             <!-- choose filer/search & button review donate request -->
             <form class="max-w-md  flex items-center">
                 <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
@@ -273,26 +296,7 @@
             </div>
         </div>
        
-        <!-- request button -->
-        <div class="relative">
-            @if (statusProjectMemberOfUser == 3 || (!string.IsNullOrEmpty(currentProjectLeaderID) && !string.IsNullOrEmpty(currentProjectCEOID) && !string.IsNullOrEmpty(currentUserID) && currentProjectLeaderID.Equals(currentProjectCEOID) && currentUserID.Equals(currentProjectLeaderID)))
-            {
-                <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                    <div class="relative inline-flex">
-                        <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
-                            Review
-                            donate request
-                        </button>
-                        @if (ViewData["hasOrgDonateRequest"] != null && (bool)ViewData["hasOrgDonateRequest"])
-                        {
-                            <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
-                            </span>
-                        }
-                    </div>
-                </a>
-            }
-            
-        </div>
+
       
     </div>
 

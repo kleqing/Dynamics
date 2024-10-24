@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dynamics.Models.Dto;
 
+
 namespace Dynamics.Models.Models.ViewModel
 {
     public class SendDonateRequestVM

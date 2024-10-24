@@ -27,22 +27,72 @@
 
 <!-- container -->
 
-<div class="w-full px-20 pb-20 flex flex-col items-center justify-center relative">
+<div class="w-full px-20 py-10 flex flex-col items-center justify-center relative">
 
     <!-- new table-->
-    <div class="w-full flex justify-between items-center mb-3 pl-3 mt-4">
+    <div class="w-full flex justify-between items-center mb-3 pl-3 ">
         <div>
             <h2 class=" text-black font-bold text-3xl text-center ">Project members</h2>
 
             <p class="text-slate-500 text-md">Overview of the current members.</p>
         </div>
        
-        <div class="ml-3 flex justify-end ">
+        <div class="ml-3 flex justify-end gap-x-4">
             @if (statusProjectMemberOfUser >= 2)
             {
+                <div class=" relative inline-flex ">
+                    <button onclick="getUsers()" class="w-32 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                        Invite members
+                    </button>
+
+                    <dialog id="inviteForm" class="modal">
+                        <div class="modal-box w-11/12 max-w-5xl">
+                            <div class="modal-action flex flex-col my-0">
+                                <h2 class="text-black font-bold text-3xl text-center mb-4">Invite members</h2>
+                                <!-- Container to show the fetched users -->
+                              
+                                <div class="w-full min-h-96 flex justify-between">
+                                    <div class="flex flex-col w-2/3">
+                                        <form id="search-form" class="max-w-md flex items-center justify-start">
+                                            <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                                    </svg>
+                                                </div>
+                                                <input type="search" id="key" name="key" class="block w-full px-14 py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Search for something..." />
+                                            </div>
+                                        </form>
+                                        <div id="users-container" class="flex flex-col overflow-scroll-y">
+                                       
+                                        </div>
+                                    </div>
+                                    <div class="mx-4 w-1/3 overflow-scroll-y" >
+                                        <p id="numsSelected" class="text-lg font-semibold items-center flex h-10">Selected 0 user</p>
+                                        <div id="users-selected">
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-center items-center gap-x-6">
+                                    <button type="button" onclick="sendSelectedUsers()"
+                                            class="mt-4 text-md text-white bg-blue-700 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                        Invite
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <form method="dialog" class="modal-backdrop">
+                            <button>Close</button>
+                        </form>
+                    </dialog>
+                </div>
+                
+
                 <a asp-action="ReviewJoinRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                    <div class="w-44 relative inline-flex ">
-                        <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                    <div class=" relative">
+                        <button class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                             Review join request
                         </button>
                         @if (ViewData["hasJoinRequest"] != null && (bool)ViewData["hasJoinRequest"])
@@ -195,5 +245,156 @@
         }
     </div>
 </div>
-<!--PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP-->
-<!-- end container -->
+<script>
+    document.getElementById('search-form').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent the default form submission
+        getUsers(); // Call the function to get users
+    });
+
+    // Update the getUsers function to retrieve the value from the input field
+    function getUsers() {
+        // Open the modal
+        const usersContainer = document.getElementById('users-container');
+        usersContainer.innerHTML = ''; // Clear any previous content
+        const usersSelectedDiv = document.getElementById('users-selected');
+        usersSelectedDiv.innerHTML = ''; // Clear any previous content
+
+        document.getElementById('inviteForm').showModal();
+        var key = document.getElementById('key').value; // Get the value from the input field
+
+        // Make an AJAX request to the server to get the list of users
+        fetch(`/Project/GetUsersNotInProject?key=${key}`, {
+            method: 'GET'
+        })
+            .then(response => response.json()) // Assuming the server returns JSON
+            .then(data => {
+                // Populate the users list in the modal
+                const usersContainer = document.getElementById('users-container');
+                usersContainer.innerHTML = ''; // Clear any previous content
+
+                data.forEach(user => {
+                    usersContainer.innerHTML += `
+                    <div class="flex justify-between my-4">
+                        <div class="flex justify-start items-center mx-0 my-0">
+                            <div>
+                                <img class="rounded-full w-14 h-14 mr-4" src="${user.avatarUrl}" alt="avatar">
+                            </div>
+                            <div class="flex flex-col ">
+                                <p class="text-black font-bold">${user.name}</p>
+                                <p class="text-gray-400 font-normal text-base ">${user.email}</p>
+                            </div>
+                        </div>
+                        <div class="inline-flex items-center">
+                            <label class="relative flex cursor-pointer items-center rounded-full p-3" for="ripple-on" data-ripple-dark="true">
+                                <input id="ripple-on" type="checkbox" value="${user.id}" data-user-id="${user.id}" data-user-name="${user.name}" data-user-email="${user.email}" data-user-avatar="${user.avatarUrl}" class="user-checkbox peer relative h-6 w-6 cursor-pointer appearance-none rounded border border-slate-300 shadow hover:shadow-md transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-slate-400 before:opacity-0 before:transition-opacity checked:border-slate-800 checked:bg-slate-800 checked:before:bg-slate-400 hover:before:opacity-10" />
+                                <span class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+                });
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    }
+
+    //check box js
+    document.querySelector('#users-container').addEventListener('change', function (event) {
+        if (event.target.classList.contains('user-checkbox')) {
+            const checkbox = event.target;
+            const userId = checkbox.dataset.userId;
+            const userName = checkbox.dataset.userName;
+            const userEmail = checkbox.dataset.userEmail;
+            const userAvatar = checkbox.dataset.userAvatar;
+
+            if (checkbox.checked) {
+                addUserToSelected(userId, userName, userEmail, userAvatar);
+            } else {
+                removeUserFromSelected(userId);
+            }
+            updateSelectedCount(); // Cập nhật số lượng user đã chọn
+        }
+    });
+
+    // Hàm để thêm user vào div #users-selected
+    function addUserToSelected(userId, userName, userEmail, userAvatar) {
+        const usersSelectedDiv = document.getElementById('users-selected');
+
+        // Kiểm tra xem user đã được thêm hay chưa
+        if (!document.getElementById(`user-${userId}`)) {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('flex', 'justify-between', 'my-4');
+            userDiv.setAttribute('id', `user-${userId}`);
+            userDiv.innerHTML = `
+                <div class="flex justify-start items-center mx-0 my-0">
+                    <div>
+                        <img class="rounded-full w-14 h-14 mr-4" src="${userAvatar}" alt="avatar">
+                    </div>
+                    <div class="flex flex-col ">
+                        <p class="text-black font-bold">${userName}</p>
+                        <p class="text-gray-400 font-normal text-base ">${userEmail}</p>
+                    </div>
+                </div>
+                <button type="button" class="size-10 inline-flex justify-center items-center gap-x-2 rounded-full border border-transparent bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200" aria-label="Close" onclick="removeUserFromSelected('${userId}')">
+                    <span class="sr-only">Close</span>
+                    <svg class="shrink-0 size-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            `;
+
+            usersSelectedDiv.appendChild(userDiv);
+        }
+    }
+
+    // Hàm để xóa user khỏi div #users-selected
+    function removeUserFromSelected(userId) {
+        const userDiv = document.getElementById(`user-${userId}`);
+        if (userDiv) {
+            userDiv.remove();
+        }
+
+        const userCheckbox = document.querySelector(`input[data-user-id="${userId}"]`);
+        if (userCheckbox) {
+            userCheckbox.checked = false;
+        }
+        updateSelectedCount(); // Cập nhật số lượng user đã chọn
+    }
+
+    // Hàm để cập nhật số lượng user đã chọn
+    function updateSelectedCount() {
+        const userCheckboxes = document.querySelectorAll('.user-checkbox');
+        let count = 0;
+
+        userCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                count++;
+            }
+        });
+
+        const numsSelected = document.getElementById('numsSelected');
+        numsSelected.textContent = `Selected ${count} user${count !== 1 ? 's' : ''}`; // Sử dụng số ít hoặc số nhiều
+    }
+    //send invitation
+    function getSelectedUserIds() {
+        const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+        const userIds = Array.from(selectedCheckboxes).map(checkbox => checkbox.dataset.userId);
+        console.log('get list ne')
+        return userIds.join(','); // Join the IDs with commas
+    }
+
+    function sendSelectedUsers() {
+        const selectedUserIds = getSelectedUserIds();
+        if (selectedUserIds) {
+            // Redirect the browser to the InviteMembers action with the user IDs as a query string
+            window.location.href = `/Project/InviteMembers?userids=${selectedUserIds}`;
+        } else {
+            console.log('No users selected.');
+        }
+    }
+
+</script>

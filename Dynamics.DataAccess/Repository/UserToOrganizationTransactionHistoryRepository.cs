@@ -39,12 +39,11 @@ public class UserToOrganizationTransactionHistoryRepository : IUserToOrganizatio
         Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
     {
         return _context.UserToOrganizationTransactionHistories.Where(filter).FirstOrDefaultAsync();
-
     }
 
-    public Task<bool> Add(UserToOrganizationTransactionHistory entity)
+    public async Task AddAsync(UserToOrganizationTransactionHistory entity)
     {
-        throw new NotImplementedException();
+        await _context.UserToOrganizationTransactionHistories.AddAsync(entity);
     }
 
     public Task<bool> Update(UserToOrganizationTransactionHistory entity)
@@ -59,5 +58,15 @@ public class UserToOrganizationTransactionHistoryRepository : IUserToOrganizatio
         var final = _context.UserToOrganizationTransactionHistories.Remove(entity);
         await _context.SaveChangesAsync();
         return final.Entity;
+    }
+
+    public IQueryable<UserToOrganizationTransactionHistory> GetAllAsQueryable(Expression<Func<UserToOrganizationTransactionHistory, bool>>? filter)
+    {
+        return filter == null ? _context.UserToOrganizationTransactionHistories : 
+            _context.UserToOrganizationTransactionHistories
+            .OrderByDescending(uto => uto.Time)
+            .ThenBy(uto => uto.Status)
+            .Include(uto => uto.OrganizationResource)
+            .Where(filter);
     }
 }

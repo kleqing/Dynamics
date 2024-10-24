@@ -3,11 +3,15 @@ using Dynamics.DataAccess.Repository;
 using Dynamics.Services;
 using Dynamics.Utility;
 using Dynamics.Utility.Mapper;
+using Google.Apis.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Resources;
+using Serilog;
+using Cloudinary = CloudinaryDotNet.Cloudinary;
 
 
 namespace Dynamics
@@ -18,6 +22,10 @@ namespace Dynamics
         {
             var builder = WebApplication.CreateBuilder(args);
             var configuration = builder.Configuration;
+
+            // Add cache to the container, allow admin dashboard get the latest data
+            // working with other services as well
+            builder.Services.AddMemoryCache();
 
             // Add cache to the container, allow admin dashboard get the latest data
             // working with other services as well
@@ -36,10 +44,13 @@ namespace Dynamics
                 // Get user profile
                 googleOptions.ClaimActions.MapJsonKey("picture", "picture");
             });
+            // Add service for notification
+            builder.Services.AddSignalR();
             // Add database
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
             });
             builder.Services.AddDbContext<AuthDbContext>(options =>
@@ -51,9 +62,10 @@ namespace Dynamics
             builder.Services
                 .AddIdentity<IdentityUser, IdentityRole>(options =>
                 {
-                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
+                    options.User.AllowedUserNameCharacters =
+                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ";
                     options.User.RequireUniqueEmail = true;
-                    options.SignIn.RequireConfirmedAccount = true;
+                    options.SignIn.RequireConfirmedAccount = true; // No confirm account required
                     options.Password.RequireDigit = false;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireNonAlphanumeric = false;
@@ -62,7 +74,12 @@ namespace Dynamics
                 })
                 .AddEntityFrameworkStores<AuthDbContext>()
                 .AddDefaultTokenProviders();
-
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Lockout for 2 minutes
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true; // New user can be locked out as well
+            });
             // Configure authentication cookie
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -78,24 +95,38 @@ namespace Dynamics
             });
 
 
+            // Add authorization policy
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleConstants.Admin));
+            });
+
+
             // Repos here
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
             builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
             builder.Services.AddScoped<IOrganizationVMService, OrganizationVMService>();
-            builder.Services.AddScoped<IUserToOragnizationTransactionHistoryVMService, UserToOragnizationTransactionHistoryVMService>();
+            builder.Services
+                .AddScoped<IUserToOragnizationTransactionHistoryVMService,
+                    UserToOragnizationTransactionHistoryVMService>();
             builder.Services.AddScoped<IProjectVMService, ProjectVMService>();
             builder.Services.AddScoped<IOrganizationToProjectHistoryVMService, OrganizationToProjectHistoryVMService>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
             builder.Services.AddScoped<IRequestRepository, RequestRepository>();
+            builder.Services.AddScoped<IReportRepository, ReportRepository>();
             // Project repos
-            
             builder.Services.AddScoped<IProjectResourceRepository, ProjectResourceRepository>();
+            builder.Services.AddScoped<IProjectHistoryRepository, ProjectHistoryRepository>();
+            builder.Services
+                .AddScoped<IOrganizationToProjectTransactionHistoryRepository,
+                    OrganizationToProjectTransactionHistoryRepository>();
             builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
             builder.Services
-                .AddScoped<IUserToProjectTransactionHistoryRepository,
-                    UserToProjectTransactionHistoryRepository>();
+                .AddScoped<IUserToProjectTransactionHistoryRepository, UserToProjectTransactionHistoryRepository>();
             // Organization repos
             builder.Services.AddScoped<IOrganizationMemberRepository, OrganizationMemberRepository>();
             builder.Services.AddScoped<IOrganizationResourceRepository, OrganizationResourceRepository>();
@@ -109,8 +140,13 @@ namespace Dynamics
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IRequestService, RequestService>();
             builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+            // VNPAY Service
+            builder.Services.AddTransient<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IPagination, Pagination>();
             // Add email sender
-            builder.Services.AddScoped<IEmailSender, EmailSender>();
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
+            // Cloudinary
+            builder.Services.AddSingleton<CloudinaryUploader>();
 
             builder.Services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
@@ -131,6 +167,15 @@ namespace Dynamics
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
             });
+
+            // Add serilog for debugging
+            var logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                // .WriteTo.File("Logs/Logs.txt", rollingInterval: RollingInterval.Minute)
+                .MinimumLevel.Information() // You can change this one so that it filters out stuff
+                .CreateLogger();
+            builder.Logging.ClearProviders();
+            builder.Logging.AddSerilog(logger); // This one make it so that ASP will use it
 
             var app = builder.Build();
             // Redirect user to 404 page if not found
@@ -155,26 +200,30 @@ namespace Dynamics
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            
+            // Specify hub for clients to connect to
+            app.MapHub<NotificationHub>("/notification");
+                
             app.MapControllers();
-            app.UseRouting();
             app.UseSession();
+            app.UseRouting();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            // These guys must be in order authentication => authorization to work
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapRazorPages();
-            
+
             app.MapControllerRoute(
-                 name: "areas",
-                 pattern: "{area:exists}/{controller=Home}/{action=Homepage}/{id?}");
+                name: "areas",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Homepage}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

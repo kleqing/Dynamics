@@ -1,7 +1,8 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
-using Dynamics.Models.Models.DTO;
+using Dynamics.Models.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dynamics.Services;
 

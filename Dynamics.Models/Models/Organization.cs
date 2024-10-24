@@ -25,8 +25,10 @@ namespace Dynamics.Models.Models
         public string OrganizationDescription { get; set; }
 		public string? OrganizationPictures { get; set; }
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateOnly StartTime { get; set; }
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateOnly? ShutdownDay { get; set; }
         public bool isBanned { get; set; }
         [NotMapped]

@@ -1,241 +1,220 @@
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.DTO;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
 using Dynamics.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Build.Evaluation;
-using Microsoft.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Newtonsoft.Json;
-using System;
-using System.Drawing;
-using System.Linq.Expressions;
-using System.Net.WebSockets;
-
-using Dynamics.Helps;
-using Dynamics.Models.Models.Dto;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static System.Net.Mime.MediaTypeNames;
+using Microsoft.AspNetCore.SignalR;
+using ILogger = Serilog.ILogger;
 using Util = Dynamics.Utility.Util;
+using Dynamics.Models.Dto;
 
 namespace Dynamics.Controllers
 {
     public class ProjectController : Controller
     {
-        private readonly IProjectRepository projectRepository;
-        private readonly IOrganizationRepository organizationRepository;
-        private readonly IRequestRepository requestRepository;
-        private readonly IWebHostEnvironment hostEnvironment;
-        private readonly IMapper mapper;
-        private readonly IProjectService projectService;
-        IOrganizationVMService _organizationService;
+        private readonly IProjectRepository _projectRepo;
+        private readonly IOrganizationRepository _organizationRepo;
+        private readonly IRequestRepository _requestRepo;
+        private readonly IProjectMemberRepository _projectMemberRepo;
+        private readonly IProjectResourceRepository _projectResourceRepo;
+        private readonly IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo;
 
-        public ProjectController(IProjectRepository projectRepository,
-            IOrganizationRepository organizationRepository,
-            IRequestRepository requestRepository,
+        private readonly IOrganizationToProjectTransactionHistoryRepository
+            _organizationToProjectTransactionHistoryRepo;
+
+        private readonly IProjectHistoryRepository _projectHistoryRepo;
+        private readonly IReportRepository _reportRepo;
+        private readonly IWebHostEnvironment hostEnvironment;
+        private readonly IMapper _mapper;
+        private readonly IProjectService _projectService;
+        private readonly CloudinaryUploader _cloudinaryUploader;
+        private readonly ILogger<ProjectController> _logger;
+        IOrganizationVMService _organizationService;
+        private readonly IPagination _pagination;
+        private readonly IHubContext<NotificationHub> _notifHubContext;
+        private readonly INotificationRepository _notifRepo;
+
+        public ProjectController(IProjectRepository _projectRepo,
+            IOrganizationRepository _organizationRepo,
+            IRequestRepository _requestRepo,
+            IProjectMemberRepository _projectMemberRepo,
+            IProjectResourceRepository _projectResourceRepo,
+            IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo,
+            IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepo,
+            IProjectHistoryRepository projectHistoryRepository,
+            IReportRepository reportRepository,
             IWebHostEnvironment hostEnvironment,
-            IMapper mapper,
-            IProjectService projectService,
-            IOrganizationVMService organizationService
-           )
+            IMapper mapper, IPagination pagination, INotificationRepository notifRepo,
+            IHubContext<NotificationHub> notifHub, IProjectService projectService,
+            CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
+            IOrganizationVMService organizationService)
         {
-            this.projectRepository = projectRepository;
-            this.organizationRepository = organizationRepository;
-            this.requestRepository = requestRepository;
+            this._projectRepo = _projectRepo;
+            this._organizationRepo = _organizationRepo;
+            this._requestRepo = _requestRepo;
+            this._projectMemberRepo = _projectMemberRepo;
+            this._projectResourceRepo = _projectResourceRepo;
+            this._userToProjectTransactionHistoryRepo = _userToProjectTransactionHistoryRepo;
+            this._organizationToProjectTransactionHistoryRepo = _organizationToProjectTransactionHistoryRepo;
+            this._projectHistoryRepo = projectHistoryRepository;
             this.hostEnvironment = hostEnvironment;
-            this.mapper = mapper;
-            this.projectService = projectService;
+            _pagination = pagination;
+            _notifRepo = notifRepo;
+            _notifHubContext = notifHub;
+            this._mapper = mapper;
+            this._projectService = projectService;
+            _reportRepo = reportRepository;
+            _cloudinaryUploader = cloudinaryUploader;
+            _logger = logger;
             this._organizationService = organizationService;
         }
 
         [Route("Project/Index/{userID:guid}")]
-        public async Task<IActionResult> Index(Guid userID)
+        public async Task<IActionResult> Index(Guid userID,
+            string searchQuery, string filterQuery,
+            DateOnly? dateFrom, DateOnly? dateTo,
+            int pageNumberPIL = 1, int pageNumberPIM = 1, int pageNumberPOT = 1, int pageSize = 6)
         {
-            //get all project
-            var allProjects = await projectRepository.GetAllProjectsAsync();
             //get project that user has joined
-            var projectMemberList =
-                projectRepository.FilterProjectMember(
-                    x => x.UserID.Equals(userID) && x.Status >= 1 && x.Project.ProjectStatus >= 0);
-            List<ProjectOverviewDto> projectsIAmMember = new List<ProjectOverviewDto>();
-            List<ProjectOverviewDto> projectsILead = new List<ProjectOverviewDto>();
-            List<ProjectOverviewDto> otherProjects = new List<ProjectOverviewDto>();
-            HashSet<Guid> userProjectIds = new HashSet<Guid>();
-
+            var projectMemberList = _projectMemberRepo.FilterProjectMember(x =>
+                x.UserID.Equals(userID) && x.Status >= 0 && x.Project.ProjectStatus >= 0);
+            List<Models.Models.Project> projectsIAmMember = new List<Models.Models.Project>();
+            List<Models.Models.Project> projectsILead = new List<Models.Models.Project>();
             foreach (var projectMember in projectMemberList)
             {
-                  var project = await projectRepository.GetProjectAsync(x => x.ProjectID.Equals(projectMember.ProjectID));
+                var project = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectMember.ProjectID));
                 if (project != null)
                 {
-                    var ProjectMemberOfUser = projectRepository.FilterProjectMember(p => p.ProjectID.Equals(projectMember.ProjectID) && p.UserID.Equals(userID));
-                    var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
-                    var dto = projectService.MapToProjectOverviewDto(project);
-                    userProjectIds.Add(project.ProjectID); 
-                    if (statusProjectMemberOfUser>=2)
+                    var leaderOfProject = await _projectService.GetProjectLeaderAsync(project.ProjectID);
+                    if (leaderOfProject.UserID.Equals(userID))
                     {
                         //get project that user join as a leader
-                        projectsILead.Add(dto);
+                        projectsILead.Add(project);
                     }
                     else
                     {
                         //get project that user join as a member
-                        projectsIAmMember.Add(dto);
+                        projectsIAmMember.Add(project);
                     }
                 }
             }
-            foreach (var project in allProjects)
+
+            //search
+            if (!string.IsNullOrEmpty(searchQuery))
             {
-                if (!userProjectIds.Contains(project.ProjectID))
-                {
-                    var dto = projectService.MapToProjectOverviewDto(project);
-                    otherProjects.Add(dto); // Add to otherProjects only if not in the user's projects
-                }
+                projectsIAmMember =
+                    await _projectRepo.SearchIndexFilterAsync(_pagination.ToQueryable(projectsIAmMember),
+                        searchQuery, filterQuery);
             }
 
+            //pagination
+            var totalProjectsILead = projectsILead.Count();
+            var totalPagesProjectsILead = (int)Math.Ceiling((double)totalProjectsILead / pageSize);
+            var paginatedProjectsILead = _pagination.Paginate(projectsILead, pageNumberPIL, pageSize);
+            ViewBag.currentPagePIL = pageNumberPIL;
+            ViewBag.totalPagesPIL = totalPagesProjectsILead;
+
+            var totalProjectsIAmMember = projectsIAmMember.Count();
+            var totalPagesProjectsIAmMember = (int)Math.Ceiling((double)totalProjectsIAmMember / pageSize);
+            var paginatedProjectsIAmMember = _pagination.Paginate(projectsIAmMember, pageNumberPIM, pageSize);
+            ViewBag.currentPagePIM = pageNumberPIM;
+            ViewBag.totalPagesPIM = totalPagesProjectsIAmMember;
+
+            // Set page size
+            ViewBag.pageSize = pageSize;
+            // Convert to dtos
+            var paginatedProjectsILeadDtos = _projectService.MapToListProjectOverviewDto(paginatedProjectsILead);
+            var paginatedProjectsIAmMemberDtos =
+                _projectService.MapToListProjectOverviewDto(paginatedProjectsIAmMember);
             return View(new MyProjectVM()
             {
-                ProjectsILead = projectsILead, ProjectsIAmMember = projectsIAmMember, OtherProjects = otherProjects
+                ProjectsILead = paginatedProjectsILeadDtos,
+                ProjectsIAmMember = paginatedProjectsIAmMemberDtos,
+                // OtherProjects = paginatedOtherProjects
             });
         }
 
         public async Task<IActionResult> ViewAllProjects()
         {
-            var allProjects = await projectRepository.GetAllProjectsAsync();
-            var allActiveProjectsDto = new List<ProjectOverviewDto>();
-            foreach (var p in allProjects)
-            {
-                var dto = projectService.MapToProjectOverviewDto(p);
-                if (dto.ProjectStatus >=0)
-                {
-                    allActiveProjectsDto.Add(dto);
-                }
-            }
-
-            // TODO: For organization, wait for Tuan
-            var result = new AllProjectsVM
-            {
-                allActiveProjects = allActiveProjectsDto
-            };
-            return View(result);
+            return View(await _projectService.ReturnAllProjectsVMsAsync());
         }
+
         //update project profile
         public async Task<IActionResult> DeleteImage(string imgPath, Guid phaseID)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
             if (phaseID != Guid.Empty)
             {
-                var allImagesOfPhase = await projectRepository.GetAllImagesAsync(phaseID, "Phase");
-                var historyObj =
-                    await projectRepository.GetAllPhaseReportsAsync(x => x.HistoryID.Equals(phaseID));
-                if (historyObj != null && allImagesOfPhase != null)
+                var res = await _projectService.DeleteImageAsync(imgPath, phaseID);
+                if (!res)
                 {
-                    if (allImagesOfPhase.Length > 0)
-                    {
-                        foreach (var img in allImagesOfPhase.Split(','))
-                        {
-                            if (img.Equals(imgPath))
-                            {
-                                allImagesOfPhase = allImagesOfPhase.Replace(img + ",", "");
-                            }
-                        }
-
-                        historyObj[0].Attachment = allImagesOfPhase;
-                    }
-
-                    var res = await projectRepository.EditPhaseReportAsync(historyObj[0]);
-                    if (!res)
-                    {
-                        TempData[MyConstants.Error] = $"Fail to delete image {imgPath}!";
-                        return RedirectToAction(nameof(EditProjectPhaseReport),
-                            new { historyID = phaseID, projectID = currentProjectID });
-                    }
-
-                    TempData[MyConstants.Success] = $"Delete image {imgPath} successful!";
+                    TempData[MyConstants.Error] = $"Fail to delete image {imgPath}!";
                     return RedirectToAction(nameof(EditProjectPhaseReport),
                         new { historyID = phaseID, projectID = currentProjectID });
                 }
+
+                TempData[MyConstants.Success] = $"Delete image {imgPath} successful!";
+                return RedirectToAction(nameof(EditProjectPhaseReport),
+                    new { historyID = phaseID, projectID = currentProjectID });
             }
             else
             {
-                var allImagesOfProject =
-                    await projectRepository.GetAllImagesAsync(new Guid(currentProjectID), "Project");
-                var projectObj =
-                    await projectRepository.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
-                if (projectObj != null && allImagesOfProject != null)
+                var res = await _projectService.DeleteImageAsync(imgPath, phaseID);
+                if (!res)
                 {
-                    if (allImagesOfProject.Length > 0)
-                    {
-                        foreach (var img in allImagesOfProject.Split(','))
-                        {
-                            if (img.Equals(imgPath))
-                            {
-                                allImagesOfProject = allImagesOfProject.Replace(img + ",", "");
-                            }
-                        }
-
-                        projectObj.Attachment = allImagesOfProject;
-                    }
-
-                    var currentProjectLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
-                    var res = await projectRepository.UpdateAsync(projectObj, currentProjectLeaderID);
-                    if (!res)
-                    {
-                        TempData[MyConstants.Error] = $"Fail to delete image {imgPath}!";
-                        return RedirectToAction(nameof(UpdateProjectProfile), new { id = currentProjectID });
-                    }
-
-                    TempData[MyConstants.Success] = $"Delete image {imgPath} successful!";
+                    TempData[MyConstants.Error] = $"Fail to delete image {imgPath}!";
                     return RedirectToAction(nameof(UpdateProjectProfile), new { id = currentProjectID });
                 }
-            }
 
-            TempData[MyConstants.Error] = $"Fail to delete image {imgPath}!";
-            return RedirectToAction(nameof(ManageProject), new { id = currentProjectID });
+                TempData[MyConstants.Success] = $"Delete image {imgPath} successful!";
+                return RedirectToAction(nameof(UpdateProjectProfile), new { id = currentProjectID });
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> ImportFileProject(FinishProjectVM finishProjectVM, IFormFile reportFile)
         {
-            var projectID = finishProjectVM.ProjectID;
+            _logger.LogWarning("ImportFileProject");
             var projectObj =
-                await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(projectID));
-            if (projectObj != null)
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(finishProjectVM.ProjectID));
+            if (projectObj?.ProjectStatus == -1)
             {
-                if (reportFile != null)
-                {
-                    var resReportFile = await Util.UploadFiles(new List<IFormFile> { reportFile }, @"files\Project");
-                    if (resReportFile.Equals("No file"))
-                    {
-                        TempData[MyConstants.Error] = "No file to upload!";
-                        return RedirectToAction(nameof(ManageProject), new { id = projectID });
-                    }
+                TempData[MyConstants.Warning] = "You cannot finish project while this project is already shutdown!";
+                return RedirectToAction(nameof(ManageProject), new { id = finishProjectVM.ProjectID });
+            }
 
-                    if (resReportFile.Equals("Wrong extension"))
-                    {
-                        TempData[MyConstants.Error] = "Extension of some files is wrong!";
-                        return RedirectToAction(nameof(ManageProject), new { id = projectID });
-                    }
+            var projectID = finishProjectVM.ProjectID;
+            var resReportFile = await Util.UploadFiles(new List<IFormFile> { reportFile }, @"files\Project");
+            if (resReportFile.Equals("No file"))
+            {
+                TempData[MyConstants.Error] = "No file to upload!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectID });
+            }
 
-                    finishProjectVM.ReportFile = resReportFile;
-                    var res = await projectRepository.FinishProjectAsync(finishProjectVM);
-                    if (res)
-                    {
-                        TempData[MyConstants.Success] = "Finish project successfully!";
-                        return RedirectToAction(nameof(ManageProject), new { id = projectID });
-                    }
-                }
+            if (resReportFile.Equals("Wrong extension"))
+            {
+                TempData[MyConstants.Error] = "Extension of some files is wrong!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectID });
+            }
+
+            finishProjectVM.ReportFile = resReportFile;
+            var res = await _projectRepo.FinishProjectAsync(finishProjectVM);
+            if (res)
+            {
+                TempData[MyConstants.Success] = "Finish project successfully!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
 
             TempData[MyConstants.Error] = "Fail to finish project!";
             return RedirectToAction(nameof(ManageProject), new { id = projectID });
         }
 
-        public async Task<IActionResult> DownloadFile(string fileWebPath)
+        public IActionResult DownloadFile(string fileWebPath)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
             if (!string.IsNullOrEmpty(fileWebPath))
@@ -267,6 +246,9 @@ namespace Dynamics.Controllers
                         case ".txt":
                             return File(System.IO.File.ReadAllBytes(filepath), "text/plain",
                                 System.IO.Path.GetFileName(filepath));
+                        case ".csv":
+                            return File(System.IO.File.ReadAllBytes(filepath), "text/csv",
+                                System.IO.Path.GetFileName(filepath));
                     }
 
                     TempData[MyConstants.Success] = "Download file successful!";
@@ -280,34 +262,42 @@ namespace Dynamics.Controllers
 
         public async Task<IActionResult> UpdateProjectProfile(Guid id)
         {
+            _logger.LogWarning("UpdateProjectProfile");
             var projectObj =
-                await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(id));
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(id));
             if (projectObj == null)
             {
                 return NotFound();
             }
 
-            var projectDto = mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
+            var projectDto = _mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
+            projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
+            var currentProjectCEO = new Guid(HttpContext.Session.GetString("currentProjectCEOID"));
             IEnumerable<SelectListItem> StatusList = new List<SelectListItem>()
             {
                 new SelectListItem { Text = "Pending", Value = "0" },
-                new SelectListItem { Text = "In Progress", Value = "1" },
-                new SelectListItem { Text = "Completed", Value = "2" }
+                new SelectListItem { Text = "In Progress", Value = "1" }
             };
             ViewData["StatusList"] = StatusList;
 
-            List<User> memberList =
-                projectRepository.FilterMemberOfProject(x => x.ProjectID.Equals(id) && x.Status >= 1);
             ICollection<SelectListItem> MemberList = new List<SelectListItem>() { };
-            foreach (var member in memberList)
+
+            foreach (var member in _projectService.FilterMemberOfProject(p => p.ProjectID.Equals(id) && p.Status >= 1))
             {
+                if (member.UserID != projectDto.NewLeaderID && member.UserID != currentProjectCEO)
+                {
+                    var isOwnerSomewhere =
+                        _projectMemberRepo.FilterProjectMember(x => x.UserID == member.UserID && x.Status >= 2);
+                    if (isOwnerSomewhere.Count == 0)
+                        MemberList.Add(new SelectListItem
+                            { Text = member.UserFullName, Value = member.UserID.ToString() });
+                    continue;
+                }
+
                 MemberList.Add(new SelectListItem { Text = member.UserFullName, Value = member.UserID.ToString() });
             }
 
             ViewData["MemberList"] = MemberList;
-
-            //get leader id from project member to updateProjectDto
-            projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
             return View(projectDto);
         }
 
@@ -316,63 +306,63 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> UpdateProjectProfile(UpdateProjectProfileRequestDto updateProject,
             List<IFormFile> images)
         {
-            var existingObj = await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(updateProject.ProjectID));
-            var projectObj = mapper.Map<Dynamics.Models.Models.Project>(updateProject);
-            if (projectObj != null && existingObj != null)
+            _logger.LogWarning("UpdateProjectProfile post");
+            var resUpdate = await _projectService.UpdateProjectProfileAsync(updateProject, images);
+            if (resUpdate.Equals("No file") || resUpdate.Equals("Wrong extension"))
             {
-                if (images != null && images.Count() > 0)
-                {
-                    var resAttachment = await Util.UploadImages(images, @"images\Project");
-                    if (resAttachment.Equals("No file"))
-                    {
-                        TempData[MyConstants.Error] = "No file to upload!";
-                        return RedirectToAction(nameof(UpdateProjectProfile), new { id = projectObj.ProjectID });
-                    }
-
-                    if (resAttachment.Equals("Wrong extension"))
-                    {
-                        TempData[MyConstants.Error] = "Extension of some files is wrong!";
-                        return RedirectToAction(nameof(UpdateProjectProfile), new { id = projectObj.ProjectID });
-                    }
-
-                    projectObj.Attachment = resAttachment;
-                }
-
-                var res = await projectRepository.UpdateAsync(projectObj, updateProject.NewLeaderID);
-                if (!updateProject.OldLeaderID.Equals(updateProject.NewLeaderID) && res)
-                {
-                    TempData[MyConstants.Success] = "Update project successfully!";
-                    //TempData[MyConstants.Info] = "You are no longer a leader for this project!";
-                    return RedirectToAction(nameof(ManageProject), new { id = projectObj.ProjectID.ToString() });
-                }
+                TempData[MyConstants.Error] = resUpdate.Equals("No file")
+                    ? "No file to upload!"
+                    : "Extension of some files is wrong!";
+            }
+            else if (resUpdate.Equals(MyConstants.Success))
+            {
                 TempData[MyConstants.Success] = "Update project successfully!";
-                return RedirectToAction(nameof(ManageProject), new { id = projectObj.ProjectID.ToString() });
+                return RedirectToAction(nameof(ManageProject),
+                    new { id = HttpContext.Session.GetString("currentProjectID") });
+            }
+            else
+            {
+                TempData[MyConstants.Error] = "Fail to update project!";
             }
 
-            TempData[MyConstants.Error] = "Fail to update project!";
-            return RedirectToAction(nameof(UpdateProjectProfile), new { id = projectObj.ProjectID });
+            return RedirectToAction(nameof(UpdateProjectProfile),
+                new { id = HttpContext.Session.GetString("currentProjectID") });
         }
 
         [HttpPost]
         public async Task<IActionResult> ShutdownProject(ShutdownProjectVM shutdownProjectVM)
         {
-            var userIDString = HttpContext.Session.GetString("currentUserID");
-            var res = await projectRepository.ShutdownProjectAsync(shutdownProjectVM);
-            if (res&&!string.IsNullOrEmpty(userIDString))
+            _logger.LogWarning("ShutdownProject post");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(shutdownProjectVM.ProjectID));
+            if (projectObj?.ProjectStatus == 2)
             {
-                return Json(new { success = true, message = "Shutdown project successful!",
-                    remind = "You just have shut down a project for \"" + shutdownProjectVM.Reason+"\"",
+                return Json(new { success = false, message = "You cannot shut down while this project is finished!" });
+            }
+
+            var userIDString = HttpContext.Session.GetString("currentUserID");
+            var res = await _projectRepo.ShutdownProjectAsync(shutdownProjectVM);
+            if (res && !string.IsNullOrEmpty(userIDString))
+            {
+                return Json(new
+                {
+                    success = true, message = "Shutdown project successful!",
+                    remind = "You just have shut down a project for \"" + shutdownProjectVM.Reason + "\"",
                     userIDString = userIDString
                 });
             }
+
             return Json(new { success = false, message = "Fail to shutdown project!" });
         }
 
+        [Authorize]
         public async Task<IActionResult> SendReportProjectRequest(Report report)
         {
-            report.ReporterID = new Guid(HttpContext.Session.GetString("currentUserID"));
+            _logger.LogWarning("Send report project request");
+            var projectObj =
+                report.ReporterID = new Guid(HttpContext.Session.GetString("currentUserID"));
             report.Type = ReportObjectConstant.Project;
-            var res = await projectRepository.SendReportProjectRequestAsync(report);
+            var res = await _reportRepo.SendReportProjectRequestAsync(report);
             if (res)
             {
                 TempData[MyConstants.Success] = "Send report project request successfully!";
@@ -386,43 +376,16 @@ namespace Dynamics.Controllers
         //show tổng quan project
         public async Task<IActionResult> ManageProject(string id)
         {
+            _logger.LogWarning("ManageProject get");
             if (string.IsNullOrEmpty(id.ToString()) || id.Equals(00000000 - 0000 - 0000 - 0000 - 000000000000))
             {
                 return NotFound("id is empty!");
             }
 
-            var projectObj =
-                await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(new Guid(id)));
-            if (projectObj != null)
+            var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id));
+            if (detailProject != null)
             {
-                // TODO
-                var request = await requestRepository.GetAsync(r => r.RequestID.Equals(projectObj.RequestID));
-                if (request != null)
-                {
-                    projectObj.Request = request;
-                }                 
-                HttpContext.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
-                var leaderOfProject = await projectRepository.GetProjectLeaderAsync(projectObj.ProjectID);
-                HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
-                var ceoOfProject = projectRepository.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID==projectObj.ProjectID);
-                HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
-
-                List<string> statistic = await projectRepository.GetStatisticOfProject(projectObj.ProjectID);
-                DetailProjectVM detailProjectVM = new DetailProjectVM()
-                {
-                    CurrentProject = projectObj,
-                    CurrentLeaderProject = leaderOfProject,
-                    CurrentAmountOfMoneyDonate = Convert.ToInt32(statistic[0]),
-                    ExpectedAmountOfMoneyDonate = Convert.ToInt32(statistic[1]),
-                    ProgressDonate = Convert.ToDouble(statistic[2]),
-                    NumberOfProjectContributor = Convert.ToInt32(statistic[3]),
-                    TimeLeftEndDay = Convert.ToInt32(statistic[3]),
-                    Random5Donors = await projectRepository.GetRandom5Donors(projectObj.ProjectID)
-                };
-                if (detailProjectVM != null)
-                {
-                    return View(detailProjectVM);
-                }
+                return View(detailProject);
             }
 
             TempData[MyConstants.Error] = "Fail to get project!";
@@ -431,88 +394,137 @@ namespace Dynamics.Controllers
 
         //----------------------manage project member -------------
         [Route("Project/ManageProjectMember/{projectID}")]
-        public async Task<IActionResult> ManageProjectMember([FromRoute] Guid projectID)
+        public async Task<IActionResult> ManageProjectMember([FromRoute] Guid projectID, int pageNumberPM = 1,
+            int pageSize = 10)
         {
+            _logger.LogWarning("ManageProjectMember get");
             var allProjectMember =
-                projectRepository.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status >= 1);
-
+                _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status >= 1);
             if (allProjectMember == null)
             {
-                return NotFound();
+                throw new Exception("No member in this project!");
             }
 
+            var totalPM = allProjectMember.Count();
+            var totalPagePM = (int)Math.Ceiling((double)totalPM / pageSize);
+            var paginatedPM = _pagination.Paginate(allProjectMember, pageNumberPM, pageSize);
+            ViewBag.currentPagePM = pageNumberPM;
+            ViewBag.totalPagesPM = totalPagePM;
+
             var joinRequests =
-                projectRepository.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status == 0) ??
+                _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status == 0) ??
                 Enumerable.Empty<ProjectMember>();
             var nums = joinRequests.Count();
             ViewData["hasJoinRequest"] = nums > 0;
-            return View(allProjectMember);
+            return View(paginatedPM);
         }
 
         [Route("Project/DeleteProjectMember/{memberID}")]
         public async Task<IActionResult> DeleteProjectMember([FromRoute] Guid memberID)
         {
+            _logger.LogWarning("DeleteProjectMember get");
+
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            var res = await projectRepository.DeleteMemberProjectByIdAsync(memberID, new Guid(currentProjectID));
-            if (res)
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(new Guid(currentProjectID)));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+            }
+
+            var res = await _projectMemberRepo.DeleteAsync(x =>
+                x.UserID.Equals(memberID) && x.ProjectID.Equals(new Guid(currentProjectID)));
+            if (res != null)
             {
                 TempData[MyConstants.Success] = "Delete project member successfully!";
                 return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
             }
+
             TempData[MyConstants.Error] = "Fail to delete project member!";
             return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
         }
 
         //----manage join request-----
         //create request
+        [Authorize]
         public async Task<IActionResult> JoinProjectRequest(Guid memberID, Guid projectID)
         {
-            var projectObj =
-                await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            _logger.LogWarning("JoinProjectRequest get");
+            var projectObj = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
             if (projectObj?.ProjectStatus == -1)
             {
-                TempData[MyConstants.Warning] = "This project is not in progress!";
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
 
-            var existingJoinRequest = projectRepository
-                .FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.UserID.Equals(memberID) && p.Status == 0
-                 ).FirstOrDefault();
-
-            if (existingJoinRequest == null)
+            var res = await _projectService.SendJoinProjectRequestAsync(projectID, memberID);
+            
+            if (res.Equals(MyConstants.Success))
             {
-                var res = await projectRepository.AddJoinRequest(memberID, projectID);
-                if (res)
+                // create new notification
+                var notification = new Notification
                 {
-                    TempData[MyConstants.Success] = "Join request sent successfully!";
-                    return RedirectToAction(nameof(ManageProject), new { id = projectID });
+                    NotificationID = Guid.NewGuid(),
+                    UserID = memberID,
+                    Message = $"You have sent a join request to {projectObj.ProjectName} project.",
+                    Date = DateTime.Now,
+                    Link = Url.Action(nameof(ManageProject), "Project", new { id = projectID }, Request.Scheme),
+                    Status = 0 // Unread
+                };
+                
+                //send notification and save it to database
+                var notificationJson = JsonConvert.SerializeObject(notification);
+                var connectionId = HttpContext.Session.GetString($"{memberID.ToString()}_signalr");
+                if (connectionId != null)
+                {
+                    await _notifHubContext.Clients.Client(connectionId).SendAsync(notificationJson);
+                    await _notifRepo.AddNotificationAsync(notification);
                 }
 
-                TempData[MyConstants.Error] = "Fail to send join request!";
+                TempData[MyConstants.Success] = "Join request sent successfully!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
-            else
+            else if (res.Equals(MyConstants.Warning))
             {
-                TempData[MyConstants.Warning] = "Already send join request.Please wait for response!";
-                return RedirectToAction(nameof(ManageProject), new { id = projectID });
+                TempData[MyConstants.Warning] = "Already sent another join request!";
+                TempData[MyConstants.Subtitle] = "Please wait for the project leader response!";
             }
+            else if (res.Equals(MyConstants.Error))
+            {
+                TempData[MyConstants.Error] = "Fail to send join request!";
+            }
+
+            return RedirectToAction(nameof(ManageProject), new { id = projectID });
         }
 
         //send notification to move out from project
         public async Task<IActionResult> LeaveProjectRequest(Guid projectID)
         {
+            _logger.LogWarning("LeaveProjectRequest get");
             var currentUserID = HttpContext.Session.GetString("currentUserID");
             if (currentUserID != null)
             {
                 var currentProjectLeaderID = HttpContext.Session.GetString("currentProjectLeaderID");
-                if (currentUserID.Equals(currentProjectLeaderID))
+                var currentProjectCEOID = HttpContext.Session.GetString("currentProjectCEOID");
+                var checkIsLeader = currentUserID.Equals(currentProjectLeaderID);
+                var checkIsCEO = currentUserID.Equals(currentProjectCEOID);
+                if (checkIsLeader || checkIsCEO)
                 {
-                    TempData[MyConstants.Warning] = "You can not leave the project while you are a project leader !";
-                    TempData[MyConstants.Info] = "Transfer team leader rights if you still want to leave the project.";
+                    TempData[MyConstants.Warning] = "You can not leave the project!";
+                    TempData[MyConstants.Info] = checkIsLeader
+                        ? "Transfer team leader rights if you still want to leave the project."
+                        : null;
+                    TempData[MyConstants.Info] = checkIsCEO ? "Leave project is not allowed while you are CEO." : null;
                     return RedirectToAction(nameof(ManageProject), new { id = projectID });
                 }
 
-                var res = await projectRepository.DenyJoinRequestAsync(new Guid(currentUserID), projectID);
+                var res = await _projectMemberRepo.DenyJoinRequestAsync(new Guid(currentUserID), projectID);
                 if (res)
                 {
                     TempData[MyConstants.Success] = "Move out project successfull!";
@@ -526,26 +538,70 @@ namespace Dynamics.Controllers
 
         //review request
         [Route("Project/ReviewJoinRequest/{projectID}")]
-        public async Task<IActionResult> ReviewJoinRequest([FromRoute] Guid projectID)
+        public async Task<IActionResult> ReviewJoinRequest([FromRoute] Guid projectID, int pageSizeJR = 10,
+            int pageNumberJR = 1)
         {
+            _logger.LogWarning("ReviewJoinRequest get");
+            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            var projectObj = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = projectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = projectID });
+            }
+
             var allJoinRequest =
-                projectRepository.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status == 0);
+                _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status == 0);
 
             if (allJoinRequest == null)
             {
-                return NotFound();
+                throw new Exception("List join request is null!");
             }
 
-            return View(allJoinRequest);
+
+            //pagination
+            var totalJR = allJoinRequest.Count();
+            var totalPageJR = (int)Math.Ceiling((double)totalJR / pageSizeJR);
+            var paginatedJR = _pagination.Paginate(allJoinRequest, pageNumberJR, pageSizeJR);
+            ViewBag.currentPagejR = pageNumberJR;
+            ViewBag.totalPagesJR = totalPageJR;
+
+            return View(paginatedJR);
         }
 
-        [Route("Project/AcceptedJoinRequest/{memberID}")]
-        public async Task<IActionResult> AcceptedJoinRequest([FromRoute] Guid memberID)
+        [Route("Project/AcceptJoinRequest/{memberID}")]
+        public async Task<IActionResult> AcceptJoinRequest([FromRoute] Guid memberID)
         {
+            _logger.LogWarning("AcceptJoinRequest get");
             var currentProjectID = new Guid(HttpContext.Session.GetString("currentProjectID"));
-            var res = await projectRepository.AcceptedJoinRequestAsync(memberID, currentProjectID);
+            var res = await _projectMemberRepo.AcceptJoinRequestAsync(memberID, currentProjectID);
             if (res)
             {
+                var notification = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = memberID,
+                    Message = "Your project join request has been accepted.",
+                    Date = DateTime.Now,
+                    Link = Url.Action(nameof(ReviewJoinRequest), "Project", new { id = currentProjectID },
+                        Request.Scheme),
+                    Status = 0 // Unread
+                };
+
+                //send notification and save it to database
+                var notificationJson = JsonConvert.SerializeObject(notification);
+                var connectionId = HttpContext.Session.GetString($"{memberID.ToString()}_signalr");
+                if (connectionId != null)
+                {
+                    await _notifHubContext.Clients.Client(connectionId).SendAsync(notificationJson);
+                    await _notifRepo.AddNotificationAsync(notification);
+                }
+
                 TempData[MyConstants.Success] = "Join request accepted successfully!";
                 return RedirectToAction(nameof(ReviewJoinRequest), new { id = currentProjectID });
             }
@@ -557,8 +613,9 @@ namespace Dynamics.Controllers
         [Route("Project/DenyJoinRequest/{memberID}")]
         public async Task<IActionResult> DenyJoinRequest([FromRoute] Guid memberID)
         {
+            _logger.LogWarning("DenyJoinRequest get");
             var currentProjectID = new Guid(HttpContext.Session.GetString("currentProjectID"));
-            var res = await projectRepository.DenyJoinRequestAsync(memberID, currentProjectID);
+            var res = await _projectMemberRepo.DenyJoinRequestAsync(memberID, currentProjectID);
             if (res)
             {
                 TempData[MyConstants.Success] = "Join request denied successfully!";
@@ -569,26 +626,15 @@ namespace Dynamics.Controllers
             return RedirectToAction(nameof(ReviewJoinRequest), new { id = currentProjectID });
         }
 
-        public async Task<IActionResult> AcceptedJoinRequestAll()
+        public async Task<IActionResult> AcceptJoinRequestAll()
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            var allJoinRequest =
-                projectRepository.FilterProjectMember(
-                    p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status == 0);
-            if (allJoinRequest == null)
-            {
-                return NotFound();
-            }
 
-            foreach (var joinRequest in allJoinRequest)
+            var res = await _projectService.AcceptJoinProjectRequestAllAsync(new Guid(currentProjectID));
+            if (!res)
             {
-                var res = await projectRepository.AcceptedJoinRequestAsync(joinRequest.UserID,
-                    new Guid(currentProjectID));
-                if (!res)
-                {
-                    TempData[MyConstants.Error] = "Failed to accept the join request!";
-                    return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-                }
+                TempData[MyConstants.Error] = "Failed to accept the join request!";
+                return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
             }
 
             TempData[MyConstants.Success] = "All join request accepted successfully!";
@@ -598,22 +644,12 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> DenyJoinRequestAll()
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            var allJoinRequest =
-                projectRepository.FilterProjectMember(
-                    p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status == 0);
-            if (allJoinRequest == null)
-            {
-                return NotFound();
-            }
 
-            foreach (var joinRequest in allJoinRequest)
+            var res = await _projectService.DenyJoinProjectRequestAllAsync(new Guid(currentProjectID));
+            if (!res)
             {
-                var res = await projectRepository.DenyJoinRequestAsync(joinRequest.UserID, new Guid(currentProjectID));
-                if (!res)
-                {
-                    TempData[MyConstants.Error] = "Failed to deny the join request!";
-                    return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-                }
+                TempData[MyConstants.Error] = "Failed to deny the join request!";
+                return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
             }
 
             TempData[MyConstants.Success] = "All join request denied successfully!";
@@ -621,25 +657,26 @@ namespace Dynamics.Controllers
         }
 
         //-------------------manage transaction history of project------------------------
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> SendDonateRequest(Guid projectID, string donor)
         {
+            _logger.LogWarning("SendDonateRequest get");
             var projectObj =
-                await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
             if (projectObj?.ProjectStatus == -1)
             {
                 TempData[MyConstants.Warning] = "This project is not in progress!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
-
-            if (!ModelState.IsValid)
+            else if (projectObj?.ProjectStatus == 2)
             {
-                TempData[MyConstants.Error] = "Fail to send donate request!";
-                return RedirectToAction(nameof(SendDonateRequest), new { projectID = projectID, donor = donor });
+                TempData[MyConstants.Warning] = "This project is finished!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
 
-            var allResource = await projectRepository.FilterProjectResourceAsync(p =>
-                p.ProjectID.Equals(projectID) && !p.ResourceName.Equals("Money"));
+            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p =>
+                p.ProjectID.Equals(projectID) && !p.ResourceName.Equals("Money") && p.Quantity < p.ExpectedQuantity);
             if (allResource == null)
             {
                 return NotFound();
@@ -651,137 +688,109 @@ namespace Dynamics.Controllers
                 Value = x.ResourceID.ToString(),
             }).ToList();
             ViewData["ResourceTypeList"] = ResourceTypeList;
-            //get organization user lead
-            var userString = HttpContext.Session.GetString("user");
-            User currentUser = null;
-            if (userString != null)
-            {
-                currentUser = JsonConvert.DeserializeObject<User>(userString);
-            }
-            var organizationUserLead = await organizationRepository.GetOrganizationUserLead(currentUser.UserID);
-
             //set value for View Model
-            SendDonateRequestVM sendDonateRequestVM = null;
-            if (!string.IsNullOrEmpty(donor) && donor.Equals("User"))
+            SendDonateRequestVM sendDonateRequestVM =
+                await _projectService.ReturnSendDonateRequestVMAsync(projectID, donor);
+            if (sendDonateRequestVM == null)
             {
-                var currentUserID = HttpContext.Session.GetString("currentUserID");
-                List<UserToProjectTransactionHistory> donateHistoryOfUser;
-                if (currentUserID != null)
-                {
-                    donateHistoryOfUser = await projectRepository.GetAllUserDonateAsync(
-                        u => u.UserID.Equals(new Guid(currentUserID)) && u.ProjectResource.ProjectID.Equals(projectID)
-                   );
-                    sendDonateRequestVM = new SendDonateRequestVM()
-                    {
-                        ProjectID = projectID,
-                        TypeDonor = donor,
-                        UserTransactionHistory = donateHistoryOfUser
-                    };
-                }
-            } //if ceo click on the organization donate button
-            else if (!string.IsNullOrEmpty(donor) && donor.Equals("Organization"))
-            {
-                var currentUserID = HttpContext.Session.GetString("currentUserID");
-                List<OrganizationToProjectHistory> donateHistoryOfOrg;
-                if (currentUserID != null&& organizationUserLead!=null)
-                {
-
-                     donateHistoryOfOrg = await projectRepository.GetAllOrganizationDonateAsync(
-                        u => u.OrganizationResource.OrganizationID.Equals(organizationUserLead.OrganizationID) && u.ProjectResource.ProjectID.Equals(projectID)
-                     );
-                    sendDonateRequestVM = new SendDonateRequestVM()
-                    {
-                        ProjectID = projectID,
-                        TypeDonor = donor,
-                        OrgTransactionHistory = donateHistoryOfOrg,
-                        OrganizationUserLeadID = organizationUserLead.OrganizationID
-                    };                             
-                }
+                TempData[MyConstants.Error] = "Fail to get history donate of user/organization!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
 
+            // Setup for payment by money
+            var moneyResource = await _projectResourceRepo.GetAsync(pr =>
+                pr.ResourceName.ToLower().Equals("money") && pr.ProjectID.Equals(projectID));
+            if (moneyResource == null) throw new Exception("warning: PROJECT DOES NOT HAVE MONEY RESOURCE");
+            sendDonateRequestVM.VnPayRequestDto = new VnPayRequestDto
+            {
+                TargetId = projectID,
+                TargetType = MyConstants.Project,
+                ResourceID = moneyResource.ResourceID,
+            };
+            // Last but not least, setup a return url:
+            var url = Url.Action("ManageProject", "Project", new { id = projectID }, Request.Scheme);
+            ViewBag.returnUrl = url ?? "~/";
             return View(sendDonateRequestVM);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendDonateRequest(SendDonateRequestVM sendDonateRequestVM)
+        public async Task<IActionResult> SendDonateRequest(SendDonateRequestVM sendDonateRequestVM,
+            List<IFormFile> images)
         {
-            if (sendDonateRequestVM != null)
+            _logger.LogWarning("SendDonateRequest post");
+            var res = await _projectService.SendDonateRequestAsync(sendDonateRequestVM, images);
+            if (!string.IsNullOrEmpty(res))
             {
-                if (!string.IsNullOrEmpty(sendDonateRequestVM.TypeDonor) &&
-                    sendDonateRequestVM.TypeDonor.Equals("User"))
+                if (res.Equals("No file") || res.Equals("Wrong extension"))
                 {
-                    var currentUserID = HttpContext.Session.GetString("currentUserID");
-                    if (currentUserID != null)
+                    return Json(new
                     {
-                        var res = await projectRepository.AddUserDonateRequestAsync(sendDonateRequestVM.UserDonate);
-                        if (!res)
-                        {
-                            // Return JSON response with failure message
-                            return Json(new { success = false, message = "Fail to send your donation request!" });
-                        }
-                    }
-                }
-                else if (!string.IsNullOrEmpty(sendDonateRequestVM.TypeDonor) &&
-                         sendDonateRequestVM.TypeDonor.Equals("Organization"))
-                {
-                    var organizationResourceIDCoressponding = await organizationRepository.GetOrgResourceIDCorresponding(
-                        sendDonateRequestVM.OrgDonate.ProjectResourceID.Value,
-                        sendDonateRequestVM.OrganizationUserLeadID
-                    );
-
-                    if (!organizationResourceIDCoressponding.Equals(Guid.Empty))
-                    {
-                        sendDonateRequestVM.OrgDonate.OrganizationResourceID = organizationResourceIDCoressponding;
-                        var res = await projectRepository.AddOrgDonateRequestAsync(sendDonateRequestVM.OrgDonate);
-                        if (!res)
-                        {
-                            // Return JSON response with failure message
-                            return Json(new { success = false, message = "Failed to send your donation request !" });
-                        }
-                    }
-                    else
-                    {
-                        // Return JSON response with failure message for organization donation
-                        return Json(new { success = false, message = "Failed to send your donation request !" });
-                    }
+                        success = false,
+                        message = res.Equals("No file")
+                            ? "Please upload at least one proof image!"
+                            : "Some files have the wrong extension!"
+                    });
                 }
 
-                // Return success response
-                return Json(new { success = true, message = "Your donation request was sent successfully!" });
+                if (res.Equals("Exceed"))
+                {
+                    // Return JSON response with failure message
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Cannot send resource that causes current quantity exceed expected quantity !"
+                    });
+                }
+                else if (res.Equals(MyConstants.Success))
+                {
+                    return Json(new { success = true, message = "Your donation request was sent successfully!" });
+                }
             }
 
-            // Return failure response if the input data is invalid
-            return Json(new { success = false, message = "Failed to send your donation request!" });
+            return Json(new { success = false, message = "Fail to send your donation request!" });
         }
 
         [Route("Project/ManageProjectDonor/{projectID}")]
-        public async Task<IActionResult> ManageProjectDonor(Guid projectID)
+        public async Task<IActionResult> ManageProjectDonor(Guid projectID, int pageNumberUD = 1, int pageNumberOD = 1,
+            int pageSize = 10)
         {
-            var allUserDonate =
-                await projectRepository.GetAllUserDonateAsync(u => u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1);
-            if (allUserDonate == null)
+            _logger.LogWarning("ManageProjectDonor get");
+            ProjectTransactionHistoryVM projectTransactionHistoryVM =
+                await _projectService.ReturnProjectTransactionHistoryVMAsync(projectID);
+            if (projectTransactionHistoryVM == null)
             {
-                return NotFound();
+                TempData[MyConstants.Error] = "Fail to get history donate of user/organization!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
 
-            var allOrganizationDonate =
-                await projectRepository.GetAllOrganizationDonateAsync(  u => u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1);
-            if (allOrganizationDonate == null)
-            {
-                return NotFound();
-            }
+            // This one is special bc we are paginating on client side, so unfortunately, no async here
+            var totalUD = projectTransactionHistoryVM.UserDonate.Count();
+            var totalPageUD = (int)Math.Ceiling((double)totalUD / pageSize);
+            var paginatedUD = _pagination.Paginate(projectTransactionHistoryVM.UserDonate, pageNumberUD, pageSize);
+            ViewBag.currentPageUD = pageNumberUD;
+            ViewBag.totalPagesUD = totalPageUD;
 
-            ProjectTransactionHistoryVM projectTransactionHistoryVM = new ProjectTransactionHistoryVM()
+            var totalOD = projectTransactionHistoryVM.OrganizationDonate.Count();
+            var totalPageOD = (int)Math.Ceiling((double)totalOD / pageSize);
+            var paginatedOD =
+                _pagination.Paginate(projectTransactionHistoryVM.OrganizationDonate, pageNumberOD, pageSize);
+            ViewBag.currentPageOD = pageNumberOD;
+            ViewBag.totalPagesOD = totalPageOD;
+
+
+            ProjectTransactionHistoryVM PaginateAsyncdVM = new ProjectTransactionHistoryVM()
             {
-                UserDonate = allUserDonate,
-                OrganizationDonate = allOrganizationDonate
+                UserDonate = paginatedUD,
+                OrganizationDonate = paginatedOD
             };
             int nums =
-                (await projectRepository.GetAllUserDonateAsync(u => u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0) ?? new List<UserToProjectTransactionHistory>()).Count();
+                (await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
+                     u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0) ??
+                 new List<UserToProjectTransactionHistory>()).Count();
             var hasUserDonateRequest = nums > 0;
 
             int nums2 =
-                (await projectRepository.GetAllOrganizationDonateAsync(
+                (await _organizationToProjectTransactionHistoryRepo.GetAllOrganizationDonateAsync(
                      u => u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0) ??
                  new List<OrganizationToProjectHistory>()).Count();
             var hasOrgDonateRequest = nums2 > 0;
@@ -793,116 +802,162 @@ namespace Dynamics.Controllers
 
         [HttpGet]
         [Route("Project/ReviewUserDonateRequest/{projectID}")]
-        public async Task<IActionResult> ReviewUserDonateRequest(Guid projectID)
+        public async Task<IActionResult> ReviewUserDonateRequest(Guid projectID, int pageNumberUD = 1,
+            int pageSizeUD = 10)
         {
+            _logger.LogWarning("ReviewUserDonateRequest get");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectDonor), new { id = projectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectDonor), new { id = projectID });
+            }
+
             var allUserDonate =
-                await projectRepository.GetAllUserDonateAsync(u => u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0);
+                await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
+                    u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0);
             if (allUserDonate == null)
             {
                 return NotFound();
             }
+
+            //pagination
+            var totalUD = allUserDonate.Count();
+            var totalPageUD = (int)Math.Ceiling((double)totalUD / pageSizeUD);
+            allUserDonate = _pagination.Paginate(allUserDonate, pageNumberUD, pageSizeUD);
+            ViewBag.currentPageUD = pageNumberUD;
+            ViewBag.totalPagesUD = totalPageUD;
 
             return View(allUserDonate);
         }
 
         [HttpGet]
         [Route("Project/ReviewOrgDonateRequest/{projectID}")]
-        public async Task<IActionResult> ReviewOrgDonateRequest(Guid projectID)
+        public async Task<IActionResult> ReviewOrgDonateRequest(Guid projectID, int pageNumberOD = 1,
+            int pageSizeOD = 10)
         {
+            _logger.LogWarning("ReviewOrgDonateRequest get");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectDonor), new { id = projectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectDonor), new { id = projectID });
+            }
+
             var allOrgDonate =
-                await projectRepository.GetAllOrganizationDonateAsync(
+                await _organizationToProjectTransactionHistoryRepo.GetAllOrganizationDonateAsync(
                     u => u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0);
             if (allOrgDonate == null)
             {
                 return NotFound();
             }
 
+            //pagination
+            var totalOD = allOrgDonate.Count();
+            var totalPageOD = (int)Math.Ceiling((double)totalOD / pageSizeOD);
+            allOrgDonate = _pagination.Paginate(allOrgDonate, pageNumberOD, pageSizeOD);
+            ViewBag.currentPageOD = pageNumberOD;
+            ViewBag.totalPagesOD = totalPageOD;
+
             return View(allOrgDonate);
         }
 
         //-----accept request donate-----
-        public async Task<IActionResult> AcceptedDonateRequest(Guid transactionID, string donor)
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptDonateRequest(ReviewProjectDonateRequestVM reviewProjectDonateRequestVM,
+            List<IFormFile> proofImages)
         {
+            _logger.LogWarning("AcceptDonateRequest get");
             var res = false;
-            switch (donor)
+            var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(proofImages);
+
+            if (resImage.Equals("Wrong extension") || resImage.Equals("No file"))
             {
-                case "User":
-                    res = await projectRepository.AcceptedUserDonateRequestAsync(transactionID);
-                    break;
-                case "Organization":
-                    res = await projectRepository.AcceptedOrgDonateRequestAsync(transactionID);
-                    break;
-                default:
-                    return NotFound();
+                TempData[MyConstants.Error] = resImage.Equals("No file")
+                    ? "No file to upload!"
+                    : "Extension of some files is wrong!";
+            }
+            else
+            {
+                switch (reviewProjectDonateRequestVM.TypeDonor)
+                {
+                    case "User":
+                        var transactionObj = await _userToProjectTransactionHistoryRepo.GetAsync(x =>
+                            x.TransactionID.Equals(reviewProjectDonateRequestVM.TransactionID));
+                        if (transactionObj != null)
+                        {
+                            transactionObj.Attachments = resImage;
+                            res = await _userToProjectTransactionHistoryRepo.AcceptUserDonateRequestAsync(
+                                transactionObj);
+                        }
+
+                        break;
+                    case "Organization":
+                        var transactionOrgObj = await _organizationToProjectTransactionHistoryRepo.GetAsync(x =>
+                            x.TransactionID.Equals(reviewProjectDonateRequestVM.TransactionID));
+                        if (transactionOrgObj != null)
+                        {
+                            transactionOrgObj.Attachments = resImage;
+                            res = await _organizationToProjectTransactionHistoryRepo.AcceptOrgDonateRequestAsync(
+                                transactionOrgObj);
+                        }
+
+                        break;
+                    default:
+                        return NotFound();
+                }
             }
 
             if (res)
             {
                 TempData[MyConstants.Success] = "Donation request accepted successfully!";
-                return (donor.Equals("User"))
+                return (reviewProjectDonateRequestVM.TypeDonor.Equals("User"))
                     ? RedirectToAction(nameof(ReviewUserDonateRequest),
                         new { id = HttpContext.Session.GetString("currentProjectID") })
                     : RedirectToAction(nameof(ReviewOrgDonateRequest),
                         new { id = HttpContext.Session.GetString("currentProjectID") });
             }
 
-            TempData[MyConstants.Error] = "Failed to accept the donation request!";
-            return (donor.Equals("User"))
+            if (TempData[MyConstants.Error] == null)
+            {
+                TempData[MyConstants.Error] = "Failed to accept the donation request!";
+            }
+
+            return (reviewProjectDonateRequestVM.TypeDonor.Equals("User"))
                 ? RedirectToAction(nameof(ReviewUserDonateRequest),
                     new { id = HttpContext.Session.GetString("currentProjectID") })
                 : RedirectToAction(nameof(ReviewOrgDonateRequest),
                     new { id = HttpContext.Session.GetString("currentProjectID") });
         }
 
-        public async Task<IActionResult> AcceptedDonateRequestAll(string donor)
+        [HttpPost]
+        public async Task<IActionResult> AcceptDonateRequestAll(string donor, List<IFormFile> proofImages)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            switch (donor)
+            var res = await _projectService.AcceptDonateProjectRequestAllAsync(new Guid(currentProjectID), donor,
+                proofImages);
+            if (!res)
             {
-                case "User":
-                    var allUserDonateRequest =
-                        await projectRepository.GetAllUserDonateAsync(
-                            u => u.ProjectResource.ProjectID.Equals(new Guid(currentProjectID)) && u.Status == 0);
-                    if (allUserDonateRequest == null)
-                    {
-                        return NotFound();
-                    }
-
-                    foreach (var userDonate in allUserDonateRequest)
-                    {
-                        var res = await projectRepository.AcceptedUserDonateRequestAsync(userDonate.TransactionID);
-                        if (!res)
-                        {
-                            TempData[MyConstants.Error] = "Failed to accept all the donation request!";
-                            return RedirectToAction(nameof(ReviewUserDonateRequest),
-                                new { id = HttpContext.Session.GetString("currentProjectID") });
-                        }
-                    }
-
-                    break;
-                case "Organization":
-                    var allOrgDonateRequest = await projectRepository.GetAllOrganizationDonateAsync(
-                        u => u.ProjectResource.ProjectID.Equals(new Guid(currentProjectID)) && u.Status == 0);
-                    if (allOrgDonateRequest == null)
-                    {
-                        return NotFound();
-                    }
-
-                    foreach (var orgDonate in allOrgDonateRequest)
-                    {
-                        var res = await projectRepository.AcceptedUserDonateRequestAsync(orgDonate.TransactionID);
-                        if (!res)
-                        {
-                            TempData[MyConstants.Error] = "Failed to accept all the donation request!";
-                            return RedirectToAction(nameof(ReviewOrgDonateRequest),
-                                new { id = HttpContext.Session.GetString("currentProjectID") });
-                        }
-                    }
-
-                    break;
+                TempData[MyConstants.Error] = "Failed to accept all the donation request!";
+            }
+            else
+            {
+                TempData[MyConstants.Success] = "Donation all request accepted successfully!";
             }
 
-            TempData[MyConstants.Success] = "Donation all request accepted successfully!";
             return (donor.Equals("User"))
                 ? RedirectToAction(nameof(ReviewUserDonateRequest),
                     new { id = HttpContext.Session.GetString("currentProjectID") })
@@ -911,23 +966,39 @@ namespace Dynamics.Controllers
         }
 
         //-----deny request donate-----
-        public async Task<IActionResult> DenyDonateRequest(Guid transactionID, string donor)
+        public async Task<IActionResult> DenyDonateRequest(ReviewProjectDonateRequestVM reviewProjectDonateRequestVM)
         {
+            _logger.LogWarning("DenyDonateRequest get");
             var res = false;
-            switch (donor)
+            switch (reviewProjectDonateRequestVM.TypeDonor)
             {
                 case "User":
-                    res = await projectRepository.DenyUserDonateRequestAsync(transactionID);
+                    var transactionObj = await _userToProjectTransactionHistoryRepo.GetAsync(x =>
+                        x.TransactionID.Equals(reviewProjectDonateRequestVM.TransactionID));
+                    if (transactionObj != null)
+                    {
+                        transactionObj.Message += "\nReason: " + reviewProjectDonateRequestVM.ReasonToDeny;
+                        res = await _userToProjectTransactionHistoryRepo.DenyUserDonateRequestAsync(transactionObj);
+                    }
+
                     break;
                 case "Organization":
-                    res = await projectRepository.DenyOrgDonateRequestAsync(transactionID);
+                    var transactionOrgObj = await _organizationToProjectTransactionHistoryRepo.GetAsync(x =>
+                        x.TransactionID.Equals(reviewProjectDonateRequestVM.TransactionID));
+                    if (transactionOrgObj != null)
+                    {
+                        transactionOrgObj.Message += "\nReason: " + reviewProjectDonateRequestVM.ReasonToDeny;
+                        res = await _organizationToProjectTransactionHistoryRepo.DenyOrgDonateRequestAsync(
+                            transactionOrgObj);
+                    }
+
                     break;
             }
 
             if (res)
             {
                 TempData[MyConstants.Success] = "Donation request denied successfully!";
-                return (donor.Equals("User"))
+                return (reviewProjectDonateRequestVM.TypeDonor.Equals("User"))
                     ? RedirectToAction(nameof(ReviewUserDonateRequest),
                         new { id = HttpContext.Session.GetString("currentProjectID") })
                     : RedirectToAction(nameof(ReviewOrgDonateRequest),
@@ -935,62 +1006,27 @@ namespace Dynamics.Controllers
             }
 
             TempData[MyConstants.Error] = "Failed to deny the donation request!";
-            return (donor.Equals("User"))
+            return (reviewProjectDonateRequestVM.TypeDonor.Equals("User"))
                 ? RedirectToAction(nameof(ReviewUserDonateRequest),
                     new { id = HttpContext.Session.GetString("currentProjectID") })
                 : RedirectToAction(nameof(ReviewOrgDonateRequest),
                     new { id = HttpContext.Session.GetString("currentProjectID") });
         }
 
-        public async Task<IActionResult> DenyDonateRequestAll(string donor)
+        public async Task<IActionResult> DenyDonateRequestAll(string donor, string reasonToDeny)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-            switch (donor)
+            var res = await _projectService.DenyDonateProjectRequestAllAsync(new Guid(currentProjectID), donor,
+                reasonToDeny);
+            if (!res)
             {
-                case "User":
-                    var allUserDonateRequest =
-                        await projectRepository.GetAllUserDonateAsync(
-                            u => u.ProjectResource.ProjectID.Equals(new Guid(currentProjectID)) && u.Status == 0);
-                    if (allUserDonateRequest == null)
-                    {
-                        return NotFound();
-                    }
-
-                    foreach (var userDonate in allUserDonateRequest)
-                    {
-                        var res = await projectRepository.DenyUserDonateRequestAsync(userDonate.TransactionID);
-                        if (!res)
-                        {
-                            TempData[MyConstants.Error] = "Failed to deny all the donation request!";
-                            return RedirectToAction(nameof(ReviewUserDonateRequest),
-                                new { id = HttpContext.Session.GetString("currentProjectID") });
-                        }
-                    }
-
-                    break;
-                case "Organization":
-                    var allOrgDonateRequest = await projectRepository.GetAllOrganizationDonateAsync(
-                        u => u.ProjectResource.ProjectID.Equals(new Guid(currentProjectID)) && u.Status == 0);
-                    if (allOrgDonateRequest == null)
-                    {
-                        return NotFound();
-                    }
-
-                    foreach (var orgDonate in allOrgDonateRequest)
-                    {
-                        var res = await projectRepository.DenyOrgDonateRequestAsync(orgDonate.TransactionID);
-                        if (!res)
-                        {
-                            TempData[MyConstants.Error] = "Failed to deny all the donation request!";
-                            return RedirectToAction(nameof(ReviewOrgDonateRequest),
-                                new { id = HttpContext.Session.GetString("currentProjectID") });
-                        }
-                    }
-
-                    break;
+                TempData[MyConstants.Error] = "Failed to deny all the donation request!";
+            }
+            else
+            {
+                TempData[MyConstants.Success] = "All donation request denied successfully!";
             }
 
-            TempData[MyConstants.Success] = "All donation request denied successfully!";
             return (donor.Equals("User"))
                 ? RedirectToAction(nameof(ReviewUserDonateRequest),
                     new { id = HttpContext.Session.GetString("currentProjectID") })
@@ -999,23 +1035,12 @@ namespace Dynamics.Controllers
         }
 
         //---------------------------manage ProjectResource--------------------------
-        public async Task<IActionResult> CreateProjectDonateRequestAsync(Guid projectID)
-        {
-            IEnumerable<SelectListItem> ResourceTypeList =  projectRepository.GetAllProjectResourceQuery().Select(x =>
-                new SelectListItem
-                {
-                    Text = x.ResourceName,
-                    Value = x.ResourceID.ToString(),
-                });
-            ResourceTypeList.Append(new SelectListItem() { Text = "Other", Value = "None" });
-            ViewData["ResourceTypeList"] = ResourceTypeList;
-            return View();
-        }
 
         [Route("Project/ManageProjectResource/{projectID}")]
         public async Task<IActionResult> ManageProjectResource(Guid projectID)
         {
-            var allResource = await projectRepository.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
+            _logger.LogWarning("ManageProjectResource get");
+            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
             if (allResource == null)
             {
                 return NotFound();
@@ -1027,27 +1052,28 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProjectResourceType(ProjectResource projectResource)
         {
+            _logger.LogWarning("AddProjectResourceType post");
+
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectResource.ProjectID));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
+            }
+
             if (ModelState.IsValid)
             {
-                var projectObj =
-                    await projectRepository.GetProjectAsync(p => p.ProjectID.Equals(projectResource.ProjectID));
-                if (projectObj != null)
+                var resAddResource = await _projectResourceRepo.AddResourceTypeAsync(projectResource);
+                if (resAddResource)
                 {
-                    //check whether the ProjectResource has same name and same unit is existed
-                    //var existingResource = await projectRepository.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectResource.ProjectID) && p.ResourceName.Equals(projectResource.ResourceName) && p.Unit.Equals(projectResource.Unit));
-                    //if(existingResource.FirstOrDefault() != null)
-                    //{
-                    //    return RedirectToAction(nameof(ManageProjectResource), new { id = projectObj.ProjectID });
-                    //}
-
-                    var resAddResource = await projectRepository.AddResourceTypeAsync(projectResource);
-                    if (resAddResource)
-                    {
-                        TempData[MyConstants.Success] = "Add resource type successfully!";
-                        return RedirectToAction(nameof(ManageProjectResource), new { id = projectObj.ProjectID });
-                    }
-
-                    return RedirectToAction(nameof(ManageProjectResource), new { id = projectObj.ProjectID });
+                    TempData[MyConstants.Success] = "Add resource type successfully!";
+                    return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
                 }
             }
 
@@ -1059,38 +1085,59 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateResourceType(ProjectResource projectResource)
         {
-            var projectResourceObj =
-                await projectRepository.FilterProjectResourceAsync(p =>
-                    p.ResourceID.Equals(projectResource.ResourceID));
+            _logger.LogWarning("UpdateResourceType post");
 
-            if (projectResourceObj.FirstOrDefault() != null)
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectResource.ProjectID));
+            if (projectObj?.ProjectStatus == -1)
             {
-                //check whether the resource has same name and same unit is existed
-                var existingResource = await projectRepository.FilterProjectResourceAsync(p =>
-                p.ResourceID!=projectResource.ResourceID &&
-                    p.ProjectID.Equals(projectResource.ProjectID) &&
-                    p.ResourceName.Equals(projectResource.ResourceName) && p.Unit.Equals(projectResource.Unit));
-                if (existingResource.FirstOrDefault() != null)
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
+            }
+
+            var res = await _projectService.UpdateProjectResourceTypeAsync(projectResource);
+            if (!string.IsNullOrEmpty(res))
+            {
+                if ("Existed".Equals(res))
                 {
                     TempData[MyConstants.Error] = "Resource type has the same unit is existed!";
-                    return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
                 }
-
-                var res = await projectRepository.UpdateResourceTypeAsync(projectResource);
-                if (res)
+                else if (MyConstants.Success.Equals(res))
                 {
                     TempData[MyConstants.Success] = "Update resource type successfully!";
-                    return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
+                }
+                else
+                {
+                    TempData[MyConstants.Error] = "Fail to update resource type!";
                 }
             }
 
-            TempData[MyConstants.Error] = "Fail to update resource type!";
             return RedirectToAction(nameof(ManageProjectResource), new { id = projectResource.ProjectID });
         }
 
         public async Task<IActionResult> DeleteResourceType(Guid resourceID)
         {
-            var res = await projectRepository.DeleteResourceTypeAsync(resourceID);
+            _logger.LogWarning("DeleteResourceType post");
+            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(new Guid(currentProjectID)));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectResource), new { id = currentProjectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectResource), new { id = currentProjectID });
+            }
+
+            var res = await _projectResourceRepo.DeleteResourceTypeAsync(resourceID);
             if (res)
             {
                 TempData[MyConstants.Success] = "Delete resource type successfully!";
@@ -1107,8 +1154,9 @@ namespace Dynamics.Controllers
         [Route("Project/ManageProjectPhaseReport/{projectID}")]
         public async Task<IActionResult> ManageProjectPhaseReport(Guid projectID)
         {
+            _logger.LogWarning("ManageProjectPhaseReport get");
             var allUpdate =
-                await projectRepository.GetAllPhaseReportsAsync(u => u.ProjectID.Equals(projectID));
+                await _projectHistoryRepo.GetAllPhaseReportsAsync(u => u.ProjectID.Equals(projectID));
             if (allUpdate == null)
             {
                 return NotFound();
@@ -1121,7 +1169,22 @@ namespace Dynamics.Controllers
         [HttpGet]
         public async Task<IActionResult> AddProjectPhaseReport(Guid projectID)
         {
-            var existingDates = await projectRepository.GetExistingReportDatesAsync(projectID);
+            _logger.LogWarning("AddProjectPhaseReport get");
+
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = projectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = projectID });
+            }
+
+            var existingDates = await _projectService.GetExistingReportDatesAsync(projectID);
             // Convert to a list of string dates in "YYYY-MM-DD" format
             var disabledDates = existingDates.Select(d => d.ToString("yyyy-MM-dd")).ToList();
             ViewBag.DisabledDates = disabledDates;
@@ -1131,49 +1194,51 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProjectPhaseReport(History history, List<IFormFile> images)
         {
-            if (history == null) return NotFound();
-            history.HistoryID = new Guid();
-
-            if (images != null && images.Count() > 0)
+            _logger.LogWarning("AddProjectPhaseReport post");
+            var resAdd = await _projectService.AddProjectPhaseReportAsync(history, images);
+            if (resAdd.Equals("No file") || resAdd.Equals("Wrong extension"))
             {
-                var resAttachment = await Util.UploadImages(images, @"images\Project\Phase");
-                if (resAttachment.Equals("No file"))
-                {
-                    TempData[MyConstants.Error] = "No file to upload!";
-                    return RedirectToAction(nameof(UpdateProjectProfile), new { id = history.ProjectID });
-                }
-
-                if (resAttachment.Equals("Wrong extension"))
-                {
-                    TempData[MyConstants.Error] = "Extension of some files is wrong!";
-                    return RedirectToAction(nameof(UpdateProjectProfile), new { id = history.ProjectID });
-                }
-
-                history.Attachment = resAttachment;
+                TempData[MyConstants.Error] = resAdd.Equals("No file")
+                    ? "A report file must be upload!"
+                    : "Some files have the wrong extension!";
             }
-
-            var res = await projectRepository.AddPhaseReportAsync(history);
-            if (res)
+            else if (resAdd.Equals(MyConstants.Success))
             {
                 TempData[MyConstants.Success] = "Add project update successfully!";
-                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = history.ProjectID });
+            }
+            else
+            {
+                TempData[MyConstants.Error] = "Fail to add project update!";
             }
 
-            TempData[MyConstants.Error] = "Fail to add project update!";
             return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = history.ProjectID });
         }
 
         public async Task<IActionResult> EditProjectPhaseReport(Guid historyID, Guid projectID)
         {
+            _logger.LogWarning("EditProjectPhaseReport get");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = projectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = projectID });
+            }
+
             var projectUpdates =
-                await projectRepository.GetAllPhaseReportsAsync(u => u.HistoryID.Equals(historyID));
+                await _projectHistoryRepo.GetAllPhaseReportsAsync(u => u.HistoryID.Equals(historyID));
             if (projectUpdates == null)
             {
                 return NotFound();
             }
 
             var projectUpdate = projectUpdates.FirstOrDefault();
-            var existingDates = await projectRepository.GetExistingReportDatesAsync(projectID);
+            var existingDates = await _projectService.GetExistingReportDatesAsync(projectID);
             // Convert to a list of string dates in "YYYY-MM-DD" format
             var disabledDates = existingDates.Select(d => d.ToString("yyyy-MM-dd"))
                 .Except(new[] { projectUpdate?.Date.ToString("yyyy-MM-dd") }).ToList();
@@ -1184,41 +1249,47 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> EditProjectPhaseReport(History history, List<IFormFile> images)
         {
-            if (history == null) return NotFound();
-            if (images != null && images.Count() > 0)
+            _logger.LogWarning("EditProjectPhaseReport post");
+            var resEdit = await _projectService.EditProjectPhaseReportAsync(history, images);
+            if (resEdit.Equals("No file") || resEdit.Equals("Wrong extension"))
             {
-                var resAttachment = await Util.UploadImages(images, @"images\Project\Phase");
-                if (resAttachment.Equals("No file"))
-                {
-                    TempData[MyConstants.Error] = "No file to upload!";
-                    return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = history.ProjectID });
-                }
-
-                if (resAttachment.Equals("Wrong extension"))
-                {
-                    TempData[MyConstants.Error] = "Extension of some files is wrong!";
-                    return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = history.ProjectID });
-                }
-
-                history.Attachment = resAttachment;
+                TempData[MyConstants.Error] = resEdit.Equals("No file")
+                    ? "Please upload at least one image!"
+                    : "Some files have the wrong extension!";
             }
-
-
-            var res = await projectRepository.EditPhaseReportAsync(history);
-            if (res)
+            else if (resEdit.Equals(MyConstants.Success))
             {
                 TempData[MyConstants.Success] = "Update project update successfully!";
                 return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = history.ProjectID });
             }
+            else
+            {
+                TempData[MyConstants.Error] = "Fail to update project update!";
+            }
 
-            TempData[MyConstants.Error] = "Fail to update project update!";
-            return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = history.ProjectID });
+            return RedirectToAction(nameof(EditProjectPhaseReport),
+                new { projectID = history.ProjectID, historyID = history.HistoryID });
         }
 
         [HttpGet]
         public async Task<IActionResult> DeleteProjectPhaseReport(Guid id)
         {
-            var res = await projectRepository.DeletePhaseReportAsync(id);
+            _logger.LogWarning("DeleteProjectPhaseReport get");
+            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            var projectObj =
+                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(new Guid(currentProjectID)));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProject), new { id = currentProjectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProject), new { id = currentProjectID });
+            }
+
+            var res = await _projectHistoryRepo.DeletePhaseReportAsync(id);
             if (res)
             {
                 TempData[MyConstants.Success] = "Delete project update successfully!";
@@ -1232,10 +1303,9 @@ namespace Dynamics.Controllers
         }
 
 
-
         public async Task<IActionResult> CreateProjectByImportData(Guid requestId)
         {
-            Request request = await requestRepository.GetAsync(r => r.RequestID.Equals(requestId));
+            Request request = await _requestRepo.GetAsync(r => r.RequestID.Equals(requestId));
 
             //get current user
             var userString = HttpContext.Session.GetString("user");
@@ -1273,7 +1343,8 @@ namespace Dynamics.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateProject(Guid? requestId)
         {
-            var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+            var currentOrganization =
+                HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
@@ -1302,9 +1373,11 @@ namespace Dynamics.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject(ProjectVM projectVM, IFormFile image, int expectedQuantity, string Unit)
+        public async Task<IActionResult> CreateProject(ProjectVM projectVM, IFormFile image, int expectedQuantity,
+            string Unit)
         {
-            var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+            var currentOrganization =
+                HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
@@ -1320,7 +1393,7 @@ namespace Dynamics.Controllers
 
             projectVM.OrganizationVM = currentOrganization;
 
-            if(projectVM.LeaderID != Guid.Empty)
+            if (projectVM.LeaderID != Guid.Empty)
             {
                 var Leader = new User();
                 foreach (var item in currentOrganization.OrganizationMember)
@@ -1330,21 +1403,24 @@ namespace Dynamics.Controllers
                         Leader = item.User;
                     }
                 }
+
                 if (projectVM != null)
                 {
                     if (image != null)
                     {
-                        projectVM.Attachment = Util.UploadImage(image, @"images\Project");
+                        projectVM.Attachment = await _cloudinaryUploader.UploadImageAsync(image);
                     }
 
                     if (projectVM.ProjectEmail == null)
                     {
                         projectVM.ProjectEmail = Leader.UserEmail;
                     }
+
                     if (projectVM.ProjectPhoneNumber == null)
                     {
                         projectVM.ProjectPhoneNumber = Leader.UserPhoneNumber;
                     }
+
                     if (projectVM.ProjectAddress == null)
                     {
                         projectVM.ProjectAddress = Leader.UserAddress;
@@ -1370,8 +1446,7 @@ namespace Dynamics.Controllers
                         };
 
 
-
-                        if (await projectRepository.AddProjectAsync(project))
+                        if (await _projectRepo.AddProjectAsync(project))
                         {
                             var projectResource = new ProjectResource()
                             {
@@ -1381,32 +1456,31 @@ namespace Dynamics.Controllers
                                 ExpectedQuantity = expectedQuantity,
                                 Unit = Unit,
                             };
-                            await projectRepository.AddProjectResourceAsync(projectResource);
+                            await _projectRepo.AddProjectResourceAsync(projectResource);
 
-                            if(project.RequestID != null)
+                            if (project.RequestID != null)
                             {
-                                Request request = await requestRepository.GetAsync(r => r.RequestID.Equals(project.RequestID));
+                                Request request =
+                                    await _requestRepo.GetAsync(r => r.RequestID.Equals(project.RequestID));
                                 request.Status = 2;
-                                await requestRepository.UpdateAsync(request);
+                                await _requestRepo.UpdateAsync(request);
                             }
-                           
 
-                            return RedirectToAction(nameof(AutoJoinProject), new { projectId = project.ProjectID, leaderId = projectVM.LeaderID });
+
+                            return RedirectToAction(nameof(AutoJoinProject),
+                                new { projectId = project.ProjectID, leaderId = projectVM.LeaderID });
                         }
                     }
-
                 }
             }
-            
 
-            if(expectedQuantity <= 0) 
+
+            if (expectedQuantity <= 0)
                 ViewBag.MessageExpectedQuantity = "*ExpectedQuantity more than > 0";
 
             ViewBag.ExpectedQuantity = expectedQuantity;
 
             return View(projectVM);
-
-           
         }
 
         public async Task<IActionResult> AutoJoinProject(Guid projectId, Guid leaderId)
@@ -1420,7 +1494,7 @@ namespace Dynamics.Controllers
             }
 
             //join Project
-            
+
             if (!currentUser.UserID.Equals(leaderId))
             {
                 var projectMember1 = new ProjectMember()
@@ -1429,32 +1503,36 @@ namespace Dynamics.Controllers
                     ProjectID = projectId,
                     Status = 3,
                 };
-                await projectRepository.AddProjectMemberAsync(projectMember1);
+                await _projectRepo.AddProjectMemberAsync(projectMember1);
             }
+
             var projectMember = new ProjectMember()
             {
                 UserID = currentUser.UserID,
                 ProjectID = projectId,
                 Status = 2,
             };
-            await projectRepository.AddProjectMemberAsync(projectMember);
-           
-            var currentProject = await projectRepository.GetProjectByProjectIDAsync(p => p.ProjectID.Equals(projectId));
-            HttpContext.Session.Set<Models.Models.Project>(MySettingSession.SESSION_Current_Project_KEY, currentProject);
+            await _projectRepo.AddProjectMemberAsync(projectMember);
+
+            var currentProject = await _projectRepo.GetProjectByProjectIDAsync(p => p.ProjectID.Equals(projectId));
+            HttpContext.Session.Set<Models.Models.Project>(MySettingSession.SESSION_Current_Project_KEY,
+                currentProject);
             return RedirectToAction(nameof(AddProjectResource));
         }
-        [HttpGet]
 
+        [HttpGet]
         public async Task<IActionResult> DetailProject(Guid projectId)
         {
-            var currentProject = await projectRepository.GetProjectByProjectIDAsync(p => p.ProjectID.Equals(projectId));
-            HttpContext.Session.Set<Models.Models.Project>(MySettingSession.SESSION_Current_Project_KEY, currentProject);
+            var currentProject = await _projectRepo.GetProjectByProjectIDAsync(p => p.ProjectID.Equals(projectId));
+            HttpContext.Session.Set<Models.Models.Project>(MySettingSession.SESSION_Current_Project_KEY,
+                currentProject);
             return RedirectToAction(nameof(AddProjectResource));
         }
 
         public async Task<IActionResult> AddProjectResource()
         {
-            var currentProject = HttpContext.Session.Get<Models.Models.Project>(MySettingSession.SESSION_Current_Project_KEY);
+            var currentProject =
+                HttpContext.Session.Get<Models.Models.Project>(MySettingSession.SESSION_Current_Project_KEY);
 
             var projectResource = new ProjectResource()
             {
@@ -1462,8 +1540,10 @@ namespace Dynamics.Controllers
                 Quantity = 0,
             };
 
-            var projectResources =await projectRepository.GetAllResourceByProjectIDAsync(pr => pr.ProjectID .Equals(currentProject.ProjectID));
-            HttpContext.Session.Set<List<ProjectResource>>(MySettingSession.SESSION_Resources_In_A_PRoject_KEY, projectResources);
+            var projectResources =
+                await _projectRepo.GetAllResourceByProjectIDAsync(pr => pr.ProjectID.Equals(currentProject.ProjectID));
+            HttpContext.Session.Set<List<ProjectResource>>(MySettingSession.SESSION_Resources_In_A_PRoject_KEY,
+                projectResources);
 
             return View(projectResource);
         }
@@ -1471,7 +1551,7 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProjectResource(ProjectResource projectResource)
         {
-            await projectRepository.AddProjectResourceAsync(projectResource);
+            await _projectRepo.AddProjectResourceAsync(projectResource);
             return RedirectToAction(nameof(AddProjectResource));
         }
     }

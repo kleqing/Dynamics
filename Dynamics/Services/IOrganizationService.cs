@@ -1,6 +1,6 @@
 ﻿using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
-using Dynamics.Models.Models.DTO;
+using Dynamics.Models.Dto;
+
 
 namespace Dynamics.Services;
 

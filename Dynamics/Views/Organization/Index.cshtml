@@ -1,5 +1,7 @@
-﻿@model IEnumerable<Dynamics.Models.Models.ViewModel.OrganizationVM>
+﻿@model IEnumerable<Dynamics.Models.Dto.OrganizationOverviewDto>
 @using Dynamics.Utility
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.IdentityModel.Tokens
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
 
@@ -14,12 +16,13 @@
     if (userString != null)
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
+        ViewBag.UserID = currentUser.UserID; // Uses to pass to the cards
     }
 
     // Check Current user in Organization
     //var OrganizationMember = Accessor.HttpContext.Session.Get<List<OrganizationMember>>(MySettingSession.SESSION_Organization_Member_KEY);
 }
-
+<main class="w-full min-h-screen p-16">
     <div class="my-5 flex justify-center">
         <h1 class="text-center text-3xl">Want to help others ?</h1>
     </div>
@@ -33,81 +36,90 @@
     </div>
 
     <div class="my-5">
-        <h1 class="text-center text-3xl">Discover all activive organization</h1>
+        <h1 class="text-center text-3xl">Discover all active organization</h1>
+    </div>
+    
+    <div class="flex justify-center w-full">
+        <div class="gap-4 flex flex-wrap justify-center container">
+            @{
+            if (!Model.IsNullOrEmpty())
+            {
+            foreach (var modelOrganization in Model)
+            {
+            <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="modelOrganization"/>
+            }
+            }
+            }
+        </div>
     </div>
 
-    <div class="gap-4 px-16 flex flex-wrap justify-center">
-        @foreach(var item in Model)
-        {
-            <div class="card bg-base-100 w-96 shadow-xl ">
-                <figure>
-                    <div class="relative">
-                        <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                            <img src="@(item.OrganizationPictures ?? "https://via.placeholder.com/300x200")"
-                                 alt="@item.OrganizationName" />
-                        </a>
-                        <div class="absolute top-2 left-8">
-                            <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Organization</p>
+</main>
 
-                        </div>
-                    </div>
-                    
-                    
-                </figure>
-                <div class="card-body">
-                    <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                        <h2 class="card-title">@item.OrganizationName</h2>
-                        </a>
-                    <h4>Start date: @item.StartTime</h4>
-                    <p>@item.OrganizationDescription</p>
-                    <div class="card-actions justify-center my-5">
 
-                        @{
-                            bool isJoined = false;
+@* @foreach (var item in Model) *@
+@* { *@
+@*     <div class="card bg-base-100 w-96 shadow-xl "> *@
+@*         <figure> *@
+@*             <div class="relative"> *@
+@*                 <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID"> *@
+@*                     <img src="@(item.OrganizationPictures ?? "https://via.placeholder.com/300x200")" *@
+@*                          alt="@item.OrganizationName"/> *@
+@*                 </a> *@
+@*                 <div class="absolute top-2 left-8"> *@
+@*                     <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Organization</p> *@
+@* *@
+@*                 </div> *@
+@*             </div> *@
+@*         </figure> *@
+@*         <div class="card-body"> *@
+@*             <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID"> *@
+@*                 <h2 class="card-title">@item.OrganizationName</h2> *@
+@*             </a> *@
+@*             <h4>Start date: @item.StartTime</h4> *@
+@*             <p>@item.OrganizationDescription</p> *@
+@*             <div class="card-actions justify-center my-5"> *@
+@*                 @{ *@
+@*                     bool isJoined = false; *@
+@* *@
+@*                     var organizationMemberTemp = new OrganizationMember(); *@
+@*                     foreach (var organizationMember in item.OrganizationMember) *@
+@*                     { *@
+@*                         if (organizationMember.UserID.Equals(currentUser.UserID)) *@
+@*                         { *@
+@*                             isJoined = true; *@
+@*                             organizationMemberTemp = organizationMember; *@
+@*                         } *@
+@*                     } *@
+@* *@
+@*                     if (!isJoined) *@
+@*                     { *@
+@*                         <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID"> *@
+@*                             <input value="@currentUser.UserID" name="userId" type="hidden"> *@
+@*                             <button class="btn btn-primary" type="submit">Join into organization Now</button> *@
+@*                         </form> *@
+@*                     } *@
+@* *@
+@*                     if (organizationMemberTemp.Status == 0) *@
+@*                     { *@
+@*                         <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID"> *@
+@*                             <button class="btn btn-primary">Processing Accpect request join Organization</button> *@
+@*                         </a> *@
+@*                     } *@
+@* *@
+@*                     if (organizationMemberTemp.Status > 0) *@
+@*                     { *@
+@*                         <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID"> *@
+@*                             <button class="btn btn-primary">View Detail organization</button> *@
+@*                         </a> *@
+@*                     } *@
+@*                 } *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* } *@
 
-                            var organizationMemberTemp = new OrganizationMember();
-                            foreach (var organizationMember in item.OrganizationMember)
-                            {
-                                if (organizationMember.UserID.Equals(currentUser.UserID))
-                                {
-                                    isJoined = true;
-                                    organizationMemberTemp = organizationMember;
-                                }
 
-                            }
-
-                            if (!isJoined)
-                            {
-                                <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                    <input value="@currentUser.UserID" name="userId" type="hidden">
-                                    <button class="btn btn-primary" type="submit">Join into organization Now</button>
-                                </form>
-                            }
-
-                            if (organizationMemberTemp.Status == 0)
-                            {
-                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                    <button class="btn btn-primary">Processing Accpect request join Organization</button>
-                                </a>
-                            }
-
-                            if (organizationMemberTemp.Status > 0)
-                            {
-                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@item.OrganizationID">
-                                    <button class="btn btn-primary">View Detail organization</button>
-                                </a>
-                            }
-
-                            
-                        }
-                        
-                    </div>
-                </div>
-            </div>
-        }
-        
-
-        @* <div class="card bg-base-100 w-96 shadow-xl">
+@* <div class="card bg-base-100 w-96 shadow-xl">
             <figure>
                 <img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
                      alt="Shoes" />
@@ -119,7 +131,5 @@
                     <button class="btn btn-primary">Buy Now</button>
                 </div>
             </div>
-        </div> *@
-
-    </div>
-
+        </div> 
+</div> *@

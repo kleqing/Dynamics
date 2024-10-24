@@ -42,9 +42,8 @@ namespace Dynamics.Services
                                         CEO = o.OrganizationMember.Where(om => om.Status == 2).FirstOrDefault().User,
                                         Members = o.OrganizationMember.Where(om => om.Status > 0).Count(),
                                         Projects = o.Project.Count(),
+                                        joinRequests = o.OrganizationMember.Where(om => om.Status == 0).Count(),
                                     }).FirstOrDefaultAsync();
-
-
             return result;
         }
 

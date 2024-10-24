@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
-using Dynamics.Models.Models.DTO;
+using Dynamics.Models.Dto;
 
 namespace Dynamics.Utility.Mapper;
 
@@ -16,7 +15,20 @@ public class MyMapper : Profile
             .ReverseMap();
         CreateMap<Project, ProjectOverviewDto>().ReverseMap();
         CreateMap<Organization, OrganizationOverviewDto>().ReverseMap();
-             CreateMap<Project, UpdateProjectProfileRequestDto>().ReverseMap();
+        CreateMap<Project, UpdateProjectProfileRequestDto>().ReverseMap();
+        CreateMap<VnPayRequestDto, UserToProjectTransactionHistory>()
+            .ForMember(dest => dest.Time, opt => opt.Ignore())
+            .ReverseMap()
+            .ForMember(dest => dest.Time, opt => opt.Ignore());
 
+        CreateMap<VnPayRequestDto, UserToOrganizationTransactionHistory>()
+            .ForMember(dest => dest.Time, opt => opt.Ignore())
+            .ReverseMap()
+            .ForMember(dest => dest.Time, opt => opt.Ignore());
+
+        CreateMap<VnPayRequestDto, OrganizationToProjectHistory>()
+            .ForMember(dest => dest.Time, opt => opt.Ignore())
+            .ReverseMap()
+            .ForMember(dest => dest.Time, opt => opt.Ignore());
     }
 }

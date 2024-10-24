@@ -9,9 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Aspose.Cells" Version="24.9.0" />
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.68.0.3547" />
-    <PackageReference Include="Aspose.Cells" Version="24.9.0" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.68.0.3547" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
   </ItemGroup>

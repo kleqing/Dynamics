@@ -36,9 +36,11 @@ public class ProjectMemberRepository : IProjectMemberRepository
         throw new NotImplementedException();
     }
 
-    public Task<bool> UpdateAsync(ProjectMember project)
+    public async Task<bool> UpdateAsync(ProjectMember project)
     {
-        throw new NotImplementedException();
+        _context.ProjectMembers.Update(project);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<ProjectMember> DeleteAsync(Expression<Func<ProjectMember, bool>> predicate)
@@ -48,5 +50,62 @@ public class ProjectMemberRepository : IProjectMemberRepository
         var final = _context.ProjectMembers.Remove(target);
         await _context.SaveChangesAsync();
         return final.Entity;
+    }
+    public List<ProjectMember> FilterProjectMember(Expression<Func<ProjectMember, bool>> filter)
+    {
+        IQueryable<ProjectMember> listProjectMember = _context.ProjectMembers.Include(x => x.User).Where(filter);
+        if (listProjectMember != null)
+        {
+            return listProjectMember.ToList();
+        }
+
+        return null;
+    }
+
+    //------manage member request------------------
+
+    public async Task<bool> AddJoinRequest(Guid memberID, Guid projectID)
+    {
+        _context.ChangeTracker.Clear();
+        var newProjectMember = new ProjectMember();
+        var res = await _context.ProjectMembers.AddAsync(newProjectMember);
+        newProjectMember.ProjectID = projectID;
+        newProjectMember.UserID = memberID;
+        newProjectMember.Status = 0;
+        await _context.SaveChangesAsync();
+        return res != null;
+    }
+
+    public async Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID)
+    {
+        var memberObj =
+            await _context.ProjectMembers.FirstOrDefaultAsync(x =>
+                x.UserID.Equals(memberID) && x.ProjectID.Equals(projectID));
+        if (memberObj != null)
+        {
+            memberObj.Status = 1;
+            _context.ProjectMembers.Update(memberObj);
+            _context.Entry(memberObj).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        return false;
+    }
+
+    public async Task<bool> DenyJoinRequestAsync(Guid memberID, Guid projectID)
+    {
+        var memberObj =
+            await _context.ProjectMembers.FirstOrDefaultAsync(x =>
+                x.UserID.Equals(memberID) && x.ProjectID.Equals(projectID));
+        if (memberObj != null)
+        {
+            memberObj.Status = -1;
+            _context.ProjectMembers.Update(memberObj);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        return false;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
-using Dynamics.Models.Models.DTO;
+using Dynamics.Models.Dto;
 
 namespace Dynamics.Services;
 
@@ -22,6 +21,9 @@ public class OrganizationService: IOrganizationService
         resultDto.OrganizationLeader = leaderUser.User;
         return resultDto;
     }
+    /**
+     * The organization needs to include up to organization member to use this one
+     */
     public List<OrganizationOverviewDto> MapToOrganizationOverviewDtoList(List<Organization> organizations)
     {
         var resultDtos = new List<OrganizationOverviewDto>();

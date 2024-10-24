@@ -1,45 +1,66 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Dynamics.DataAccess.Repository;
+﻿using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.ViewModel;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Identity;
+using Dynamics.Services;
 using Dynamics.Utility;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace Dynamics.Controllers
 {
 	public class RequestController : Controller
 	{
 		private readonly IRequestRepository _requestRepo;
-		private readonly IUserRepository _userRepo;
 		private readonly UserManager<IdentityUser> _userManager;
-
-		public RequestController(IRequestRepository requestRepository, IUserRepository userRepo, UserManager<IdentityUser> userManager)
+		private readonly ILogger<RequestController> _logger;
+		private readonly IHubContext<NotificationHub> _notifHubContext;
+		private readonly INotificationRepository _notifRepo;
+		private readonly IRequestService _requestService;
+		private readonly CloudinaryUploader _cloudinaryUploader;
+		
+		public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager,
+			ILogger<RequestController> logger, IHubContext<NotificationHub> notifHubContext,
+			INotificationRepository notifRepo, IRequestService? requestService, CloudinaryUploader? cloudinaryUploader)
 		{
 			_requestRepo = requestRepository;
-			_userRepo = userRepo;
 			_userManager = userManager;
+			_logger = logger;
+			_notifHubContext = notifHubContext;
+			_notifRepo = notifRepo;
+			_requestService = requestService;
+			_cloudinaryUploader = cloudinaryUploader;
 		}
-		//TODO: implement filter for each field (search)
-		public async Task<IActionResult> Index(string searchQuery, int pageNumber = 1, int pageSize = 12)
+		public async Task<IActionResult> Index(string searchQuery, string filterQuery, 
+			DateOnly dateFrom, DateOnly dateTo,
+			int pageNumber = 1, int pageSize = 12)
 		{
-			var requests = await _requestRepo.GetAllPaginatedAsync(pageNumber, pageSize);
+			// Only get the one that is accepted by admin (status = 1)
+			var requests = _requestRepo.GetAllQueryable(r => r.Status == 1);
+			// search
 			if (!string.IsNullOrEmpty(searchQuery))
 			{
-				requests = await _requestRepo.SearchIndexFilterAsync(searchQuery);
+				requests = await _requestRepo.SearchIndexFilterAsync(searchQuery, filterQuery);
 			}
-			var totalRequest = 0;
-			foreach (var request in requests)
+
+			if (!dateFrom.ToString("yyyy-MM-dd").Equals("0001-01-01"))
 			{
-				totalRequest++;
+				requests = await _requestRepo.GetRequestDateFilterAsync(requests, dateFrom, dateTo);
 			}
+			// pagination
+			var totalRequest = await requests.CountAsync();
 			var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
-			
+			var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
+			var dtos = _requestService.MapToListRequestOverviewDto(paginatedRequests);
 			ViewBag.currentPage = pageNumber;
 			ViewBag.totalPages = totalPages;
-			return View(requests);
+			return View(dtos);
 		}
-		public async Task<IActionResult> MyRequest(string searchQuery, int pageNumber = 1, int pageSize = 12)
+		
+		public async Task<IActionResult> MyRequest(string searchQuery, string filterQuery,
+			DateOnly dateFrom, DateOnly dateTo,
+			int pageNumber = 1, int pageSize = 12)
 		{
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null)
@@ -54,22 +75,29 @@ namespace Dynamics.Controllers
 				var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
 				userId = userJsonC.UserID;
 			}
-			var requests = await _requestRepo.GetAllByIdPaginatedAsync(role, userId, pageNumber, pageSize);
+			var requests = _requestRepo.GetAllById(userId);
 			
 			// search
 			if (!string.IsNullOrEmpty(searchQuery))
 			{
-				requests = await _requestRepo.SearchIdFilterAsync(searchQuery, userId);
+				requests = _requestRepo.SearchIdFilter(searchQuery, filterQuery, userId);
 			}
+			//date filter
+			if (!dateFrom.ToString("yyyy-MM-dd").Equals("0001-01-01"))
+			{
+				requests = await _requestRepo.GetRequestDateFilterAsync(requests, dateFrom, dateTo);
+			} 
 			//pagination
-			var totalRequest = 1 + requests.Count;
+			var totalRequest = await requests.CountAsync();
 			var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
-			
+			var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
+			var dtos = _requestService.MapToListRequestOverviewDto(paginatedRequests);
+
 			ViewBag.currentPage = pageNumber;
 			ViewBag.totalPages = totalPages;
-			return View(requests);
+			return View(dtos);
 		}
-		public async Task<IActionResult> Detail(Guid? id)
+		public async Task<IActionResult> Detail(Guid id)
 		{
 			var request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
 			if (request == null) { return NotFound(); }
@@ -80,50 +108,50 @@ namespace Dynamics.Controllers
 			var userJson = HttpContext.Session.GetString("user");
 			var user  = JsonConvert.DeserializeObject<User>(userJson);
 
-			var viewModel = new RequestCreateVM
-			{
-				UserEmail = user.UserEmail,
-				UserPhoneNumber = user.UserPhoneNumber,
-				UserAddress = user.UserAddress,
-				
-				RequestTitle = string.Empty,
-				Content = string.Empty,
-				CreationDate = null,
-				RequestEmail = string.Empty,
-				RequestPhoneNumber = string.Empty,
-				Location = string.Empty,
-				isEmergency = 0
-			};
-			return View(viewModel);
+			ViewBag.UserEmail = user.UserEmail;
+			ViewBag.UserPhoneNumber = user.UserPhoneNumber;
+			ViewBag.UserAddress = user.UserAddress;
+			return View();
 		}
+		
 		[HttpPost]
 		public async Task<IActionResult> Create(Request obj, List<IFormFile> images, 
 			string? cityNameInput, string? districtNameInput, string? wardNameInput)
 		{
+			if (!Util.ValidateImage(images))
+			{
+				ModelState.AddModelError("Attachment", "Please provide valid images.");
+			}
+			var userJson = HttpContext.Session.GetString("user");
+			var user = JsonConvert.DeserializeObject<User>(userJson);
+
+			ViewBag.UserEmail = user.UserEmail;
+			ViewBag.UserPhoneNumber = user.UserPhoneNumber;
+			ViewBag.UserAddress = user.UserAddress;
+    
+			if (!ModelState.IsValid)
+			{
+				return View();
+			}
 			obj.RequestID = Guid.NewGuid();
 			/*var date = DateOnly.FromDateTime(DateTime.Now);
 			obj.CreationDate = date;*/
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
-			var userId = Guid.Empty;
-			var userJson = HttpContext.Session.GetString("user");
-			if (!string.IsNullOrEmpty(userJson))
-			{
-				var user = JsonConvert.DeserializeObject<User>(userJson);
-				userId = user.UserID;
-			}
-			obj.UserID = userId;
+			obj.UserID = user.UserID;
 			if (images != null && images.Count > 0)
 			{
-				string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + obj.RequestID.ToString(), userId);
+				string imagePath = await _cloudinaryUploader.UploadMultiImagesAsync(images);
 				obj.Attachment = imagePath;
 			}
 			else
 			{
 				obj.Attachment = "/images/Requests/Placeholder/xddFaker.png";
 			}
+			_logger.LogInformation("Request created");
 			await _requestRepo.AddAsync(obj);
 			return RedirectToAction("MyRequest", "Request");
 		}
+		
 		public async Task<IActionResult> Edit(Guid? id)
 		{
 			if (id == null)
@@ -131,25 +159,19 @@ namespace Dynamics.Controllers
 				return NotFound();
 			}
 			// Get the currently logged-in user
+			_logger.LogInformation("Get logged-in user");
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null)
 			{
 				return Unauthorized();
 			}
-			var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
-			Guid userId = Guid.Empty;
-			var userJson = HttpContext.Session.GetString("user");
-			if (!string.IsNullOrEmpty(userJson))
-			{
-				var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
-				userId = userJsonC.UserID;
-			}
-			var request = await _requestRepo.GetByIdAsync(r => r.RequestID.Equals(id), role, userId);
+			var userId = Guid.Parse(user.Id);
+			var request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
 			if (request == null)
 			{
 				return NotFound();
 			}
-			if (role == "User" && request.UserID != userId)
+			if (request.UserID != userId)
 			{
 				return Forbid(); // If the user is not the owner of the request
 			}
@@ -160,10 +182,10 @@ namespace Dynamics.Controllers
 		public async Task<IActionResult> Edit(Request obj, List<IFormFile> images, 
 			string? cityNameInput, string? districtNameInput, string? wardNameInput)
 		{
-			/*if (!ModelState.IsValid)
+			if (!Util.ValidateImage(images))
 			{
-				return View(obj);
-			}*/
+				ModelState.AddModelError("Attachment", "Please provide valid images.");
+			}
 			// Get the currently logged-in user (role and id)
 			obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
 			var user = await _userManager.GetUserAsync(User);
@@ -172,36 +194,35 @@ namespace Dynamics.Controllers
 				return Unauthorized();
 			}
 			var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "User";
-			var userId = Guid.Empty;
-			var userJson = HttpContext.Session.GetString("user");
-			if (!string.IsNullOrEmpty(userJson))
-			{
-				var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
-				userId = userJsonC.UserID;
-			}
+			var userId = Guid.Parse(user.Id);
 			// Get existing request
-			var existingRequest = await _requestRepo.GetByIdAsync(r => r.RequestID.Equals(obj.RequestID), role, userId);
+			_logger.LogInformation("Get existing request");
+			var existingRequest = await _requestRepo.GetAsync(r => r.RequestID.Equals(obj.RequestID));
 			if (existingRequest == null)
 			{
 				return NotFound();
 			}
-			if (role == "User")
+			existingRequest.RequestTitle = obj.RequestTitle;
+			existingRequest.Content = obj.Content;
+			existingRequest.RequestEmail = obj.RequestEmail;
+			existingRequest.RequestPhoneNumber = obj.RequestPhoneNumber;
+			existingRequest.Location = obj.Location;
+			existingRequest.isEmergency = obj.isEmergency;
+			if (images != null && images.Count > 0)
 			{
-				// If the user is "user", allow them to update only certain fields
-				existingRequest.Content = obj.Content;
-				existingRequest.Location = obj.Location;
-				existingRequest.isEmergency = obj.isEmergency;
-				if (images != null && images.Count > 0)
+				string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + existingRequest.RequestID.ToString(), userId);
+				// append new images if there are existing images
+				if (!string.IsNullOrEmpty(imagePath))
 				{
-					string imagePath = Util.UploadMultiImage(images, $@"images\Requests\" + existingRequest.RequestID.ToString(), userId);
-					// append new images if there are existing images
-					if (!string.IsNullOrEmpty(imagePath))
-					{
-						existingRequest.Attachment = string.IsNullOrEmpty(existingRequest.Attachment) ? imagePath 
-							: existingRequest.Attachment + "," + imagePath;
-					}
+					existingRequest.Attachment = string.IsNullOrEmpty(existingRequest.Attachment) ? imagePath 
+						: existingRequest.Attachment + "," + imagePath;
 				}
 			}
+			if (!ModelState.IsValid)
+			{
+				return View(existingRequest);
+			}
+			_logger.LogInformation("Edit request");
 			await _requestRepo.UpdateAsync(existingRequest);
 			return RedirectToAction("MyRequest", "Request");
 		}
@@ -218,8 +239,10 @@ namespace Dynamics.Controllers
 		[HttpPost, ActionName("Delete")]
 		public async Task<IActionResult> DeletePost(Guid? id)
 		{
+			_logger.LogInformation("Get deleted request");
 			Request request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
 			if (request == null) { return NotFound(); };
+			_logger.LogInformation("Delete request");
 			await _requestRepo.DeleteAsync(request);
 			return RedirectToAction("MyRequest", "Request");
 		}

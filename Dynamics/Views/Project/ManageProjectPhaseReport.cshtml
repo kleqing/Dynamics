@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
-@inject IProjectRepository ProjectRepository
+@inject IProjectMemberRepository ProjectMemberRepository
 @model IEnumerable<Dynamics.Models.Models.History>
 
 @{
@@ -9,86 +9,61 @@
     Layout = "~/Views/Shared/_LayoutProject.cshtml";
     var currentUserID = Accessor.HttpContext.Session.GetString("currentUserID");
     var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
-    var ProjectMemberOfUser = ProjectRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(currentUserID)));
-    var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
+    List<ProjectMember> ProjectMemberOfUser = null;
+    int? statusProjectMemberOfUser = -1;
+    if (!string.IsNullOrEmpty(currentUserID))
+    {
+        ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(currentUserID)));
+        if (ProjectMemberOfUser.Count() > 0)
+        {
+            statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
+        }
+
+    }
 }
-<!-- container -->
-<div class="m-w-screen-2xl flex flex-col items-center justify-center relative ">
-    <!-- title -->
-    <h2 class="font-serif text-black font-bold text-3xl text-center mt-10 mb-2">Project updates</h2>
-    <!-- PART 1 -->
-    <div class="flex relative justify-end mb-6" style="width:90%;">
+
+<!---demo timeline-->
+<div class="m-w-screen-2xl items-start justify-center relative px-20 py-10" >
+    <div class="flex relative justify-center mb-6 w-full">
         @if (statusProjectMemberOfUser >= 2)
         {
             <!-- add button -->
-            <a asp-action="AddProjectPhaseReport" asp-controller="Project" asp-route-projectid="@currentProjectID">
-                <button type="button"
-                        class="h-14 text-white  bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-md px-4 py-2">
-                    Create activities report
+            <a asp-action="AddProjectPhaseReport" asp-controller="Project" asp-route-projectid="@currentProjectID" title="Add new phase report">
+                <button type="button" class="mx-4 timeline-middle">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-12">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
                 </button>
             </a>
         }
     </div>
-
-    <!-- PART 2 -->
-    <!-- list updates -->
-    <div class="flex flex-col mb-10 border-l-2 border-gray-400 w-24 mx-10 "
-         style="width:90%;">
-        @for (int i = 0; i < Model.Count(); i++)
+    <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical" style="min-height:130vh;">
+     @for(int i = 0;i<Model.Count();i++)
         {
             var item = Model.ElementAt(i);
-            <!-- update 1 -->
-            <div class=" w-full flex justify-between  relative  mb-10  pl-4">
-                <div class="h-fit flex justify-start items-start gap-x-2">
-                    @if (i == 0)
-                    {
-                        <button type="button"
-                                class="h-20 w-40 text-white text-2xl bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-4 py-2">
-                            @item.Date
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="button" style=" background-color: rgba(0, 0, 0, 0);"
-                                class="h-20 w-40 text-black text-2xl bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-4 py-2">
-                            @item.Date
-                        </button>
-                    }
-
-                    <div class="flex items-center w-full self-center relative">
-                        <hr class="border-t-2 border-gray-400 w-24">
-                    </div>
+            string[] imagesPhase = new string[1] { "," };
+            if (item.Attachment != null)
+            {
+                imagesPhase = item.Attachment.TrimEnd(',', ' ').Split(",");
+            }
+            <li>
+                <div class="timeline-middle">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="h-5 w-5">
+                        <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                        clip-rule="evenodd" />
+                    </svg>
                 </div>
-                <div class="relative w-10/12 ml-2 flex flex-col shadow-md p-8 rounded-md" style=" background-color: rgba(0, 0, 0, 0);">
-                    @if (statusProjectMemberOfUser >= 2)
-                    {
-                        <!-- edit button -->
-                        <a asp-action="EditProjectPhaseReport" asp-route-projectid="@item.ProjectID" asp-route-historyid="@item.HistoryID" title="Edit project phase report">
-                            <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:45px;">
-                                <i class="fa-solid fa-pen-to-square text-4xl text-gray-500"></i>
-                            </button>
-                        </a>
-                        <a asp-action="DeleteProjectPhaseReport" asp-route-id="@item.HistoryID" title="Delete project phase report">
-                            <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:-5px;">
-                                <i class="fa-solid fa-trash text-4xl text-gray-500"></i>
-                            </button>
-                        </a>
-                    }
-                    <h2 class="font-bold text-3xl text-gray-900">@item.Phase</h2>
-                    <span class="text-gray-500 text-md">By leader project or someone else</span>
-                    <div class=" text-base text-gray-900 line-clamp-3">
-                        @item.Content
-                    </div>
-
-                    <div class="flex justify-start gap-x-6 pt-4">
-                        @{
-                            string[] imagesPhase = new string[1] { "," };
-                            if (item.Attachment != null)
-                            {
-                                imagesPhase = item.Attachment.TrimEnd(',', ' ').Split(",");
-                            }
-                        }
-
+                @if (i % 2 == 0){
+                 <div class="timeline-start mb-10 md:text-end">
+                <time class="font-mono italic">   @item.Date</time>
+            <div class="relative text-lg font-black">@item.Phase</div>
+                    
+                    @item.Content
+                    <div class="flex justify-end gap-x-6 pt-4">
                         @foreach (var img in imagesPhase)
                         {
                             <button onclick="openModal('@img')">
@@ -102,14 +77,181 @@
                                     <button>close</button>
                                 </form>
                             </dialog>
-                            
+
+                        }
+                        
+                    </div>
+                        @if (statusProjectMemberOfUser >= 2)
+                        {
+                            <!-- edit button -->
+                            <a asp-action="EditProjectPhaseReport" asp-route-projectid="@item.ProjectID" asp-route-historyid="@item.HistoryID" title="Edit project phase report">
+                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:45px;">
+                                    <i class="fa-solid fa-pen-to-square text-2xl text-gray-900"></i>
+                                </button>
+                            </a>
+                            <a asp-action="DeleteProjectPhaseReport" asp-route-id="@item.HistoryID" title="Delete project phase report">
+                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:-5px;">
+                                    <i class="fa-solid fa-trash text-2xl text-gray-900"></i>
+                                </button>
+                            </a>
                         }
                     </div>
-                </div>
-            </div>
+                }
+                    else
+                    {
+                        <div class="timeline-end mb-10">
+                <time class="font-mono italic">   @item.Date</time>
+            <div class="relative text-lg font-black">@item.Phase</div>
+                    
+                    @item.Content
+                    <div class="flex justify-start gap-x-6 pt-4">
+                      
+                        @foreach (var img in imagesPhase)
+                        {
+                            <button onclick="openModal('@img')">
+                                <img src="@img" alt="current-phase-img" class="h-48 w-48 rounded-xl shadow-md cursor-pointer" />
+                            </button>
+                            <dialog id="phase_image" class="modal">
+                                <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                    <img id="modalImage" alt="current-phase-img" class=" h-[80vh] w-auto rounded-xl shadow-md cursor-pointer" />
+                                </div>
+                                <form method="dialog" class="modal-backdrop ">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
+
+                        }
+                    </div>
+                        @if (statusProjectMemberOfUser >= 2)
+                        {
+                            <!-- edit button -->
+                            <a asp-action="EditProjectPhaseReport" asp-route-projectid="@item.ProjectID" asp-route-historyid="@item.HistoryID" title="Edit project phase report">
+                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:45px;">
+                                    <i class="fa-solid fa-pen-to-square text-2xl text-gray-900"></i>
+                                </button>
+                            </a>
+                            <a asp-action="DeleteProjectPhaseReport" asp-route-id="@item.HistoryID" title="Delete project phase report">
+                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:-5px;">
+                                    <i class="fa-solid fa-trash text-2xl text-gray-900"></i>
+                                </button>
+                            </a>
+                        }
+                    </div>
+                    }
+
+            <hr/>
+            </li>
         }
-    </div>
-</div>
+        @if(Model.Count() < 5)
+        {
+            for(int i = 0; i < 5 - Model.Count(); i++)
+            {
+                <li>
+                    <div class="timeline-middle">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 20 20"
+                             fill="currentColor"
+                             class="h-5 w-5">
+                            <path fill-rule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="timeline-end mb-64"></div>
+                    <hr />
+                </li>
+            }
+        }
+    </ul>
+ </div>
+    @* <li>
+        <hr />
+        <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="h-5 w-5">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                      clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="timeline-end mb-10">
+            <time class="font-mono italic">1998</time>
+            <div class="text-lg font-black">iMac</div>
+            iMac is a family of all-in-one Mac desktop computers designed and built by Apple Inc. It has
+            been the primary part of Apple's consumer desktop offerings since its debut in August 1998,
+            and has evolved through seven distinct forms
+        </div>
+        <hr />
+    </li>
+    <li>
+        <hr />
+        <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="h-5 w-5">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                      clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="timeline-start mb-10 md:text-end">
+            <time class="font-mono italic">2001</time>
+            <div class="text-lg font-black">iPod</div>
+            The iPod is a discontinued series of portable media players and multi-purpose mobile devices
+            designed and marketed by Apple Inc. The first version was released on October 23, 2001, about
+            8+1⁄2 months after the Macintosh version of iTunes was released. Apple sold an estimated 450
+            million iPod products as of 2022. Apple discontinued the iPod product line on May 10, 2022. At
+            over 20 years, the iPod brand is the oldest to be discontinued by Apple
+        </div>
+        <hr />
+    </li>
+    <li>
+        <hr />
+        <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="h-5 w-5">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                      clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="timeline-end mb-10">
+            <time class="font-mono italic">2007</time>
+            <div class="text-lg font-black">iPhone</div>
+            iPhone is a line of smartphones produced by Apple Inc. that use Apple's own iOS mobile
+            operating system. The first-generation iPhone was announced by then-Apple CEO Steve Jobs on
+            January 9, 2007. Since then, Apple has annually released new iPhone models and iOS updates. As
+            of November 1, 2018, more than 2.2 billion iPhones had been sold. As of 2022, the iPhone
+            accounts for 15.6% of global smartphone market share
+        </div>
+        <hr />
+    </li>
+    <li>
+        <hr />
+        <div class="timeline-middle">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="h-5 w-5">
+                <path fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                      clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="timeline-start mb-10 md:text-end">
+            <time class="font-mono italic">2015</time>
+            <div class="text-lg font-black">Apple Watch</div>
+            The Apple Watch is a line of smartwatches produced by Apple Inc. It incorporates fitness
+            tracking, health-oriented capabilities, and wireless telecommunication, and integrates with
+            iOS and other Apple products and services
+        </div>
+    </li> *@
+<!-- end demo-->
 <script>
     function openModal(imgSrc) {
         // Get the modal image element and set its src to the clicked image

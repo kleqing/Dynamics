@@ -1,10 +1,6 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable disable
+﻿#nullable disable
 
 using Dynamics.DataAccess.Repository;
-using Dynamics.Models.AuthModels;
 using Dynamics.Models.Models;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authentication;
@@ -17,6 +13,8 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using ILogger = Serilog.ILogger;
 
 namespace Dynamics.Areas.Identity.Pages.Account
 {
@@ -24,8 +22,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -33,17 +29,13 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole> roleManager,
-            IUserRepository repository
-        )
+            IUserRepository repository)
         {
             _userManager = userManager;
-            _userStore = userStore;
-            _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
@@ -59,7 +51,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required] public string Name { get; set; }
+            [Required]
+            public string Name { get; set; }
 
             [Required]
             [EmailAddress]
@@ -73,6 +66,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
             [Display(Name = "Password")]
             public string Password { get; set; }
 
+            [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
@@ -90,35 +84,45 @@ namespace Dynamics.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (Input.Password != Input.ConfirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Passwords don't match.");
+                return Page();
+            }
+            // Try to get existing user (If we might have) that is in the system
+            var existingUserFullName = await _userRepo.GetAsync(u => u.UserFullName.Equals(Input.Name));
+            var existingUserEmail = await _userRepo.GetAsync(u => u.UserEmail.Equals(Input.Email));
+            // If one of these 2 exists, it means that another user is already has the same name or email
+            if (existingUserEmail != null || existingUserFullName != null)
+            {
+                ModelState.AddModelError("", "Username or email is already taken.");
+                return Page();
+            }
             if (ModelState.IsValid)
             {
-                // Changed this one so that it will use our custom identity user
-                // Click on it to see the implementation
-                // Also because we are using custom user,
-                // we need to update the implementation for email sender as well (Implemented in Utility)
-                var user = CreateUser();
                 // If role not exist, create all of our possible role
                 // also, getAwaiter is the same as writing await keyword
+                _logger.LogWarning("REGISTER: CREATING ROLES");
                 if (!_roleManager.RoleExistsAsync(RoleConstants.User).GetAwaiter().GetResult())
                 {
                     _roleManager.CreateAsync(new IdentityRole(RoleConstants.User)).GetAwaiter().GetResult();
                     _roleManager.CreateAsync(new IdentityRole(RoleConstants.Admin)).GetAwaiter().GetResult();
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.HeadOfOrganization)).GetAwaiter()
-                        .GetResult();
+                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.HeadOfOrganization)).GetAwaiter().GetResult();
                     _roleManager.CreateAsync(new IdentityRole(RoleConstants.ProjectLeader)).GetAwaiter().GetResult();
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.Guest)).GetAwaiter().GetResult();
+                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.Banned)).GetAwaiter().GetResult();
                 }
 
-                // Since all user is default to user role, we add it for them
-                await _userManager.AddToRoleAsync(user, RoleConstants.User);
-                await _userStore.SetUserNameAsync(user, Input.Name, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-
+                var user = new IdentityUser();
+                await _userManager.AddToRoleAsync(user, RoleConstants.User); // Default role
+                user.UserName = Input.Name;
+                user.Email = Input.Email;
+                _logger.LogWarning("REGISTER: CREATING IDENTITY USER");
                 // Create a user with email and input password
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
+                    _logger.LogWarning("REGISTER: ADDING USER TO DATABASE");
                     // Add real user to database
                     await _userRepo.AddAsync(new User
                     {
@@ -131,15 +135,14 @@ namespace Dynamics.Areas.Identity.Pages.Account
                     });
 
                     _logger.LogInformation("User created a new account with password.");
-
-                    var userId = await _userManager.GetUserIdAsync(user);
+                    
                     // Where the email sending begins
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -150,11 +153,11 @@ namespace Dynamics.Areas.Identity.Pages.Account
                         return RedirectToPage("RegisterConfirmation",
                             new { email = Input.Email, returnUrl = returnUrl });
                     }
-
+                    // This part is only for debug purpose, because user will be redirect to register confirmation instead
                     var businessUser = await _userRepo.GetAsync(u => u.UserID.ToString() == user.Id);
                     HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Homepage", "Home");
+                    return Redirect(returnUrl);
                 }
 
                 foreach (var error in result.Errors)
@@ -165,30 +168,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
-        }
-
-        private IdentityUser CreateUser()
-        {
-            try
-            {
-                return Activator.CreateInstance<IdentityUser>();
-            }
-            catch
-            {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                                                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                                                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
-            }
-        }
-
-        private IUserEmailStore<IdentityUser> GetEmailStore()
-        {
-            if (!_userManager.SupportsUserEmail)
-            {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
-            }
-
-            return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }
 }

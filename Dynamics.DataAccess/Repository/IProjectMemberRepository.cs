@@ -10,4 +10,10 @@ public interface IProjectMemberRepository
     Task<bool> CreateAsync(ProjectMember project);
     Task<bool> UpdateAsync(ProjectMember project);
     Task<ProjectMember> DeleteAsync(Expression<Func<ProjectMember, bool>> predicate);
+    List<ProjectMember> FilterProjectMember(Expression<Func<ProjectMember, bool>> filter);
+    //manage member request-huyen
+    Task<bool> AddJoinRequest(Guid memberID, Guid projectID);
+    Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID);
+
+    Task<bool> DenyJoinRequestAsync(Guid memberID, Guid projectID);
 }

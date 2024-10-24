@@ -9,13 +9,14 @@ namespace Dynamics.Models.Models
 {
     public class UserToProjectTransactionHistory
     {
-		
 		public Guid TransactionID { get; set; }
         public Guid ProjectResourceID { get; set; }
         public Guid UserID { get; set; }
 		public int Status { get; set; }
 		[Required]
 		public int Amount { get; set; }
+
+        [MaxLength(100, ErrorMessage = "Message cannot exceed 100 characters.")]
         public string? Message { get; set; }
         [DataType(DataType.Date)]
         public DateOnly Time { get; set; }

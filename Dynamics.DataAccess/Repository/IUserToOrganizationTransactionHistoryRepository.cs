@@ -9,7 +9,9 @@ public interface IUserToOrganizationTransactionHistoryRepository
     Task<List<UserToOrganizationTransactionHistory>> GetAllAsyncWithExpression(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
 
     Task<UserToOrganizationTransactionHistory?> GetAsync(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
-    Task<bool> Add(UserToOrganizationTransactionHistory entity);
+    Task AddAsync(UserToOrganizationTransactionHistory entity);
     Task<bool> Update(UserToOrganizationTransactionHistory entity);
     Task<UserToOrganizationTransactionHistory> DeleteTransactionByIdAsync(Guid id);
+    IQueryable<UserToOrganizationTransactionHistory> GetAllAsQueryable(Expression<Func<UserToOrganizationTransactionHistory, bool>>? filter);
+
 }

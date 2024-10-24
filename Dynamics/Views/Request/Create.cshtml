@@ -1,62 +1,54 @@
-﻿@model Dynamics.Models.Models.ViewModel.RequestCreateVM
+﻿@model Dynamics.Models.Models.Request
 @{
     ViewData["Title"] = "Create Request";
 }
-<head>
-    <link rel="stylesheet" href="wwwroot/css/output.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <meta charset="UTF-8">
-</head>
 <body>
 <main class="w-full h-full flex flex-col gap-6 items-center p-32">
     <h1 class="text-3xl">
         Tell us <span class="underline">more</span> about your request for charity
     </h1>
-    <div class="my-5 px-0 pt-12 w-full flex justify-center">
+    <div class="my-5 px-0 pt-6 w-full flex justify-center">
         <form asp-action="Create" asp-controller="Request" enctype="multipart/form-data" id="dmForm"
               method="post" class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-error"></div>
             <div>
                 <input type="hidden" value="@DateOnly.FromDateTime(DateTime.Now)" asp-for="@Model.CreationDate"/>
                 <input class="hidden" name="cityNameInput">
                 <input class="hidden" name="districtNameInput"/>
                 <input class="hidden" name="wardNameInput">
             </div>
-            <label class="form-control w-full">
-                <span class="label label-text font-bold text-lg" for="RequestTitle">
-                    Request Title
-                </span>
-                <input asp-for="@Model.RequestTitle"
+            <div class="form-control w-full">
+                <label class="label label-text font-bold text-lg" for="RequestTitle">
+                    Request Title *
+                </label>
+                <input asp-for="RequestTitle"
                        class="input input-bordered w-full"
                        id="RequestTitle" type="text" placeholder="Enter your request title"/>
-            </label>
-            <label class="form-control">
-                <span class="label label-text font-bold text-lg" for="Content">
-                    Request Description
-                </span>
-                <textarea asp-for="@Model.Content"
+                <span asp-validation-for="RequestTitle" class="text-error"></span>
+            </div>
+            <div class="form-control">
+                <label class="label label-text font-bold text-lg" for="Content">
+                    Request Description *
+                </label>
+                <textarea asp-for="Content"
                            class="textarea textarea-bordered textarea-lg w-full"
                            id="Content" placeholder="Enter your request description" rows="7" style="resize: none"></textarea>
-            </label>
-            
-            <label  class="form-control">
+                <span asp-validation-for="Content" class="text-error"></span>
+            </div>
+
+            <label class="form-control">
                 <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
                     <span>Choose images</span>
                 </label>
-                <input id="file-upload" type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
+                <input type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
                 <span class="label label-text text-">Images will help you appeal to more people</span>
             </label>
-            <div class="flex space-x-2">
-                <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
-                    <span>Choose images</span>
-                </label>
-                <input id="file-upload" type="file" name="images" multiple class="hidden">
-            </div>
+            <span asp-validation-for="Attachment" class="text-error"></span>
             <div class="flex gap-12 items-center">
                 <div class="left flex-1">
                     <!-- Email -->
-                    <label class="form-control w-full">
-                        <span class="label label-text font-bold text-lg">Request email</span>
+                    <div class="form-control w-full">
+                        <label class="label label-text font-bold text-lg">Request email</label>
                         <input
                             type="text"
                             placeholder="Enter request email"
@@ -64,10 +56,11 @@
                             asp-for="@Model.RequestEmail"
                             id="RequestEmail"
                         />
-                    </label>
+                        <span asp-validation-for="RequestEmail" class="text-error"></span>
+                    </div>
                     <!-- Phonenumber -->
-                    <label class="form-control w-full">
-                        <span class="label label-text font-bold text-lg">Request phone number</span>
+                    <div class="form-control w-full">
+                        <label class="label label-text font-bold text-lg">Request phone number *</label>
                         <input
                             type="text"
                             placeholder="Enter request phone number"
@@ -75,10 +68,11 @@
                             asp-for="RequestPhoneNumber"
                             id="RequestPhoneNumber"
                         />
-                    </label>
+                        <span asp-validation-for="RequestPhoneNumber" class="text-error"></span>
+                    </div>
                     <!-- Address -->
                     <label class="form-control w-full">
-                        <span class="label label-text font-bold text-lg">Request address</span>
+                        <span class="label label-text font-bold text-lg">Request address *</span>
                         <div>
                             <select class="select select-bordered w-full mb-4" id="city" aria-label=".form-select-sm">
                                 <option id="pOption" value="" selected>Choose province</option>
@@ -99,6 +93,7 @@
                             asp-for="@Model.Location"
                             id="RequestLocation"
                         />
+                        <span asp-validation-for="Location" class="text-error"></span>
                     </label>
                     <span class="label label-text font-bold text-lg" for="isEmergency">
                         Is this an emergency request?
@@ -116,15 +111,29 @@
                 </div>
             </div>
             <div class="w-full flex justify-center mt-4">
-                <button class="btn btn-primary" type="button" id="submitBtn">
+                <button class="btn btn-primary" type="submit" id="submitBtn">
                     Create Request
                 </button>
             </div>
         </form>
     </div>
 </main>
+@* Loading screen *@
+<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50" style="display: none; top: 0; min-height: 100vh;">
+    @* This one will always be centered in the backdrop *@
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="loader"></div>
+    </div>
+</div>
+
 </body>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
+
 <script>
 let cities = document.getElementById("city");
 let districts = document.getElementById("district");
@@ -171,13 +180,13 @@ let clicked = 0;
 
 function getUserContact(){
     clicked++;
-    var address = '@Html.Raw(Model.UserAddress)';
+    var address = '@ViewBag.UserAddress';
     var streetOnly = address.split(',')[0] || ""; // Split the address and handle case where it might be empty
 
     if (clicked % 2 === 1) {
         // Set the input fields with user's contact information
-        document.getElementById('RequestEmail').value = '@Model.UserEmail';
-        document.getElementById('RequestPhoneNumber').value = '@Model.UserPhoneNumber';
+        document.getElementById('RequestEmail').value = '@ViewBag.UserEmail';
+        document.getElementById('RequestPhoneNumber').value = '@ViewBag.UserPhoneNumber';
         document.getElementById('RequestLocation').value = streetOnly;
 
         // Change the button element
@@ -190,14 +199,11 @@ function getUserContact(){
         contactBtn.innerHTML = 'Use my information as contact <i class="bi bi-check2-circle"></i>';
 
         // Change option for visibility
-        let address = '@Html.Raw(Model.UserAddress)';
+        let address = '@Html.Raw(ViewBag.UserAddress)';
         let parts = address.split(',');
-        document.getElementById('city').setAttribute('disabled', 'disabled');
-        document.getElementById('district').setAttribute('disabled', 'disabled');
-        document.getElementById('ward').setAttribute('disabled', 'disabled');
-        document.getElementById('pOption').innerHTML = parts[1].trim();
+        document.getElementById('pOption').innerHTML = parts[3].trim();
         document.getElementById('dOption').innerHTML = parts[2].trim();
-        document.getElementById('wOption').innerHTML = parts[3].trim();
+        document.getElementById('wOption').innerHTML = parts[1].trim();
     }else {
         // Set the input fields to null
         document.getElementById('RequestEmail').value = '';
@@ -213,9 +219,6 @@ function getUserContact(){
         contactBtn.innerHTML = 'Use my information as contact';
 
         // Remove option
-        document.getElementById('city').removeAttribute('disabled');
-        document.getElementById('district').removeAttribute('disabled');
-        document.getElementById('ward').removeAttribute('disabled');
         document.getElementById('pOption').innerHTML = 'Choose province';
         document.getElementById('dOption').innerHTML = 'Choose district';
         document.getElementById('wOption').innerHTML = 'Choose ward/commune';
@@ -223,10 +226,25 @@ function getUserContact(){
 }
 
 let myBtn = document.querySelector('#submitBtn');
+let myForm = document.querySelector('#dmForm');
+
+
+function isLegit() {
+    // Check validation for loading screen
+    const validateErrorClass = "field-validation-error";
+    // Get all possible invalid spans
+    let validationSpans = myForm.getElementsByClassName("field-validation-error");
+    console.log('Getting validation spans')
+    console.log(validationSpans)
+    if (!validationSpans || validationSpans.length === 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 myBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    let myForm = document.querySelector('#dmForm');
+    // e.preventDefault();
     console.log(myForm)
     // Get the selected text for city, district, and ward
     const cityName = cities.options[cities.selectedIndex].text;
@@ -238,10 +256,20 @@ myBtn.addEventListener('click', (e) => {
     console.log("Ward:", wardName);
 
     // Set hidden inputs or modify existing ones with the text values
-    document.getElementsByName('cityNameInput')[0].value = cityName;
-    document.getElementsByName('districtNameInput')[0].value = districtName;
-    document.getElementsByName('wardNameInput')[0].value = wardName;
-    myForm.submit();
+    // document.getElementsByName('cityNameInput')[0].value = cityName;
+    // document.getElementsByName('districtNameInput')[0].value = districtName;
+    // document.getElementsByName('wardNameInput')[0].value = wardName;
+    // Get the modal
+    let loadingModal = document.getElementById("loadingModal");
+    if (isLegit()) {
+        console.log('Is valid')
+        loadingModal.style.display = "flex";
+        myForm.submit();
+    } else {
+        console.log('Not valid');
+        loadingModal.style.display = "none";
+        e.preventDefault();
+    }
 })
 
 </script>

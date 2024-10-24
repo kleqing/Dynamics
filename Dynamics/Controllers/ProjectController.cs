@@ -469,13 +469,13 @@ namespace Dynamics.Controllers
                 }
                     var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
                     var user = _userRepository.GetAsync(u => u.UserID == userId).Result;
-                    var linkUser = Url.Action(nameof(AcceptJoinInvitation), "Project", new { projectId = currentProjectID, memberId = userId }, Request.Scheme);
-                    var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project", new { projectId = currentProjectID, memberId = userId }, Request.Scheme);
+                    var linkUser = Url.Action(nameof(AcceptJoinInvitation), "Project", new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
+                    var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project", new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                    //send to user and leader
                     await _notificationService.InviteProjectMemberRequestNotificationAsync(projectObj, user, linkUser, linkLeader);
             }
             TempData[MyConstants.Success] = "Invite members successful!";
-            return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+            return RedirectToAction(nameof(ManageProjectMember), new { id = new Guid(currentProjectID) });
         }
         public async Task<IActionResult> AcceptJoinInvitation(Guid projectId,Guid memberId)
         {
@@ -492,11 +492,11 @@ namespace Dynamics.Controllers
                 //send noti to leader
                 await _notificationService.ProcessInviteProjectMemberRequestNotificationAsync(projectObj, user, link, "join");
                 TempData[MyConstants.Success] = $"Welcome! You are now officially a member of the {projectObj.ProjectName} project.";
-                return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+                return RedirectToAction(nameof(ManageProject), "Project", new { id = projectId.ToString() });
             }
 
             TempData[MyConstants.Error] = $"Apologies! You have not succeeded in joining the {projectObj.ProjectName} project.";
-            return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+            return RedirectToAction(nameof(ManageProject), "Project", new { id = projectId.ToString() });
         }
         public async Task<IActionResult> CancelJoinInvitation(Guid projectId, Guid memberId)
         {
@@ -511,11 +511,11 @@ namespace Dynamics.Controllers
                 await _notificationService.ProcessInviteProjectMemberRequestNotificationAsync(projectObj, user, link, "cancel");
 
                 TempData[MyConstants.Success] = $"The invitation to {user.UserFullName} has been successfully canceled.";
-                return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+                return RedirectToAction(nameof(ManageProject), "Project", new { id = projectId.ToString() });
             }
 
             TempData[MyConstants.Error] = $"Failed to cancel the invitation for {user.UserFullName}.";
-            return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+            return RedirectToAction(nameof(ManageProject), "Project", new { id = projectId.ToString() });
         }
 
         [Route("Project/DeleteProjectMember/{memberID}")]

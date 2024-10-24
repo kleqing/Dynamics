@@ -25,21 +25,20 @@
     <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
 
         <h1 class="text-3xl font-semibold mb-10 text-center ">
-           @if (currentUser.UserID.Equals(Model.CEO.UserID))
+            @if (currentUser.UserID.Equals(Model.CEO.UserID))
             {
                 <span class="border-b-2 border-gray-500 border-solid py-2">Manage and allocate resources for your projects</span>
             }
             else
             {
-
                 <span class="border-b-2 border-gray-500 border-solid py-2">Organization Resources</span>
             }
-            
+
         </h1>
 
         <div class=" flex justify-center mt-10 mb-10">
 
-           @if (currentUser.UserID.Equals(Model.CEO.UserID))
+            @if (currentUser.UserID.Equals(Model.CEO.UserID))
             {
                 <div class="max-w-3xl border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
 
@@ -53,74 +52,88 @@
                                 </button>
                             </a>
                         </div>
-
                     }
                     <div class=" px-5 py-3 w-auto">
                         <ul class="space-y-2">
 
-                        @{int i = 1;}
-                        @foreach (var item in Model.OrganizationResource)
-                        {
-                            <li class="flex items-center justify-between bg-white shadow-xl px-5 py-4 rounded-box ">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-gray-500 text-sm font-semibold">@i.</span>
-                                    <span class="text-sm mx-5 font-semibold">@item.ResourceName</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm mx-5 font-semibold">@item.Quantity</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm mx-5 font-semibold ">@item.Unit</span>
-                                </div>
+                            @{ int i = 1; }
+                            @foreach (var item in Model.OrganizationResource)
+                            {
+                                <li class="flex items-center justify-between gap-4 bg-white shadow-xl px-5 py-4 rounded-box ">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-gray-500 text-sm font-semibold">@i.</span>
+                                        <span class="text-sm mx-5 font-semibold">@item.ResourceName</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm mx-5 font-semibold">@item.Quantity</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm mx-5 font-semibold ">@item.Unit</span>
+                                    </div>
 
-                                @if (currentUser.UserID.Equals(Model.CEO.UserID))
-                                {
-                                    @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))
+                                    @if (currentUser.UserID.Equals(Model.CEO.UserID))
                                     {
-                                            continue;    
-                                    }
-                                    else if(item.Quantity == 0)
-                                    {
+                                        @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))
+                                        {
+                                            if (item.Quantity <= 0)
+                                            {
+                                                <div class="tooltip" data-tip="Not enough resource to send">
+                                                    <button class="btn btn-neutral btn-sm btn-disabled">Send</button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="AllocateMoney" asp-controller="Organization">
+                                                    <input type="hidden" name="organizationId" value="@item.OrganizationID"/>
+                                                    <input type="hidden" name="resourceId" value="@item.ResourceID"/>
+                                                    <button type="submit" class="flex items-center gap-2 ">
+                                                        <span class="btn btn-success btn-sm">Send</span>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            continue;
+                                        }
+
+                                        if (item.Quantity == 0)
+                                        {
                                             <a asp-action="RemoveOrganizationResource" asp-controller="Organization" asp-route-resourceId="@item.ResourceID">
-                                            <div class="flex items-center gap-2 ">
-                                                <span class="bg-red-500 text-white font-bold px-3 py-2 ml-5 rounded text-xs">Remove</span>
+                                                <div class="flex items-center gap-2 ">
+                                                    <span class="btn btn-error btn-sm">Remove</span>
+                                                </div>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="tooltip" data-tip="You cannot remove resource when it is not empty!">
+                                                <button class="btn btn-error btn-sm btn-disabled">Remove</button>
                                             </div>
-                                        </a>
-                                        
-                                    }
-                                    else
-                                    {
-                                        <div class="flex items-center gap-2 ">
-                                            <span class="bg-gray-600 text-white font-bold px-3 py-2 ml-5 rounded text-xs">Remove</span>
-                                        </div>
-                                    }
+                                        }
 
 
-
-                                    @if(item.Quantity > 0)
-                                    {
-                                        <a asp-action="SendResoueceOrganizationToProject" asp-controller="Organization" asp-route-resourceId="@item.ResourceID">
-                                            <div class="flex items-center gap-2 ">
-                                                <span class="bg-blue-600 text-white font-bold px-3 py-2 ml-5 rounded text-xs">Send</span>
+                                        @if (item.Quantity > 0)
+                                        {
+                                            <a asp-action="SendResourceOrganizationToProject" asp-controller="Organization" asp-route-resourceId="@item.ResourceID">
+                                                <div class="flex items-center gap-2 ">
+                                                    <span class="btn btn-primary btn-sm">Send</span>
+                                                </div>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <div class="tooltip" data-tip="Not enough resource to send">
+                                                <button class="btn btn-neutral btn-sm btn-disabled">Send</button>
                                             </div>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <div class="flex items-center gap-2 ">
-                                            <span class="bg-gray-600 text-white font-bold px-3 py-2 ml-5 rounded text-xs">Send</span>
-                                        </div>
+                                        }
                                     }
 
-                                }
+                                </li>
 
-                            </li>
-
-                            i++;
-                        }
+                                i++;
+                            }
 
 
-                    </ul>
+                        </ul>
                     </div>
                 </div>
             }
@@ -150,12 +163,10 @@
                                                 Confirm
                                             </button>
                                         </div>
-                                        
                                     </form>
-                                    
+
                                 </div>
 
-                                
 
                             </div>
                             <span class="label label-text text-">If you donate multiple resources at once, download the execl and enter it into the web.</span>
@@ -163,11 +174,11 @@
                             {
                                 <div class="text-danger">@ViewBag.Error</div>
                             }
-                               
+
                         </div>
 
                         <ul class="space-y-2">
-                            @{int i = 1;}
+                            @{ int i = 1; }
                             @foreach (var item in Model.OrganizationResource)
                             {
                                 <li class="flex items-center justify-between bg-base-100 shadow-xl px-5 py-4 rounded-box ">
@@ -184,12 +195,13 @@
 
                                     @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))
                                     {
-                                        <a asp-action="DonateByMoney" asp-controller="Organization">
-                                            <div class="flex items-center gap-2 ">
+                                        <form asp-action="DonateByMoney" asp-controller="Organization">
+                                            <input type="hidden" name="organizationId" value="@item.OrganizationID"/>
+                                            <input type="hidden" name="resourceId" value="@item.ResourceID"/>
+                                            <button type="submit" class="flex items-center gap-2 ">
                                                 <span class="bg-green-500 text-white font-bold px-3 py-2 ml-5 rounded text-xs">Donate Here</span>
-                                            </div>
-                                        </a>
-                                        
+                                            </button>
+                                        </form>
                                     }
                                     else
                                     {
@@ -198,7 +210,6 @@
                                                 <span class="bg-green-500 text-white font-bold px-3 py-2 ml-5 rounded text-xs">Donate Here</span>
                                             </div>
                                         </a>
-                                        
                                     }
                                 </li>
                                 i++;
@@ -206,7 +217,7 @@
                         </ul>
                     </div>
                 </div>
-           }   
+            }
         </div>
 
 
@@ -235,7 +246,8 @@
                                                 </div>
                                             </div>
                                             <div class="space-x-3 mx-5">
-                                                @if(item.Status == 0){
+                                                @if (item.Status == 0)
+                                                {
                                                     <button class="bg-blue-500 text-white px-3 py-1 rounded">
                                                         Processing
                                                     </button>
@@ -252,7 +264,7 @@
                                                         Cancel
                                                     </button>
                                                 </a>
-                                                
+
                                             </div>
                                         </div>
                                         <div class="flex items-center space-x-4 gap-6">
@@ -271,9 +283,9 @@
 
                 </div>
             }
-           
+
         </div>
 
-        
+
     </div>
 </div>

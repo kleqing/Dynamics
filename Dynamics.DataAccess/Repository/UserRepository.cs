@@ -20,7 +20,8 @@ namespace Dynamics.DataAccess.Repository
             this._userManager = userManager;
         }
 
-        public async Task<bool> AddAsync(User entity)
+        // TODO: Decide whether we use one database or 2 database for managing the user
+        public async Task<bool> AddAsync(User? entity)
         {
             try
             {
@@ -47,6 +48,15 @@ namespace Dynamics.DataAccess.Repository
 
             return user;
         }
+        public async Task<User?> GetUserProjectAsync(Expression<Func<User?, bool>> filter)
+        {
+            return await _db.Users.Include(u => u.ProjectMember).SingleOrDefaultAsync(filter);
+        }
+
+        public async Task<User?> GetUserProjectAsyncNoTracking(Expression<Func<User?, bool>> filter)
+        {
+            return await _db.Users.Include(u => u.ProjectMember).AsNoTracking().SingleOrDefaultAsync(filter);
+        }
 
         public async Task<string> GetRoleFromUserAsync(Guid userId)
         {
@@ -67,8 +77,8 @@ namespace Dynamics.DataAccess.Repository
             if (currentRole != null)
             {
                 await _userManager.RemoveFromRoleAsync(authUser, currentRole);
+                await _userManager.AddToRoleAsync(authUser, roleName);
             }
-            await _userManager.AddToRoleAsync(authUser, roleName);
             await _db.SaveChangesAsync();
         }
 
@@ -88,13 +98,13 @@ namespace Dynamics.DataAccess.Repository
             return user;
         }
 
-        async Task<List<User>> GetUsersByUserId(Expression<Func<User, bool>> filter)
+        async Task<List<User?>> GetUsersByUserId(Expression<Func<User?, bool>> filter)
         {
             var users = await _db.Users.Where(filter).ToListAsync();
             return users;
         }
 
-        public async Task<List<User>> GetAllUsersAsync()
+        public async Task<List<User?>> GetAllUsersAsync()
         {
             var users = await _db.Users.ToListAsync();
             return users;
@@ -108,6 +118,7 @@ namespace Dynamics.DataAccess.Repository
             {
                 return false;
             }
+
             // Things that identity might need to update: Name, Email
             var identityUser = await _userManager.FindByIdAsync(user.UserID.ToString());
             if (identityUser != null)
@@ -115,6 +126,7 @@ namespace Dynamics.DataAccess.Repository
                 identityUser.UserName = user.UserFullName;
                 identityUser.Email = user.UserEmail;
             }
+
             // Only update the property that has the same name between 2 models
             _db.Entry(existingItem).CurrentValues.SetValues(user);
             await _userManager.UpdateAsync(identityUser);

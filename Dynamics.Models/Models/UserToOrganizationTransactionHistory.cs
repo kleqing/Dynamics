@@ -13,11 +13,8 @@ namespace Dynamics.Models.Models
         public Guid ResourceID { get; set; }
         public Guid UserID { get; set; }
         public int Status { get; set; }      
-
         [Required(ErrorMessage = "The Amount field is required *")]
-
         public int Amount { get; set; }
-
         public string? Message { get; set; }
 		[DataType(DataType.Date)]
 		public DateOnly Time { get; set; }

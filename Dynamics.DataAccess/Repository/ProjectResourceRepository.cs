@@ -131,7 +131,7 @@ public class ProjectResourceRepository : IProjectResourceRepository
         var existOrgDonate =
             await _context.OrganizationToProjectTransactionHistory.FirstOrDefaultAsync(x =>
                 x.ProjectResourceID.Equals(resourceID));
-        if (deleteItem == null || existUserDonate != null || existOrgDonate != null)
+        if (deleteItem == null || existUserDonate != null || existOrgDonate != null||deleteItem.ResourceName.ToLower().Equals("money"))
         {
             return false;
         }
@@ -139,5 +139,16 @@ public class ProjectResourceRepository : IProjectResourceRepository
         _context.ProjectResources.Remove(deleteItem);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task UpdateAsync(ProjectResource entity)
+    {
+        var existingResource = _context.ProjectResources.FirstOrDefault(x => x.ResourceID.Equals(entity.ResourceID));
+        if (existingResource != null)
+        {
+            existingResource.Quantity = entity.Quantity;
+        }
+        _context.ProjectResources.Update(entity);
+        await _context.SaveChangesAsync();
     }
 }

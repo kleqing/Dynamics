@@ -22,6 +22,11 @@ public class CloudinaryUploader
      */
     public async Task<string?> UploadImageAsync(IFormFile file)
     {
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
+        {
+            return "Wrong file extension";
+        }
         var uploadParams = new ImageUploadParams()
         {
             File = new FileDescription(file.FileName, file.OpenReadStream()),
@@ -43,7 +48,7 @@ public class CloudinaryUploader
     {
         if (checkValid == true && files.Count == 0) return "No file";
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp",".svg" };
         List<string> result = new List<string>();
         foreach (var file in files)
         {

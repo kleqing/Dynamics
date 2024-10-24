@@ -44,6 +44,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user))) 
                 {
                     // Don't reveal that the user does not exist or is not confirmed
+                    ModelState.AddModelError(string.Empty, "No user account with email found.");
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -61,7 +62,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
-
             return Page();
         }
     }

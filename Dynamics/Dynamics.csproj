@@ -8,15 +8,7 @@
   </PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Helps\**" />
-	  <Content Remove="Helps\**" />
-	  <EmbeddedResource Remove="Helps\**" />
-	  <None Remove="Helps\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
-		<PackageReference Include="EPPlus" Version="4.5.3.3" />
 		<PackageReference Include="EPPlus" Version="4.5.3.3" />
 		<PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
 		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
@@ -28,6 +20,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
@@ -52,12 +45,14 @@
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 	  </Content>
+	  <Content Remove="Helps\**" />
 	</ItemGroup>
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="wwwroot\identity\css\site.css" />
 	  <_ContentIncludedByDefault Remove="wwwroot\identity\css\styles.css" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Folder Include="wwwroot\files\Organization\" />
 	  <Folder Include="wwwroot\files\Organization\" />
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
@@ -68,15 +63,32 @@
 	  <Folder Include="wwwroot\images\Organization\" />
 	  <Folder Include="wwwroot\files\Project\" />
 	  <Folder Include="wwwroot\images\Project\Phase\" />
+	  <Folder Include="wwwroot\images\User\" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<UpToDateCheckBuilt Include="tailwind.config.js" Set="Css" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <AdditionalFiles Include="Views\Error\PageNotFound.cshtml" />
-	  <AdditionalFiles Include="Views\Secret\Index.cshtml" />
+	  <AdditionalFiles Include="Views\Payment\Index.cshtml" />
+		<PackageReference Include="Serilog" Version="4.0.2" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+	  <AdditionalFiles Include="Views\Payment\Index.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Helps\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="Helps\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Helps\**" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.10" />
 	</ItemGroup>
 
 	<Target Name="Tailwind" BeforeTargets="Build">

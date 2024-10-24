@@ -1,62 +1,182 @@
-﻿
+﻿@model Dynamics.Models.Models.Dto.VnPayRequestDto
 @{
     ViewData["Title"] = "DonateByMoney";
     Layout = "_LayoutOrganizationForm";
+    var obj = ViewData["projects"];
+    List<Project> projects = null;
+    int limitMoneyAmount = 0;
+    // This one is for organization leader manage resource only
+    if (obj != null)
+    {
+        projects = (List<Project>)(obj); // Cast to list of projects
+        if (ViewData["limitAmount"] != null)
+        {
+            limitMoneyAmount = (int)ViewData["limitAmount"];
+        }
+        else throw new Exception("HOW CAN YOU FORGOT TO SET THE LIMIT FOR ORGANIZATION?");
+    }
 }
 
 <div class="py-5 pt-12 px-5 my-5 flex justify-center">
-    <div class="bg-white shadow-xl border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
-        
-
-        <h1 class="text-2xl font-bold mb-6 text-center">Donate by money</h1>
-
-        <form>
-                <div class="flex justify-center items-center gap-6">
-                    <div class="mx-5">
-                        <div class="mb-4 mx-5">
-                            <label for="name" class="block text-base font-medium text-gray-700 mb-1">Input name</label>
-                            <input type="text" id="name" placeholder="Enter your name"
-                                   class="w-full px-6 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        </div>
-
-                        <div class="mb-4 mx-5">
-                            <label for="amount" class="block text-base font-medium text-gray-700 mb-1">Enter amount</label>
-                            <input type="text" id="amount" placeholder="Enter your amount"
-                                   class="w-full px-5 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        </div>
-
-                        <div class="mb-6 mx-5">
-                            <label for="message" class="block text-base font-medium text-gray-700 mb-1">Enter message</label>
-                            <textarea id="message" rows="4" placeholder="Enter your text"
-                                      class="w-full px-6 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
-                        </div>
+    <div class="bg-white shadow-xl border border-solid border-gray-500 rounded-box p-16 w-full max-w-screen-lg">
+        @if (projects == null)
+        {
+            <h1 class="text-2xl font-bold mb-6 text-center">Donate by money</h1>
+            <form asp-controller="Payment" asp-action="Pay" id="payForm" onsubmit="return validateForm()" class="flex justify-center items-center gap-6">
+                <input type="hidden" name="TargetType" value="@Model.TargetType"/>
+                <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
+                <input type="hidden" name="TargetID" value="@Model.TargetId"/>
+                <input type="hidden" name="FromID" value="@Model.FromID"/>
+                <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl"/>
+                <div class="mx-5 flex-1">
+                    <div class="mb-4 mx-5">
+                        <label for="name" class="block text-base font-medium text-gray-700 mb-1">Your name</label>
+                        <input type="text" id="name" readonly value="@ViewBag.donatorName"
+                               class="w-full input input-disabled input-primary">
                     </div>
 
+                    <div class="mb-4 mx-5">
+                        <label for="amount" class="block text-base font-medium text-gray-700 mb-1">Enter amount</label>
+                        <input type="text" id="amount" placeholder="Enter your money amount"
+                               name="Amount"
+                               class="w-full input input-primary rounded-md border bg-white">
+                        <span id="amountValidation" class="text-error h-6"></span>
+                    </div>
 
-                    <div class="flex flex-col space-y-4 mx-5">
-                        <button type="submit"
-                                class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
-                            Confirm Payment
-                            <div class="ml-5">
-                                <img src="https://assets.website-files.com/5d38b13ee324043c2fc59cdd/609af0e8068562ec31cde421_Custom-Colors-for-QR-Codes.png" alt="QR Code" class="ml-2 w-5 h-5">
-
-                            </div>
-                        </button>
-
-                        <button type="button"
-                                class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
-                            Back to project
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd"
-                                      d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                                      clip-rule="evenodd" />
-                            </svg>
-                        </button>
+                    <div class="mb-6 mx-5">
+                        <label for="message" class="block text-base font-medium text-gray-700 mb-1">Enter message</label>
+                        <textarea id="message" rows="4" placeholder="Enter your message" name="Message"
+                                      class="w-full textarea-md border textarea-primary rounded-md"></textarea>
                     </div>
                 </div>
-                
-            </form>
 
+                <div class="flex flex-col space-y-4 mx-5">
+                    <button type="submit"
+                            class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
+                        Confirm Payment
+                        <div class="ml-5">
+                            <img src="https://assets.website-files.com/5d38b13ee324043c2fc59cdd/609af0e8068562ec31cde421_Custom-Colors-for-QR-Codes.png" alt="QR Code" class="ml-2 w-5 h-5">
+
+                        </div>
+                    </button>
+
+                    <button type="button"
+                            class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
+                        Back to project
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <h1 class="text-2xl font-bold mb-6 text-center">Allocate money</h1>
+            <form asp-controller="Payment" asp-action="Pay" id="payForm" onsubmit="return validateForm()" class="flex justify-center items-center gap-6">
+                <input type="hidden" name="TargetType" value="@Model.TargetType"/>
+                <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
+                <input type="hidden" name="FromID" value="@Model.FromID"/>
+                <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl"/>
+                
+                <div class="mx-5 flex-1">
+                    <div class="mb-4 mx-5">
+                        <label class="form-control w-full">
+                            <div class="label">
+                                <span class="font-medium">Enter money amount</span>
+                            </div>
+                            <input type="number" id="amount" placeholder="Enter your money amount"
+                                   name="Amount"
+                                   max="@limitMoneyAmount"
+                                   class="w-full input input-primary rounded-md border bg-white">
+                            <div class="label">
+                                <span class="label-text-alt">Current organization budget: @limitMoneyAmount</span>
+                            </div>
+                            <span id="amountValidation" class="text-error h-6"></span>
+                        </label>
+                    </div>
+
+                    <div class="mb-4 mx-5">
+                        <label for="message" class="font-medium mb-1">Enter message</label>
+                        <textarea id="message" rows="4" placeholder="Enter your message" name="Message"
+                                      class="w-full textarea-md border textarea-primary rounded-md"></textarea>
+                    </div>
+
+                    @* Make the organization chooses *@
+                    <div class="mb-6 mx-5 flex-1">
+                        <label for="TargetId" class="mb-1">
+                            <select class="select select-bordered w-full bg-white" name="TargetId" id="TargetId">
+                                <option disabled selected>Select a project</option>
+                                @foreach (var item in projects)
+                                {
+                                    <option value="@item.ProjectID">@item.ProjectName</option>
+                                }
+                            </select>
+                            @if (ViewBag.MessageProject != null)
+                            {
+                                <span class="text-red-500 d-inline-flex">
+                                    @ViewBag.MessageProject
+                                </span>
+                            }
+                            <span id="projectOptionValidation" class="text-error h-6"></span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <div class="flex flex-col space-y-4 mx-5">
+                    <button type="submit"
+                            class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
+                        Confirm Payment
+                        <div class="ml-5">
+                            <img src="https://assets.website-files.com/5d38b13ee324043c2fc59cdd/609af0e8068562ec31cde421_Custom-Colors-for-QR-Codes.png" alt="QR Code" class="ml-2 w-5 h-5">
+
+                        </div>
+                    </button>
+
+                    <button type="button"
+                            class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
+                        Back to project
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        }
+        <script>
+            function validateForm() {
+                // Reset validation messages
+                document.getElementById("amountValidation").innerText = "";
+                document.getElementById("projectOptionValidation").innerText = "";
+
+                const amountInput = document.getElementById("amount");
+                const projectSelect = document.getElementById("TargetId");
+                const limitMoneyAmount = @limitMoneyAmount; // Get the maximum limit from the input max attribute
+
+                let isValid = true;
+
+                // Validate amount
+                if (!amountInput.value) {
+                    document.getElementById("amountValidation").innerText = "Amount is required.";
+                    isValid = false;
+                } else if (parseInt(amountInput.value) > limitMoneyAmount) {
+                    document.getElementById("amountValidation").innerText = `Amount cannot exceed ${limitMoneyAmount}.`;
+                    isValid = false;
+                }
+
+                // Validate project selection
+                if (projectSelect.selectedIndex === 0) { // Check if the first option (disabled) is selected
+                    document.getElementById("projectOptionValidation").innerText = "Please select a project.";
+                    isValid = false;
+                }
+
+                return isValid; // Prevent form submission if invalid
+            }
+        </script>
     </div>
 </div>
-

@@ -11,142 +11,273 @@
     Layout = "~/Views/Shared/_LayoutProject.cshtml";
 
     var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
+    ReviewProjectDonateRequestVM reviewProjectDonateRequestVM = new ReviewProjectDonateRequestVM();
 }
 
 <!-- container -->
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
     <!-- turn back button -->
     <a asp-action="ManageProjectDonor" asp-route-id="@currentProjectID" title="Turn back to donors detail">
-        <button type="button"
-                class="absolute top-2 right-0 w-fit h-fit p-2 my-2 mx-2 rounded-xl  inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
-            <i class="fa-solid fa-arrow-up-wide-short fa-2x text-white"></i>
+        <button class="flex  absolute top-2 right-0 items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+            Previous Page
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+            </svg>
         </button>
     </a>
+    @* <input type="checkbox" value="dark" class="toggle theme-controller" /> *@
     <!-- title -->
-    <div class="my-6">
-        <h2 class="font-serif text-black font-bold text-3xl text-center ">Review donate request</h2>
-        <span class="text-gray-400 text-md font-normal">Make sure you <span class="font-bold">contacted and received</span> the resources before marking as accepted!</span>
+    <div class="my-12">
+        <h2 class="text-black font-bold text-3xl text-center ">Review donate request</h2>
+        <span class="text-gray-400 text-lg font-normal">Make sure you <span class="font-bold">contacted and received</span> the resources before marking as accepted!</span>
     </div> <!-- PART 1 -->
     <!-- list resource -->
-    <div class="flex flex-col relative w-3/4 gap-y-6 mb-10">
-        @for (int i = 0; i < Model.Count(); i++)
-        {
-            var item= Model.ElementAt(i);
-        <div class="grid grid-cols-3 gap-x-6 py-2 px-4 shadow-md shadow-blue-500/30 rounded-xl items-center">
-            <div class="flex justify-start items-center ">
-                <div class="text-left text-semibold text-xl text-gray-900">@(i+1)</div>
-                <div class=" flex items-center">
-                    <img class="rounded-full w-10 h-10 mx-4 "
-                         src="@item.User.UserAvatar"
-                         alt="avatar">
-                </div>
-                <div class="flex flex-col ">
-                    <p class="text-black font-bold">@item.User.UserFullName</p>
-                    <p class="text-gray-400 font-normal text-base ">@item.Time</p>
-                </div>
-            </div>
-                <div class="flex justify-start items-center gap-x-4">
-                <div >
-                    <p class=" flex items-center text-black font-semibold ">@item.ProjectResource?.ResourceName</p>
-                </div>
-                <div >
-                        <p class=" flex items-center text-black font-semibold">@item.ProjectResource?.Unit</p>
-                </div>
-                <div>
-                        <p class=" flex items-center text-black font-semibold">@item.Amount</p>
-                </div>
-            </div>
-            <div class="flex justify-between gap-x-10 py-2">
-                    <a asp-action="DenyDonateRequest" asp-route-transactionID="@item.TransactionID" asp-route-donor="User">
-                    <button type="button"
-                        class="w-32 h-14 text-white  bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
-                            Deny/Not accepted
-                     </button>
-                    </a>
-                    <a asp-action="AcceptedDonateRequest" asp-route-transactionID="@item.TransactionID" asp-route-donor="User">
-                    <button type="button"
-                        class="w-32 h-14 text-white  bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
-                    Accepted
-                     </button>
-                    </a>
-            </div>
-            </div>
-        }
+    <div class=" relative " style="width:92%;">
+        <div class="overflow-x-hidden " style="height:90vh;">
+            <table class="table table-sm">
+                <thead>
+                    <tr class="bg-gray-300/20 text-gray-900 text-xl rounded-md">
+                        <th>
+                            <label>
+                                <input type="checkbox" class="checkbox" />
+                            </label>
+                        </th>
+                        <th></th>
+                        <th class="text-xl">Date</th>
+                        <th class="text-xl">Name</th>
+                        <th class="text-xl">Resource Name</th>
+                        <th class="text-xl">Quantity</th>
+                        <th class="text-xl">Unit</th>
+                        <th class="text-xl">Message</th>
+                        <th class="text-xl">Status</th>
+                        <th class="text-xl">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-lg">
+                    @for (int i = 0; i < Model.Count(); i++)
+                    {
+                        var item = Model.ElementAt(i);
+                        <tr>
+                            <th>
+                                <label>
+                                    <input readonly type="checkbox" class="checkbox" />
+                                </label>
+                            </th>
+                            <td class="p-2 text-lg">@(i + 1)</td>
+                            <td class="p-2 text-lg">@item.Time</td>
+                            <td class="p-2 text-lg">@item.User.UserFullName</td>
+                            <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
+                            <td class="p-2 text-lg">@item.Amount</td>
+                            <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
+                            <td class="p-2 text-lg">@item.Message</td>
+                            <td class="p-2 ">
+                             
+                            <div class="w-fit">
+                                    @if(item.Status == 0){
+                                    <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-orange-500/20">
+                                        <span class="">Processing</span>
+                                    </div>
+                                    }
+                                </div>
+                            </td>
+                            <td class="p-2">
+                                <div class="dropdown dropdown-hover dropdown-end">
+                                    <div tabindex="0" role="button" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Menu</div>
+                                    <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                        <li class="hover:bg-gray-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()">View proof image</a></li>
+                                        <li class="hover:bg-green-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('AcceptModal').showModal()">Accept</a></li>
+                                        <li class="hover:bg-red-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('DenyModal').showModal()">Deny</a></li>
+                                    </ul>
+                                </div>
+                                <!-- You can open the modal using ID.showModal() method -->
+                                    <!-- Proof Images Modal for this specific item -->
+                                    <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                        <div class="modal-box w-11/12 max-w-5xl">
+                                            <h2 class="text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                            @{
+                                                string[] proofImages = new string[1] { "," };
+                                                if (!string.IsNullOrEmpty(item.Attachments))
+                                                {
+                                                    proofImages = item.Attachments.Split(",");
+                                                }
+                                            }
+                                            <div class="flex flex-wrap items-start" style="height:50vh;">
+                                                @foreach (var img in proofImages)
+                                                {
+                                                    <button type="button" onclick="openImageModal('@img')">
+                                                        <img src="@img" alt="proof-img" class="h-40 w-auto rounded-xl shadow-md cursor-pointer" />
+                                                    </button>
+                                                    <!-- Image Modal for each proof image (one per item) -->
+                                                <dialog id="proof_image" class="modal">
+                                                    <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                        <img id="modalImage" alt="current-proof-img" class=" h-[80vh] w-auto rounded-xl shadow-md cursor-pointer" />
+                                                    </div>
+                                                    <form method="dialog" class="modal-backdrop ">
+                                                        <button>close</button>
+                                                    </form>
+                                                </dialog>
+                                                }
+                                            </div>
+                                        </div>
+                                    <form method="dialog" class="modal-backdrop ">
+                                        <button>close</button>
+                                    </form>
+                                    </dialog>
 
-        <div class="h-36"></div>
+                                <!--modal of accept-->
+                                <dialog id="AcceptModal" class="modal">
+                                    <div class="modal-box w-11/12 max-w-5xl">
+                                        <div class="modal-action  flex flex-col">
+                                            <h2 class=" text-black font-bold text-3xl text-center mb-4">Accept request</h2>
+                                            <form id="acceptForm" method="post" asp-action="AcceptDonateRequest" asp-controller="Project" enctype="multipart/form-data" >
+                                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                                <input type="hidden" asp-for="@reviewProjectDonateRequestVM.TransactionID" value="@item.TransactionID" />
+                                                <input type="hidden" asp-for="@reviewProjectDonateRequestVM.TypeDonor" value="User"  />
+                                                <div class="grid grid-cols-1 gap-y-3">
+                                                    <div class="flex items-center justify-center w-full">
+                                                        <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50  hover:bg-gray-100 ">
+                                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                                                </svg>
+                                                                <p class="mb-2 text-sm text-gray-500 "><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                                                <p class="text-xs text-gray-500 ">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                                            </div>
+                                                            <input asp-for="@reviewProjectDonateRequestVM.Attachments" name="proofImages" multiple id="dropzone-file" type="file" class="hidden" />
+                                                            <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
+                                                            <div id="notificationImgMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex justify-center items-center gap-x-6">
+                                                    <button type="submit"
+                                                            class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                                        Accept
+                                                    </button>
+
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <form method="dialog" class="modal-backdrop">
+                                        <button>close</button>
+                                    </form>
+                                </dialog>
+
+                                <!--modal of accept-->
+                                <dialog id="DenyModal" class="modal modal-bottom sm:modal-middle">
+                                    <div class="modal-box">
+                                        <div class="modal-action  flex flex-col">
+                                            <h2 class=" text-black font-bold text-3xl text-center mb-4">Deny request</h2>
+                                            <form id="denyForm" method="post" asp-action="DenyDonateRequest" asp-controller="Project">
+                                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                                <input type="hidden" asp-for="@reviewProjectDonateRequestVM.TransactionID" value="@item.TransactionID" />
+                                                <input type="hidden" asp-for="@reviewProjectDonateRequestVM.TypeDonor" value="User" />
+                                                <div class="grid grid-cols-1 gap-y-3">
+                                                    <div>
+                                                        <label asp-for="@reviewProjectDonateRequestVM.ReasonToDeny" class="block mb-2 text-md font-medium text-gray-900">Enter reason to deny this request</label>
+                                                        <textarea asp-for="@reviewProjectDonateRequestVM.ReasonToDeny" id="Reason" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-white bg-opacity-70 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write reason here..."></textarea>
+                                                        <span asp-validation-for="@reviewProjectDonateRequestVM.ReasonToDeny" class="text-danger text-sm font-semibold"></span>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex justify-center items-center gap-x-6">
+                                                    <button type="submit"
+                                                            class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                                        Deny
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <form method="dialog" class="modal-backdrop">
+                                        <button>close</button>
+                                    </form>
+                                </dialog>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
+
     <!-- pagination -->
-    <nav aria-label="Page navigation example" class="my-6">
-        <ul class="bg-white inline-flex -space-x-px text-md ">
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-100 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 ">
-                    <span class="pr-2"><i class="fa-solid fa-arrow-left"></i></span>Previous
-                </a>
-            </li>
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">1</a>
-            </li>
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">2</a>
-            </li>
-            <li>
-                <a href="#" aria-current="page"
-                   class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-100 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 ">3</a>
-            </li>
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">...</a>
-            </li>
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">10</a>
-            </li>
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 hover:bg-gray-100 hover:text-gray-700 ">11</a>
-            </li>
-            <li>
-                <a href="#"
-                   class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-100 rounded-e-lg hover:bg-gray-100 hover:text-gray-700">
-                    Next
-                    <span class="pl-2"><i class="items-center fa-solid fa-arrow-right"></i></span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</div>
-<div class="flex relative justify-center gap-x-6 mb-6 w-3/4 mx-auto">
-    <!-- add button -->
-    <a asp-action="DenyDonateRequestAll" asp-controller="Project" asp-route-donor="User">
-        <button type="button"
-                class="w-36 h-20 text-white  bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-xl px-4 py-2">
-            Deny/Not accepted all
-        </button>
-    </a>
-    <a asp-action="AcceptedDonateRequestAll" asp-controller="Project" asp-route-donor="User">
-        <button type="button"
-                class="w-36 h-20 text-white  bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-xl px-4 py-2">
-            Accepted all
-        </button>
-    </a>
-</div>
+    <div class="pagination mt-4 flex justify-center space-x-1.5">
+        @if (ViewBag.currentPageUD > 1)
+        {
+        <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD - 1, pageSizeUD = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
+        </a>
+        }
 
+        @for (int i = 1; i <= ViewBag.totalPagesUD; i++)
+        {
+        <a href="@Url.Action("Index", new { pageNumberUD = i, pageSizeUD = 10 })"
+           class="@(ViewBag.currentPageUD == i ? "btn-primary" : "")">
+            <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
+        </a>
+        }
+        @if (ViewBag.currentPageUD < ViewBag.totalPagesUD)
+        {
+        <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD + 1, pageSizeUD = 10 })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
+        </a>
+        }
+    </div>
+</div>
 <!-- end container -->
-@section Scripts {
-    <script type="text/javascript">
-        $(document).ready(function () {
-            var notification = '@TempData["Notification"]';
-            var message = '@TempData["Message"]';
+    <script>
+        //show files have uploaded
+    const maxFiles = 4;
+    // Event listener to update the file name after the file is selected
+    document.getElementById("dropzone-file").addEventListener('change', function () {
+        if (document.getElementById("dropzone-file").files.length > 0) {
 
-            if (notification === 'success') {
-                toastr.success(message);
-            } else if (notification === 'error') {
-                toastr.error(message);
+            if (document.getElementById("dropzone-file").files.length > maxFiles) {
+                document.getElementById("notificationImgMessage").innerText = "You can only upload a maximum of " + maxFiles + " files.";
+                document.getElementById("notificationImgMessage").style.display = "block";
+                input.value = '';  // Reset the input if the file limit is exceeded
+            } else {
+                document.getElementById("notificationImgMessage").style.display = "none";
             }
-        });
+            var files = document.getElementById("dropzone-file").files;
+            var fileNames = [];
+
+            for (var i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+            }
+            // Join file names with a separator (comma or newline)
+            document.getElementById("fileName").innerText = fileNames.join(', ');
+
+        }
+    });
+    document.querySelector('#acceptForm').addEventListener('submit', function (event) {
+        const attachmentInput = document.getElementById("dropzone-file");
+        const notificationMessage = document.getElementById("notificationImgMessage");
+
+        if (attachmentInput.files.length === 0) {
+            event.preventDefault();  // Prevent form submission if no file is selected
+            notificationMessage.innerText = "Please upload at least one proof image.";
+            notificationMessage.style.display = "block";
+        } else {
+            notificationMessage.style.display = "none";  // Hide the message if files are selected
+        }
+    }); 
+        //modal of proof image
+    function openImageModal(imgSrc) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById('proof_image').showModal();
+    }
+    //drag
+
     </script>
-}
+
+
+

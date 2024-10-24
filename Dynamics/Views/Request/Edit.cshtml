@@ -16,7 +16,7 @@
     <div class="my-5 px-0 pt-12 w-full flex justify-center">
         <form asp-action="Edit" asp-controller="Request" enctype="multipart/form-data" id="dmForm" 
               method="post" class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-error"></div>
             <div>
                 <input asp-for="@Model.RequestID" value="@Model.RequestID" class="hidden">
                 <input type="date" asp-for="@Model.CreationDate" class="hidden" name="StartTime"/>
@@ -32,6 +32,7 @@
                 <input asp-for="@Model.RequestTitle"
                        class="input input-bordered w-full"
                        id="RequestTitle" type="text" placeholder="Enter your request title"/>
+                <span asp-validation-for="RequestTitle" class="text-error"></span>
             </label>
             <label class="form-control">
                 <span class="label label-text font-bold text-lg" for="Content">
@@ -40,6 +41,7 @@
                 <textarea asp-for="@Model.Content"
                            class="textarea textarea-bordered textarea-lg w-full"
                            id="Content" placeholder="Enter your request description" rows="7" style="resize: none"></textarea>
+                <span asp-validation-for="Content" class="text-error"></span>
             </label>
             
             <label  class="form-control">
@@ -49,12 +51,7 @@
                 <input id="file-upload" type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
                 <span class="label label-text text-">Images will help you appeal to more people</span>
             </label>
-            <div class="flex space-x-2">
-                <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
-                    <span>Choose images</span>
-                </label>
-                <input id="file-upload" type="file" name="images" multiple class="hidden">
-            </div>
+            <span asp-validation-for="Attachment" class="text-error"></span>
             <div class="flex gap-12 items-center">
                 <div class="left flex-1">
                     <!-- Email -->
@@ -67,6 +64,7 @@
                             asp-for="@Model.RequestEmail"
                             id="RequestEmail"
                         >
+                        <span asp-validation-for="RequestEmail" class="text-error"></span>
                     </label>
                     <!-- Phonenumber -->
                     <label class="form-control w-full">
@@ -78,6 +76,7 @@
                             asp-for="RequestPhoneNumber"
                             id="RequestPhoneNumber"
                         />
+                        <span asp-validation-for="RequestPhoneNumber" class="text-error"></span>
                     </label>
                     <!-- Address -->
                     <label class="form-control w-full">
@@ -107,6 +106,7 @@
                             value="@streetOnly"
                             id="RequestLocation"
                         />
+                        <span asp-validation-for="Location" class="text-error"></span>
                     </label>
                     <span class="label label-text font-bold text-lg" for="isEmergency">
                         Is this an emergency request?
@@ -124,7 +124,7 @@
                 </div>
             </div>
             <div class="w-full flex justify-center mt-4">
-                <button class="btn btn-primary" type="button" id="submitBtn">
+                <button class="btn btn-primary" type="submit" id="submitBtn">
                     Edit Request
                 </button>
             </div>
@@ -133,6 +133,7 @@
 </main>
 </body>
 
+<partial name="_ValidationScriptsPartial"/>
 @*Script for inputting request location*@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
@@ -202,13 +203,10 @@ function getUserContact(){
         // Change option for visibility
         let address = '@Html.Raw(Model.User.UserAddress)';
         let parts = address.split(',');
-        document.getElementById('pOption').innerHTML = parts[1].trim();
-            document.getElementById('city').setAttribute('disabled', 'disabled');
+        document.getElementById('pOption').innerHTML = parts[3].trim();
         document.getElementById('dOption').innerHTML = parts[2].trim();
-            document.getElementById('district').setAttribute('disabled', 'disabled');
-        document.getElementById('wOption').innerHTML = parts[3].trim();
-            document.getElementById('ward').setAttribute('disabled', 'disabled');
-    }else {
+        document.getElementById('wOption').innerHTML = parts[1].trim();
+    } else {
         // Set the input fields to null
         document.getElementById('RequestEmail').value = '';
         document.getElementById('RequestPhoneNumber').value = '';
@@ -224,20 +222,14 @@ function getUserContact(){
 
         // Remove option
         document.getElementById('pOption').innerHTML = 'Choose province';
-            document.getElementById('city').removeAttribute('disabled');
         document.getElementById('dOption').innerHTML = 'Choose district';
-            document.getElementById('district').removeAttribute('disabled');
         document.getElementById('wOption').innerHTML = 'Choose ward/commune';
-            document.getElementById('ward').removeAttribute('disabled');
     }
 }
 
-let myBtn = document.querySelector('#submitBtn');
-
-myBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    let myForm = document.querySelector('#dmForm')
-    console.log(myForm)
+let myForm = document.querySelector('#dmForm')
+console.log(myForm)
+    myForm.addEventListener('submit', (e) => {
     // Get the selected text for city, district, and ward
     const cityName = citis.options[citis.selectedIndex].text;
     const districtName = districts.options[districts.selectedIndex].text;
@@ -247,7 +239,14 @@ myBtn.addEventListener('click', (e) => {
     document.getElementsByName('cityNameInput')[0].value = cityName;
     document.getElementsByName('districtNameInput')[0].value = districtName;
     document.getElementsByName('wardNameInput')[0].value = wardName;
-    myForm.submit();
+    // Validate here
+        let loadingModal = document.getElementById("loadingModal");
+        if (isLegit()) {
+            loadingModal.style.display = "flex";
+        } else {
+            loadingModal.style.display = "none";
+            e.preventDefault();
+        }
 })
 
 </script>

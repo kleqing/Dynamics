@@ -1,24 +1,32 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 
 namespace Dynamics.Utility
 {
-    // Account use for cloudinary only
-    internal class AccountCloudinary
-    {
-            
-    }
     public static class Util
     {
         
-        // TODO: Upload images to CDN
-        /**
-         * Save an image to local file <br />
-         * Follow this path: wwwroot/folderpath/id.ext
-         */
+        public static string HmacSHA512(string key, string inputData)
+        {
+            var hash = new StringBuilder();
+            var keyBytes = Encoding.UTF8.GetBytes(key);
+            var inputBytes = Encoding.UTF8.GetBytes(inputData);
+            using (var hmac = new HMACSHA512(keyBytes))
+            {
+                var hashValue = hmac.ComputeHash(inputBytes);
+                foreach (var theByte in hashValue)
+                {
+                    hash.Append(theByte.ToString("x2"));
+                }
+            }
+
+            return hash.ToString();
+        }
         public static string UploadImage(IFormFile image, string folder)
         {
             try
@@ -119,7 +127,7 @@ namespace Dynamics.Utility
                     {
                         await image.CopyToAsync(myfile);
                     }
-                     imagesPath += ("/" + Path.Combine(folder, fileName) + ", ").Replace('\\', '/');                       
+                    imagesPath += ("/" + Path.Combine(folder, fileName) + ", ").Replace('\\', '/');                       
                 }
                 //imagesPath = imagesPath.TrimEnd(',', ' ');
                 return imagesPath;
@@ -133,7 +141,7 @@ namespace Dynamics.Utility
         public async static Task<string> UploadFiles(List<IFormFile> files, string folder)
         {
             string filePath = "";
-            var allowedExtensions = new[] { ".txt",".doc",".xls" ,".xlsx", ".docx", ".pdf",".csv" };
+            var allowedExtensions = new[] { ".doc",".xls" ,".xlsx", ".docx", ".pdf",".csv" };
             try
             {
                 if (files.Count == 0)
@@ -164,6 +172,18 @@ namespace Dynamics.Utility
                 return string.Empty;
             }
 
+        }
+
+        public static bool ValidateImage(List<IFormFile> images)
+        {
+            var okImageExtension = new [] {".jpg", ".png", ".gif", ".webp"};
+
+            foreach (var image in images)
+            {
+                var imageExtension = Path.GetExtension(image.FileName).ToLower();
+                if (!okImageExtension.Contains(imageExtension)) return false;
+            }
+            return true;
         }
 
     }

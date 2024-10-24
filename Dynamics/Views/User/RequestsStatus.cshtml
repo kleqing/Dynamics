@@ -14,10 +14,7 @@
 @Html.Partial("CustomComponent/_UserSidebar", "History")
 <div class="divider divider-horizontal"></div>
 @* Right *@
-<div>
-
-</div>
-<div class="w-full h-full flex flex-col gap-6 items-center p-16 bg-white rounded-sm">
+<div class="w-full h-full flex flex-col gap-12 items-center p-16 bg-white rounded-sm">
 <div class="w-full flex justify-center gap-4">
     <div role="tablist" class="tabs tabs-bordered">
         <a asp-action="History" asp-controller="User" class="tab">Transaction history</a>
@@ -27,14 +24,14 @@
 
 <!-- List of joining request to an organization -->
 <section class="w-full">
-    <h1 class="text-center text-3xl font-bold mb-2">Manage your join and donation requests</h1>
-    <h2 class="text-center mb-8 text-neutral">
+    <h1 class="text-3xl font-bold mb-2">Manage your join and donation requests</h1>
+    <h2 class="mb-8 text-neutral">
         <i>If you have requested to join an organization, a project or any resources donation, it will appear here</i>
     </h2>
     <!-- This will list the user requests to join organizations -->
     @if (!Model.OrganizationJoinRequests.IsNullOrEmpty())
     {
-        <h1 class="text-3xl font-bold text-center mb-4">Your requests to join organizations:</h1>
+        <h1 class="text-3xl font-bold mb-4 underline">Your requests to join organizations:</h1>
         <!-- Right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             @* Search bar *@
@@ -71,7 +68,6 @@
             @{
                 foreach (var modelOrganizationJoinRequest in Model.OrganizationJoinRequests)
                 {
-                    if (modelOrganizationJoinRequest.Status == 2) continue;
                     orgCount += 1;
                     <li class="p-4 shadow-md flex justify-between items-center rounded-sm">
                         <!-- Left side -->
@@ -129,8 +125,8 @@
                 }
             }
         </ul>
-        // End list
-        <div class="divider divider-neutral py-8"></div>
+        @* // End list *@
+        @* <div class="divider divider-neutral py-8"></div> *@
     }
 </section>
 @* End list of organization request *@
@@ -140,7 +136,7 @@
     <!-- This will list the user requests to join organizations -->
     @if (!Model.ProjectJoinRequests.IsNullOrEmpty())
     {
-        <h1 class="text-3xl font-bold text-center mb-4">Your requests to join projects:</h1>
+        <h1 class="text-3xl font-bold mb-4 underline">Your requests to join projects:</h1>
         <!-- right search bar -->
         <div class="flex w-full justify-end items-center gap-2 mb-4">
             <div class="join">
@@ -175,6 +171,7 @@
             @{
                 foreach (var modelProjectJoinRequest in Model.ProjectJoinRequests)
                 {
+                    if (modelProjectJoinRequest.Status >= 2) continue; // Don't display project that user is admin or leader
                     prjCount += 1;
                     <li class="p-4 shadow-md flex justify-between rounded-sm">
                         <!-- Left side -->
@@ -223,8 +220,11 @@
                                 case 1:
                                     <p class="badge badge-success min-w-24">Accepted</p>
                                     break;
+                                case -1:
+                                    <p class="badge badge-success min-w-24">Denied</p>
+                                    break;
                                 default:
-                                    <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p>
+                                    @* <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
                                     break;
                             }
                         </div>
@@ -232,7 +232,7 @@
                 }
             }
         </ul>
-        <div class="divider divider-neutral py-8"></div>
+        @* <div class="divider divider-neutral py-8"></div> *@
     }
 </section>
 @* End list of project request *@
@@ -242,8 +242,8 @@
 <section class="w-full">
     @if (!Model.ResourcesDonationRequests.IsNullOrEmpty())
     {
-        <h1 class="text-3xl font-bold text-center mb-4">Pending resources donation requests</h1>
-        <h3 class="text-neutral text-center mb-8">
+        <h1 class="text-3xl font-bold mb-4 underline">Pending resources donation requests</h1>
+        <h3 class="text-neutral mb-8">
             <i>Please wait while the receivers confirm your donation.</i>
         </h3>
         <!-- right search bar -->
@@ -278,9 +278,9 @@
 
         <!-- Table of the resources -->
         <div class="overflow-x-auto">
-            <table class="table table-xs">
-                <thead >
-                <tr >
+            <table class="table table-md">
+                <thead class="bg-gray-300/20">
+                <tr class="text-xl text-gray-900">
                     <th ></th >
                     <th > Donation message </th >
                     <th > Resource</th >
@@ -288,8 +288,8 @@
                     <th > Unit </th >
                     <th > Date </th >
                     <th > Sent to </th >
-                    @* <th > Status </th > *@
                     <th> Cancel ?</th>
+                    <th> Images proof </th>
                 </tr >
                 </thead >
                 <tbody >
@@ -297,7 +297,7 @@
                     foreach (var donationRequest in Model.ResourcesDonationRequests)
                     {
                         donCount += 1;
-                        <tr class="hover">
+                        <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
                             <!-- Content - Resource name - Quantity - Unit - Date - Sent to - Status -->
                             <th>@donCount</th>
                             <td>@donationRequest.Message</td>
@@ -306,22 +306,6 @@
                             <td>@donationRequest.Unit</td>
                             <td>@Html.DisplayFor(u => donationRequest.Time)</td>
                             <td>@donationRequest.Target</td>
-                            @* <td> *@
-                            @*     <div class="flex justify-start items-center h-full"> *@
-                            @*         @switch (donationRequest.Status) *@
-                            @*         { *@
-                            @*             case 0: *@
-                            @*                 <div class="badge badge-primary min-w-24 relative">Pending</div> *@
-                            @*                 break; *@
-                            @*             case 1: *@
-                            @*                 <p class="badge badge-success min-w-24">Accepted</p> *@
-                            @*                 break; *@
-                            @*             default: *@
-                            @*                 <p class="badge badge-warning min-w-24">Status besides 0 and 1 are not implemented</p> *@
-                            @*                 break; *@
-                            @*         } *@
-                            @*     </div> *@
-                            @* </td> *@
                             <td>
                                 <dialog id="@("dModal" + donCount)" class="modal">
                                     <div class="modal-box">
@@ -346,44 +330,44 @@
                                     </form>
                                 </dialog>
                                 <!-- Open the modal using ID.showModal() method -->
-                                <button type="submit" class="btn btn-error btn-xs tooltip min-h-0" data-tip="Cancel donation ?"
-                                        onclick="document.getElementById('@("dModal" + donCount)').showModal()">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
+                                <div class="w-100 h-100 flex justify-center items-center px-0">
+                                    <button type="submit" class="btn btn-error btn-xs tooltip min-h-0 m-auto" data-tip="Cancel donation ?"
+                                            onclick="document.getElementById('@("dModal" + donCount)').showModal()">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <a class="link link-primary showImgLink">Show images</a>
                             </td>
                         </tr>
                     }
                 }
+                </tbody>
 
-                @* <tr class="hover"> *@
-                @*     <th>1</th> *@
-                @*     <td>Hope you guys will get better</td> *@
-                @*     <td>Rice</td> *@
-                @*     <td>10</td> *@
-                @*     <td>Bag</td> *@
-                @*     <td>12/16/2020</td> *@
-                @*     <td>Little dark age alskdjalksdjalksjd</td> *@
-                @*     <td class="text-error font-bold">Pending</td> *@
-                @* </tr> *@
-                </tbody >
-
-                <tfoot >
-                <tr >
-                    <th ></th >
-                    <th > Donation content </th >
-                    <th > Resource </th >
-                    <th > Quantity </th >
-                    <th > Unit </th >
-                    <th > Date </th >
-                    <th > Sent to </th >
-                    @* <th > Status </th > *@
-                    <th> Cancel ?</th>
-                </tr >
-                </tfoot >
+                @* <tfoot > *@
+                @* <tr > *@
+                @*     <th ></th > *@
+                @*     <th > Donation content </th > *@
+                @*     <th > Resource </th > *@
+                @*     <th > Quantity </th > *@
+                @*     <th > Unit </th > *@
+                @*     <th > Date </th > *@
+                @*     <th > Sent to </th > *@
+                @*     $1$ <th > Status </th > #1# *@
+                @*     <th> Cancel ?</th> *@
+                @* </tr > *@
+                @* </tfoot > *@
             </table >
         </div>
-        <div class="divider divider-neutral py-8">End</div>
+        @* <div class="divider divider-neutral py-8">End</div> *@
     }
 </section>
+@* Script to display the images if clicked *@
+<script>
+    let showImgLinks = document.querySelector(".showImgLink");
+    
+</script>
+<partial name="CustomComponent/_SweetAlertToast"/>
 </div>
 </main>

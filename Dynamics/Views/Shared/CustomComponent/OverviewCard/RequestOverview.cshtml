@@ -1,30 +1,28 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Dynamics.Models.Models.Dto.RequestOverviewDto
 
-<li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
+<li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
     <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID">
         <img class="w-full object-cover h-48 rounded-md"
-                src="@Model.FirstImageAttachment"
-                alt="Shoes"/>
+             src="@Model.FirstImageAttachment"
+             alt="Shoes" />
     </a>
-    <div class="card-body p-2 gap-2 w-full">
+    <div class="card-body p-4 gap-2 w-full">
         <!-- Badge left -->
-        <div
-            class="badge badge-secondary outline-none border-none absolute top-2 left-2 bg-error font-bold text-white px-4 py-3">
+        <div class="badge badge-error outline-none border-none absolute top-2 left-2 bg-error font-bold text-white px-4 py-3">
             Request
         </div>
-
         <div class="flex flex-col">
-            <a class="card-title text-primary font-bold mb-2 line-clamp-2 flex flex-col justify-center" asp-action="Index"
-                asp-controller="Request" asp-route-id="@Model.RequestID">
-                    @Model.RequestTitle
+            <a class="card-title text-primary font-bold mb-2 line-clamp-2 flex flex-col justify-center h-14" asp-action="Detail"
+               asp-controller="Request" asp-route-id="@Model.RequestID">
+                @Model.RequestTitle
             </a>
-            <div class="flex justify-between items-start gap-4">
+            <div class="flex justify-between items-start gap-2">
                 <a class="text-neutral hover:text-primary flex-1 line-clamp-2" asp-action="Index"
-                    asp-controller="User" asp-route-username="@Model.Username">
-                    @Model.Username
+                   asp-controller="User" asp-route-username="@Model.Username">
+                    By @Model.Username
                 </a>
-                <span class="flex-1 text-end line-clamp-2">@Model.Location</span>
+                <span class="flex-1 text-end line-clamp-2 h-12">@Model.Location</span>
             </div>
         </div>
 
@@ -32,11 +30,43 @@
             @Model.Content
         </p>
 
-        <div class="card-actions justify-center flex-col items-center">
-            <a asp-action="AcceptRequest" asp-controller="Request" asp-route-requestId="@Model.RequestID"
-                class="btn btn-neutral h-8 min-h-0 outline-none border-none ">
-                Accept
-            </a>
+        <div class="card-actions justify-center flex items-center px-4 gap-4">
+            @if (ViewBag.userID != null)
+            {
+                @if (ViewBag.userID == Model.UserID)
+                {
+                    if (Model.Status == 0)
+                    {
+                        <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
+                           class="btn btn-secondary h-8 min-h-0 outline-none border-none ">
+                            Waiting for approval
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
+                           class="btn btn-neutral btn-sm h-8 outline-none border-none ">
+                            View your request
+                        </a>
+                    }
+                }
+                else
+                {
+                    <a asp-action="AcceptRequest" asp-controller="Request" asp-route-requestId="@Model.RequestID"
+                       class="btn btn-primary h-8 min-h-0 outline-none border-none ">
+                        Accept
+                    </a>
+                }
+            }
+            else
+            {
+                // For guest only
+                <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
+                   class="btn btn-neutral h-8 min-h-0 outline-none border-none ">
+                    View request
+                </a>
+            }
+
         </div>
     </div>
 </li>

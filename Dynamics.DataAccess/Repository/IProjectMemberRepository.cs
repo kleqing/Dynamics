@@ -13,7 +13,7 @@ public interface IProjectMemberRepository
     List<ProjectMember> FilterProjectMember(Expression<Func<ProjectMember, bool>> filter);
     //manage member request-huyen
     Task<bool> AddJoinRequest(Guid memberID, Guid projectID);
-    Task<bool> AcceptedJoinRequestAsync(Guid memberID, Guid projectID);
+    Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID);
 
     Task<bool> DenyJoinRequestAsync(Guid memberID, Guid projectID);
 }

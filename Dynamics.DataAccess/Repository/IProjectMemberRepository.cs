@@ -16,4 +16,5 @@ public interface IProjectMemberRepository
     Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID);
 
     Task<bool> DenyJoinRequestAsync(Guid memberID, Guid projectID);
+    Task<bool> InviteMemberAsync(Guid memberID, Guid projectID);
 }

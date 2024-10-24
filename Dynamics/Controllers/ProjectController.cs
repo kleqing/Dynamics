@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.Execution;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.Dto;
@@ -9,6 +10,7 @@ using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using ILogger = Serilog.ILogger;
 using Util = Dynamics.Utility.Util;
@@ -23,10 +25,7 @@ namespace Dynamics.Controllers
         private readonly IProjectMemberRepository _projectMemberRepo;
         private readonly IProjectResourceRepository _projectResourceRepo;
         private readonly IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo;
-
-        private readonly IOrganizationToProjectTransactionHistoryRepository
-            _organizationToProjectTransactionHistoryRepo;
-
+        private readonly IOrganizationToProjectTransactionHistoryRepository  _organizationToProjectTransactionHistoryRepo;
         private readonly IProjectHistoryRepository _projectHistoryRepo;
         private readonly IReportRepository _reportRepo;
         private readonly IWebHostEnvironment hostEnvironment;
@@ -34,6 +33,7 @@ namespace Dynamics.Controllers
         private readonly IProjectService _projectService;
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly ILogger<ProjectController> _logger;
+        private readonly IUserRepository _userRepository;
         IOrganizationVMService _organizationService;
         private readonly IPagination _pagination;
         private readonly INotificationRepository _notifRepo;
@@ -52,6 +52,7 @@ namespace Dynamics.Controllers
             IMapper mapper, IPagination pagination, INotificationRepository notifRepo,
             IProjectService projectService,
             CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
+            IUserRepository userRepository,
             IOrganizationVMService organizationService, INotificationService notificationService)
         {
             this._projectRepo = _projectRepo;
@@ -70,6 +71,7 @@ namespace Dynamics.Controllers
             _reportRepo = reportRepository;
             _cloudinaryUploader = cloudinaryUploader;
             _logger = logger;
+            _userRepository = userRepository;
             this._organizationService = organizationService;
             _notificationService = notificationService;
         }
@@ -410,7 +412,7 @@ namespace Dynamics.Controllers
         {
             _logger.LogWarning("ManageProjectMember get");
             var allProjectMember =
-                _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status >= 1);
+                _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status >= 1 && p.Status < 4);
             if (allProjectMember == null)
             {
                 throw new Exception("No member in this project!");
@@ -428,6 +430,92 @@ namespace Dynamics.Controllers
             var nums = joinRequests.Count();
             ViewData["hasJoinRequest"] = nums > 0;
             return View(paginatedPM);
+        }
+        public async Task<IActionResult> GetUsersNotInProject(string key)
+        {
+            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            // Fetch the list of users who are not in the project
+            var users = await _userRepository.GetAllUsersAsync();
+            var usersInProject = _projectService.FilterMemberOfProject(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status > 0);
+            var usersNotInProject = users.Where(u => !usersInProject.Any(up => up.UserID == u.UserID));
+            // Return as JSON (you could also return a PartialView)
+            if (!string.IsNullOrEmpty(key))
+            {
+                usersNotInProject = usersNotInProject.Where(u => u.UserFullName.Contains(key, StringComparison.OrdinalIgnoreCase));
+            }
+            return Json(usersNotInProject.Select(u => new {
+                id = u.UserID,
+                name = u.UserFullName,
+                email = u.UserEmail,
+                avatarUrl = u.UserAvatar
+            }));
+        }
+        public async Task<IActionResult> InviteMembers(string userIds)
+        {
+            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            if (string.IsNullOrEmpty(userIds))
+            {
+                TempData[MyConstants.Error] = "No user selected!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+            }
+            var userIdList = userIds.Split(',').Select(Guid.Parse).ToList();
+            foreach (var userId in userIdList)
+            {
+                var res = await _projectMemberRepo.InviteMemberAsync(userId, new Guid(currentProjectID));
+                 if (!res)
+                {
+                    TempData[MyConstants.Error] = "Failed to send invitation!";
+                    return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+                }
+                    var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
+                    var user = _userRepository.GetAsync(u => u.UserID == userId).Result;
+                    var linkUser = Url.Action(nameof(AcceptJoinInvitation), "Project", new { projectId = currentProjectID, memberId = userId }, Request.Scheme);
+                    var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project", new { projectId = currentProjectID, memberId = userId }, Request.Scheme);
+                   //send to user and leader
+                    await _notificationService.InviteProjectMemberRequestNotificationAsync(projectObj, user, linkUser, linkLeader);
+            }
+            TempData[MyConstants.Success] = "Invite members successful!";
+            return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+        }
+        public async Task<IActionResult> AcceptJoinInvitation(Guid projectId,Guid memberId)
+        {
+            var res = await _projectMemberRepo.AcceptJoinRequestAsync(memberId, projectId);
+            var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectId));
+            var user = _userRepository.GetAsync(u => u.UserID == memberId).Result;
+            if (res)
+            {
+                var userName = _userRepository.GetAsync(u => u.UserID == memberId).Result.UserFullName;
+               
+                //send notification to accepted member
+                var link = Url.Action(nameof(ManageProject), "Project", new { id = projectId.ToString() },
+                    Request.Scheme);
+                //send noti to leader
+                await _notificationService.ProcessInviteProjectMemberRequestNotificationAsync(projectObj, user, link, "join");
+                TempData[MyConstants.Success] = $"Welcome! You are now officially a member of the {projectObj.ProjectName} project.";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+            }
+
+            TempData[MyConstants.Error] = $"Apologies! You have not succeeded in joining the {projectObj.ProjectName} project.";
+            return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+        }
+        public async Task<IActionResult> CancelJoinInvitation(Guid projectId, Guid memberId)
+        {
+            var res = await _projectMemberRepo.DeleteAsync(x=>x.UserID==memberId && x.ProjectID == projectId && x.Status == -2);
+            var user = _userRepository.GetAsync(u => u.UserID == memberId).Result;
+            var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectId));
+            if (res!=null)
+            {
+                var link = Url.Action(nameof(ManageProject), "Project", new { id = projectId.ToString() },
+                    Request.Scheme);
+                //send noti cancelled to user
+                await _notificationService.ProcessInviteProjectMemberRequestNotificationAsync(projectObj, user, link, "cancel");
+
+                TempData[MyConstants.Success] = $"The invitation to {user.UserFullName} has been successfully canceled.";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
+            }
+
+            TempData[MyConstants.Error] = $"Failed to cancel the invitation for {user.UserFullName}.";
+            return RedirectToAction(nameof(ManageProjectMember), new { id = projectId });
         }
 
         [Route("Project/DeleteProjectMember/{memberID}")]
@@ -520,8 +608,8 @@ namespace Dynamics.Controllers
                     return RedirectToAction(nameof(ManageProject), new { id = projectID });
                 }
 
-                var res = await _projectMemberRepo.DenyJoinRequestAsync(new Guid(currentUserID), projectID);
-                if (res)
+                var res = await _projectMemberRepo.DeleteAsync(x=> x.UserID == new Guid(currentUserID) && x.ProjectID == projectID);
+                if (res!=null)
                 {
                     TempData[MyConstants.Success] = "Move out project successfull!";
                     return RedirectToAction(nameof(ManageProject), new { id = projectID });
@@ -713,8 +801,6 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> SendDonateRequest(SendDonateRequestVM sendDonateRequestVM,
             List<IFormFile> images)
         {
-            if (ModelState.IsValid)
-            {
                 _logger.LogWarning("SendDonateRequest post");
                 var res = await _projectService.SendDonateRequestAsync(sendDonateRequestVM, images);
                 if (!string.IsNullOrEmpty(res))
@@ -730,30 +816,30 @@ namespace Dynamics.Controllers
                         });
                     }
 
-                if (res.Equals("Exceed"))
-                {
-                    // Return JSON response with failure message
-                    return Json(new
+                    if (res.Equals("Exceed"))
                     {
-                        success = false,
-                        message = "Cannot send resource that causes current quantity exceed expected quantity !"
-                    });
+                        // Return JSON response with failure message
+                        return Json(new
+                        {
+                            success = false,
+                            message = "Cannot send resource that causes current quantity exceed expected quantity !"
+                        });
+                    }
+                    else if (res.Equals(MyConstants.Success))
+                    {
+                    var transactionObj = await _userToProjectTransactionHistoryRepo.GetAsync(x => x.UserID.Equals(sendDonateRequestVM.UserDonate.UserID) && x.ProjectResourceID == sendDonateRequestVM.UserDonate.ProjectResourceID && x.Status == 0);
+                        var link = Url.Action(nameof(ManageProjectDonor), "Project", new { id = sendDonateRequestVM.ProjectID },
+                            Request.Scheme);
+                        await _notificationService.ProcessProjectDonationNotificationAsync(sendDonateRequestVM.ProjectID, transactionObj.TransactionID, link, "donate");
+                        return Json(new { success = true, message = "Your donation request was sent successfully!" });
+                    }
                 }
-                else if (res.Equals(MyConstants.Success))
-                {
-                    var link = Url.Action(nameof(ManageProjectDonor), "Project", new { id = sendDonateRequestVM.ProjectID },
-                        Request.Scheme);
-                    await _notificationService.ProcessProjectDonationNotificationAsync(sendDonateRequestVM.ProjectID, Guid.Empty, link, "donate");
-                    return Json(new { success = true, message = "Your donation request was sent successfully!" });
-                }
-            }
-
-            return Json(new { success = false, message = "Fail to send your donation request!" });
+                return Json(new { success = false, message = "Fail to send your donation request!" });
         }
 
+
         [Route("Project/ManageProjectDonor/{projectID}")]
-        public async Task<IActionResult> ManageProjectDonor(Guid projectID, int pageNumberUD = 1, int pageNumberOD = 1,
-            int pageSize = 10)
+        public async Task<IActionResult> ManageProjectDonor(Guid projectID, int pageNumberUD = 1, int pageNumberOD = 1,    int pageSize = 10)
         {
             _logger.LogWarning("ManageProjectDonor get");
             HttpContext.Session.SetString("Session con song ko vay huhu", "FML");

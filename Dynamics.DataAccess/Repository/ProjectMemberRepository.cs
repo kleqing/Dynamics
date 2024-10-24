@@ -113,4 +113,15 @@ public class ProjectMemberRepository : IProjectMemberRepository
 
         return false;
     }
+    public async Task<bool> InviteMemberAsync(Guid memberID, Guid projectID)
+    {
+        await _context.ProjectMembers.AddAsync(new ProjectMember()
+        {
+            UserID = memberID,
+            ProjectID = projectID,
+            Status = -2
+        });
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

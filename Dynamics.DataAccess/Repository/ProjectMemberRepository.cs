@@ -64,17 +64,22 @@ public class ProjectMemberRepository : IProjectMemberRepository
 
     //------manage member request------------------
 
-    public async Task<bool> AddJoinRequest(Guid memberID, Guid projectID)
+    public async Task<bool> AddJoinRequest(ProjectMember p)
     {
-        _context.ChangeTracker.Clear();
-        var newProjectMember = new ProjectMember();
-        var res = await _context.ProjectMembers.AddAsync(newProjectMember);
-        newProjectMember.ProjectID = projectID;
-        newProjectMember.UserID = memberID;
-        newProjectMember.Status = 0;
+        var existingMember = await _context.ProjectMembers
+            .FirstOrDefaultAsync(pm => pm.UserID == p.UserID && pm.ProjectID == p.ProjectID);
+
+        if (existingMember != null)
+        {
+            // Optionally handle the case where the member already exists
+            return false; // or throw an exception as appropriate
+        }
+
+        await _context.ProjectMembers.AddAsync(p);
         await _context.SaveChangesAsync();
-        return res != null;
+        return true;
     }
+
 
     public async Task<bool> AcceptJoinRequestAsync(Guid memberID, Guid projectID)
     {
@@ -107,5 +112,16 @@ public class ProjectMemberRepository : IProjectMemberRepository
         }
 
         return false;
+    }
+    public async Task<bool> InviteMemberAsync(Guid memberID, Guid projectID)
+    {
+        await _context.ProjectMembers.AddAsync(new ProjectMember()
+        {
+            UserID = memberID,
+            ProjectID = projectID,
+            Status = -2
+        });
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

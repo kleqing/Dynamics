@@ -1,6 +1,10 @@
+using AutoMapper.Execution;
 using CloudinaryDotNet;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
+using Project = Dynamics.Models.Models.Project;
 
 namespace Dynamics.Services;
 
@@ -8,6 +12,7 @@ public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _notifRepo;
     private readonly IHttpContextAccessor _accessor;
+    private readonly IProjectRepository _projectRepo;
     private readonly IProjectMemberRepository _projectMemberRepo;
     private readonly IUserRepository _userRepo;
     private readonly IUserToProjectTransactionHistoryRepository _utpTransRepo;
@@ -18,10 +23,12 @@ public class NotificationService : INotificationService
 
     public NotificationService(INotificationRepository notifRepo, 
         IHttpContextAccessor accessor, 
-        IProjectMemberRepository projectMemberRepo, IUserRepository userRepo, IUserToProjectTransactionHistoryRepository utpTransRepo, IOrganizationToProjectTransactionHistoryRepository otpTransRepo, IOrganizationMemberRepository orgMemberRepo, IOrganizationRepository orgRepo, IUserToOrganizationTransactionHistoryRepository userToOrgTransRepo)
+        IProjectMemberRepository projectMemberRepo, IUserRepository userRepo, IUserToProjectTransactionHistoryRepository utpTransRepo, IOrganizationToProjectTransactionHistoryRepository otpTransRepo, IOrganizationMemberRepository orgMemberRepo, IOrganizationRepository orgRepo, IUserToOrganizationTransactionHistoryRepository userToOrgTransRepo,
+        IProjectRepository projectRepository)
     {
         _notifRepo = notifRepo;
         _accessor = accessor;
+        _projectRepo = projectRepository;
         _projectMemberRepo = projectMemberRepo;
         _userRepo = userRepo;
         _utpTransRepo = utpTransRepo;
@@ -45,7 +52,93 @@ public class NotificationService : INotificationService
         };
         await _notifRepo.AddNotificationAsync(notif);
     }
+    public async Task InviteProjectMemberRequestNotificationAsync(Project projectObj, User member, string linkUser, string linkLeader)
+    {
+        var notif = new Notification
+        {
+            NotificationID = Guid.NewGuid(),
+            UserID = member.UserID,
+            Message = $"Project {projectObj.ProjectName} has sent you an invitation to be their project member",
+            Date = DateTime.Now,
+            Link = linkUser,
+            Status = 0 // Unread
+        };
+        await _notifRepo.AddNotificationAsync(notif);
 
+        var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
+        var notifLeader = new Notification
+        {
+            NotificationID = Guid.NewGuid(),
+            UserID = leaderOfProject.UserID,
+            Message = $"You have sent an invitation to \"{member.UserFullName}\" to join your project {projectObj.ProjectName}.\nClick this notification to cancel the invitation!",
+            Date = DateTime.Now,
+            Link = linkLeader,
+            Status = 0 // Unread
+        };
+        await _notifRepo.AddNotificationAsync(notifLeader);
+    }
+    public async Task ProcessInviteProjectMemberRequestNotificationAsync(Project project, User member, string link, string type)
+    {
+        var leaderOfProject = await GetProjectLeaderAsync(project.ProjectID);
+        switch (type)
+        {
+            case "join":
+                var existed = _notifRepo.GetNotificationAsync(n => n.UserID.Equals(leaderOfProject.UserID) && n.Link.Equals(link));
+                if (existed != null) break;
+                var approveNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = leaderOfProject.UserID,
+                    Message = $"{member.UserFullName} has accepted your invitation",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(approveNotif);
+                break;
+            case "cancel":
+                var cancelNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = member.UserID,
+                    Message = $"Your invitation to join the project {project.ProjectName} has been cancelled",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(cancelNotif);
+                break;
+            case "deny":
+                var denyNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = leaderOfProject.UserID,
+                    Message = $"{member.UserFullName} has denied your invitation",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(denyNotif);
+                break;
+        }
+    }
+    public async Task<User> GetProjectLeaderAsync(Guid projectID)
+    {
+        var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectID));
+        ProjectMember leaderProjectMembers = projectObj?.ProjectMember.Where(x => x.Status == 3).FirstOrDefault();
+        //if no leader then leader is the ceo of organization
+        if (leaderProjectMembers == null)
+        {
+            leaderProjectMembers = projectObj?.ProjectMember.Where(x => x.Status == 2).FirstOrDefault();
+        }
+
+        if (leaderProjectMembers != null)
+        {
+            return leaderProjectMembers?.User;
+        }
+
+        return null;
+    }
     public async Task ProcessJoinRequestNotificationAsync(Guid memberid, string link, string type)
     {
         switch (type)

@@ -289,7 +289,6 @@ public class ProjectService : IProjectService
         };
         return result;
     }
-
     public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID, HttpContext context)
     {
         var projectObj =
@@ -327,53 +326,6 @@ public class ProjectService : IProjectService
         }
         return null;
     }
-
-    public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
-    {
-        _logger.LogWarning("update project is here");
-        var res = await _projectRepo.UpdateAsync(entity);
-        if (!res) return false;
-        //updating 2 member who is new and old leader of project
-        var oldProjectLeaderUser = _accessor.HttpContext.Session.GetString("currentProjectLeaderID");
-        _logger.LogWarning("old leader is here");
-        var oldProjectLeader = _projectMemberRepo
-            .FilterProjectMember(x => x.UserID.Equals(oldProjectLeaderUser) && x.ProjectID.Equals(entity.ProjectID))
-            .FirstOrDefault();
-        _logger.LogWarning("new leader is here");
-        var newProjectLeader = await _context.ProjectMembers.FirstOrDefaultAsync(x =>
-            x.UserID.Equals(newProjectLeaderID) && x.ProjectID.Equals(entity.ProjectID));
-        var ceoOfProjectID = _accessor.HttpContext.Session.GetString("currentProjectCEOID");
-        if (oldProjectLeader != null && newProjectLeader != null &&
-            !oldProjectLeader.UserID.Equals(newProjectLeader.UserID))
-        {
-            if (oldProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
-            {
-                oldProjectLeader.Status = 2;
-            }
-            else
-            {
-                oldProjectLeader.Status = 1;
-            }
-
-            _logger.LogWarning("update old leader is here");
-            await _projectMemberRepo.UpdateAsync(oldProjectLeader);
-            if (newProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
-            {
-                newProjectLeader.Status = 2;
-            }
-            else
-            {
-                newProjectLeader.Status = 3;
-            }
-
-            _logger.LogWarning("update new leader is here");
-            await _projectMemberRepo.UpdateAsync(newProjectLeader);
-            return true;
-        }
-
-        return true;
-    }
-
     //get images
     public async Task<string> GetAllImagesAsync(Guid id, string owner)
     {
@@ -400,7 +352,7 @@ public class ProjectService : IProjectService
 
     public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
     {
-        if (string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
+        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
         if (phaseID != Guid.Empty)
         {
             var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
@@ -414,7 +366,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfPhase = allImagesOfPhase.Replace(img + ",", "");
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1? allImagesOfPhase.Replace(img, ""): allImagesOfPhase.Replace(img + ",","");
                         }
                     }
 
@@ -440,7 +392,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfProject = allImagesOfProject.Replace(img + ",", "");
+                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img + ",", "");
                         }
                     }
 
@@ -476,7 +428,7 @@ public class ProjectService : IProjectService
             //var resImage = await UploadImagesAsync(images, @"images\Project");
             var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
             if (resImage.Equals("Wrong extension")) return resImage;
-            projectObj.Attachment = !resImage.Equals("No file") ? resImage : null;
+            projectObj.Attachment = !resImage.Equals("No file")? resImage : projectObj.Attachment;
             var res = await UpdateProjectAlongWithUpdateLeaderAsync(projectObj, updateProject.NewLeaderID);
             if (!res) return MyConstants.Error;
             return MyConstants.Success;
@@ -484,7 +436,47 @@ public class ProjectService : IProjectService
 
         return MyConstants.Error;
     }
+    public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
+    {
+        _logger.LogWarning("update project is here");
+        var res = await _projectRepo.UpdateAsync(entity);
+        if (!res) return false;
+        //updating 2 member who is new and old leader of project
+        var oldProjectLeaderUser = _accessor.HttpContext.Session.GetString("currentProjectLeaderID");
+        _logger.LogWarning("old leader is here");
+        var oldProjectLeader = _projectMemberRepo.FilterProjectMember(x => x.UserID.Equals(new Guid(oldProjectLeaderUser)) && x.ProjectID.Equals(entity.ProjectID)).FirstOrDefault();
+        _logger.LogWarning("new leader is here");
+        var newProjectLeader = await _context.ProjectMembers.FirstOrDefaultAsync(x =>
+            x.UserID.Equals(newProjectLeaderID) && x.ProjectID.Equals(entity.ProjectID));
+        var ceoOfProjectID = _accessor.HttpContext.Session.GetString("currentProjectCEOID");
+        if (oldProjectLeader != null && newProjectLeader != null &&
+            !oldProjectLeader.UserID.Equals(newProjectLeader.UserID))
+        {
+            if (oldProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
+            {
+                oldProjectLeader.Status = 2;
+            }
+            else
+            {
+                oldProjectLeader.Status = 1;
+            }
 
+            _logger.LogWarning("update old leader is here");
+            await _projectMemberRepo.UpdateAsync(oldProjectLeader);
+            if (newProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
+            {
+                newProjectLeader.Status = 2;
+            }
+            else
+            {
+                newProjectLeader.Status = 3;
+            }
+            _logger.LogWarning("update new leader is here");
+            await _projectMemberRepo.UpdateAsync(newProjectLeader);
+            return true;
+        }
+        return true;
+    }
 
     //working with member of project-----------------------------------------------------------------------------------------
     //get leader of project
@@ -535,7 +527,12 @@ public class ProjectService : IProjectService
             .FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.UserID.Equals(memberID)).FirstOrDefault();
         if (existingJoinRequest == null) // Not existed, add new with status = 0
         {
-            var res = await _projectMemberRepo.AddJoinRequest(memberID, projectID);
+            var res = await _projectMemberRepo.AddJoinRequest(new ProjectMember()
+            {
+                UserID = memberID,
+                ProjectID = projectID,
+                Status = 0
+            });
             if (res)
             {
                 return MyConstants.Success;

@@ -158,14 +158,14 @@ namespace Dynamics.Controllers
                                     Quantity = Convert.ToInt32(worksheet.Cells[row, 2].Value) >= 0 ? Convert.ToInt32(worksheet.Cells[row, 2].Value) : 0,
                                     Unit = worksheet.Cells[row, 5].Value?.ToString(),
                                 };
-
+                                var currentResource = await _projectResourceRepo.GetAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
                                 if (resource.Quantity == 0)
                                 {
+                                    resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";
                                     continue;
                                 }
 
                                 // get current resource
-                                var currentResource = await _projectResourceRepo.GetAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
 
                                 var userToProjectTransactionHistory = new UserToProjectTransactionHistory()
                                 {
@@ -181,7 +181,7 @@ namespace Dynamics.Controllers
                                 {
                                     resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";
                                 }
-                                else
+                                else if (quantityAfterDonate < currentResource.ExpectedQuantity && resource.Quantity > 0)
                                 {
                                     userToProjectTransactionHistory.Attachments = resImage;
                                     await _userToProjectTransactionHistoryRepo.AddUserDonateRequestAsync(userToProjectTransactionHistory);
@@ -189,10 +189,10 @@ namespace Dynamics.Controllers
                             }
                         }
                     }
-                    if (resourceCannotDonate != null)
+                    if (!string.IsNullOrEmpty(resourceCannotDonate))
                     {
-                         TempData[MyConstants.Success] = "Send donate requests successfully.";
-                        TempData[MyConstants.Info] = "But donate request of  " + resourceCannotDonate.TrimEnd(',',' ') + " cannot send because of exceed the expected quantity.";
+                         //TempData[MyConstants.Success] = "Send donate requests successfully.";
+                        TempData[MyConstants.Info] = "Send donate requests successfully.\nBut donate request of  " + resourceCannotDonate.TrimEnd(',',' ') + " cannot send because of invalid quantity of donation.";
                     }
                     else
                     {

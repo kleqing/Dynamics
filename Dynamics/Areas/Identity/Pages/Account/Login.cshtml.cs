@@ -14,6 +14,8 @@ using Dynamics.Utility;
 using Serilog;
 using ILogger = Serilog.ILogger;
 using Dynamics.Models.Models;
+using AutoMapper.Execution;
+using Microsoft.CodeAnalysis;
 
 namespace Dynamics.Areas.Identity.Pages.Account
 {
@@ -130,6 +132,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User logged in.");
+                        if (returnUrl.Contains("JoinProjectRequest"))
+                        {
+                            returnUrl = returnUrl.Replace("memberid=00000000-0000-0000-0000-000000000000", $"memberid={businessUser.UserID.ToString()}");
+                        }
                         return Redirect(returnUrl);
                     }
 

@@ -108,7 +108,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 {
                     return RedirectToAction("Index", "Home", new { area = "Admin" });
                 }
-
+                if (returnUrl.Contains("JoinProjectRequest"))
+                {
+                    returnUrl = returnUrl.Replace("memberid=00000000-0000-0000-0000-000000000000", $"memberid={businessUser.UserID.ToString()}");
+                }
                 return Redirect(returnUrl);
             }
 

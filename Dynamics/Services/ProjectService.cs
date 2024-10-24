@@ -2,14 +2,13 @@
 using Dynamics.DataAccess;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
-using Dynamics.Models.Models.DTO;
 using Project = Dynamics.Models.Models.Project;
 
 namespace Dynamics.Services;

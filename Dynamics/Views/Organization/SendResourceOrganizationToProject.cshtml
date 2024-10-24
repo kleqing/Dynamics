@@ -16,11 +16,11 @@
 }
 
 <div class="py-5 pt-12 px-5 flex justify-center">
-    <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
+    <div class="border border-solid border-gray-500  rounded-box px-5 py-5">
         <h1 class="text-3xl font-semibold mb-10 text-center ">
             Send Resource
         </h1>
-        <form asp-action="SendResourceOrganizationToProject" asp-controller="Organization" class="bg-white p-8 rounded-lg shadow-md w-80">
+        <form asp-action="SendResourceOrganizationToProject" asp-controller="Organization" enctype="multipart/form-data" class="bg-white p-8 rounded-lg shadow-lg">
             <div>
                 <input asp-for="Status" name="0" class="hidden">
                 <input type="date" asp-for="Time" name="Time" class="hidden">
@@ -40,6 +40,17 @@
                 {
                     <span class="text-red-500 d-inline-flex">
                         @ViewBag.MessageExcessQuantity
+                    </span>
+                }
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="@Model.Attachments" class="block text-sm font-medium text-gray-700 mb-1">Image Proof</label>
+                <input asp-for="@Model.Attachments" value="@Model.Attachments" multiple id="file-upload" type="file" name="file" class="file-input file-input-bordered w-full">
+                @if (ViewBag.Images != null)
+                {
+                    <span class="text-red-500 d-inline-flex">
+                        @ViewBag.Images
                     </span>
                 }
             </div>
@@ -67,11 +78,19 @@
                 }
             </div>
 
+            <div class="mb-4">
+                <label asp-for="Message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea asp-for="Message" type="text" name="Message" id="quantity" placeholder="Enter Message"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
             <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300">Send</button>
         </form>
 
 
     </div>
 </div>
+
+
 
 

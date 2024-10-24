@@ -16,7 +16,7 @@
     }
     Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.UserID.ToString());
     //get all notification of current user
-    var userNotifs = await _notifRepo.GetCurrentUserNotificationsAsync(currentUser.UserID);
+    //var userNotifs = await _notifRepo.GetCurrentUserNotificationsAsync(currentUser.UserID);
 }
 @{
     if (currentUser != null)
@@ -54,7 +54,7 @@
                 <span>@(currentUser != null ? currentUser.UserFullName : "Invalid user")</span>
                 
                 <!-- Notification bell icon -->
-                <div class="dropdown dropdown-end">
+                @*<div class="dropdown dropdown-end">
                     <label tabindex="0" class="cursor-pointer">
                         <i class="fa-regular fa-bell cursor-pointer"></i>
                     </label>
@@ -79,7 +79,7 @@
                         <li><span>No new notifications</span></li>
                         }
                     </ul>
-                </div>
+                </div>*@
                 <div class="dropdown dropdown-end">
                     <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">
                         <!-- TODO: Insert username avatar here -->
@@ -133,6 +133,8 @@
         <h1 class="text-rose-500 font-bold text-center text-3xl">IsAuthenticated: @User.Identity.IsAuthenticated</h1>
     }
 }
+
+
 @*Notification script*@
 @* <script src="~/js/signalr/signalr.min.js"></script> *@
 @* <script> *@

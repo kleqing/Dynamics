@@ -52,8 +52,6 @@
 	  <_ContentIncludedByDefault Remove="wwwroot\identity\css\styles.css" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="wwwroot\files\Organization\" />
-	  <Folder Include="wwwroot\files\Organization\" />
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
 		<PackageReference Include="Serilog" Version="4.0.2" />

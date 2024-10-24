@@ -1,8 +1,8 @@
 ﻿using System.Security.Cryptography;
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
 using Dynamics.Utility;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;

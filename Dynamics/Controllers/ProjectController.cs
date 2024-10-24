@@ -1,8 +1,6 @@
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
-using Dynamics.Models.Models.DTO;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
 using Dynamics.Utility;
@@ -13,6 +11,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.SignalR;
 using ILogger = Serilog.ILogger;
 using Util = Dynamics.Utility.Util;
+using Dynamics.Models.Dto;
 
 namespace Dynamics.Controllers
 {

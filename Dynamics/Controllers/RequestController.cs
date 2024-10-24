@@ -247,5 +247,10 @@ namespace Dynamics.Controllers
 			await _requestRepo.DeleteAsync(request);
 			return RedirectToAction("MyRequest", "Request");
 		}
+
+		public async Task<IActionResult> AcceptRequest(Guid requestId)
+		{
+			return RedirectToAction("CreateProject", "Project", new { requestId = requestId });
+		}
 	}
 }

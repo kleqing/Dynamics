@@ -1,10 +1,19 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@model Dynamics.Models.Models.Dto.OrganizationOverviewDto
+@model Dynamics.Models.Dto.OrganizationOverviewDto
+
+
+@{
+    string[] images = new string[1] { "," };
+    if (@Model.OrganizationPictures != null)
+    {
+        images = Model.OrganizationPictures.TrimEnd(',', ' ').Split(",");
+    }
+}
 <li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
     <a asp-action="Detail" asp-controller="Organization"
        asp-route-organizationId="@Model.OrganizationID">
         <img class="w-full object-cover h-48 rounded-md"
-             src="@Model.OrganizationPictures"
+             src="@(images[0])"
              alt="@Model.OrganizationName" />
     </a>
     <div class="card-body p-2 gap-2 w-full">

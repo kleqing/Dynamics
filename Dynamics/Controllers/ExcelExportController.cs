@@ -48,6 +48,11 @@ namespace Dynamics.Controllers
 
                     // Add data
                     int row = 2;
+                    if (currentOrganization.OrganizationResource.Count == 0)
+                    {
+                        TempData[MyConstants.Error] = "This organization has no resource to donate";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
                     foreach (var item in currentOrganization.OrganizationResource)
                     {
                         if (item.ResourceName.ToUpper().Equals("Money".ToUpper()))
@@ -115,6 +120,11 @@ namespace Dynamics.Controllers
 
                     // Add data
                     int row = 2;
+                    if(currentProjectObj.ProjectResource.Count == 0)
+                    {
+                        TempData[MyConstants.Error]= "This project has no resource to donate";
+                        return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectID, donor = "User" });
+                    }
                     foreach (var item in currentProjectObj.ProjectResource)
                     {
                         if (item.ResourceName.ToUpper().Equals("Money".ToUpper())||item.Quantity==item.ExpectedQuantity)

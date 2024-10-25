@@ -5,10 +5,6 @@
 
 @inject IHttpContextAccessor Accessor
 
-
-
-
-
 @{
     var userString = Accessor.HttpContext.Session.GetString("user");
     User currentUser = null;
@@ -63,7 +59,7 @@
                                 int count = 0;
 
                                 //role is CEO
-                                if (currentUser.UserID.Equals(Model.CEO.UserID))
+                                if (currentUser != null && currentUser.UserID.Equals(Model.CEO.UserID))
                                 {
                                     <a asp-action="Edit" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
                                         <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
@@ -79,7 +75,7 @@
                                 var organizationMember = new OrganizationMember();// save satatus of currentUser
                                 @foreach (var item in Model.OrganizationMember)
                                 {
-                                    if (item.User.UserID.Equals(@currentUser.UserID))
+                                    if (currentUser != null && item.User.UserID.Equals(@currentUser.UserID))
                                     {
                                         isJoined = true;
                                         organizationMember = item;
@@ -131,7 +127,10 @@
                                 if (!isJoined)
                                 {
                                     <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                        <input value="@currentUser.UserID" name="userId" type="hidden">
+                                        @if (currentUser != null)
+                                        {
+                                            <input value="@currentUser.UserID" name="userId" type="hidden">
+                                        }
                                         <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>

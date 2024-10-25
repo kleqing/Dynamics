@@ -25,7 +25,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header Section -->
         <div class="mb-8">
-            @if (currentUser.UserID.Equals(Model.CEO.UserID))
+            @if (currentUser!=null && currentUser.UserID.Equals(Model.CEO.UserID))
             {
                 <h1 class="text-3xl font-bold text-gray-900 text-center">
                     Manage and Allocate Resources
@@ -41,7 +41,7 @@
 
         <!-- Main Content Section -->
         <div class="space-y-8">
-            @if (currentUser.UserID.Equals(Model.CEO.UserID))
+            @if (currentUser!=null&& currentUser.UserID.Equals(Model.CEO.UserID))
             {
                 <!-- CEO View -->
                 <div class="bg-white rounded-lg shadow-lg p-6">

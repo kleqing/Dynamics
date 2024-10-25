@@ -99,4 +99,11 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
 
         return false;
     }
+
+    public IQueryable<UserToProjectTransactionHistory> GetAllAsQueryable(Expression<Func<UserToProjectTransactionHistory, bool>>? filter = null)
+    {
+        return filter == null
+            ? _context.UserToProjectTransactionHistories
+            : _context.UserToProjectTransactionHistories.Where(filter);
+    }
 }

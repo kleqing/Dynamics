@@ -411,7 +411,7 @@ public class ProjectService : IProjectService
     {
         if (images != null && images.Count() > 0)
         {
-            var resAttachment = await Util.UploadImages(images, $@"{folder}");
+            var resAttachment = await _cloudinaryUploader.UploadMultiImagesAsync(images);
             return resAttachment;
         }
 
@@ -669,30 +669,30 @@ public class ProjectService : IProjectService
         return MyConstants.Error;
     }
 
-    public async Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID)
-    {
-        var allUserDonate =
-            await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
-                u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
-        if (allUserDonate == null)
-        {
-            return null;
-        }
-
-        var allOrganizationDonate =
-            await _organizationToProjectTransactionHistoryRepo.GetAllOrganizationDonateAsync(u =>
-                u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
-        if (allOrganizationDonate == null)
-        {
-            return null;
-        }
-
-        return new ProjectTransactionHistoryVM()
-        {
-            UserDonate = allUserDonate,
-            OrganizationDonate = allOrganizationDonate
-        };
-    }
+    // public async Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID)
+    // {
+    //     var allUserDonate =
+    //         await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
+    //             u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
+    //     if (allUserDonate == null)
+    //     {
+    //         return null;
+    //     }
+    //
+    //     var allOrganizationDonate =
+    //         await _organizationToProjectTransactionHistoryRepo.GetAllOrganizationDonateAsync(u =>
+    //             u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
+    //     if (allOrganizationDonate == null)
+    //     {
+    //         return null;
+    //     }
+    //
+    //     return new ProjectTransactionHistoryVM()
+    //     {
+    //         UserDonate = allUserDonate,
+    //         OrganizationDonate = allOrganizationDonate
+    //     };
+    // }
 
     public async Task<bool> AcceptDonateProjectRequestAllAsync(Guid projectID, string donor,
         List<IFormFile> proofImages, string link)

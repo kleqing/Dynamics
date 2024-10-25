@@ -8,10 +8,7 @@ using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Dynamics.Controllers
 {
@@ -27,13 +24,16 @@ namespace Dynamics.Controllers
         private readonly IUserToOrganizationTransactionHistoryRepository _userToOrgRepo;
         private readonly IUserToProjectTransactionHistoryRepository _userToPrjRepo;
         private readonly CloudinaryUploader _cloudinaryUploader;
+        private readonly ISearchService _searchService;
+        private readonly IPagination _pagination;
 
         public UserController(IUserRepository userRepo, UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager, ITransactionViewService transactionViewService,
             IProjectMemberRepository projectMemberRepository,
             IOrganizationMemberRepository organizationMemberRepository,
             IUserToOrganizationTransactionHistoryRepository userToOrgRepo,
-            IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader)
+            IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader,
+            ISearchService searchService, IPagination pagination)
         {
             _userRepository = userRepo;
             _userManager = userManager;
@@ -44,6 +44,8 @@ namespace Dynamics.Controllers
             _userToOrgRepo = userToOrgRepo;
             _userToPrjRepo = userToPrjRepo;
             _cloudinaryUploader = cloudinaryUploader;
+            _searchService = searchService;
+            _pagination = pagination;
         }
 
         // View a user profile (including user's own profile)
@@ -118,6 +120,7 @@ namespace Dynamics.Controllers
                         TempData[MyConstants.Subtitle] = "Support formats are: jpg, jpeg, png, gif, webp.";
                         return View(user);
                     }
+
                     if (imgUrl != null) user.UserAvatar = imgUrl;
                 }
 
@@ -126,8 +129,9 @@ namespace Dynamics.Controllers
                 // Update the session as well
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));
                 TempData[MyConstants.Success] = "User updated!";
-                if (currentUser.UserDOB != null)
-                    ViewBag.UserDOB = currentUser.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
+                // Set for display
+                if (user.UserDOB != null)
+                    ViewBag.UserDOB = user.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
             }
             catch (Exception e)
             {
@@ -206,31 +210,33 @@ namespace Dynamics.Controllers
         /**
          * Display all accepted user donations
          */
-        public async Task<IActionResult> History()
+        public async Task<IActionResult> History(SearchRequestDto searchOptions,
+            PaginationRequestDto paginationRequestDto)
         {
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
-            User currentUser = null;
+            User currentUser;
             if (userString != null)
                 currentUser = JsonConvert.DeserializeObject<User>(HttpContext.Session.GetString("user"));
             else return RedirectToAction("Logout", "Auth");
-            var userToOrgTransaction = await _transactionViewService
-                .GetUserToOrganizationTransactionDTOsAsync(ut =>
-                    ut.UserID.Equals(currentUser.UserID) && ut.Status == 1);
-            var userToPrjTransaction = await _transactionViewService
-                .GetUserToProjectTransactionDTOsAsync(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status == 1);
-            // Merge into a list and display
-            var total = new List<UserTransactionDto>();
-            total.AddRange(userToOrgTransaction);
-            total.AddRange(userToPrjTransaction);
+            
+            // Get base query for both type of transactions
+            var userToOrgQueryable = _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status == 1);
+            var userToPrjQueryable = _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status == 1);
+            
+            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchOptions, userToPrjQueryable, userToOrgQueryable);
+            var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchOptions);
+            
             var final = new UserHistoryViewModel
             {
-                userTransactions = total.OrderByDescending(ut => ut.Time).ToList() // Display descending by time
+                UserTransactions = paginated, // Display descending by time (The ordering should already be default in search)
+                PaginationRequestDto = paginationRequestDto,
+                SearchRequestDto = searchOptions,
             };
             return View(final);
         }
 
-        public async Task<IActionResult> RequestsStatus()
+        public async Task<IActionResult> RequestsStatus(SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
         {
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
@@ -245,19 +251,21 @@ namespace Dynamics.Controllers
                 await _organizationMemberRepository.GetAllAsync(om =>
                     om.UserID.Equals(currentUser.UserID) && om.Status < 2);
 
-            // Donation requests only get the pending ones (Money is automatically accepted so it should not be here.)
-            var userToOrgTransaction = await _transactionViewService
-                .GetUserToOrganizationTransactionDTOsAsync(ut =>
-                    ut.UserID.Equals(currentUser.UserID) && ut.Status == 0);
-            var userToPrjTransaction = await _transactionViewService
-                .GetUserToProjectTransactionDTOsAsync(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status == 0);
-            userToPrjTransaction.AddRange(userToOrgTransaction);
+            // Donation requests only get the pending / denied ones (Money is automatically accepted so it should not be here.)
+            var userToOrgQueryable = _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status < 1);
+            var userToPrjQueryable = _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status < 1);
+            
+            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, userToOrgQueryable);
+            var paginated = _pagination.Paginate(total,HttpContext, paginationRequestDto, searchRequestDto );
+            ViewBag.totalPages = paginationRequestDto.TotalPages;
 
             return View(new UserRequestsStatusViewModel
             {
                 OrganizationJoinRequests = userRequestOrganizations,
                 ProjectJoinRequests = userRequestProjects,
-                ResourcesDonationRequests = userToPrjTransaction,
+                ResourcesDonationRequests = paginated,
+                SearchRequestDto = searchRequestDto,
+                PaginationRequestDto = paginationRequestDto
             });
         }
 
@@ -329,6 +337,7 @@ namespace Dynamics.Controllers
                     default:
                         throw new ArgumentException("Invalid type");
                 }
+
                 TempData[MyConstants.Success] = "Cancel successful!";
             }
             catch (Exception e)

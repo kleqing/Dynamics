@@ -60,7 +60,7 @@ public class UserToOrganizationTransactionHistoryRepository : IUserToOrganizatio
         return final.Entity;
     }
 
-    public IQueryable<UserToOrganizationTransactionHistory> GetAllAsQueryable(Expression<Func<UserToOrganizationTransactionHistory, bool>>? filter)
+    public IQueryable<UserToOrganizationTransactionHistory> GetAllAsQueryable(Expression<Func<UserToOrganizationTransactionHistory, bool>>? filter = null)
     {
         return filter == null ? _context.UserToOrganizationTransactionHistories : 
             _context.UserToOrganizationTransactionHistories

@@ -282,7 +282,17 @@ namespace Dynamics.Controllers
             {
                 return NotFound();
             }
-
+            //prevent user from updating project that is not in progress
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = id });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = id });
+            }
             var projectDto = _mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
             projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
             var currentProjectCEO = new Guid(HttpContext.Session.GetString("currentProjectCEOID"));
@@ -467,14 +477,19 @@ namespace Dynamics.Controllers
         var userIdList = userIds.Split(',').Select(Guid.Parse).ToList();
         foreach (var userId in userIdList)
         {
-            var res = await _projectMemberRepo.InviteMemberAsync(userId, new Guid(currentProjectID));
+                var user = _userRepository.GetAsync(u => u.UserID == userId).Result;
+                if (user != null && user.isBanned)
+                {
+                    TempData[MyConstants.Error] = $"Failed to send invitations because user {user.UserFullName} is banned!";
+                    return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+                }
+                var res = await _projectMemberRepo.InviteMemberAsync(userId, new Guid(currentProjectID));
              if (!res)
             {
                 TempData[MyConstants.Error] = "Failed to send invitation!";
                 return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
             }
                 var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
-                var user = _userRepository.GetAsync(u => u.UserID == userId).Result;
                 var linkUser = Url.Action(nameof(AcceptJoinInvitation), "Project", new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                 var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project", new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                //send to user and leader

@@ -1456,6 +1456,7 @@ namespace Dynamics.Controllers
 
         //Repo of tuan
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> CreateProject(Guid? requestId)
         {
             var currentOrganization =

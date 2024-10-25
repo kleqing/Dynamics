@@ -14,29 +14,33 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
-    Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.UserID.ToString());
-    //get all notification of current user
-    var userNotifs = await _notifRepo.GetCurrentUserNotificationsAsync(currentUser.UserID);
+
+    var userNotifs = new List<Notification>();
+    if (currentUser != null)
+    {
+        Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.UserID.ToString());
+        //get all notification of current user
+        userNotifs = await _notifRepo.GetCurrentUserNotificationsAsync(currentUser.UserID);
+    }
 }
 @{
     if (currentUser != null)
     {
         <!-- Navbar -->
-        <div
-            class="navbar bg-white shadow-md fixed top-2 right-6 left-8 border z-20 w-full rounded-lg"
-            style="width: calc(100% - 4rem)">
+        <div class="navbar bg-white shadow-md fixed top-2 right-6 left-8 border z-20 w-full rounded-lg"
+             style="width: calc(100% - 4rem)">
             <!-- Search bar -->
             <div class="tooltip tooltip-info tooltip-bottom" data-tip="Prefix: req/prj/org-name" style="max-width: 300px; width: 100%">
                 <form class="max-w-56 flex flex-row gap-2 items-center" style="width: 100%; max-width: 300px;"
                       asp-action="Search" asp-controller="Home" method="post">
-                    <input
-                        type="text"
-                        name="q"
-                        placeholder="Ex: req-my request name"
-                        class="input input-ghost input-bordered w-full h-10"/>
+                    <input type="text"
+                           name="q"
+                           placeholder="Ex: req-my request name"
+                           class="input input-ghost input-bordered w-full h-10"
+                           required />
                     <button class="btn btn-sm btn-ghost" type="submit">
                         <svg class="w-6 h-6 text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
                         </svg>
                     </button>
                 </form>
@@ -51,7 +55,7 @@
 
             <div class="flex gap-4">
                 <span>@(currentUser != null ? currentUser.UserFullName : "Invalid user")</span>
-                
+
                 <!-- Notification bell icon -->
                 <div class="dropdown dropdown-end">
                     <label tabindex="0" class="cursor-pointer">
@@ -62,7 +66,7 @@
                     <!-- Notification dropdown -->
                     <ul id="notifDropdown"
                         tabindex="0"
-                        class=" dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box w-[32.5rem]">
+                        class="overflow-y-scroll max-h-[65vh] overflow-x-hidden dropdown-content menu menu-sm mt-2 p-2 shadow bg-base-100 rounded-box w-[32.5rem]">
                         @if (userNotifs?.Any() == true)
                         {
                             <li>
@@ -76,7 +80,8 @@
                                     <i id="delNotif"
                                        style="display: none"
                                        class="fa-solid fa-circle-xmark absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 hidden hover:text-red-700 cursor-pointer"
-                                       onclick="DeleteNotification(event, '@notif.NotificationID')"></i>
+                                       onclick="DeleteNotification(event, '@notif.NotificationID')">
+                                    </i>
                                     <a href="@notif.Link" class="flex justify-between items-center @(notif.Status == 0 ? "bg-blue-100" : "bg-gray-300") rounded-lg"
                                        onclick="MarkAsRead(event, '@notif.NotificationID', '@notif.Link')">
                                         <span>@notif.Message</span>
@@ -87,7 +92,9 @@
                         }
                         else
                         {
-                            <li><span>No notifications</span></li>
+                            <li>
+                                <span>No notifications</span>
+                            </li>
                         }
                     </ul>
 
@@ -96,18 +103,18 @@
                     <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">
                         <!-- TODO: Insert username avatar here -->
                         <div class="w-20 rounded-full">
-                            <img alt="@currentUser?.UserFullName" src="@(currentUser?.UserAvatar ?? "/images/User/defaultAva.jpg")"/>
+                            <img alt="@currentUser?.UserFullName" src="@(currentUser?.UserAvatar ?? "/images/User/defaultAva.jpg")" />
                         </div>
                     </div>
-                    <ul
-                        tabindex="0"
+                    <ul tabindex="0"
                         class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
                         <li>
                             <!--This one stays because the username is dynamic so that we can view different user-->
                             <a asp-action="Index" asp-controller="User" asp-route-username="@currentUser.UserFullName">Profile</a>
                         </li>
                         <li>
-                            <a asp-action="Edit" asp-controller="User">Manage profile 
+                            <a asp-action="Edit" asp-controller="User">
+                                Manage profile
                             </a>
                         </li>
                         <li>
@@ -139,10 +146,38 @@
     }
     else
     {
-        <h1 class="text-rose-500 font-bold text-center text-3xl">WARNING: NO USER SESSION DETECTED. DID YOU FORGET TO SET UP ONE OR THIS ONE IS UNAUTHORIZED ?</h1>
-        <h1 class="text-rose-500 font-bold text-center text-3xl">Name: @User.Identity.Name</h1>
-        <h1 class="text-rose-500 font-bold text-center text-3xl">Type: @User.Identity.AuthenticationType</h1>
-        <h1 class="text-rose-500 font-bold text-center text-3xl">IsAuthenticated: @User.Identity.IsAuthenticated</h1>
+        <!-- Navbar -->
+        <div class="navbar bg-white shadow-md fixed top-2 right-6 left-8 border z-20 w-full rounded-lg"
+             style="width: calc(100% - 4rem)">
+            <!-- Search bar -->
+            <div class="tooltip tooltip-info tooltip-bottom" data-tip="Prefix: req/prj/org-name" style="max-width: 300px; width: 100%">
+                <form class="max-w-56 flex flex-row gap-2 items-center" style="width: 100%; max-width: 300px;"
+                      asp-action="Search" asp-controller="Home" method="post">
+                    <input type="text"
+                           name="q"
+                           placeholder="Ex: req-my request name"
+                           class="input input-ghost input-bordered w-full h-10"
+                           required />
+                    <button class="btn btn-sm btn-ghost" type="submit">
+                        <svg class="w-6 h-6 text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Logo, press this should return to home -->
+            <div class="flex-1 flex justify-center">
+                <a class="text-3xl text-center font-bold text-primary" asp-action="Index" asp-controller="Home">
+                    <i>Dynamics</i>
+                </a>
+            </div>
+            <div style="max-width: 300px; width: 100%; justify-content: end" class="flex gap-4 items-center flex-end text-xl">
+                <a class="btn btn-ghost text-primary" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                <a class="btn btn-ghost" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            </div>
+        </div>
+        <!-- End navbar -->
     }
 }
 
@@ -154,13 +189,13 @@
         $.ajax({
             url: '@Url.Action("MarkNotificationAsRead", "Notification")',
             type: 'POST',
-            data: {notificationId: notificationId},
-            success: function(response) {
+            data: { notificationId: notificationId },
+            success: function (response) {
                 if (response.success) {
                     window.location.href = link; // Navigate to the link after the notification is marked as read
                 }
             },
-            error: function() {
+            error: function () {
                 // If the ajax request fails, user can still navigate to the link
                 window.location.href = link;
             }
@@ -168,47 +203,47 @@
     }
 
 
-    function MarkAllAsRead(){
+    function MarkAllAsRead() {
         $.ajax({
             url: '@Url.Action("MarkAllNotificationAsRead", "Notification")',
             type: 'Post',
-            success: function (response){
-                if (response.success){
-                   location.reload(); // Reload to reflect changes
+            success: function (response) {
+                if (response.success) {
+                    location.reload(); // Reload to reflect changes
                 }
             }
         })
     }
-    
-    function DeleteNotification(event, notificationId){
-    event.preventDefault();
+
+    function DeleteNotification(event, notificationId) {
+        event.preventDefault();
         $.ajax({
             url: '@Url.Action("DeleteNotification", "Notification")',
             type: 'POST',
-            data: {notificationId: notificationId},
-            success: function(response) {
-                if (response.success){
+            data: { notificationId: notificationId },
+            success: function (response) {
+                if (response.success) {
                     location.reload(); // Reload to reflect changes
                 }
             }
         });
     }
-    
+
     // need this script to hide the delete notif button
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         // Find all notification list items
         const notificationItems = document.querySelectorAll('li');
 
         // Add hover event listeners to toggle the close icon visibility
         notificationItems.forEach(item => {
-            item.addEventListener('mouseenter', function() {
+            item.addEventListener('mouseenter', function () {
                 const closeIcon = item.querySelector('#delNotif');
                 if (closeIcon) {
                     closeIcon.style.display = 'inline-block';
                 }
             });
 
-            item.addEventListener('mouseleave', function() {
+            item.addEventListener('mouseleave', function () {
                 const closeIcon = item.querySelector('#delNotif');
                 if (closeIcon) {
                     closeIcon.style.display = 'none';
@@ -218,81 +253,3 @@
     });
 
 </script>
-
-@*Notification script*@
-@* <script src="~/js/signalr/signalr.min.js"></script> *@
-@* <script> *@
-@*     "use strict"; *@
-@*     // create connection *@
-@*     var connection = new signalR.HubConnectionBuilder() *@
-@*     .withUrl("/notification") *@
-@*     .withAutomaticReconnect() *@
-@*     .build(); *@
-@* *@
-@*     connection.onreconnecting((error) => { *@
-@*         console.log("Reconnecting to SignalR due to: ", error); *@
-@*     }); *@
-@* *@
-@*     connection.onreconnected((connectionId) => { *@
-@*         console.log("Reconnected to SignalR with connectionId: ", connectionId); *@
-@*     }); *@
-@* *@
-@*     connection.onclose((error) => { *@
-@*         console.log("SignalR connection closed due to: ", error); *@
-@*     }); *@
-@*      *@
-@*     function addNotification(notification){ *@
-@*         var notifList = document.querySelector("#notifDropdown"); *@
-@*         var newNotif = document.createElement("li"); *@
-@*          *@
-@*         if (notification.Status === 0) { *@
-@*             newNotif.className = "p-2 bg-blue-100"; *@
-@*         } else { *@
-@*             newNotif.className = "p-2 bg-gray-100"; *@
-@*         } *@
-@*          *@
-@*         //list element *@
-@*         var link = document.createElement("a"); *@
-@*         link.href = notification.Link || "#"; *@
-@*         link.className = "flex justify-between"; *@
-@*          *@
-@*         var messageSpan = document.createElement("span"); *@
-@*         messageSpan.textContent = notification.Message; *@
-@*          *@
-@*         var dateSpan = document.createElement("span"); *@
-@*         dateSpan.className = "text-sm text-gray-500"; *@
-@*         dateSpan.textContent = new Date(notification.Date).toLocaleDateString(); *@
-@*          *@
-@*         //append *@
-@*         link.appendChild(messageSpan); *@
-@*         link.appendChild(dateSpan); *@
-@*          *@
-@*         newNotif.appendChild(link); *@
-@*          *@
-@*         // add new notification to the top of the list *@
-@*         notifList.insertBefore(newNotif, notifList.firstChild); *@
-@*     } *@
-@*      *@
-@*     // function to handle received notifications *@
-@*     connection.on("ReceiveNotification",function (message) { *@
-@*         var notification = JSON.parse(message); *@
-@*          *@
-@*         addNotification(notification); *@
-@*     }) *@
-@*      *@
-@*     // start the connection *@
-@*     connection.start() *@
-@*         .then(() => console.log("SignalR Connected")) *@
-@*         .catch(function (err) { *@
-@*             return console.error(err.toString()); *@
-@*         }); *@
-@* *@
-@* *@
-@*     document.getElementById("btn-notif").addEventListener("click", function (event) { *@
-@*         var notif = {"NotificationID":"90d4391b-ba09-4d90-94be-04e01a0fdba7","UserID":"dc6ff684-410f-45d3-8a77-77571e5cc7b6","Message":"You have sent a join request to 12312312 project.","Date":"2024-10-22T12:55:02.3319267+07:00","Link":"https://localhost:7276/Request/Detail/f055f543-a6c2-42b0-97f9-e97cb0011b28","Status":0,"User":null}; *@
-@*         connection.invoke("SendClientNotification", notif).catch(function (err) { *@
-@*             return console.error(err.toString()); *@
-@*         }); *@
-@*         event.preventDefault(); *@
-@*     }); *@
-@* </script> *@

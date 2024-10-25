@@ -245,7 +245,7 @@ namespace Dynamics.Controllers
 
             return View(organizationVM);
         }
-
+        [Authorize]
         public IActionResult sendRequestJoinOrganization(Guid organizationId, Guid userId)
         {
             // Get the id from session here, no need to pass it from the view - Kiet
@@ -734,7 +734,7 @@ namespace Dynamics.Controllers
 
             return View(userToOrganizationTransactionHistoryInAOrganizations);
         }
-
+        [Authorize]
         public async Task<IActionResult> MyDonors()
         {
             var userString = HttpContext.Session.GetString("user");

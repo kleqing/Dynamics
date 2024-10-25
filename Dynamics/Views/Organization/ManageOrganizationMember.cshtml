@@ -56,7 +56,7 @@
         </div>
 
       <!-- CEO Controls -->
-        @if (@currentUser.UserID.Equals(@Model.CEO.UserID))
+        @if (currentUser!=null&&currentUser.UserID.Equals(@Model.CEO.UserID))
         {
             <div class="flex justify-center gap-4 mb-8">
                 <a href="#" class="inline-block">

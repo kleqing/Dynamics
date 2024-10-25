@@ -38,7 +38,7 @@ public interface IProjectService
     public Task<List<UserToProjectTransactionHistory>> GetRandom5DonorsAsync(Guid projectID);
     public Task<SendDonateRequestVM> ReturnSendDonateRequestVMAsync(Guid projectID, string donor);
     Task<string> SendDonateRequestAsync(SendDonateRequestVM sendDonateRequestVM,List<IFormFile> images);
-    public Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID);
+    // public Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID);
     Task<bool> AcceptDonateProjectRequestAllAsync(Guid projectID,string donor,List<IFormFile> proofImages);
     Task<bool>DenyDonateProjectRequestAllAsync(Guid projectID,string donor,string reasonToDeny);
     //manage project resource--------------

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.Dto;
 using Dynamics.Models.Models.DTO;
@@ -36,6 +37,7 @@ namespace Dynamics.Controllers
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly ILogger<ProjectController> _logger;
         IOrganizationVMService _organizationService;
+        private readonly ITransactionViewService _transactionViewService;
         private readonly IPagination _pagination;
         private readonly IHubContext<NotificationHub> _notifHubContext;
         private readonly INotificationRepository _notifRepo;
@@ -53,7 +55,7 @@ namespace Dynamics.Controllers
             IMapper mapper, IPagination pagination, INotificationRepository notifRepo,
             IHubContext<NotificationHub> notifHub, IProjectService projectService,
             CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
-            IOrganizationVMService organizationService)
+            IOrganizationVMService organizationService, ITransactionViewService transactionViewService)
         {
             this._projectRepo = _projectRepo;
             this._organizationRepo = _organizationRepo;
@@ -73,6 +75,7 @@ namespace Dynamics.Controllers
             _cloudinaryUploader = cloudinaryUploader;
             _logger = logger;
             this._organizationService = organizationService;
+            _transactionViewService = transactionViewService;
         }
 
         [Route("Project/Index/{userID:guid}")]
@@ -383,9 +386,7 @@ namespace Dynamics.Controllers
                 return NotFound("id is empty!");
             }
             // The session is set in this service
-            HttpContext.Session.SetString("Test data", "Test ne hihi");
             var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id), HttpContext);
-            HttpContext.Session.SetString("Test data lan 2", "Test ne hihi");
             if (detailProject != null)
             {
                 return View(detailProject);
@@ -753,39 +754,26 @@ namespace Dynamics.Controllers
         }
 
         [Route("Project/ManageProjectDonor/{projectID}")]
-        public async Task<IActionResult> ManageProjectDonor(Guid projectID, int pageNumberUD = 1, int pageNumberOD = 1,
-            int pageSize = 10)
+        public async Task<IActionResult> ManageProjectDonor(Guid projectID, SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectDonor get");
-            HttpContext.Session.SetString("Session con song ko vay huhu", "FML");
-            ProjectTransactionHistoryVM projectTransactionHistoryVM =
-                await _projectService.ReturnProjectTransactionHistoryVMAsync(projectID);
-            if (projectTransactionHistoryVM == null)
+            // Base query:
+            var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
+                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+            var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
+                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+            
+            // Setup search query and pagination
+            var transactionDtos = await _transactionViewService.SetupProjectTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, orgToPrjQueryable);
+            var paginated = _pagination.Paginate(transactionDtos, paginationRequestDto, searchRequestDto, HttpContext);
+
+            var projectTransactionHistoryVM = new ProjectTransactionHistoryVM
             {
-                TempData[MyConstants.Error] = "Fail to get history donate of user/organization!";
-                return RedirectToAction(nameof(ManageProject), new { id = projectID });
-            }
-
-            // This one is special bc we are paginating on client side, so unfortunately, no async here
-            var totalUD = projectTransactionHistoryVM.UserDonate.Count();
-            var totalPageUD = (int)Math.Ceiling((double)totalUD / pageSize);
-            var paginatedUD = _pagination.Paginate(projectTransactionHistoryVM.UserDonate, pageNumberUD, pageSize);
-            ViewBag.currentPageUD = pageNumberUD;
-            ViewBag.totalPagesUD = totalPageUD;
-
-            var totalOD = projectTransactionHistoryVM.OrganizationDonate.Count();
-            var totalPageOD = (int)Math.Ceiling((double)totalOD / pageSize);
-            var paginatedOD =
-                _pagination.Paginate(projectTransactionHistoryVM.OrganizationDonate, pageNumberOD, pageSize);
-            ViewBag.currentPageOD = pageNumberOD;
-            ViewBag.totalPagesOD = totalPageOD;
-
-
-            ProjectTransactionHistoryVM PaginateAsyncdVM = new ProjectTransactionHistoryVM()
-            {
-                UserDonate = paginatedUD,
-                OrganizationDonate = paginatedOD
+                Transactions = paginated,
+                PaginationRequestDto = paginationRequestDto,
+                SearchRequestDto = searchRequestDto
             };
+            
             int nums =
                 (await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
                      u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0) ??
@@ -800,8 +788,6 @@ namespace Dynamics.Controllers
 
             ViewData["hasUserDonateRequest"] = hasUserDonateRequest;
             ViewData["hasOrgDonateRequest"] = hasOrgDonateRequest;
-            // Setting session
-            
             return View(projectTransactionHistoryVM);
         }
 

@@ -20,6 +20,7 @@ namespace Dynamics.DataAccess.Repository
         //accept or deny transaction from org
         Task<bool> AcceptOrgDonateRequestAsync(OrganizationToProjectHistory orgDonate);
         Task<bool> DenyOrgDonateRequestAsync(OrganizationToProjectHistory orgDonate);
+        IQueryable<OrganizationToProjectHistory> GetAllAsQueryable(Expression<Func<OrganizationToProjectHistory, bool>>? filter = null);
 
     }
 }

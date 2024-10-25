@@ -4,138 +4,184 @@
 @{
     Layout = "CustomLayout/_LayoutWithNavbarOnly";
     ViewData["Title"] = "Activity history";
-    int count = 0;
+    int count = ((Model.PaginationRequestDto.PageNumber - 1) * Model.PaginationRequestDto.PageSize) + 1;
 }
 
 <main class="flex md:p-6 pb-0 flex-1 min-h-screen">
-@* Left *@
-@Html.Partial("CustomComponent/_UserSidebar", "History")
-<div class="divider divider-horizontal"></div>
-@* Right *@
-<div class="w-full flex flex-col gap-6 items-center py-4 rounded-md shadow-md">
-    <nav class="shadow w-full" style="background-color:#151D28">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-center">
-                <div class="flex space-x-8 text-2xl">
-                    <a asp-action="History" asp-controller="User" class="text-white px-3 py-2 font-bold focus:bg-gray-800">Transaction history</a>
-                    <a asp-action="RequestsStatus" asp-controller="User" class="text-gray-500 hover:text-white px-3 py-2 font-medium">Requests status</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <section class="p-8">
-        <div class="w-full">
-            <h1 class="text-3xl font-bold text-start">Succeeded donations</h1>
-            <h2 class="text-neutral text-start">View your past successful donations</h2>
-        </div>
-        <!-- Right search bar -->
-        <div class="flex w-full justify-end items-center gap-2 mb-4">
-            @* Search bar *@
-            <div class="join">
-                <div>
-                    <div>
-                        <div class="input input-bordered flex items-center gap-2 rounded-r-none">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 viewBox="0 0 16 16"
-                                 fill="currentColor"
-                                 class="h-4 w-4 opacity-70">
-                                <path fill-rule="evenodd"
-                                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                                      clip-rule="evenodd"/>
-                            </svg>
-                            <input type="text" class="grow" placeholder="Search something..."/>
-                        </div>
+    @* Left *@
+    @Html.Partial("CustomComponent/_UserSidebar", "History")
+    <div class="divider divider-horizontal"></div>
+    @* Right *@
+    <div class="w-full flex flex-col gap-6 items-center py-4 rounded-md shadow-md">
+        <nav class="shadow w-full" style="background-color:#151D28">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-center">
+                    <div class="flex space-x-8 text-2xl">
+                        <a asp-action="History" asp-controller="User" class="text-white px-3 py-2 font-bold focus:bg-gray-800">Transaction history</a>
+                        <a asp-action="RequestsStatus" asp-controller="User" class="text-gray-500 hover:text-white px-3 py-2 font-medium">Requests status</a>
                     </div>
                 </div>
-                <!-- TODO: Implement filter dropdown -->
-                <select class="select select-bordered join-item">
-                    <option disabled selected>Filter</option>
-                    <option>Sci-fi</option>
-                    <option>Drama</option>
-                    <option>Action</option>
-                </select>
             </div>
-        </div>
-        <!-- End right search bar -->
-        <!-- List of activity -->
-        <ul class="flex flex-col gap-2 w-full">
-            <!-- An activity -->
-            @{
-            if (Model.userTransactions.IsNullOrEmpty())
-            {
-            <h3 class="font-bold text-center text-2xl">No information available.</h3>
-            }
-            else
-            {
-            <div class="overflow-x-auto">
-                <table class="table table-md">
-                    <thead class="bg-gray-300/20">
-                    <tr class="text-xl text-gray-900">
-                        <th ></th >
-                        <th > User information </th >
-                        <th > Message </th >
-                        <th > Destination </th >
-                        <th > Quantity </th >
-                        <th > Type </th >
-                        <th > Date </th >
-                    </tr >
-                    </thead >
-                    <tbody >
-                    @{
-                    foreach (var transaction in Model.userTransactions)
-                    {
-                    count += 1;
-                    <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
-                        <!-- User date | Message | Target | resource | type -->
-                        <th>@count</th>
-                        <td>
-                            <div class="flex gap-2">
-                                <div class="avatar">
-                                    <div class="w-12 rounded-full">
-                                        <img src="@transaction.User.UserAvatar"/>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p class="font-bold">@transaction.User.UserFullName</p>
-                                </div>
+        </nav>
+        <section class="py-8 px-16 w-full">
+            <div class="w-full">
+                <h1 class="text-3xl font-bold text-start">Succeeded donations</h1>
+                <h2 class="text-neutral text-start">View your past successful donations</h2>
+            </div>
+            <!-- Right search bar -->
+            
+            <form class="flex w-full justify-start items-center gap-2 my-4" id="searchForm" method="get" asp-action="History">
+                @* Hidden pagination inputs *@
+                <input type="hidden" value="@Model.PaginationRequestDto.PageNumber" name="PageNumber"/>
+                <input type="hidden" value="@Model.PaginationRequestDto.PageSize" name="PageSize"/>
+                <input type="hidden" value="@Model.PaginationRequestDto.TotalPages" name="TotalPage"/>
+                <input type="hidden" value="@Model.PaginationRequestDto.TotalRecords" name="TotalRecords"/>
+                @* Search bar *@
+                <div class="join">
+                    <div>
+                        <div>
+                            <div class="input input-bordered flex items-center gap-2 rounded-r-none bg-white">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 16 16"
+                                     fill="currentColor"
+                                     class="h-4 w-4 opacity-70">
+                                    <path fill-rule="evenodd"
+                                          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                                <input type="text" class="grow" placeholder="Search something..." name="Query" value="@Model.SearchRequestDto.Query"/>
                             </div>
-                        </td>
-                        <td>
-                            <p class="text-info">
-                                @(transaction.Message ?? "No message")
-                            </p>
-                        </td>
-                        <td>
-                            <p class="">
-                                Donated to: @transaction.Target
-                            </p>
-                        </td>
-                        <td>
-                            <p class="text-success">@transaction.Amount @transaction.Unit</p>
-                        </td>
-                        <td>
-                            <!-- Type of donation -->
-                            @if (transaction.ResourceName.Equals("money", StringComparison.OrdinalIgnoreCase))
+                        </div>
+                    </div>
+                    <select class="select select-bordered join-item bg-white" name="Filter">
+                        @{
+                            // Default
+                            if (string.IsNullOrEmpty(Model.SearchRequestDto.Filter))
                             {
-                            <p class="badge badge-success min-w-24">Money</p>
+                                <option selected value="Filter">Filter</option>
+                                <option>Money</option>
+                                <option>Resource</option>
+                                <option>Organization</option>
+                                <option>Project</option>
                             }
                             else
                             {
-                            <p class="badge badge-warning min-w-24">Resources</p>
+                                // Keep the old filter back
+                                foreach (var modelFilterOption in Model.FilterOptions)
+                                {
+                                    if (modelFilterOption.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option selected>@modelFilterOption</option>
+                                    }
+                                    else
+                                    {
+                                        <option>@modelFilterOption</option>
+                                    }
+                                }
                             }
-                        </td>
-                        <td>
-                            <p class="">@Html.DisplayFor(m => transaction.Time)</p>
-                        </td>
-                    </tr>
+                        }
+                    </select>
+                    <input name="DateFrom" type="date" placeholder="From date" class="input input-bordered join-item bg-white"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")" />
+                    <input name="DateTo" type="date" placeholder="To date" class="input input-bordered join-item bg-white rounded-md"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")" />
+                </div>
+                <button class="btn btn-primary">Search</button>
+            </form>
+            <span id="searchValidation" class="text-error"></span>
+            <!-- End right search bar -->
+            <!-- List of activity -->
+            <ul class="flex flex-col gap-2 w-full">
+                <!-- An activity -->
+                @{
+                    if (Model.UserTransactions.IsNullOrEmpty())
+                    {
+                        <h3 class="font-bold text-center text-2xl">No information available.</h3>
                     }
+                    else
+                    {
+                        <div class="overflow-x-auto">
+                            <table class="table table-md">
+                                <thead class="bg-gray-300/20">
+                                <tr class="text-xl text-gray-900">
+                                    <th >#</th >
+                                    <th > Date </th >
+                                    @* <th > User information </th > *@
+                                    <th > Message </th >
+                                    <th > Destination </th >
+                                    <th > Quantity </th >
+                                    <th > Type </th >
+                                </tr >
+                                </thead >
+                                <tbody >
+                                @{
+                                    foreach (var transaction in Model.UserTransactions)
+                                    {
+                                        <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
+                                            <!-- User date | Message | Target | resource | type -->
+                                            <th>@count</th>
+                                            <td>
+                                                <p class="">@Html.DisplayFor(m => transaction.Time)</p>
+                                            </td>
+                                            <td>
+                                                <p class="text-info">
+                                                    @(transaction.Message ?? "No message")
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p class="">
+                                                    @transaction.Name
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p class="text-success">@transaction.Amount @transaction.Unit</p>
+                                            </td>
+                                            <td>
+                                                <!-- Type of donation -->
+                                                @if (transaction.ResourceName.Equals("money", StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    <p class="badge badge-success min-w-24">Money</p>
+                                                }
+                                                else
+                                                {
+                                                    <p class="badge badge-warning min-w-24">Resources</p>
+                                                }
+                                            </td>
+                                        </tr>
+                                        count += 1;
+                                    }
+                                }
+                                </tbody>
+                            </table >
+                        </div>
                     }
-                    </tbody>
-                </table >
-            </div>
-            }
-            }
-        </ul>
-    </section>
-</div>
+                }
+                <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
+            </ul>
+        </section>
+    </div>
 </main>
+<script>
+    let searchForm = document.getElementById('searchForm');
+    if (searchForm == null) alert('Cannot find search form');
+    // Setting the dates dynamically
+    const dateFrom = searchForm.querySelector('input[name="DateFrom"]');
+    const dateTo = searchForm.querySelector('input[name="DateTo"]');
+    
+    dateFrom.addEventListener('change', (e) => {
+        let dateFromValue = dateFrom.value;
+        if (dateFromValue) {
+            dateTo.min = dateFromValue;
+        } else {
+            dateTo.removeAttribute('min'); // If date from is cleared, cleared the date to as well
+        }
+    })
+    dateTo.addEventListener('change', function() {
+        const dateToValue = dateTo.value;
+        if (dateToValue) {
+            dateFrom.max = dateToValue;
+        } else {
+            dateFrom.removeAttribute('max');
+        }
+    });
+</script>

@@ -30,7 +30,12 @@ namespace Dynamics.DataAccess.Repository
     Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
             IQueryable<OrganizationToProjectHistory> listOrganizationDonate =
-                _context.OrganizationToProjectTransactionHistory.Include(x => x.ProjectResource).ThenInclude(x => x.Project).Include(x => x.OrganizationResource).ThenInclude(X => X.Organization).Where(filter).OrderByDescending(x => x.Time);
+                _context.OrganizationToProjectTransactionHistory
+                    .Include(x => x.ProjectResource)
+                    .ThenInclude(x => x.Project)
+                    .Include(x => x.OrganizationResource)
+                    .ThenInclude(X => X.Organization)
+                    .Where(filter).OrderByDescending(x => x.Time);
             if (listOrganizationDonate != null)
             {
                 return await listOrganizationDonate.ToListAsync();
@@ -113,6 +118,11 @@ namespace Dynamics.DataAccess.Repository
             }
 
             return false;
+        }
+
+        public IQueryable<OrganizationToProjectHistory> GetAllAsQueryable(Expression<Func<OrganizationToProjectHistory, bool>>? filter = null)
+        {
+            return filter == null ? _context.OrganizationToProjectTransactionHistory : _context.OrganizationToProjectTransactionHistory.Where(filter);
         }
     }
 }

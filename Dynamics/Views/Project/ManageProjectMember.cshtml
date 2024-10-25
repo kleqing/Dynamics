@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using Dynamics.Models.Dto
+@using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
 @inject IProjectMemberRepository ProjectMemberRepository
@@ -55,16 +56,16 @@
                 </a>
             }
             <div class="w-full max-w-sm min-w-[200px] relative">
-                <div class="relative">
+                <form class="relative" id="searchForm">
                     <input class="bg-white w-full pr-11 h-10 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
-                           placeholder="Search for invoice..." />
+                           placeholder="Search for member..." />
                     <button class="absolute h-8 w-8 right-1 top-1 my-auto px-2 flex items-center bg-white rounded "
                             type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-slate-600">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -73,80 +74,81 @@
         <div style="height:60vh">
             <table class="w-full text-left table-auto min-w-max">
                 <thead class="bg-gray-300/20 ">
-                    <tr class="text-xl font-bold text-gray-900">
-                        <th class="text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                            <p class="block font-sans antialiased leading-none  ">
-                                Member
-                            </p>
-                        </th>
+                <tr class="text-xl font-bold text-gray-900">
+                    <th class="text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                        <p class="block font-sans antialiased leading-none  ">
+                            Member
+                        </p>
+                    </th>
+                    <th class=" text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                        <p class="block font-sans antialiased leading-none  ">
+                            Role
+                        </p>
+                    </th>
+                    @if (statusProjectMemberOfUser >= 2)
+                    {
                         <th class=" text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
                             <p class="block font-sans antialiased leading-none  ">
-                                Role
+                                Action
                             </p>
                         </th>
-                        @if (statusProjectMemberOfUser >= 2)
-                        {
-                            <th class=" text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                                <p class="block font-sans antialiased leading-none  ">
-                                    Action
-                                </p>
-                            </th>
-                        }
-                    </tr>
+                    }
+                </tr>
                 </thead>
                 <tbody class="text-base text-gray-900">
-                    @foreach (var item in Model)
-                    {
-                        <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
-                            <td class="p-4 border-b border-blue-gray-50">
-                                <div class="flex items-center gap-3">
-                                    <img src="@item.User.UserAvatar"
-                                         alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center" />
-                                    <div class="flex flex-col">
-                                        <p class="block font-sans antialiased font-normal leading-normal ">
-                                            <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.UserID" class="text-black font-bold"> @item.User.UserFullName</a>
-                                        </p>
-                                        <p class="block font-sans antialiased font-normal leading-normal  ">
-                                            @item.User.UserEmail
-                                        </p>
-                                    </div>
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
+                        <td class="p-4 border-b border-blue-gray-50">
+                            <div class="flex items-center gap-3">
+                                <img src="@item.User.UserAvatar"
+                                     alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center" />
+                                <div class="flex flex-col">
+                                    <p class="block font-sans antialiased font-normal leading-normal ">
+                                        <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.UserID" class="text-black font-bold"> @item.User.UserFullName</a>
+                                    </p>
+                                    <p class="block font-sans antialiased font-normal leading-normal  ">
+                                        @item.User.UserEmail
+                                    </p>
                                 </div>
-                            </td>
-                            <td class="p-4 border-b border-blue-gray-50">
-                                @if (item.Status == 2)
-                                {
-                                    <p class="block font-sans antialiased font-normal leading-normal ">
-                                        CEO
-                                    </p>
-                                }
-                                else if (item.Status == 3)
-                                {
-                                    <p class="block font-sans  antialiased font-normal leading-normal ">
-                                        Leader
-                                    </p>
-                                }
-                                else if (item.Status == 1)
-                                {
-                                    <p class="block font-sans antialiased font-normal leading-normal ">
-                                        Member
-                                    </p>
-                                }
-                            </td>
-                            @if (statusProjectMemberOfUser >= 2)
+                            </div>
+                        </td>
+                        <td class="p-4 border-b border-blue-gray-50">
+                            @if (item.Status == 2)
                             {
-                                <td class="p-4 border-b border-blue-gray-50">
-                                    @if (item.Status == 1)
-                                    {
-                                        <a asp-action="DeleteProjectMember" asp-controller="Project" asp-route-id="@item.User.UserID" type="button" class="h-10 text-white  bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Remove</a>
-                                    }
-                                </td>
+                                <p class="block font-sans antialiased font-normal leading-normal ">
+                                    CEO
+                                </p>
                             }
+                            else if (item.Status == 3)
+                            {
+                                <p class="block font-sans  antialiased font-normal leading-normal ">
+                                    Leader
+                                </p>
+                            }
+                            else if (item.Status == 1)
+                            {
+                                <p class="block font-sans antialiased font-normal leading-normal ">
+                                    Member
+                                </p>
+                            }
+                        </td>
+                        @if (statusProjectMemberOfUser >= 2)
+                        {
+                            <td class="p-4 border-b border-blue-gray-50">
+                                @if (item.Status == 1)
+                                {
+                                    <a asp-action="DeleteProjectMember" asp-controller="Project" asp-route-id="@item.User.UserID" type="button" class="h-10 text-white  bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Remove</a>
+                                }
+                            </td>
+                        }
 
-                        </tr>
-                    }
+                    </tr>
+                }
 
                 </tbody>
             </table>
+            <partial name="CustomComponent/_PaginationFooter" model=""/>
         </div>
         <div class="flex justify-between items-center px-4 py-3">
             <div class="text-sm text-slate-500">

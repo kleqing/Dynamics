@@ -26,7 +26,7 @@
 }
 
 <!-- The body of the home page -->
-<div class="-mt-12 z-10 relative bg-white rounded-3xl px-8 py-16 flex flex-col gap-20">
+<div class="-mt-12 z-10 relative bg-white rounded-3xl px-8 py-16 flex flex-col gap-16">
     <section class="flex flex-col items-center justify-center gap-4">
         <p class="text-3xl text-center font-bold">Discover</p>
         <div class="w-full flex justify-center gap-4">
@@ -74,7 +74,7 @@
                         {
                             foreach (var request in Model.Requests)
                             {
-                                if (request.Status != 1) continue; // Skip the one that has not been pending(0) accepted by organization(2) banned(-1)
+                                // if (request.Status != 1) continue; // Skip the one that has not been pending(0) accepted by organization(2) banned(-1)
                                 <partial name="CustomComponent/OverviewCard/RequestOverview" model="request"/>
                             }
                         }

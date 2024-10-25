@@ -59,4 +59,9 @@ public class UserToOrganizationTransactionHistoryRepository : IUserToOrganizatio
         await _context.SaveChangesAsync();
         return final.Entity;
     }
+
+    public IQueryable<UserToOrganizationTransactionHistory> GetAllAsQueryable(Expression<Func<UserToOrganizationTransactionHistory, bool>>? filter = null)
+    {
+        return filter == null ? _context.UserToOrganizationTransactionHistories : _context.UserToOrganizationTransactionHistories.Where(filter);
+    }
 }

@@ -19,6 +19,7 @@ namespace Dynamics.Models.Models
         [MaxLength(100, ErrorMessage = "Message cannot exceed 100 characters.")]
         public string? Message { get; set; }
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
         public DateOnly Time { get; set; }
         // Can be null bc money don't need attachments
         public string? Attachments { get; set; } 

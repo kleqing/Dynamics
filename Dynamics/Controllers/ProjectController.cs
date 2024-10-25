@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.Execution;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
@@ -13,6 +14,7 @@ using Newtonsoft.Json;
 using ILogger = Serilog.ILogger;
 using Util = Dynamics.Utility.Util;
 using Dynamics.Models.Dto;
+using Project = Dynamics.Models.Models.Project;
 
 namespace Dynamics.Controllers
 {
@@ -34,6 +36,7 @@ namespace Dynamics.Controllers
         private readonly ILogger<ProjectController> _logger;
         private readonly IUserRepository _userRepository;
         IOrganizationVMService _organizationService;
+        private readonly ITransactionViewService _transactionViewService;
         private readonly IPagination _pagination;
         private readonly INotificationService _notificationService;
 
@@ -51,7 +54,8 @@ namespace Dynamics.Controllers
             IProjectService projectService,
             CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
             IUserRepository userRepository,
-            IOrganizationVMService organizationService, INotificationService notificationService)
+            IOrganizationVMService organizationService, INotificationService notificationService,
+            ITransactionViewService transactionViewService)
         {
             this._projectRepo = _projectRepo;
             this._organizationRepo = _organizationRepo;
@@ -70,6 +74,7 @@ namespace Dynamics.Controllers
             _logger = logger;
             _userRepository = userRepository;
             this._organizationService = organizationService;
+            _transactionViewService = transactionViewService;
             _notificationService = notificationService;
         }
 
@@ -81,9 +86,9 @@ namespace Dynamics.Controllers
         {
             //get project that user has joined
             var projectMemberList = _projectMemberRepo.FilterProjectMember(x =>
-                x.UserID.Equals(userID) && x.Status >= 0 && x.Project.ProjectStatus >= 0);
-            List<Models.Models.Project> projectsIAmMember = new List<Models.Models.Project>();
-            List<Models.Models.Project> projectsILead = new List<Models.Models.Project>();
+                x.UserID.Equals(userID) && x.Status >= 1 && x.Project.ProjectStatus >= 0); // (Don't show the ones that are pending)
+            List<Project> projectsIAmMember = new List<Project>();
+            List<Project> projectsILead = new List<Project>();
             foreach (var projectMember in projectMemberList)
             {
                 var project = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(projectMember.ProjectID));
@@ -97,7 +102,7 @@ namespace Dynamics.Controllers
                     }
                     else
                     {
-                        //get project that user join as a member
+                        //get project that user join as a member 
                         projectsIAmMember.Add(project);
                     }
                 }
@@ -404,8 +409,7 @@ namespace Dynamics.Controllers
 
         //----------------------manage project member -------------
         [Route("Project/ManageProjectMember/{projectID}")]
-        public async Task<IActionResult> ManageProjectMember([FromRoute] Guid projectID, int pageNumberPM = 1,
-            int pageSize = 10)
+        public async Task<IActionResult> ManageProjectMember([FromRoute] Guid projectID, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectMember get");
             var allProjectMember =
@@ -415,18 +419,23 @@ namespace Dynamics.Controllers
                 throw new Exception("No member in this project!");
             }
 
-            var totalPM = allProjectMember.Count();
-            var totalPagePM = (int)Math.Ceiling((double)totalPM / pageSize);
-            var paginatedPM = _pagination.Paginate(allProjectMember, pageNumberPM, pageSize);
-            ViewBag.currentPagePM = pageNumberPM;
-            ViewBag.totalPagesPM = totalPagePM;
+            // var totalPM = allProjectMember.Count();
+            // var totalPagePM = (int)Math.Ceiling((double)totalPM / pageSize);
+            // var paginatedPM = _pagination.Paginate(allProjectMember, pageNumberPM, pageSize);
+            // ViewBag.currentPagePM = pageNumberPM;
+            // ViewBag.totalPagesPM = totalPagePM;
+            var paginatedPM = _pagination.Paginate(query: allProjectMember, paginationRequestDto: paginationRequestDto, context: HttpContext);
 
             var joinRequests =
                 _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status == 0) ??
                 Enumerable.Empty<ProjectMember>();
             var nums = joinRequests.Count();
             ViewData["hasJoinRequest"] = nums > 0;
-            return View(paginatedPM);
+            return View(new ManageProjectMemberVM
+            {
+                PaginationRequestDto = paginationRequestDto,
+                ProjectMembers = allProjectMember
+            });
         }
         public async Task<IActionResult> GetUsersNotInProject(string key)
         {
@@ -835,38 +844,26 @@ namespace Dynamics.Controllers
         }
 
         [Route("Project/ManageProjectDonor/{projectID}")]
-        public async Task<IActionResult> ManageProjectDonor(Guid projectID, int pageNumberUD = 1, int pageNumberOD = 1,    int pageSize = 10)
+        public async Task<IActionResult> ManageProjectDonor(Guid projectID, SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectDonor get");
-            HttpContext.Session.SetString("Session con song ko vay huhu", "FML");
-            ProjectTransactionHistoryVM projectTransactionHistoryVM =
-                await _projectService.ReturnProjectTransactionHistoryVMAsync(projectID);
-            if (projectTransactionHistoryVM == null)
+            // Base query:
+            var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
+                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+            var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
+                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+            
+            // Setup search query and pagination
+            var transactionDtos = await _transactionViewService.SetupProjectTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, orgToPrjQueryable);
+            var paginated = _pagination.Paginate(transactionDtos,HttpContext, paginationRequestDto, searchRequestDto);
+
+            var projectTransactionHistoryVM = new ProjectTransactionHistoryVM
             {
-                TempData[MyConstants.Error] = "Fail to get history donate of user/organization!";
-                return RedirectToAction(nameof(ManageProject), new { id = projectID });
-            }
-
-            // This one is special bc we are paginating on client side, so unfortunately, no async here
-            var totalUD = projectTransactionHistoryVM.UserDonate.Count();
-            var totalPageUD = (int)Math.Ceiling((double)totalUD / pageSize);
-            var paginatedUD = _pagination.Paginate(projectTransactionHistoryVM.UserDonate, pageNumberUD, pageSize);
-            ViewBag.currentPageUD = pageNumberUD;
-            ViewBag.totalPagesUD = totalPageUD;
-
-            var totalOD = projectTransactionHistoryVM.OrganizationDonate.Count();
-            var totalPageOD = (int)Math.Ceiling((double)totalOD / pageSize);
-            var paginatedOD =
-                _pagination.Paginate(projectTransactionHistoryVM.OrganizationDonate, pageNumberOD, pageSize);
-            ViewBag.currentPageOD = pageNumberOD;
-            ViewBag.totalPagesOD = totalPageOD;
-
-
-            ProjectTransactionHistoryVM PaginateAsyncdVM = new ProjectTransactionHistoryVM()
-            {
-                UserDonate = paginatedUD,
-                OrganizationDonate = paginatedOD
+                Transactions = paginated,
+                PaginationRequestDto = paginationRequestDto,
+                SearchRequestDto = searchRequestDto
             };
+            
             int nums =
                 (await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
                      u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 0) ??
@@ -881,8 +878,6 @@ namespace Dynamics.Controllers
 
             ViewData["hasUserDonateRequest"] = hasUserDonateRequest;
             ViewData["hasOrgDonateRequest"] = hasOrgDonateRequest;
-            // Setting session
-            
             return View(projectTransactionHistoryVM);
         }
 

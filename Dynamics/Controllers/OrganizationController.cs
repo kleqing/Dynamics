@@ -33,6 +33,7 @@ namespace Dynamics.Controllers
         private readonly IUserToOrganizationTransactionHistoryRepository _userToOrganziationTransactionHistoryRepository;
         private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepository;
         private readonly ITransactionViewService _transactionViewService;
+        private readonly IPagination _pagination;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -45,7 +46,7 @@ namespace Dynamics.Controllers
             , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
             IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
-            ITransactionViewService transactionViewService)
+            ITransactionViewService transactionViewService, IPagination pagination)
         {
 
             _organizationRepository = organizationRepository;
@@ -63,6 +64,7 @@ namespace Dynamics.Controllers
             _userToOrganziationTransactionHistoryRepository = userToOrganizationTransactionHistoryRepository;
             _organizationToProjectTransactionHistoryRepository = organizationToProjectTransactionHistoryRepository;
             _transactionViewService = transactionViewService;
+            _pagination = pagination;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -168,13 +170,13 @@ namespace Dynamics.Controllers
             // All organizations
             var orgs = await _organizationRepository.GetAll().ToListAsync();
             var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs);
-            // My organizations where the user joined / owned
+            // My organizations where the user joined but not the CEO of
             var myOrganizationMembers = await _organizationMemberRepository.GetAllAsync(om => om.UserID == userId);
             if (myOrganizationMembers.IsNullOrEmpty()) return RedirectToAction("Index", "Organization");
             var myOrgs = new List<Organization>();
             foreach (var organizationMember in myOrganizationMembers)
             {
-                myOrgs.Add(organizationMember.Organization);
+                if (organizationMember.Status != 2) myOrgs.Add(organizationMember.Organization);
             }
 
             var MyOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(myOrgs);
@@ -402,7 +404,7 @@ namespace Dynamics.Controllers
 
 
         //Manage history
-        public async Task<IActionResult> ManageOrganizationTranactionHistory()
+        public async Task<IActionResult> ManageOrganizationTranactionHistory(SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
         {
 
             var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
@@ -416,16 +418,24 @@ namespace Dynamics.Controllers
             //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
 
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto => uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0);
-            var orgToPrj = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto => uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
+            var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto => uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
 
-            var userToOrgTransactionDtos = await _transactionViewService.GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
-            var orgToPrjTransactionDtos = await _transactionViewService.GetOrganizationToProjectTransactionDtosAsync(orgToPrj);
+            var total = await _transactionViewService.SetupOrganizationTransactionDtosWithSearchParams(searchRequestDto, orgToPrjQueryable, userToOrgQueryable);
+            var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchRequestDto);
+            
+            // var userToOrgTransactionDtos = await _transactionViewService.GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
+            // var orgToPrjTransactionDtos = await _transactionViewService.GetOrganizationToProjectTransactionDtosAsync(orgToPrjQueryable);
+            //
+            // var total = new List<OrganizationTransactionDto>();
+            // total.AddRange(userToOrgTransactionDtos);
+            // total.AddRange(orgToPrjTransactionDtos);
 
-            var total = new List<OrganizationTransactionDto>();
-            total.AddRange(userToOrgTransactionDtos);
-            total.AddRange(orgToPrjTransactionDtos);
-
-            return View(total);
+            return View(new ManageOrganizationTransactionHistoryVM
+            {
+                Transactions = paginated,
+                SearchRequestDto = searchRequestDto,
+                PaginationRequestDto = paginationRequestDto,
+            });
         }
 
         //Manage Resource

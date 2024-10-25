@@ -35,6 +35,7 @@ namespace Dynamics.Controllers
 		{
 			// Only get the one that is accepted by admin (status = 1)
 			var requests = _requestRepo.GetAllQueryable(r => r.Status == 1);
+			
 			// search
 			if (!string.IsNullOrEmpty(searchQuery))
 			{
@@ -45,6 +46,7 @@ namespace Dynamics.Controllers
 			{
 				requests = await _requestRepo.GetRequestDateFilterAsync(requests, dateFrom, dateTo);
 			}
+			
 			// pagination
 			var totalRequest = await requests.CountAsync();
 			var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);

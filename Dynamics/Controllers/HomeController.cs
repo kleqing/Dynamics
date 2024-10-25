@@ -51,11 +51,11 @@ namespace Dynamics.Controllers
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));
             }
 
-            var requestsQueryable = _requestRepo.GetAllQueryable(r => r.Status == 1);
+            var requestsQueryable = _requestRepo.GetAllQueryable(r => r.Status == 1); // Get accepted requests
             var paginatedRequest = await _pagination.PaginateAsync(requestsQueryable, 1, 9);
             var requestOverview = _requestService.MapToListRequestOverviewDto(paginatedRequest);
 
-            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1); // Get not banned project
+            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1 && p.ProjectStatus != 2); // Get not banned project and finished
             var projectsPaginated = await _pagination.PaginateAsync(projectsQueryable, 1, 9); // Use the query and apply the pagination
             var projectDtos = _projectService.MapToListProjectOverviewDto(projectsPaginated);
 

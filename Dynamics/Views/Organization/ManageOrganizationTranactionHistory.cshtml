@@ -1,19 +1,19 @@
 ﻿@using Dynamics.Utility
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
-@model IEnumerable<Dynamics.Models.Dto.OrganizationTransactionDto>
+@model ManageOrganizationTransactionHistoryVM
 
 
 @{
-    ViewData["Title"] = "ManageOrganizationTranactionHistory";
+    ViewData["Title"] = "ManageOrganizationTransactionHistory";
     Layout = "_LayoutOrganizationForm";
+    int count = ((Model.PaginationRequestDto.PageNumber - 1) * Model.PaginationRequestDto.PageSize) + 1;
 }
 
- @{
-     // var OrganizationToProjectHistorysPending = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key);
-     // var OrganizationToProjectHistorysAccepting = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key);
- }
-
+@{
+    // var OrganizationToProjectHistorysPending = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key);
+    // var OrganizationToProjectHistorysAccepting = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key);
+}
 
 
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
@@ -24,48 +24,65 @@
     <div class="flex relative justify-between my-2" style="width:92%">
         <div class="flex gap-x-6">
             <!-- choose filer/search & button review donate request -->
-            <form class="max-w-md  flex items-center">
-                <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only ">Search</label>
-                <div class="relative ">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                        </svg>
+            <form class="flex w-full justify-start items-center gap-2 my-4" id="searchForm" method="get" asp-action="ManageOrganizationTranactionHistory">
+                @* Hidden pagination inputs *@
+                <input type="hidden" value="@Model.PaginationRequestDto.PageNumber" name="PageNumber"/>
+                <input type="hidden" value="@Model.PaginationRequestDto.PageSize" name="PageSize"/>
+                <input type="hidden" value="@Model.PaginationRequestDto.TotalPages" name="TotalPage"/>
+                <input type="hidden" value="@Model.PaginationRequestDto.TotalRecords" name="TotalRecords"/>
+                @* Search bar *@
+                <div class="join">
+                    <div>
+                        <div>
+                            <div class="input input-bordered flex items-center gap-2 rounded-r-none bg-white">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 16 16"
+                                     fill="currentColor"
+                                     class="h-4 w-4 opacity-70">
+                                    <path fill-rule="evenodd"
+                                          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                                <input type="text" class="grow" placeholder="Search something..." name="Query" value="@Model.SearchRequestDto.Query"/>
+                            </div>
+                        </div>
                     </div>
-                    <input type="search" id="default-search"
-                           class="block w-full px-14 py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500  "
-                           placeholder="Search for something..." required />
+                    <select class="select select-bordered join-item bg-white" name="Filter">
+                        @{
+                            bool first = true;
+                            // Keep the old filter back
+                            for (int i = 0; i < Model.FilterOptions.Length; i++)
+                            {
+                                var modelFilterOption = Model.FilterOptions.ElementAt(i);
+                                // If we already has a filter, select it
+                                if (modelFilterOption.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <option selected>@modelFilterOption</option>
+                                    first = false;
+                                }
+                                else
+                                {
+                                    // Else, discover the first option and select it
+                                    if (first)
+                                    {
+                                        <option selected value="@modelFilterOption">@modelFilterOption</option>
+                                        first = false;
+                                    }
+                                    else
+                                    {
+                                        <option value="@modelFilterOption">@modelFilterOption</option>
+                                    }
+                                }
+                            }
+                        }
+                    </select>
+                    <input name="DateFrom" type="date" placeholder="From date" class="input input-bordered join-item bg-white"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
+                    <input name="DateTo" type="date" placeholder="To date" class="input input-bordered join-item bg-white rounded-md"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
                 </div>
+                <button class="btn btn-primary">Search</button>
             </form>
-            <!-- filter dropdown -->
-            <div class="relative inline-block text-left py-2">
-                <div>
-                    <button type="button"
-                            class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                            id="menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown('dropdown-menu')">
-                        Filter
-                        <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
-                             aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                  clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-                <!-- Dropdown menu -->
-                <div id="dropdown-menu"
-                     class="hidden absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none
-                        transition ease-out duration-100 transform opacity-0 scale-95"
-                     role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
-                    <div class="py-1" role="none">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Name</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Date</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Type resource</a>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- request button -->
@@ -97,140 +114,137 @@
         <div class="overflow-x-auto" style="height:70vh;">
             <table class="table table-md">
                 <thead class="bg-gray-300/20 ">
-                    <tr class="text-gray-900 ">
-                        <th></th>
-                        <th class="text-xl">Date</th>
-                        <th class="text-xl">Name</th>
-                        <th class="text-xl">Resource Name</th>
-                        <th class="text-xl">Quantity</th>
-                        <th class="text-xl">Unit</th>
-                        <th class="text-xl">Message</th>
-                        <th class="text-xl">Status</th>
-                        <th class="text-xl">Action</th>
-                    </tr>
+                <tr class="text-gray-900 ">
+                    <th></th>
+                    <th class="text-xl">Date</th>
+                    <th class="text-xl">Name</th>
+                    <th class="text-xl">Resource Name</th>
+                    <th class="text-xl">Quantity</th>
+                    <th class="text-xl">Unit</th>
+                    <th class="text-xl">Message</th>
+                    <th class="text-xl">Status</th>
+                    <th class="text-xl">Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @for (int i = 0; i < Model.Count(); i++)
-                    {
-                        var item = Model.ElementAt(i);
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-2 text-lg">@(i + 1)</td>
-                            <td class="p-2 text-lg font-semibold">@item.Time</td>
-                            <td class="p-2 text-lg font-semibold">@item.Name</td>
-                            <td class="p-2 text-lg font-semibold">@item.ResourceName</td>
-                            @if (item.Type.Equals("OrgToPrj"))
-                            {
-                                <td class="p-2 text-lg text-red-900">
-                                    -@item.Amount
-                                </td>
-                            }
-                            else{
-                                <td class="p-2 text-lg text-green-900">
-                                    +@item.Amount
-                                </td>
-                                
-                               }
-
-                            <td class="p-2 text-lg">@item.Unit</td>
-                            <td class="p-2 text-lg">@item.Message</td>
-                            <td class="p-2 ">
-                                <div class="w-fit">
-                                    @if (item.Status == 1)
-                                    {
-                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
-
-                                            <span class="">Accepted</span>
-                                        </div>
-
-                                    }
-                                    else if (item.Status == 0)
-                                    {
-                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-blue-800 uppercase rounded-md select-none whitespace-nowrap bg-blue-100">
-
-                                            <span class="">pending</span>
-                                        </div>
-                                    }
-                                    else if (item.Status == -1)
-                                    {
-                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
-                                            <span class="">Denied</span>
-                                        </div>
-                                    }
-                                </div>
+                @for (int i = 0; i < Model.Transactions.Count(); i++)
+                {
+                    var item = Model.Transactions.ElementAt(i);
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2 text-lg">@(i + 1)</td>
+                        <td class="p-2 text-lg font-semibold">@Html.DisplayFor(model => item.Time)</td>
+                        <td class="p-2 text-lg font-semibold">@item.Name</td>
+                        <td class="p-2 text-lg font-semibold">@item.ResourceName</td>
+                        @if (item.Type.Equals("OrgToPrj"))
+                        {
+                            <td class="p-2 text-lg text-red-900">
+                                -@item.Amount
                             </td>
-                            <td>
-                                <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
-                                <!-- You can open the modal using ID.showModal() method -->
-                                <dialog id="proofImagesModal_@item.TransactionID" class="modal">
-                                    <div class="modal-box w-11/12 max-w-5xl">
-                                        <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
-                                        @{
-                                            string[] proofImages = new string[1] { "," };
-                                            if (item.Attachments != null)
-                                            {
-                                                proofImages = item.Attachments.TrimEnd(',', ' ').Split(",");
-                                            }
-                                        }
-                                        <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
-                                            @foreach (var img in proofImages)
-                                            {
-                                                <button onclick="openModal('@img','proof_image')">
-                                                    <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer" />
-                                                </button>
-                                                <dialog id="proof_image" class="modal">
-                                                    <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
-                                                        <img id="modalImage" alt="current-proof-img" class="w-auto rounded-xl shadow-md cursor-pointer" />
-                                                    </div>
-                                                    <form method="dialog" class="modal-backdrop ">
-                                                        <button>close</button>
-                                                    </form>
-                                                </dialog>
+                        }
+                        else
+                        {
+                            <td class="p-2 text-lg text-green-900">
+                                +@item.Amount
+                            </td>
+                        }
 
+                        <td class="p-2 text-lg">@item.Unit</td>
+                        <td class="p-2 text-lg">@item.Message</td>
+                        <td class="p-2 ">
+                            <div class="w-fit">
+                                @if (item.Status == 1)
+                                {
+                                    <div class="relative grid items-center px-2 py-1 font-sans font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
 
-                                            }
-                                        </div>
-
+                                        <span class="">Accepted</span>
                                     </div>
-                                    <form method="dialog" class="modal-backdrop">
-                                        <button>close</button>
-                                    </form>
-                                </dialog>
-                            </td>
-                        </tr>
-                    }
+                                }
+                                else if (item.Status == 0)
+                                {
+                                    <div class="relative grid items-center px-2 py-1 font-sans font-bold text-blue-800 uppercase rounded-md select-none whitespace-nowrap bg-blue-100">
+
+                                        <span class="">pending</span>
+                                    </div>
+                                }
+                                else if (item.Status == -1)
+                                {
+                                    <div class="relative grid items-center px-2 py-1 font-sans font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                                        <span class="">Denied</span>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                            <!-- You can open the modal using ID.showModal() method -->
+                            <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                <div class="modal-box w-11/12 max-w-5xl">
+                                    <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                    @{
+                                        string[] proofImages = new string[1] { "," };
+                                        if (item.Attachments != null)
+                                        {
+                                            proofImages = item.Attachments.TrimEnd(',', ' ').Split(",");
+                                        }
+                                    }
+                                    <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
+                                        @foreach (var img in proofImages)
+                                        {
+                                            <button onclick="openModal('@img','proof_image')">
+                                                <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer"/>
+                                            </button>
+                                            <dialog id="proof_image" class="modal">
+                                                <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                    <img id="modalImage" alt="current-proof-img" class="w-auto rounded-xl shadow-md cursor-pointer"/>
+                                                </div>
+                                                <form method="dialog" class="modal-backdrop ">
+                                                    <button>close</button>
+                                                </form>
+                                            </dialog>
+                                        }
+                                    </div>
+
+                                </div>
+                                <form method="dialog" class="modal-backdrop">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>
-
+        <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
     </div>
 
 
-    <!-- pagination -->
-    <div class="pagination mt-4 flex justify-center space-x-1.5">
-        @if (ViewBag.currentPageUD > 1)
-        {
-            <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD - 1,
-        pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })">
-                <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
-            </a>
-        }
-
-        @for (int i = 1; i <= ViewBag.totalPagesUD; i++)
-        {
-            <a href="@Url.Action("Index", new { pageNumberUD = i,
-        pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })"
-               class="@(ViewBag.currentPageUD == i ? "btn-primary" : "")">
-                <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
-            </a>
-        }
-        @if (ViewBag.currentPageUD < ViewBag.totalPagesUD)
-        {
-            <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD + 1,
-        pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })">
-                <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
-            </a>
-        }
-    </div>
+    @* <!-- pagination --> *@
+    @* <div class="pagination mt-4 flex justify-center space-x-1.5"> *@
+    @*     @if (ViewBag.currentPageUD > 1) *@
+    @*     { *@
+    @*         <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD - 1, *@
+    @*     pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })"> *@
+    @*             <button class="btn bg-white text-black rounded-lg border-solid">Previous</button> *@
+    @*         </a> *@
+    @*     } *@
+    @* *@
+    @*     @for (int i = 1; i <= ViewBag.totalPagesUD; i++) *@
+    @*     { *@
+    @*         <a href="@Url.Action("Index", new { pageNumberUD = i, *@
+    @*     pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })" *@
+    @*            class="@(ViewBag.currentPageUD == i ? "btn-primary" : "")"> *@
+    @*             <button class="btn bg-white text-black rounded-lg border-solid">@i</button> *@
+    @*         </a> *@
+    @*     } *@
+    @*     @if (ViewBag.currentPageUD < ViewBag.totalPagesUD) *@
+    @*     { *@
+    @*         <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD + 1, *@
+    @*     pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })"> *@
+    @*             <button class="btn bg-white text-black rounded-lg border-solid">Next</button> *@
+    @*         </a> *@
+    @*     } *@
+    @* </div> *@
 </div>
 
 @* <div class="py-5 pt-12 px-5 flex justify-center">

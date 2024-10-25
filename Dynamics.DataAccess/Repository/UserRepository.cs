@@ -104,10 +104,9 @@ namespace Dynamics.DataAccess.Repository
             return users;
         }
 
-        public async Task<List<User?>> GetAllUsersAsync()
+        public IQueryable<User> GetUsersQueryable()
         {
-            var users = await _db.Users.ToListAsync();
-            return users;
+            return _db.Users;
         }
 
         //
@@ -132,6 +131,11 @@ namespace Dynamics.DataAccess.Repository
             await _userManager.UpdateAsync(identityUser);
             await _db.SaveChangesAsync();
             return true;
+        }
+        public async Task<List<User?>> GetAllUsersAsync()
+        {
+            var users = await _db.Users.ToListAsync();
+            return users;
         }
     }
 }

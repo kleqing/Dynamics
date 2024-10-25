@@ -139,6 +139,7 @@ namespace Dynamics
             builder.Services.AddScoped<IRequestService, RequestService>();
             builder.Services.AddScoped<IOrganizationService, OrganizationService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ISearchService, SearchService>();
             // VNPAY Service
             builder.Services.AddTransient<IVnPayService, VnPayService>();
             builder.Services.AddScoped<IPagination, Pagination>();

@@ -68,7 +68,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> FinishProjectAsync(FinishProjectVM entity)
         {
-            var projectObj = await _db.Projects.Include(x=>x.ProjectMember).Include(x=>x.ProjectResource).ThenInclude(x=>x.UserToProjectTransactionHistory).AsSplitQuery().
+            var projectObj = await _db.Projects.Include(x=>x.ProjectMember).Include(x=>x.ProjectResource).ThenInclude(x=>x.OrganizationToProjectHistory).AsSplitQuery().
                 Include(x=>x.ProjectResource).ThenInclude(x=>x.UserToProjectTransactionHistory).AsSplitQuery().
                 Where(x => x.ProjectID.Equals(entity.ProjectID)).FirstOrDefaultAsync();
             if (projectObj != null)
@@ -76,7 +76,6 @@ namespace Dynamics.DataAccess.Repository
                 projectObj.ProjectStatus = 2;
                 projectObj.ReportFile = entity.ReportFile;
                 _db.Projects.Update(projectObj);
-                await _db.SaveChangesAsync();
                 foreach(var resouce in projectObj.ProjectResource)
                 {
                     foreach (var userDonate in resouce.UserToProjectTransactionHistory.Where(x=>x.Status==0).ToList())
@@ -92,6 +91,7 @@ namespace Dynamics.DataAccess.Repository
                 {
                     await _projectMemberRepo.DenyJoinRequestAsync(member.UserID, member.ProjectID);
                 }
+                await _db.SaveChangesAsync();
                 return true;
             }
             return false;

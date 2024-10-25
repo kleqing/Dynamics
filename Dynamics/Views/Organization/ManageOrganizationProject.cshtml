@@ -36,7 +36,7 @@
         <!-- Project Grid -->
         <div class="grid grid-cols-3 gap-8">
             <!-- New Project Card (Only for CEO) -->
-            @if (@currentUser.UserID.Equals(Model.CEO.UserID))
+            @if (currentUser!=null && currentUser.UserID.Equals(Model.CEO.UserID))
             {
                 <a href="/Project/CreateProject" class="transform transition duration-300 hover:scale-105">
                     <div class="h-full rounded-2xl border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white overflow-hidden shadow-sm hover:shadow-md">

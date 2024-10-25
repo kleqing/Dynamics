@@ -97,13 +97,13 @@
     <!-- End right search bar -->
 
     <!-- request button -->
-    <div class="relative">
+    <div class="relative flex gap-x-4">
         @if (statusProjectMemberOfUser >= 2)
         {
             <a asp-action="ReviewUserDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
                 <div class="relative inline-flex">
                     <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
-                        Review donate request
+                        Review user donate request
                     </button>
                     @if (ViewData["hasUserDonateRequest"] != null && (bool)ViewData["hasUserDonateRequest"])
                     {
@@ -111,6 +111,19 @@
                     }
                 </div>
             </a>
+                <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
+                    <div class="relative inline-flex">
+                        <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                            Review organization
+                            donate request
+                        </button>
+                        @if (ViewData["hasOrgDonateRequest"] != null && (bool)ViewData["hasOrgDonateRequest"])
+                        {
+                            <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
+                            </span>
+                        }
+                    </div>
+                </a>
         }
     </div>
 </div>

@@ -9,6 +9,7 @@ using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
 using Newtonsoft.Json;
 using Dynamics.DataAccess.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -35,7 +36,7 @@ namespace Dynamics.Controllers
             _userToProjectTransactionHistoryRepo = userToProjectTransactionHistoryRepository;
             _cloudinaryUploader = cloudinaryUploader;
         }
-
+        [Authorize]
         public async Task<ActionResult> Upload(IFormFile file, List<IFormFile> images)
         {
             if (file != null && file.Length > 0)

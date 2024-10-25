@@ -20,15 +20,17 @@ public class NotificationService : INotificationService
     private readonly IOrganizationMemberRepository _orgMemberRepo;
     private readonly IOrganizationRepository _orgRepo;
     private readonly IUserToOrganizationTransactionHistoryRepository _userToOrgTransRepo;
+    private readonly IOrganizationResourceRepository _orgResourceRepo;
 
     public NotificationService(INotificationRepository notifRepo, 
         IHttpContextAccessor accessor, 
         IProjectMemberRepository projectMemberRepo, IUserRepository userRepo, IUserToProjectTransactionHistoryRepository utpTransRepo, IOrganizationToProjectTransactionHistoryRepository otpTransRepo, IOrganizationMemberRepository orgMemberRepo, IOrganizationRepository orgRepo, IUserToOrganizationTransactionHistoryRepository userToOrgTransRepo,
-        IProjectRepository projectRepository)
+        IProjectRepository projectRepository, IOrganizationResourceRepository orgResourceRepo)
     {
         _notifRepo = notifRepo;
         _accessor = accessor;
         _projectRepo = projectRepository;
+        _orgResourceRepo = orgResourceRepo;
         _projectMemberRepo = projectMemberRepo;
         _userRepo = userRepo;
         _utpTransRepo = utpTransRepo;
@@ -286,6 +288,7 @@ public class NotificationService : INotificationService
         {
             projectLeader = await _projectMemberRepo.GetAsync(p => p.ProjectID.Equals(projectId) && p.Status == 2);
         }
+        var project = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectId));
         switch (type)
         {
             case "donate":
@@ -293,7 +296,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = projectLeader.UserID,
-                    Message = $"A donation request has been sent project {projectLeader.Project.ProjectName} of yours.",
+                    Message = $"A donation request has been sent to project {projectLeader.Project.ProjectName} of yours.",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -306,7 +309,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = userDonate.UserID,
-                    Message = $"Your donation to project {userDonate.ProjectResource.Project.ProjectName} has been accepted.",
+                    Message = $"Your donation to project {project.ProjectName} has been accepted.",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -322,7 +325,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = orgLeader.UserID,
-                    Message = $"Donation to project {orgDonate.ProjectResource.Project.ProjectName} has been accepted.",
+                    Message = $"Your organization donation to project {project.ProjectName} has been accepted.",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -335,7 +338,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = userDonatee.UserID,
-                    Message = $"Your donation to project {userDonatee.ProjectResource.Project.ProjectName} has been denied. Reason: {userDonatee.Message}",
+                    Message = $"Your donation to project {project.ProjectName} has been denied. Reason: {userDonatee.Message}",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -351,7 +354,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = orgLeaderr.UserID,
-                    Message = $"Donation to project {orgDonatee.ProjectResource.Project.ProjectName} has been denied. Reason: {orgDonatee.Message}",
+                    Message = $"Your organization donation to project {project.ProjectName} has been denied. Reason: {orgDonatee.Message}",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -495,6 +498,176 @@ public class NotificationService : INotificationService
                     Status = 0 // Unread
                 };
                 await _notifRepo.AddNotificationAsync(denyNotif);
+                break;
+        }
+    }
+
+    public async Task ProcessOrganizationJoinRequestNotificationAsync(Guid userId, Guid orgId, string link, string type)
+    {
+        switch (type)
+        {
+            case "send":
+                var org = await _orgRepo.GetOrganizationAsync(o => o.OrganizationID.Equals(orgId));
+                var sendNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = userId,
+                    Message = $"You have sent a join request to {org.OrganizationName} organization.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(sendNotif);
+                break;
+            case "join":
+                var approveNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = userId,
+                    Message = "Your organization join request has been approved.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(approveNotif);
+                break;
+            case "deny":
+                var denyNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = userId,
+                    Message = "Your organization joint request has been denied.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(denyNotif);
+                break;
+        }
+    }
+
+    public async Task ProcessOrganizationLeaveNotificationAsync(Guid userId, Guid orgId, string link, string type)
+    {
+        var org = await _orgRepo.GetOrganizationAsync(o => o.OrganizationID.Equals(orgId));
+        switch (type)
+        {
+            case "left":
+                var leftNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = userId,
+                    Message = $"You had left organization {org.OrganizationName}.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(leftNotif);
+                break;
+            case "remove":
+                var removeNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = userId,
+                    Message = $"You have been removed from {org.OrganizationName} organization.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(removeNotif);
+                break;
+        }
+    }
+
+    public async Task TransferOrganizationCeoNotificationAsync(Guid newCEOId, Guid oldCEOId, Guid orgId, string link)
+    {
+        var org = await _orgRepo.GetOrganizationAsync(o => o.OrganizationID.Equals(orgId));
+        var newCEO = await _userRepo.GetAsync(u => u.UserID.Equals(newCEOId));
+        var oldCEO = await _userRepo.GetAsync(u => u.UserID.Equals(oldCEOId));
+        var newCEONotif = new Notification
+        {
+            NotificationID = Guid.NewGuid(),
+            UserID = newCEOId,
+            Message = $"You have been appointed to be {org.OrganizationName} organization CEO by {oldCEO.UserFullName}.",
+            Date = DateTime.Now,
+            Link = link,
+            Status = 0 // Unread
+        };
+        var oldCEONotif = new Notification
+        {
+            NotificationID = Guid.NewGuid(),
+            UserID = oldCEOId,
+            Message = $"You have transferred your CEO position from {org.OrganizationName} organization to {newCEO.UserFullName}.",
+            Date = DateTime.Now,
+            Link = link,
+            Status = 0 // Unread
+        };
+        await _notifRepo.AddNotificationAsync(newCEONotif);
+        await _notifRepo.AddNotificationAsync(oldCEONotif);
+    }
+
+    public async Task ProcessOrganizationResourceNotificationAsync(Guid resourceId, string link, string type)
+    {
+        var resource = await _orgResourceRepo.GetAsync(r => r.ResourceID.Equals(resourceId));
+        var orgLeader = await _orgMemberRepo.GetAsync(om => om.OrganizationID.Equals(resource.OrganizationID) && om.Status == 2);
+        var org = await _orgRepo.GetOrganizationAsync(o => o.OrganizationID.Equals(resource.OrganizationID));
+        switch (type)
+        {
+            case "add":
+                var addNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = orgLeader.UserID,
+                    Message = $"You have successfully added {resource.ResourceName} to {org.OrganizationName} organization.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(addNotif);
+                break;
+            case "remove":
+                var removeNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = orgLeader.UserID,
+                    Message = $"You have successfully removed {resource.ResourceName} from {org.OrganizationName} organization.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(removeNotif);
+                break;
+        }
+    }
+
+    public async Task OrganizationSendToProjectNotificationAsync(OrganizationResource resource, Guid projectId, string link, string type)
+    {
+        var orgLeader = await _orgMemberRepo.GetAsync(om => om.OrganizationID.Equals(resource.OrganizationID) && om.Status == 2);
+        var project = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectId));
+        switch (type)
+        {
+            case "sent":
+                var sentNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = orgLeader.UserID,
+                    Message = $"Your organization have sent {resource.ResourceName} to {project.ProjectName} project.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(sentNotif);
+                break;
+            case "unsent":
+                var unsentNotif = new Notification
+                {
+                    NotificationID = Guid.NewGuid(),
+                    UserID = orgLeader.UserID,
+                    Message = $"Your organization have successfully unsent {resource.ResourceName} from {project.ProjectName} project.",
+                    Date = DateTime.Now,
+                    Link = link,
+                    Status = 0 // Unread
+                };
+                await _notifRepo.AddNotificationAsync(unsentNotif);
                 break;
         }
     }

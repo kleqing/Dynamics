@@ -1453,6 +1453,7 @@ namespace Dynamics.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateProject(Guid? requestId)
         {
+            
             var currentOrganization =
                 HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
@@ -1502,7 +1503,7 @@ namespace Dynamics.Controllers
             }
 
             projectVM.OrganizationVM = currentOrganization;
-
+            projectVM.LeaderID = currentUser.UserID;
             if (projectVM.LeaderID != Guid.Empty)
             {
                 var Leader = new User();

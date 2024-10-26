@@ -1,0 +1,30 @@
+﻿@using Dynamics.Utility
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+@{
+    if (TempData[MyConstants.Success] != null)
+    {
+        <script>
+            console.log("How is this one");
+            toastr.success('@TempData[MyConstants.Success]');
+        </script>
+    } else if (TempData[MyConstants.Error] != null)
+    {
+        <script>
+            toastr.error('@TempData[MyConstants.Error]');
+        </script>
+    } else if (TempData[MyConstants.Info] != null)
+    {
+        <script>
+            toastr.info('@TempData[MyConstants.Info]');
+        </script>
+    }
+    else if (TempData[MyConstants.Warning] != null)
+    {
+        <script>
+            toastr.warning('@TempData[MyConstants.Warning]');
+        </script>
+    }
+}

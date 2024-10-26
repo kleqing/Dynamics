@@ -1,0 +1,86 @@
+﻿
+@model Dynamics.Models.Models.Organization
+
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="container my-5 p-5 pt-12 flex justify-center items-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl" style="margin: 0 auto">
+        <h1 class="text-2xl font-bold mb-6 text-center">Update Infomation Organization to continue:</h1>
+
+        <p class="text-sm text-gray-600 mb-6 text-center">
+            If you are a member of an organization, tell your leader to accept this request instead!
+        </p>
+
+        <form asp-action="Edit" asp-controller="Organization" enctype="multipart/form-data" method="post">
+            <div>
+                <input asp-for="@Model.OrganizationID" value="@Model.OrganizationID" class="hidden">
+                <input type="date" asp-for="@Model.StartTime" class="hidden" name="StartTime"/>
+                <input asp-for="OrganizationPictures" name ="OrganizationPictures" class="hidden">
+            </div>
+            <div class="mb-4">
+                <label asp-for="OrganizationName" class="block text-sm font-medium text-gray-700 mb-1">Enter organization name:</label>
+                <input asp-for="OrganizationName" name="OrganizationName" type="text" id="org-name" placeholder="Enter name" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <span asp-validation-for="OrganizationName" class="text-red-500"></span>
+
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="OrganizationDescription" class="block text-sm font-medium text-gray-700 mb-1">Enter organization description</label>
+                <textarea asp-for="OrganizationDescription" name="OrganizationDescription" id="org-description" rows="5" placeholder="Enter your description" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                <span asp-validation-for="OrganizationDescription" class="text-red-500"></span>
+
+            </div>
+
+            <div class="mb-6 ">
+                <div class="flex gap-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload organization image (Optional)</label>
+                    <div class="flex space-x-2">
+
+                        <label  for="file-upload" class="file-upload-label px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <span>Choose images</span>
+                        </label>
+                        <input multiple id="file-upload" type="file" name="images" class="hidden">
+                        @* <button type="button" class="px-4 py-2 bg-gray-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Use from the request
+                        </button>*@
+                    </div>
+                </div>
+                
+
+                <p class="mt-1 text-xs text-gray-500">The images that will appear in the front cover of your organization</p>
+            </div>
+            
+            <div class="mb-4">
+                <label asp-for="OrganizationEmail" class="block text-sm font-medium text-gray-700 mb-1">Enter organization Email (Optinal)</label>
+                <input asp-for="OrganizationEmail" name="OrganizationEmail" type="email" placeholder="Enter Organization Email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="mt-1 text-xs text-gray-500">If you leave it blank I will default to getting information from your account</p>
+
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="OrganizationPhoneNumber" class="block text-sm font-medium text-gray-700 mb-1">Enter organization Phone Number (Optinal)</label>
+                <input asp-for="OrganizationPhoneNumber" name="OrganizationPhoneNumber" type="tel" placeholder="Enter Organization Phone Number" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="mt-1 text-xs text-gray-500">If you leave it blank I will default to getting information from your account</p>
+
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="OrganizationAddress" class="block text-sm font-medium text-gray-700 mb-1">Enter organization Address (Optinal)</label>
+                <input asp-for="OrganizationAddress" name="OrganizationAddress" type="text" placeholder="Enter Organization Address" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="mt-1 text-xs text-gray-500">If you leave it blank I will default to getting information from your account</p>
+
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit" class="px-6 py-2 bg-blue-900 text-white font-medium rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Save!
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+

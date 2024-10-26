@@ -178,7 +178,7 @@ namespace Dynamics.Areas.Admin.Controllers
                 workSheet.Cells[1, 1].Style.Font.Size = 14;
                 workSheet.Cells[1, 1].Style.Font.Bold = true;
                 workSheet.Cells["A1:D1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                workSheet.Cells["A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                workSheet.Cells["1A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
                 workSheet.Cells[2, 1].Value = "Request Name";
                 workSheet.Cells[2, 2].Value = "Request Description";

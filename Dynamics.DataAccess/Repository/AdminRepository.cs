@@ -298,7 +298,7 @@ namespace Dynamics.DataAccess.Repository
         }
 
         // ---------------------------------------
-        // View Recent request (Recent item in dashoard page)
+        // * View Recent request (Recent item in dashoard page)
         public async Task<List<Request>> ViewRecentItem()
         {
             return await _db.Requests.Include(r => r.User).OrderByDescending(x => x.CreationDate).Take(7).ToListAsync();

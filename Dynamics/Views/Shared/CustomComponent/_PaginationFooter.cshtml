@@ -1,0 +1,72 @@
+﻿@model Dynamics.Models.Dto.PaginationRequestDto
+@* TODO: Handle multiple search form ? *@
+@{
+    var startRecords = ((Model.PageNumber - 1) * Model.PageSize) + 1; // page 2 , size 9 => Showing from 10 -> 18
+    var endRecords = Model.PageNumber * Model.PageSize;
+    if (endRecords > Model.TotalRecords) endRecords = Model.TotalRecords;
+}
+
+<div class="flex justify-between items-center px-4 py-3">
+    <div class="text-sm text-slate-500">
+        Showing <b>@startRecords-@endRecords</b> of @Model.TotalRecords
+    </div>
+    <div class="flex space-x-1">
+        @if (Model.PageNumber > 1)
+        {
+            <button id="prePageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                Previous
+            </button>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                @i
+            </button>
+        }
+
+        @if (Model.PageNumber < Model.TotalPages)
+        {
+            <button id="nextPageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                Next
+            </button>
+        }
+    </div>
+</div>
+
+@* Scripts used to set the hidden pagination related input in the search bar *@
+<script>
+    let previousPage = @Model.PageNumber - 1
+    let nextPage = @Model.PageNumber + 1
+    let totalPage = @Model.TotalPages;
+    let targetSearchForm = document.getElementById('searchForm')
+    let pageNumberElement = targetSearchForm.querySelector('input[name="PageNumber"]');
+    
+    // Handle click on numbers
+    // Handle click on page number buttons
+    for (let i = 1; i <= totalPage; i++) {
+        document.getElementById('pageBtn_' + i)?.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default behavior
+            pageNumberElement.value = i; // Set the page number to the clicked button number
+            targetSearchForm.submit(); // Submit the form
+        });
+    }
+    
+    // Handle previous button click
+    document.getElementById('prePageBtn')?.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default behavior
+        if (previousPage > 0) { // Ensure valid page number
+            pageNumberElement.value = previousPage; // Set the previous page number
+            targetSearchForm.submit(); // Submit the form
+        }
+    });
+
+    // Handle next button click
+    document.getElementById('nextPageBtn')?.addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default behavior
+        if (nextPage <= totalPage) { // Ensure valid page number
+            pageNumberElement.value = nextPage; // Set the next page number
+            targetSearchForm.submit(); // Submit the form
+        }
+    });
+</script>

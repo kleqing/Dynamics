@@ -1,0 +1,450 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+@inject IProjectRepository ProjectRepository
+@model Dynamics.Models.Dto.UpdateProjectProfileRequestDto
+
+@{
+    ViewData["Title"] = "Update " + Model.ProjectName+" Profile";
+    Layout = "~/Views/Shared/_LayoutProject.cshtml";
+     ShutdownProjectVM shutdownProjectVM = new ShutdownProjectVM();
+     FinishProjectVM finishProjectVM = new FinishProjectVM();
+         var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
+           string[] projectImages = new string[1] { ","};
+    if (Model.Attachment != null)
+    {
+      projectImages  = Model.Attachment.TrimEnd(',',' ').Split(",");
+    }
+}
+@* <link rel="stylesheet" href="~/css/output.css" /> *@
+
+
+<!-- include container + button -->
+<div class="m-w-screen-2xl flex items-center justify-center relative">
+    <!-- edit button -->
+    <a asp-action="ManageProject" asp-route-id="@Model.ProjectID" title="Turn back to project detail">
+        <button class="flex absolute top-2 right-0  items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+            Previous page
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </a>
+    <!-- container start -->
+    <div class="flex flex-col relative" style="width: 70%;">
+        <div class="w-full flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
+            <h2 class="font-serif text-black font-bold text-3xl text-center ">Update @Model.ProjectName profile</h2>
+            <!-- form 1 -->
+            <form asp-action="UpdateProjectProfile" asp-controller="Project" enctype="multipart/form-data" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="@Model.ProjectID"/>
+                 <input type="hidden"  asp-for="@Model.OldLeaderID" value="@Model.NewLeaderID" />
+                <div class="grid grid-cols-2 gap-x-10 gap-y-3">
+                    <div>
+                        <label asp-for="@Model.ProjectName" class="block mb-2 text-md font-medium text-gray-900">Enter project Name</label>
+                        <input asp-for="ProjectName" type="text" id="first_name"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                required />
+                        <span asp-validation-for="ProjectName" class="text-danger"></span>
+                    </div>
+                       <div class="flex flex-col mt-4">
+                        <div class="flex justify-start items-center">
+                            <label for="Attachment" class="block mb-2 text-md font-medium text-gray-900 pr-4">Upload project images</label>
+                            <input multiple asp-for="Attachment" type="file" name="images" id="Attachment" style="display:none;" />
+                            <input type="hidden" id="attachmentHidden" asp-for="Attachment" value="@Model.Attachment" />
+
+                            <button id="button" type="button" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
+                                p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white bg-blue-800" onclick="thisFileUpload();">
+                                Choose images
+                            </button>
+                        </div>
+                        <!-- Image file name will be shown here -->
+                        <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
+                         <span class="text-gray-400 text-sm">The images will appear in your project covers and description</span>
+                         <div id="notificationImgMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
+
+                    </div>
+                    <div>
+                        <label asp-for="ProjectDescription"
+                               class="block mb-2 text-md font-medium text-gray-900">Project Description</label>
+                        <textarea asp-for="ProjectDescription" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "></textarea>
+                        <span asp-validation-for="ProjectDescription" class="text-danger"></span>
+                    </div>
+                    <!-- list image -->
+                    <div class="flex justify-start gap-6 pt-10 flex-wrap">
+                        @foreach(var image in projectImages)
+                        {
+                            <div class="flex flex-col">
+                            <img class="h-24 w-24 object-cover rounded-1/2"
+                                 src="@image"
+                                 alt="Current project photo" />
+                             <a asp-action="DeleteImage" asp-route-imgpath="@image" class="text-gray-900 text-sm font-semibold hover:text-red-500">Remove image</a>
+                             </div>
+                        }
+                    </div>
+                    <!-- start time -->
+                   <div>
+                        <label asp-for="@Model.StartTime" class="block mb-2 text-md font-medium text-gray-900">Select a project start time</label>
+                        <input type="date" asp-for="@Model.StartTime"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               id="startDateInput"
+                               required />
+                        <span class="text-gray-400 text-sm">The date that your project starts. Before that, your project will continue to receive donations.</span>
+                        <span asp-validation-for="@Model.StartTime" class="text-danger"></span>
+                        <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
+                    </div>
+                    <!-- end time -->
+                     <div>
+                        <label asp-for="@Model.EndTime" class="block mb-2 text-md font-medium text-gray-900">Select a project end time (estimated)</label>
+                        <input type="date" asp-for="@Model.EndTime"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               id="endDateInput"
+                               required />
+                        <span class="text-gray-400 text-sm">The estimates date that your project will end.</span>
+                        <span asp-validation-for="EndTime" class="text-danger"></span>
+                    </div>
+                  
+                    <!-- leader -->
+                    <!-- @*NOTE: create member, assign leader to project, assign member to project, get memberProject list,
+                    change it *@ -->
+                    <div>
+                        <label asp-for="@Model.NewLeaderID" class="block mb-2 text-md font-medium text-gray-900">Assign a member who will lead this project </label>
+                        <select asp-for="NewLeaderID"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                asp-items="@(ViewData["MemberList"] as ICollection<SelectListItem>)">
+                            <option disabled selected>---Select Leader---</option>
+                        </select>
+                        <span asp-validation-for="NewLeaderID" class="text-danger"></span>
+                    </div>
+                    <!-- status -->
+                    <div>
+                        <label asp-for="ProjectStatus" class="block mb-2 text-md font-medium text-gray-900">Set status for this project</label>
+                        <select asp-for="ProjectStatus"
+                                class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)">
+                            <option disabled selected>---Select Status---</option>
+                        </select>
+                        <span asp-validation-for="ProjectStatus" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="grid grid-cols-3 gap-x-10 my-4">
+                      <!-- email,phone,address-->
+                    <div>
+                        <label asp-for="@Model.ProjectEmail" class="block mb-2 text-md font-medium text-gray-900">Enter project email</label>
+                        <input asp-for="@Model.ProjectEmail" type="email" id="email"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                required />
+                        <span asp-validation-for="@Model.ProjectEmail" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label asp-for="@Model.ProjectPhoneNumber" class="block mb-2 text-md font-medium text-gray-900">Enter project phone number</label>
+                        <input asp-for="@Model.ProjectPhoneNumber" id="phone"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                required />
+                        <span asp-validation-for="@Model.ProjectPhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div>
+                        <label asp-for="@Model.ProjectAddress" class="block mb-2 text-md font-medium text-gray-900">Enter project address</label>
+                        <input asp-for="@Model.ProjectAddress" type="text" id="address"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                required />
+                        <span asp-validation-for="@Model.ProjectAddress" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-x-6">
+                    <button type="submit"
+                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                        Update
+                    </button> 
+                    <button type="reset"
+                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                        Reset
+                    </button>
+                </div>
+            </form>
+        </div>
+        @if(Model.ProjectStatus >= 1)
+        {
+            @* finish project *@
+            <div class="w-full mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
+                <h2 class="font-serif text-black font-bold text-3xl text-center ">Finish project</h2>
+                <!-- form 2 -->
+                <form id="ImportFileProject" method="post" asp-action="ImportFileProject" asp-controller="Project"
+                      enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" name="ProjectID" value="@Model.ProjectID" />
+                    <div class="flex flex-col mt-4 justify-center items-center ">
+                        <h2 class="text-xl text-gray-900">Please submit a report file to your organization first before mark a project as finished.</h2>
+                        <div class="flex justify-center items-center gap-x-4">
+                            <label for="ReportFile" class="block my-2 text-md font-medium text-gray-900 ">Upload file (Can be excel, word, pdf, csv)</label>
+                            <input asp-for="@finishProjectVM.ReportFile" type="file" id="reportFile" name="reportFile" style="display:none;" />
+                            <div class="flex flex-col items-center justify-center">
+                                <button id="button" type="button" value="Choose file" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
+                          p-0.5 me-2 overflow-hidden text-sm font-bold text-gray-900
+                          bg-gray-300
+                              " onclick="thisFileReportUpload();">
+                                    Choose file
+                                </button>
+                                <div id="reportFileName" class="text-gray-500 text-sm font-medium"></div>
+                                <div id="notificationReportMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.ReportFile))
+                            {
+                                <a asp-action="DownloadFile" asp-route-filewebpath="@Model.ReportFile" download>
+                                    <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
+                                p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-white bg-blue-700">
+                                        Download Report File
+                                    </button>
+                                </a>
+                            }
+                            else
+                            {
+                                <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
+                            p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-gray-500 bg-gray-300 cursor-not-allowed" disabled>
+                                    No Report File Available
+                                </button>
+                            }
+                        </div>
+
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button type="submit"
+                                class=" text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
+                            Confirm
+                        </button>
+                    </div>
+                </form>
+                <!-- end form 2 -->
+            </div>
+        }
+        @if(Model.ProjectStatus == 0 || Model.ProjectStatus == 1)
+        {
+            @* shutdown project *@
+            <div class="w-1/2 mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
+                <h2 class="font-serif text-black font-bold text-3xl text-center ">Shutdown project</h2>
+
+                <!-- form 3 -->
+                <form id="shutdownProjectForm" method="post" asp-action="ShutdownProject" asp-controller="Project">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="@shutdownProjectVM.ProjectID" value="@currentProjectID" />
+                    <div class="grid grid-cols-1 gap-y-3">
+                        <div>
+                            <label asp-for="@shutdownProjectVM.Reason" class="block mb-2 text-md font-medium text-gray-900">Enter reason to shut down project</label>
+                            <textarea asp-for="@shutdownProjectVM.Reason" id="Reason" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write reason here..."></textarea>
+                            <span id="notificationShutdownMessage" class="text-red-500 text-sm font-semibold"></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <button type="submit"
+                                class="mt-4 text-md text-white bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                            Shutdown
+                        </button>
+                        <span class="text-gray-400 text-sm">This action is permanent.</span>
+                    </div>
+
+                </form>
+                <!-- end form 3 -->
+            </div>
+        }
+    </div>
+    <!-- container end -->
+</div>
+<!-- script upload image-->
+<script>
+    //--------require up finish file----------------------------
+    document.querySelector('#ImportFileProject').addEventListener('submit', function (event) {
+        const attachmentInput = document.getElementById("reportFile");
+        const notificationMessage = document.getElementById("notificationReportMessage");
+        if (attachmentInput.files.length === 0) {
+            event.preventDefault();  // Prevent form submission if no file is selected
+            notificationMessage.innerText = "Please upload a file before finish project.";
+            notificationMessage.style.display = "block";
+        } else {
+            notificationMessage.style.display = "none";  // Hide the message if files are selected
+        }
+    });
+
+    //-------------------file image upload-------------------
+    function thisFileUpload() {
+        document.getElementById("Attachment").click();
+    };
+    const maxFiles = 4;
+    // Event listener to update the file name after the file is selected
+    document.getElementById("Attachment").addEventListener('change', function () {
+        console.log('upload images project')
+        if (document.getElementById("Attachment").files.length > 0) {
+             
+            if (document.getElementById("Attachment").files.length > maxFiles) {
+           document.getElementById("notificationImgMessage").innerText = "You can only upload a maximum of "+maxFiles +" files.";
+            document.getElementById("notificationImgMessage").style.display = "block";
+            input.value = '';  // Reset the input if the file limit is exceeded
+        }else{
+            document.getElementById("notificationImgMessage").style.display = "none";
+        }
+        var files = document.getElementById("Attachment").files;
+        var fileNames = [];
+        
+        for (var i = 0; i < files.length; i++) {
+            fileNames.push(files[i].name);
+        }
+        // Join file names with a separator (comma or newline)
+        document.getElementById("fileName").innerText = fileNames.join(', ');
+        }
+    });
+    //----------------------upload file report
+      function thisFileReportUpload() {
+        document.getElementById("reportFile").click();
+    };
+       document.getElementById("reportFile").addEventListener('change', function () {
+    console.log('File selected:', this.files[0].name);
+         if (this.files.length > 0) {
+        var files = document.getElementById("reportFile").files;
+        var fileName = files[0].name;  // Access the first file's name
+        document.getElementById("reportFileName").innerText = fileName;
+        document.getElementById("reportFileName").style.display = "block";  // Show the file name
+        console.log('File selected:', fileName);  // Log the file name
+    }
+    });
+    //---------------sweetalert for shutdown---------------------
+    document.querySelector('#shutdownProjectForm').addEventListener('submit', function (event) {
+        const attachmentInput = document.getElementById("Reason");
+        const notificationMessage = document.getElementById("notificationShutdownMessage");
+        if (attachmentInput.value.length === 0) {
+            event.preventDefault();  // Prevent form submission if no file is selected
+            notificationMessage.innerText = "Reason to shutdown project is required.";
+            notificationMessage.style.display = "block";
+        } else {
+            notificationMessage.style.display = "none";
+              event.preventDefault();  
+            // Prevent the default form submission
+            var form = this;  // Reference to the form
+
+            if ($(form).valid()) {  // Assuming jQuery validation is used
+                //
+                // Custom SweetAlert2 dialog using Tailwind CSS
+                const swalWithTailwind = Swal.mixin({
+                    customClass: {
+                        confirmButton: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded",
+                        cancelButton: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-4"
+                    },
+                    buttonsStyling: false // Disable default styling to use custom classes
+                });
+
+                swalWithTailwind.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, I confirm!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        // If confirmed, send the form data using fetch API
+                        fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'  // Set the content type for form data
+                            },
+                            body: new URLSearchParams(new FormData(form))  // Serialize the form data
+                        })
+                            .then(response => response.json())  // Parse the JSON response
+                            .then(data => {
+                                // Check if the server returned success
+                                if (data.success) {
+                                    swalWithTailwind.fire({
+                                        title: "Shutdown!",
+                                        html: `<p>${data.message}</p><p>${data.remind}</p>`,
+                                        icon: "success"
+                                    }).then(() => {
+                                        console.log("Redirecting to: /Project/Index/" + data.userIDString);  // Debugging: ensure the redirect is triggered
+                                        window.location.href = `/Project/Index/${data.userIDString}`;
+                                    });
+                                } else {
+                                    swalWithTailwind.fire({
+                                        title: "Error",
+                                        text: data.message,
+                                        icon: "error"
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                // Handle network errors or other issues
+                                swalWithTailwind.fire({
+                                    title: "Error",
+                                    text: "An error occurred while processing your request: " + error,
+                                    icon: "error"
+                                });
+                            });
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        swalWithTailwind.fire({
+                            title: "Cancelled",
+                            text: "Your shutdown request was canceled.",
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        }
+    });
+        //------------validate date-------------
+         document.addEventListener('DOMContentLoaded', function () {
+        // Cache DOM elements
+        const startDateInput = document.getElementById('startDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+        const notificationMessage = document.getElementById('notificationMessage');
+
+        let oldStartDate = startDateInput.value;
+        let oldEndDate = endDateInput.value;
+
+        // Show old date before changes
+        startDateInput.addEventListener('focus', function () {
+            oldStartDate = startDateInput.value;
+        });
+
+        endDateInput.addEventListener('focus', function () {
+            oldEndDate = endDateInput.value;
+        });
+
+        // Validate dates
+        function validateDates() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            // Clear any previous messages
+            notificationMessage.style.display = 'none';
+            notificationMessage.innerText = '';
+
+            // Check if start date is greater than end date
+            if (startDate > endDate) {
+                notificationMessage.style.display = 'block';
+                notificationMessage.innerText = `Start date (${startDateInput.value}) cannot be after the end date (${endDateInput.value})`;
+                return false;
+            }
+
+            // Check if end date is smaller than start date
+            if (endDate < startDate) {
+                notificationMessage.style.display = 'block';
+                notificationMessage.innerText = `End date (${endDateInput.value}) cannot be before the start date (${startDateInput.value})`;
+                return false;
+            }
+
+            return true;
+        }
+
+        // Validate when user changes the start or end date
+        startDateInput.addEventListener('change', validateDates);
+        endDateInput.addEventListener('change', validateDates);
+
+        // Form submit validation
+        document.querySelector('form').addEventListener('submit', function (event) {
+            if (!validateDates()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    });
+    //---------------------upload report file------------------------
+
+</script>

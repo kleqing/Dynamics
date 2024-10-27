@@ -36,15 +36,30 @@
 
             <p class="text-slate-500">Overview of the current resources.</p>
         </div>
-        <div class="ml-3 flex justify-end ">
+        <div class="ml-3 flex justify-end gap-x-4">
             
 @if (statusProjectMemberOfUser >= 2){
-            <button type="button" class="mx-4" onclick="add_form.showModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-            </button>
-}
+                <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
+                <button type="button"
+                        class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+                        Donate this project
+                </button>
+                </a>
+                <button type="button" class="mx-4" onclick="add_form.showModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                </button>
+            }
+            else
+            {
+                <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
+                    <button type="button"
+                            class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+                        Donate this project
+                    </button>
+                </a>
+            }
             <div class=" max-w-sm min-w-[200px] relative">
                 <div class="relative">
                     <input class="bg-white w-full pr-11 h-10 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
@@ -261,8 +276,8 @@
             <form method="dialog">
                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>
-            <div class="w-full mx-auto flex-col shadow-lg shadow-blue-500/30 p-6 rounded-3xl">
-                <h2 class="font-serif text-black font-bold text-3xl text-center ">Add new resource</h2>
+            <div class="w-full mx-auto flex-col shadow-lg p-6 rounded-3xl">
+                <h2 class=" text-black font-bold text-3xl text-center ">Add new resource</h2>
                 <!-- form 1 -->
                 <form id="formAdd" method="post" asp-action="AddProjectResourceType" asp-controller="Project" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>

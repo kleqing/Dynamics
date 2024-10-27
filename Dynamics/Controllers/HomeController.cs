@@ -45,24 +45,24 @@ namespace Dynamics.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var userEmail = User.FindFirstValue(ClaimTypes.Email);
-                var user = _userRepo.GetAsync(u => u.UserEmail == userEmail).Result;
+                var user = _userRepo.GetAsync(u => u.Email == userEmail).Result;
                 // Bad user
                 if (user == null) return RedirectToAction("Logout", "Auth");
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));
             }
 
-            var requestsQueryable = _requestRepo.GetAllQueryable(r => r.Status == 1);
+            var requestsQueryable = _requestRepo.GetAllQueryable(r => r.Status == 1); // Get accepted requests
             var paginatedRequest = await _pagination.PaginateAsync(requestsQueryable, 1, 9);
             var requestOverview = _requestService.MapToListRequestOverviewDto(paginatedRequest);
 
-            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1); // Get not banned project
+            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1 && p.ProjectStatus != 2); // Don't get banned project and finished project
             var projectsPaginated = await _pagination.PaginateAsync(projectsQueryable, 1, 9); // Use the query and apply the pagination
             var projectDtos = _projectService.MapToListProjectOverviewDto(projectsPaginated);
 
             var successfulProjectsPaginated = await _pagination.PaginateAsync(projectsQueryable.Where(p => p.ProjectStatus == 2), 1, 9); // Apply filter to get successful only
             var successfulProjectDtos = _projectService.MapToListProjectOverviewDto(successfulProjectsPaginated);
 
-            var orgsQueryable = _organizationRepo.GetAll();
+            var orgsQueryable = _organizationRepo.GetAll(org => org.OrganizationStatus == 1); // Only approved organizations
             var paginatedOrg = await _pagination.PaginateAsync(orgsQueryable, 1, 9);
             var orgsOverview = _organizationService.MapToOrganizationOverviewDtoList(paginatedOrg);
 

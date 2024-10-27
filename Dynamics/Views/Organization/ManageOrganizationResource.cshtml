@@ -21,7 +21,462 @@
     var OrganizationToProjectHistorysPending = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key);
 }
 
-<div class="py-5 pt-12 px-5 flex justify-center">
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            @if (currentUser!=null && currentUser.Id.Equals(Model.CEO.Id))
+            {
+                <h1 class="text-3xl font-bold text-gray-900 text-center">
+                    Manage and Allocate Resources
+                </h1>
+            }
+            else
+            {
+                <h1 class="text-3xl font-bold text-gray-900 text-center">
+                    Organization Resources
+                </h1>
+            }
+        </div>
+
+        <!-- Main Content Section -->
+        <div class="space-y-8">
+            @if (currentUser!=null&& currentUser.Id.Equals(Model.CEO.Id))
+            {
+                <!-- CEO View -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Current Organization Resources</h2>
+                        <a asp-action="AddNewOrganizationResource" asp-controller="Organization">
+                            <button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Add Resource
+                            </button>
+                        </a>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @{
+                                    int i = 1;
+                                }
+                                @foreach (var item in Model.OrganizationResource)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@i</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@item.ResourceName</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Quantity</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Unit</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))
+                                            {
+                                                @if (item.Quantity <= 0)
+                                                {
+                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed" disabled>
+                                                        Send
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-action="AllocateMoney" asp-controller="Organization" class="inline">
+                                                        <input type="hidden" name="organizationId" value="@item.OrganizationID" />
+                                                        <input type="hidden" name="resourceId" value="@item.ResourceID" />
+                                                        <button type="submit" class="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+                                                            Send
+                                                        </button>
+                                                    </form>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                @if (item.Quantity == 0)
+                                                {
+                                                    <a asp-action="RemoveOrganizationResource" asp-controller="Organization" asp-route-resourceId="@item.ResourceID"
+                                                       class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                                        Remove
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed" disabled>
+                                                        Remove
+                                                    </button>
+                                                }
+
+                                                @if (item.Quantity > 0)
+                                                {
+                                                    <a asp-action="SendResourceOrganizationToProject" asp-controller="Organization" asp-route-resourceId="@item.ResourceID"
+                                                       class="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                                        Send
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed" disabled>
+                                                        Send
+                                                    </button>
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Project Allocations Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Project Resource Allocations</h2>
+                    <p class="text-gray-600 mb-6">Track and manage resource allocations to your projects</p>
+
+                    <div class="space-y-4">
+                        @foreach (var item in OrganizationToProjectHistorysPending)
+                        {
+                            <div class="border rounded-lg p-4 hover:bg-gray-50">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-4">
+                                        <span class="text-gray-500">@item.OrganizationResource.ResourceName</span>
+                                        <span class="text-sm text-gray-400">@item.Time</span>
+                                    </div>
+                                    <div class="space-x-2">
+                                        @if (item.Status == 0)
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                Processing
+                                            </span>
+                                        }
+                                        else if (item.Status == 1)
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Accepted
+                                            </span>
+                                        }
+                                        else if (item.Status == -1)
+                                        {
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-900">
+                                                Deny
+                                            </span>
+                                        }
+
+                                        <button onclick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()"
+                                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            View Proof
+                                        </button>
+
+                                        <!-- Proof Images Modal -->
+                                        <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                            <div class="modal-box w-11/12 max-w-5xl bg-white rounded-lg p-6">
+                                                <div class="flex items-center justify-between mb-6">
+                                                    <h2 class="text-2xl font-bold text-gray-900">Proof Images</h2>
+                                                    <form method="dialog">
+                                                        <button class="text-gray-400 hover:text-gray-500">
+                                                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+
+                                                @{
+                                                    string[] proofImages = new string[1] { "," };
+                                                    if (@item.Attachments != null)
+                                                    {
+                                                        proofImages = @item.Attachments.TrimEnd(',', ' ').Split(",");
+                                                    }
+                                                }
+
+                                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                                    @foreach (var img in proofImages)
+                                                    {
+                                                        <div class="aspect-w-1 aspect-h-1">
+                                                            <button onclick="openModal('@img','proof_image')" class="w-full h-full">
+                                                                <img src="@img" alt="proof-img" class="w-full h-full object-cover rounded-lg hover:opacity-75 transition-opacity duration-200" />
+                                                            </button>
+
+                                                            <dialog id="proof_image" class="modal">
+                                                                <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                                    <img id="modalImage" alt="current-proof-img" class=" h-full w-full rounded-xl shadow-md cursor-pointer" />
+                                                                </div>
+                                                                <form method="dialog" class="modal-backdrop ">
+                                                                    <button>close</button>
+                                                                </form>
+                                                            </dialog>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <form method="dialog" class="modal-backdrop">
+                                                <button>close</button>
+                                            </form>
+                                        </dialog>
+
+                                        @if(@item.Status == 0){
+                                            <a asp-action="CancelSendResource" asp-controller="Organization" asp-route-transactionId="@item.TransactionID"
+                                               class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                                Cancel
+                                            </a>
+                                        }
+                                       
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                    <span>Amount: @item.Amount @item.OrganizationResource.Unit</span>
+                                    <span>To: @item.ProjectResource.Project.ProjectName</span>
+                                    <span>Message: @item.Message</span>
+                                </div>
+                            </div>
+                        }
+
+                        @if (OrganizationToProjectHistorysPending.Count() == 0)
+                        {
+                            <div class="text-center py-12">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">No active resource allocations</h3>
+                                <p class="mt-1 text-sm text-gray-500">There are no resources currently assigned to any projects</p>
+                                <p class="mt-1 text-xs text-gray-400">Start allocating resources by selecting a project and assigning team members</p>
+                            </div>
+
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Regular User View -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="mb-6">
+
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <!-- Header -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900">File Management</h3>
+                                <p class="mt-1 text-sm text-gray-500">Upload data files or export to Excel format</p>
+                                <p class="text-sm text-gray-600">For multiple resource donations, please download the Excel template and fill it out.</p>
+                            </div>
+
+                            <div class="space-y-6">
+                                <!-- Export Section -->
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="p-2 bg-green-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Export Data</h4>
+                                            <p class="text-xs text-gray-500">Download data in Excel format</p>
+                                        </div>
+                                    </div>
+                                    <a asp-action="ExportExcel" asp-controller="ExcelExport">
+                                        <button class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Export Excel
+                                        </button>
+                                    </a>
+                                </div>
+
+                                <!-- Upload Section -->
+                                <div class="p-4 bg-gray-50 rounded-lg">
+                                    <form asp-action="Upload" asp-controller="ExcelReader" enctype="multipart/form-data" class="space-y-4">
+                                    
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="p-2 bg-blue-100 rounded-lg">
+                                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-sm font-medium text-gray-900">Upload Files</h4>
+                                                    <p class="text-xs text-gray-500">Upload Excel files and images</p>
+                                                    <p class="text-xs text-gray-500">Only .xlsx files are supported which is downloaded by export excel</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-3">
+                                            <!-- Excel File Upload -->
+                                            <div class="flex items-center space-x-4">
+                                                <input type="file"
+                                                        name="file"
+                                                        class="block w-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-md file:border-0
+                                        file:text-sm file:font-medium
+                                        file:bg-blue-50 file:text-blue-700
+                                        hover:file:bg-blue-100
+                                        focus:outline-none"
+                                                       accept=".xlsx" />
+                                            </div>
+
+                                            <!-- Image Upload -->
+                                            <div class="flex items-center space-x-4">
+                                                <div class="relative flex-1 max-w-xs">
+                                                    <input multiple
+                                                            id="file-upload"
+                                                            type="file"
+                                                            name="images"
+                                                            class="hidden"
+                                                            accept="image/*" />
+                                                    <label for="file-upload"
+                                                            class="flex items-center justify-center px-4 py-2
+                                            border border-gray-300 rounded-md shadow-sm
+                                            text-sm font-medium text-gray-700
+                                            bg-white hover:bg-gray-50
+                                            cursor-pointer transition-colors
+                                            focus:outline-none focus:ring-2
+                                            focus:ring-offset-2 focus:ring-blue-500">
+                                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        Choose Images
+                                                    </label>
+                                                </div>
+                                            
+                                            </div>
+                                        </div>
+
+                                        <!-- Submit Button -->
+                                        <div class="flex justify-end">
+                                            <button type="submit"
+                                                    class="inline-flex items-center px-4 py-2
+                                   bg-blue-600 text-white rounded-md
+                                   hover:bg-blue-700 focus:outline-none
+                                   focus:ring-2 focus:ring-offset-2
+                                   focus:ring-blue-500 transition-colors">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                                </svg>
+                                                Upload Files
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* <div class="flex items-center space-x-4 mb-4">
+                            <a asp-action="ExportExcel" asp-controller="ExcelExport">
+                                <button class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                    Export Excel
+                                </button>
+                            </a>
+                            <form asp-action="Upload" asp-controller="ExcelReader" enctype="multipart/form-data" class="flex items-center space-x-4">
+                                <input type="file" name="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                                <div class="flex space-x-2">
+                                    <label for="file-upload" class="w-full file-upload-label px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <span>Choose images</span>
+                                    </label>
+                                    <input multiple id="file-upload" type="file" name="images" class="hidden">
+                                </div>
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                    Upload
+                                </button>
+                            </form>
+                        </div> *@
+                        
+                        @if (ViewBag.Error != null)
+                        {
+                            <p class="mt-2 text-red-600">@ViewBag.Error</p>
+                        }
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resource</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @{
+                                    int i = 1;
+                                }
+                                @foreach (var item in Model.OrganizationResource)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@i</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@item.ResourceName</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Quantity</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Unit</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))
+                                            {
+                                                <form asp-action="DonateByMoney" asp-controller="Organization" class="inline">
+                                                    <input type="hidden" name="organizationId" value="@item.OrganizationID" />
+                                                    <input type="hidden" name="resourceId" value="@item.ResourceID" />
+                                                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                                        Donate
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <a asp-action="DonateByResource" asp-controller="Organization" asp-route-resourceId="@item.ResourceID"
+                                                   class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                                    Donate
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Empty state -->
+        
+    </div>
+</div>
+
+<script>
+    function openModal(imgSrc, modalid) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById(modalid).showModal();
+    }
+    function toggleDropdown(menuId) {
+        var dropdownMenu = document.getElementById(menuId);
+        dropdownMenu.classList.toggle("hidden");
+        dropdownMenu.classList.toggle("transform");
+        dropdownMenu.classList.toggle("opacity-100");
+        dropdownMenu.classList.toggle("scale-100");
+    }
+
+</script>
+
+@* 
+    <div class="py-5 pt-12 px-5 flex justify-center">
     <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
 
         <h1 class="text-3xl font-semibold mb-10 text-center ">
@@ -288,4 +743,5 @@
 
 
     </div>
-</div>
+</div> 
+*@

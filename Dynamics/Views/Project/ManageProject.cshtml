@@ -140,7 +140,7 @@
                 <div class="flex flex-col ">
                     <p class="text-gray-600 font-normal">
                         Project leader: <span class="text-black font-bold  text-md">
-                           @Model.CurrentLeaderProject.UserFullName
+                           @Model.CurrentLeaderProject.UserName
                         </span>
                     </p>
                         <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentLeaderProject.UserAddress</p>
@@ -157,7 +157,7 @@
                     <div class="flex flex-col ">
                         <p class="text-gray-600 font-normal">
                             Requester: <span class="text-black font-bold  text-md">
-                                @Model.CurrentProject.Request?.User.UserFullName
+                                @Model.CurrentProject.Request?.User.UserName
                             </span>
                         </p>
                         <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentProject.Request?.User.UserAddress</p>
@@ -191,7 +191,7 @@
                         <tr class="hover:bg-slate-50">
                             <td class="p-2 text-lg">@(i + 1)</td>
                             <td class="p-2 text-lg">@item.Time</td>
-                            <td class="p-2 text-lg">@item.User.UserFullName</td>
+                            <td class="p-2 text-lg">@item.User.UserName</td>
                             <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
                             <td class="p-2 text-lg">@item.Amount</td>
                             <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
@@ -307,6 +307,16 @@
                     </button>
                 </a>           
             }
+            else if (statusProjectMemberOfUser == -2)
+            {
+                <a asp-action="AcceptJoinInvitation" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
+                    <button style="width:98%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+                        <span class=" relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
+                            Accept invitation
+                        </span>
+                    </button>
+                </a>
+            }
             else if (statusProjectMemberOfUser >= 1)
             {
                 <a asp-action="LeaveProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
@@ -318,7 +328,7 @@
                 </a>
             }
 
-            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : "window.location.href='/Identity/Account/Login'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : $"window.location.href='/Identity/Account/Login?returnUrl={Uri.EscapeDataString($"~/Project/ManageProject?id={currentProjectID}")}'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
                 <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                 Report
             </span>
@@ -350,8 +360,6 @@
                                 class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
                             Report
                         </button>
-                    
-
                     </div>
                 </form>
             </div>

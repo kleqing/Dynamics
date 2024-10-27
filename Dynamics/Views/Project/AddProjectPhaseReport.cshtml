@@ -24,9 +24,9 @@
         </button>
     </a>
     <!-- container start -->
-    <div class="flex flex-col relative" style="width: 70%;">
-        <div class="w-full flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
-            <h2 class="font-serif text-black font-bold text-3xl text-center ">Create activities report</h2>
+    <div class="flex flex-col relative" style="width: 60%;">
+        <div class="w-full flex-col shadow-md p-6 rounded-3xl my-10">
+            <h2 class=" text-black font-bold text-3xl text-center ">Create phase report</h2>
             <!-- form 1 -->
             <form asp-action="AddProjectPhaseReport" asp-controller="Project" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ProjectID" value="@currentProjectID" />
@@ -92,13 +92,13 @@
     function thisFileUpload() {
         document.getElementById("Attachment").click();
     };
-   const maxFiles = 8;
+   const maxFiles = 6;
     // Event listener to update the file name after the file is selected
     document.getElementById("Attachment").addEventListener('change', function () {
         if (document.getElementById("Attachment").files.length > 0) {
              
             if (document.getElementById("Attachment").files.length > maxFiles) {
-           document.getElementById("notificationImgMessage").innerText = "You can upload a maximum of 8 files.";
+           document.getElementById("notificationImgMessage").innerText = "You can upload a maximum of 6 files.";
             document.getElementById("notificationImgMessage").style.display = "block";
             input.value = '';  // Reset the input if the file limit is exceeded
         }else{

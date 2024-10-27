@@ -23,14 +23,19 @@ namespace Dynamics.DataAccess.Repository
         public Task<OrganizationToProjectHistory?> GetAsync(
       Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
-            return _context.OrganizationToProjectTransactionHistory.Where(filter).FirstOrDefaultAsync();
+            return _context.OrganizationToProjectTransactionHistory.Include(x=>x.OrganizationResource).ThenInclude(x=>x.Organization).Where(filter).FirstOrDefaultAsync();
         }
 
         public async Task<List<OrganizationToProjectHistory>> GetAllOrganizationDonateAsync(
     Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
             IQueryable<OrganizationToProjectHistory> listOrganizationDonate =
-                _context.OrganizationToProjectTransactionHistory.Include(x => x.ProjectResource).ThenInclude(x => x.Project).Include(x => x.OrganizationResource).ThenInclude(X => X.Organization).Where(filter).OrderByDescending(x => x.Time);
+                _context.OrganizationToProjectTransactionHistory
+                    .Include(x => x.ProjectResource)
+                    .ThenInclude(x => x.Project)
+                    .Include(x => x.OrganizationResource)
+                    .ThenInclude(X => X.Organization)
+                    .Where(filter).OrderByDescending(x => x.Time);
             if (listOrganizationDonate != null)
             {
                 return await listOrganizationDonate.ToListAsync();
@@ -113,6 +118,17 @@ namespace Dynamics.DataAccess.Repository
             }
 
             return false;
+        }
+
+        public IQueryable<OrganizationToProjectHistory> GetAllAsQueryable(Expression<Func<OrganizationToProjectHistory, bool>>? filter = null)
+        {
+            return filter == null ? _context.OrganizationToProjectTransactionHistory : 
+                _context.OrganizationToProjectTransactionHistory
+                .OrderByDescending(otp => otp.Time)
+                .ThenBy(otp => otp.Status)
+                .Include(otp => otp.OrganizationResource)
+                .Where(filter);
+
         }
     }
 }

@@ -28,7 +28,7 @@
                     <img class="h-auto w-full mx-auto"
                          alt="{user.name}" src="@Model.UserAvatar">
                 </div>
-                <h1 class="text-gray-900 font-bold text-xl leading-8 my-1">@Html.DisplayFor(model => model.UserFullName)</h1>
+                <h1 class="text-gray-900 font-bold text-xl leading-8 my-1">@Html.DisplayFor(model => model.UserName)</h1>
                 <h3 class="text-gray-600 font-lg text-semibold leading-6">Owner at Her Company Inc.</h3>
                 <p class="text-sm text-gray-500 hover:text-gray-600 leading-6">@Html.DisplayFor(model => model.UserDescription)</p>
                 <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
@@ -96,11 +96,11 @@
                     <div class="grid md:grid-cols-2 text-sm">
                         <div class="grid grid-cols-2">
                             <div class="px-4 py-2 font-semibold">Full Name</div>
-                            <div class="px-4 py-2">@Html.DisplayFor(model => model.UserFullName)</div>
+                            <div class="px-4 py-2">@Html.DisplayFor(model => model.UserName)</div>
                         </div>
                         <div class="grid grid-cols-2">
                             <div class="px-4 py-2 font-semibold">Contact No.</div>
-                            <div class="px-4 py-2">@Html.DisplayFor(model => model.UserFullName)</div>
+                            <div class="px-4 py-2">@Html.DisplayFor(model => model.UserName)</div>
                         </div>
                         <div class="grid grid-cols-2">
                             <div class="px-4 py-2 font-semibold">Address</div>
@@ -109,7 +109,7 @@
                         <div class="grid grid-cols-2">
                             <div class="px-4 py-2 font-semibold">Email.</div>
                             <div class="px-4 py-2">
-                                <a class="text-blue-800" href="mailto: @Html.DisplayFor(model => model.UserEmail)"> @Html.DisplayFor(model => model.UserEmail)</a>
+                                <a class="text-blue-800" href="mailto: @Html.DisplayFor(model => model.Email)"> @Html.DisplayFor(model => model.Email)</a>
                             </div>
                         </div>
                         <div class="grid grid-cols-2">

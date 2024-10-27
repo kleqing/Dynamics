@@ -1,14 +1,13 @@
+using AutoMapper;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.DTO;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 
 namespace Dynamics.Controllers
@@ -17,21 +16,25 @@ namespace Dynamics.Controllers
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ITransactionViewService _transactionViewService;
         private readonly IProjectMemberRepository _projectMemberRepository;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IUserToOrganizationTransactionHistoryRepository _userToOrgRepo;
         private readonly IUserToProjectTransactionHistoryRepository _userToPrjRepo;
         private readonly CloudinaryUploader _cloudinaryUploader;
+        private readonly ISearchService _searchService;
+        private readonly IPagination _pagination;
+        private readonly IMapper mapper;
 
-        public UserController(IUserRepository userRepo, UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager, ITransactionViewService transactionViewService,
+        public UserController(IUserRepository userRepo, UserManager<User> userManager,
+            SignInManager<User> signInManager, ITransactionViewService transactionViewService,
             IProjectMemberRepository projectMemberRepository,
             IOrganizationMemberRepository organizationMemberRepository,
             IUserToOrganizationTransactionHistoryRepository userToOrgRepo,
-            IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader)
+            IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader,
+            ISearchService searchService, IPagination pagination, IMapper mapper)
         {
             _userRepository = userRepo;
             _userManager = userManager;
@@ -42,12 +45,15 @@ namespace Dynamics.Controllers
             _userToOrgRepo = userToOrgRepo;
             _userToPrjRepo = userToPrjRepo;
             _cloudinaryUploader = cloudinaryUploader;
+            _searchService = searchService;
+            _pagination = pagination;
+            this.mapper = mapper;
         }
 
         // View a user profile (including user's own profile)
         public async Task<IActionResult> Index(string username)
         {
-            var currentUser = await _userRepository.GetAsync(u => u.UserFullName.Equals(username));
+            var currentUser = await _userRepository.GetAsync(u => u.UserName.Equals(username));
             if (currentUser == null) return NotFound();
             return View(currentUser);
         }
@@ -66,7 +72,7 @@ namespace Dynamics.Controllers
                 return RedirectToAction("Logout", "Auth");
             }
 
-            var user = await _userRepository.GetAsync(u => u.UserID.Equals(currentUser.UserID));
+            var user = await _userRepository.GetAsync(u => u.Id.Equals(currentUser.Id));
             if (user == null)
             {
                 return NotFound();
@@ -77,23 +83,22 @@ namespace Dynamics.Controllers
             {
                 ViewBag.UserDOB = user.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
             }
-
-            return View(user);
+            return View(mapper.Map<UserVM>(currentUser));
         }
 
         // POST: Client/Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(User user, IFormFile? image)
+        public async Task<IActionResult> Edit(UserVM user, IFormFile? image)
         {
             try
             {
                 var currentUser = JsonConvert.DeserializeObject<User>(HttpContext.Session.GetString("user"));
                 // Try to get existing user (If we might have) that is in the system
                 var existingUserFullName = await _userRepository.GetAsync(u =>
-                    u.UserFullName.Equals(user.UserFullName) && u.UserFullName != currentUser.UserFullName);
+                    u.UserName.Equals(user.UserName) && u.UserName != currentUser.UserName);
                 var existingUserEmail = await _userRepository.GetAsync(u =>
-                    u.UserEmail.Equals(user.UserEmail) && u.UserEmail != currentUser.UserEmail);
+                    u.Email.Equals(user.Email) && u.Email != currentUser.Email);
                 // If one of these 2 exists, it means that another user is already has the same name or email
                 if (existingUserEmail != null || existingUserFullName != null)
                 {
@@ -101,9 +106,9 @@ namespace Dynamics.Controllers
                     return View(user);
                 }
 
-                if (user.UserFullName == null || user.UserEmail == null)
+                if (user.UserName == null || user.Email == null)
                 {
-                    TempData[MyConstants.Error] = "Update failed...";
+                    TempData[MyConstants.Error] = "User name and email cannot be empty";
                     return View(user);
                 }
 
@@ -116,16 +121,18 @@ namespace Dynamics.Controllers
                         TempData[MyConstants.Subtitle] = "Support formats are: jpg, jpeg, png, gif, webp.";
                         return View(user);
                     }
+
                     if (imgUrl != null) user.UserAvatar = imgUrl;
                 }
 
-                await _userRepository.UpdateAsync(user);
+                await _userRepository.UpdateAsync(mapper.Map<User>(user));
 
                 // Update the session as well
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));
                 TempData[MyConstants.Success] = "User updated!";
-                if (currentUser.UserDOB != null)
-                    ViewBag.UserDOB = currentUser.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
+                // Set for display
+                if (user.UserDOB != null)
+                    ViewBag.UserDOB = user.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
             }
             catch (Exception e)
             {
@@ -149,7 +156,7 @@ namespace Dynamics.Controllers
                 return RedirectToAction("Logout", "Auth");
             }
 
-            var user = await _userManager.FindByIdAsync(currentUser.UserID.ToString());
+            var user = await _userManager.FindByIdAsync(currentUser.Id.ToString());
             if (user.PasswordHash == null)
             {
                 TempData["Google"] = "Your account is bounded with google account.";
@@ -204,31 +211,33 @@ namespace Dynamics.Controllers
         /**
          * Display all accepted user donations
          */
-        public async Task<IActionResult> History()
+        public async Task<IActionResult> History(SearchRequestDto searchOptions,
+            PaginationRequestDto paginationRequestDto)
         {
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
-            User currentUser = null;
+            User currentUser;
             if (userString != null)
                 currentUser = JsonConvert.DeserializeObject<User>(HttpContext.Session.GetString("user"));
             else return RedirectToAction("Logout", "Auth");
-            var userToOrgTransaction = await _transactionViewService
-                .GetUserToOrganizationTransactionDTOsAsync(ut =>
-                    ut.UserID.Equals(currentUser.UserID) && ut.Status == 1);
-            var userToPrjTransaction = await _transactionViewService
-                .GetUserToProjectTransactionDTOsAsync(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status == 1);
-            // Merge into a list and display
-            var total = new List<UserTransactionDto>();
-            total.AddRange(userToOrgTransaction);
-            total.AddRange(userToPrjTransaction);
+
+            // Get base query for both type of transactions
+            var userToOrgQueryable = _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status == 1);
+            var userToPrjQueryable = _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status == 1);
+
+            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchOptions, userToPrjQueryable, userToOrgQueryable);
+            var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchOptions);
+
             var final = new UserHistoryViewModel
             {
-                userTransactions = total.OrderByDescending(ut => ut.Time).ToList() // Display descending by time
+                UserTransactions = paginated, // Display descending by time (The ordering should already be default in search)
+                PaginationRequestDto = paginationRequestDto,
+                SearchRequestDto = searchOptions,
             };
             return View(final);
         }
 
-        public async Task<IActionResult> RequestsStatus()
+        public async Task<IActionResult> RequestsStatus(SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
         {
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
@@ -238,24 +247,26 @@ namespace Dynamics.Controllers
             else return RedirectToAction("Logout", "Auth");
             // Get join requests except for the one with status of 2 (User is already the leader of)
             var userRequestProjects =
-                await _projectMemberRepository.GetAllAsync(pm => pm.UserID.Equals(currentUser.UserID) && pm.Status < 2);
+                await _projectMemberRepository.GetAllAsync(pm => pm.UserID.Equals(currentUser.Id) && pm.Status < 2);
             var userRequestOrganizations =
                 await _organizationMemberRepository.GetAllAsync(om =>
-                    om.UserID.Equals(currentUser.UserID) && om.Status < 2);
+                    om.UserID.Equals(currentUser.Id) && om.Status < 2);
 
-            // Donation requests only get the pending ones (Money is automatically accepted so it should not be here.)
-            var userToOrgTransaction = await _transactionViewService
-                .GetUserToOrganizationTransactionDTOsAsync(ut =>
-                    ut.UserID.Equals(currentUser.UserID) && ut.Status == 0);
-            var userToPrjTransaction = await _transactionViewService
-                .GetUserToProjectTransactionDTOsAsync(ut => ut.UserID.Equals(currentUser.UserID) && ut.Status == 0);
-            userToPrjTransaction.AddRange(userToOrgTransaction);
+            // Donation requests only get the pending / denied ones (Money is automatically accepted so it should not be here.)
+            var userToOrgQueryable = _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status < 1);
+            var userToPrjQueryable = _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status < 1);
+
+            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, userToOrgQueryable);
+            var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchRequestDto);
+            ViewBag.totalPages = paginationRequestDto.TotalPages;
 
             return View(new UserRequestsStatusViewModel
             {
                 OrganizationJoinRequests = userRequestOrganizations,
                 ProjectJoinRequests = userRequestProjects,
-                ResourcesDonationRequests = userToPrjTransaction,
+                ResourcesDonationRequests = paginated,
+                SearchRequestDto = searchRequestDto,
+                PaginationRequestDto = paginationRequestDto
             });
         }
 
@@ -267,17 +278,17 @@ namespace Dynamics.Controllers
                 switch (type.ToLower())
                 {
                     case "project":
-                    {
-                        var result = await _userToPrjRepo.DeleteTransactionByIdAsync(transactionID);
-                        if (result == null) throw new Exception();
-                        break;
-                    }
+                        {
+                            var result = await _userToPrjRepo.DeleteTransactionByIdAsync(transactionID);
+                            if (result == null) throw new Exception();
+                            break;
+                        }
                     case "organization":
-                    {
-                        var result = await _userToOrgRepo.DeleteTransactionByIdAsync(transactionID);
-                        if (result == null) throw new Exception();
-                        break;
-                    }
+                        {
+                            var result = await _userToOrgRepo.DeleteTransactionByIdAsync(transactionID);
+                            if (result == null) throw new Exception();
+                            break;
+                        }
                     default:
                         throw new ArgumentException("Invalid type");
                 }
@@ -300,33 +311,34 @@ namespace Dynamics.Controllers
                 switch (type.ToLower())
                 {
                     case "project":
-                    {
-                        var result =
-                            await _projectMemberRepository.DeleteAsync(pm =>
-                                pm.UserID == userID && pm.ProjectID == targetID);
-                        if (result == null)
                         {
-                            msg = "No request found for this transaction.";
-                            throw new Exception("Cancel failed.");
-                        }
+                            var result =
+                                await _projectMemberRepository.DeleteAsync(pm =>
+                                    pm.UserID == userID && pm.ProjectID == targetID);
+                            if (result == null)
+                            {
+                                msg = "No request found for this transaction.";
+                                throw new Exception("Cancel failed.");
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                     case "organization":
-                    {
-                        var result = await _organizationMemberRepository.DeleteAsync(om =>
-                            om.UserID == userID && om.OrganizationID == targetID);
-                        if (result == null)
                         {
-                            msg = "No request found for this transaction.";
-                            throw new Exception("Cancel failed.");
-                        }
+                            var result = await _organizationMemberRepository.DeleteAsync(om =>
+                                om.UserID == userID && om.OrganizationID == targetID);
+                            if (result == null)
+                            {
+                                msg = "No request found for this transaction.";
+                                throw new Exception("Cancel failed.");
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                     default:
                         throw new ArgumentException("Invalid type");
                 }
+
                 TempData[MyConstants.Success] = "Cancel successful!";
             }
             catch (Exception e)

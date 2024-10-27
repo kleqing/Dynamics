@@ -17,5 +17,6 @@ public interface IUserToProjectTransactionHistoryRepository
     Task<bool> AddUserDonateRequestAsync(UserToProjectTransactionHistory? userDonate);
     Task<bool> AcceptUserDonateRequestAsync(UserToProjectTransactionHistory userDonate);
     Task<bool> DenyUserDonateRequestAsync(UserToProjectTransactionHistory userDonate);
+    IQueryable<UserToProjectTransactionHistory> GetAllAsQueryable(Expression<Func<UserToProjectTransactionHistory, bool>>? filter = null);
 }
 

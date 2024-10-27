@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
-@model ChangePasswordDto
+@model Dynamics.Models.Dto.ChangePasswordDto
 
 @{
     ViewData["Title"] = "Account";
@@ -29,31 +29,60 @@
     </ul>
     </div>
     <!-- End sidebar --> *@
-    @Html.Partial("CustomComponent/_UserSidebar", "Account")
+    @await Html.PartialAsync("CustomComponent/_UserSidebar", "Account")
 
     <!-- Main content -->
     <div class="divider divider-horizontal"></div>
     @{
         if (TempData["google"] != null)
         {
-            <div class="flex flex-col gap-2 justify-start items-center w-full">
-                <h2 class="mb-4 text-center text-3xl">
-                    <b>Change password</b>
-                </h2>
-                <h2 class="mb-4 text-center text-3xl font-bold text-success">@TempData["google"]</h2>
+            <div class="flex flex-col gap-2 items-center w-full">
+                <h2 class="mb-4 text-center text-3xl font-bold text-success">@TempData["Google"]</h2>
+                <h3 class="text-xl">Link your account to Dynamics account by adding a password: </h3>
+                <form asp-action="AddPasswordToAccount" asp-controller="Auth" method="get"
+                      class="flex flex-col gap-4 justify-center items-center w-full max-w-md">
+                    <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
+                    @* New password *@
+                    <label class="form-control w-full">
+                        <span class="label label-text font-bold text-lg">New password</span>
+                        <input type="password"
+                               placeholder="Please enter your new password"
+                               class="input input-bordered w-full bg-white input-info"
+                               asp-for="@Model.NewPassword"
+                               name="NewPassword"
+                               required/>
+                        <span asp-validation-for="NewPassword" class="text-error"></span>
+                    </label>
+
+                    @* Confirm password *@
+                    <label class="form-control w-full">
+                        <span class="label label-text font-bold text-lg">Confirm new password</span>
+                        <input type="password"
+                               placeholder="Please enter your confirm new password"
+                               class="input input-bordered w-full bg-white input-info"
+                               required
+                               asp-for="@Model.ConfirmPassword"/>
+                        <span asp-validation-for="ConfirmPassword" class="text-error"></span>
+                    </label>
+                    <button type="submit" data-mdb-button-init data-mdb-ripple-init
+                            class="btn btn-primary"
+                            id="login">
+                        Add password
+                    </button>
+                </form>
             </div>
         }
         else
         {
             <form asp-action="ChangePassword" asp-controller="User" method="post"
-                  class="flex flex-col gap-4 justify-start items-center w-full p-16 bg-white">
+                  class="flex flex-col gap-4 justify-start items-center w-full p-16 ">
                 <h2 class="mb-4 text-center text-3xl">
                     <b>Change password</b>
                 </h2>
                 <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
-                @if (currentUser.UserID != null)
+                @if (currentUser.Id != null)
                 {
-                    <input type="hidden" asp-for="@Model.UserId" value="@currentUser.UserID"/>
+                    <input type="hidden" asp-for="@Model.UserId" value="@currentUser.Id"/>
                 }
 
                 @* Old password *@
@@ -97,3 +126,4 @@
     <!-- End content -->
 </main>
 <!-- End edit profile -->
+<partial name="CustomComponent/_SweetAlertToast"/>

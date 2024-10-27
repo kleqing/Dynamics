@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Dynamics.Models.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace Dynamics.Models.Models.Dto;
+namespace Dynamics.Models.Dto;
 
 public class ProjectOverviewDto
 {

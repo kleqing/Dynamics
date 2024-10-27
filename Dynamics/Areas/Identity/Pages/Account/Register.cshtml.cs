@@ -13,27 +13,27 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using ILogger = Serilog.ILogger;
+using Dynamics.Services;
 
 namespace Dynamics.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IUserRepository _userRepo;
+        private readonly IRoleService _roleService;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager,
-            IUserRepository repository)
+            RoleManager<IdentityRole<Guid>> roleManager,
+            IUserRepository repository, IRoleService roleService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -41,6 +41,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
             _emailSender = emailSender;
             _roleManager = roleManager;
             _userRepo = repository;
+            _roleService = roleService;
         }
 
         // Declares that incoming http request will be bind to this input
@@ -51,8 +52,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
-            public string Name { get; set; }
+            [Required] public string Name { get; set; }
 
             [Required]
             [EmailAddress]
@@ -80,24 +80,51 @@ namespace Dynamics.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null, string admin = null)
         {
-            returnUrl ??= Url.Content("~/");
+            // Check if return url is specified in the previous page
+            if (TempData[MyConstants.ReturnUrl] != null) returnUrl = TempData[MyConstants.ReturnUrl].ToString();
+            else returnUrl = returnUrl ?? Url.Content("~/");
+
+            // //Debug purpose only, please delete it afterwards
+            // if (admin != null)
+            // {
+            //     var user = new User();
+            //     user.UserName = "Administrator";
+            //     user.Email = "admin@gmail.com";
+            //     user.UserAvatar = MyConstants.DefaultAvatarUrl;
+            //     // TODO: remove these
+            //     user.isBanned = false;
+            //     user.UserRole = RoleConstants.Admin;
+            //     _logger.LogWarning("REGISTER: CREATING IDENTITY USER");
+            //     // Create a user with email and input password
+            //     var result = await _userManager.CreateAsync(user);
+            //     if (result.Succeeded)
+            //     {
+            //         await _roleService.AddUserToRoleAsync(user, RoleConstants.Admin);
+            //         await _userManager.AddPasswordAsync(user, "123123");
+            //         TempData[MyConstants.Success] = "Added a new admin";
+            //     } else TempData[MyConstants.Error] = result.Errors.FirstOrDefault().Description.ToString();
+            //     return Page();
+            // }
+
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (Input.Password != Input.ConfirmPassword)
             {
                 ModelState.AddModelError(string.Empty, "Passwords don't match.");
                 return Page();
             }
+
             // Try to get existing user (If we might have) that is in the system
-            var existingUserFullName = await _userRepo.GetAsync(u => u.UserFullName.Equals(Input.Name));
-            var existingUserEmail = await _userRepo.GetAsync(u => u.UserEmail.Equals(Input.Email));
+            var existingUserFullName = await _userRepo.GetAsync(u => u.UserName.Equals(Input.Name));
+            var existingUserEmail = await _userRepo.GetAsync(u => u.Email.Equals(Input.Email));
             // If one of these 2 exists, it means that another user is already has the same name or email
             if (existingUserEmail != null || existingUserFullName != null)
             {
                 ModelState.AddModelError("", "Username or email is already taken.");
                 return Page();
             }
+
             if (ModelState.IsValid)
             {
                 // If role not exist, create all of our possible role
@@ -105,37 +132,42 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 _logger.LogWarning("REGISTER: CREATING ROLES");
                 if (!_roleManager.RoleExistsAsync(RoleConstants.User).GetAwaiter().GetResult())
                 {
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.User)).GetAwaiter().GetResult();
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.Admin)).GetAwaiter().GetResult();
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.HeadOfOrganization)).GetAwaiter().GetResult();
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.ProjectLeader)).GetAwaiter().GetResult();
-                    _roleManager.CreateAsync(new IdentityRole(RoleConstants.Banned)).GetAwaiter().GetResult();
+                    _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.User)).GetAwaiter().GetResult();
+                    _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.Admin)).GetAwaiter().GetResult();
+                    _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.HeadOfOrganization)).GetAwaiter()
+                        .GetResult();
+                    _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.ProjectLeader)).GetAwaiter()
+                        .GetResult();
+                    _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.Banned)).GetAwaiter().GetResult();
                 }
 
-                var user = new IdentityUser();
-                await _userManager.AddToRoleAsync(user, RoleConstants.User); // Default role
+                var user = new User();
                 user.UserName = Input.Name;
                 user.Email = Input.Email;
+                user.UserAvatar = MyConstants.DefaultAvatarUrl;
+                // TODO: remove these
+                user.isBanned = false;
+                user.UserRole = MyConstants.User;
                 _logger.LogWarning("REGISTER: CREATING IDENTITY USER");
                 // Create a user with email and input password
                 var result = await _userManager.CreateAsync(user, Input.Password);
-
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, RoleConstants.User); // Default role
                     _logger.LogWarning("REGISTER: ADDING USER TO DATABASE");
                     // Add real user to database
-                    await _userRepo.AddAsync(new User
-                    {
-                        // Note: Identity user id is string while normal user ID is Guid
-                        UserID = new Guid(user.Id), // The link between 2 user table should be this id
-                        UserFullName = Input.Name,
-                        UserEmail = Input.Email,
-                        UserAvatar = MyConstants.DefaultAvatarUrl,
-                        UserRole = RoleConstants.User,
-                    });
+                    //await _userRepo.AddAsync(new User
+                    //{
+                    //    // Note: Identity user id is string while normal user ID is Guid
+                    //    Id = new Guid(user.Id), // The link between 2 user table should be this id
+                    //    UserName = Input.Name,
+                    //    Email = Input.Email,
+                    //    UserAvatar = MyConstants.DefaultAvatarUrl,
+                    //    UserRole = RoleConstants.User,
+                    //});
 
                     _logger.LogInformation("User created a new account with password.");
-                    
+
                     // Where the email sending begins
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -154,10 +186,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
                             new { email = Input.Email, returnUrl = returnUrl });
                     }
                     // This part is only for debug purpose, because user will be redirect to register confirmation instead
-                    var businessUser = await _userRepo.GetAsync(u => u.UserID.ToString() == user.Id);
-                    HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return Redirect(returnUrl);
+                    //var businessUser = await _userRepo.GetAsync(u => u.Id == user.Id);
+                    //HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
+                    //await _signInManager.SignInAsync(user, isPersistent: false);
+                    //return Redirect(returnUrl);
                 }
 
                 foreach (var error in result.Errors)

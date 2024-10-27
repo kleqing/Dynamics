@@ -1,8 +1,8 @@
 ﻿using System.Security.Cryptography;
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
 using Dynamics.Utility;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
@@ -151,7 +151,7 @@ public class VnPayService : IVnPayService
         if (!payRequestDto.TargetType.Equals(MyConstants.Allocation))
         {
             User u = JsonConvert.DeserializeObject<User>(context.Session.GetString("user"));
-            payRequestDto.FromID = u.UserID;
+            payRequestDto.FromID = u.Id;
         }
 
         // Set up our request Dto:

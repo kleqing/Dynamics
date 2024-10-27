@@ -63,10 +63,10 @@
                                              alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center" />
                                         <div class="flex flex-col">
                                             <p class="block font-sansantialiased font-normal leading-normal text-blue-gray-900">
-                                                <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.UserID" class="text-black font-bold"> @item.User.UserFullName</a>
+                                                <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id" class="text-black font-bold"> @item.User.UserName</a>
                                             </p>
                                             <p class="block font-sansantialiased font-normal leading-normal text-blue-gray-900 opacity-70">
-                                                @item.User.UserEmail
+                                                @item.User.Email
                                             </p>
                                         </div>
                                     </div>
@@ -117,21 +117,7 @@
         }
     </div>
 </div>
-<div class="flex relative justify-center gap-x-6 mb-6 w-3/4 mx-auto">
-    <!-- add button -->
-    <a asp-action="DenyJoinRequestAll" asp-controller="Project">
-        <button type="button"
-                class="w-36 h-14 text-white  bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-xl px-4 py-2">
-            Deny all
-        </button>
-    </a>
-    <a asp-action="AcceptedJoinRequestAll" asp-controller="Project">
-        <button type="button"
-                class="w-36 h-14 text-white  bg-green-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold rounded-lg text-xl px-4 py-2">
-            Accepted all
-        </button>
-    </a>
-</div>
+
 
 
 <!-- end container -->

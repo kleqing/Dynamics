@@ -2,6 +2,7 @@
 using System.Text.Encodings.Web;
 using Dynamics.Areas.Identity.Pages.Account;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authentication;
@@ -17,24 +18,19 @@ namespace Dynamics.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSender;
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
+        public AuthController(SignInManager<User> signInManager, UserManager<User> userManager,
             IUserRepository userRepo, IEmailSender emailSender)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _userRepository = userRepo;
             _emailSender = emailSender;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
         }
 
         public async Task<IActionResult> ResendConfirmationEmail(string email, string? returnUrl = "~/")
@@ -69,6 +65,33 @@ namespace Dynamics.Controllers
 
             return Redirect("/Identity/Account/Login");
         }
+
+        // public async Task<IActionResult> UnbindFromGoogle()
+        // {
+        //     var user = HttpContext.Session.GetCurrentUser();
+        //     var identiyUser = await _userManager.FindByIdAsync(user.UserID.ToString());
+        //     var logins = await _userManager.GetLoginsAsync(identiyUser);
+        //     
+        //     _userManager.RemoveLoginAsync()
+        // }
+
+        public async Task<IActionResult> AddPasswordToAccount(ChangePasswordDto changePasswordDto)
+        {
+            var user = HttpContext.Session.GetCurrentUser();
+            var identiyUser = await _userManager.FindByIdAsync(user.Id.ToString());
+            if (identiyUser == null) throw new Exception("No user found");
+            var result = _userManager.AddPasswordAsync(identiyUser, changePasswordDto.NewPassword);
+            if (result.Result.Succeeded)
+            {
+                TempData[MyConstants.Success] = "Password added to account successfully";
+            }
+            else
+            {
+                TempData[MyConstants.Error] = "Password could not be added to the account";
+            }
+            return RedirectToAction("Edit", "User");
+        }
+        
 
         public async Task<IActionResult> Logout()
         {

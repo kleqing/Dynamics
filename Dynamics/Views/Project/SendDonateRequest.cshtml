@@ -21,10 +21,10 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
-    var organizationUserLead = await OrganizationRepository.GetOrganizationUserLead(currentUser.UserID);
-    var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(currentUser.UserID));
+    var organizationUserLead = await OrganizationRepository.GetOrganizationUserLead(currentUser.Id);
+    var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(currentUser.Id));
     var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
-    var leader = await UserRepository.GetAsync(x => x.UserID == new Guid(currentProjectLeaderID));
+    var leader = await UserRepository.GetAsync(x => x.Id == new Guid(currentProjectLeaderID));
 }
 <!-- Donate by money -->
 <section class="md:px-32 my-16">
@@ -33,7 +33,7 @@
         <input type="hidden" name="TargetType" value="@Model.VnPayRequestDto.TargetType"/>
         <input type="hidden" name="ResourceID" value="@Model.VnPayRequestDto.ResourceID"/>
         <input type="hidden" name="TargetId" value="@Model.VnPayRequestDto.TargetId"/>
-        <input type="hidden" Name="FromID" value="@currentUser?.UserID"/>
+        <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
         <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <!-- Inputs -->
@@ -46,7 +46,6 @@
                     <input Name="Amount" type="number"
                            placeholder="Enter money amount"
                            class="input input-bordered w-full" min="1"/>
-                    <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>
 
                 </label>
                 <!-- Message (maybe limit them ?) -->
@@ -139,7 +138,7 @@
                         </div>
                         <!-- Image file name will be shown here -->
                         <span id="fileNameFirst" class="text-gray-600 text-sm mt-2"></span>
-                        <div id="notificationImgMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+                        <span id="notificationImgMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
                     </div>
                     <button type="submit"
                             class="items-start text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
@@ -159,14 +158,14 @@
         <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID"/>
         @if (Model.TypeDonor.Equals("User"))
         {
-            <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.UserID"/>
+            <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.Id"/>
             <input type="hidden" asp-for="@Model.TypeDonor" value="User"/>
             <div class="form-control w-full max-w-md">
                 <label asp-for="@Model.UserDonate.ProjectResourceID" class="block mb-2 text-lg font-medium text-gray-900">Select a resource </label>
                 <select asp-for="@Model.UserDonate.ProjectResourceID"
                         class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                         asp-items="@(ViewData["ResourceTypeList"] as ICollection<SelectListItem>)">
-                    <option disabled selected>---Select Resource Type---</option>
+                    <option required disabled selected>---Select Resource Type---</option>
                 </select>
                 <span asp-validation-for="@Model.UserDonate.ProjectResourceID" class="text-danger text-red-500 text-sm font-semibold"></span>
             </div>
@@ -174,7 +173,7 @@
             <!-- Enter amount -->
             <label asp-for="@Model.UserDonate.Amount" class="form-control w-full max-w-md">
                 <span class="label label-text text-lg font-medium">Enter amount</span>
-                <input asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter ammount" class="input input-bordered" min="1"/>
+                <input id="Amount" asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="1"/>
                 <span asp-validation-for="@Model.UserDonate.Amount" class="text-danger text-red-500 text-sm font-semibold"></span>
         </label>
             <label asp-for="@Model.UserDonate.Message" class="form-control w-full max-w-md">
@@ -193,8 +192,8 @@
                     </button>
                 </div>
                 <!-- Image file name will be shown here -->
-                <span id="fileNameSecond" class="text-gray-600 text-sm mt-2"></span>
-                <div id="notificationImgMessageSecond" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+                <span id="fileNameSecond" class="text-gray-600 text-sm mt-2" style="display:none;"></span>
+                <span id="notificationImgMessageSecond" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
             </div>
         }
         <button type="submit" class="btn btn-primary bg-blue-700 text-white font-bold">Confirm</button>
@@ -210,10 +209,10 @@
             <script src="https://kit.fontawesome.com/ba8c3661b4.js"
                     crossorigin="anonymous"></script>
             <p>
-                <i class="fa-solid fa-at"></i> @leader.UserEmail
+                <i class="fa-solid fa-at"></i> @leader.Email
             </p>
             <p>
-                <i class="fa-solid fa-phone"></i> @leader.UserPhoneNumber
+                <i class="fa-solid fa-phone"></i> @leader.PhoneNumber
             </p>
             <p>
                 <i class="fa-solid fa-location-dot"></i> @leader.UserAddress
@@ -336,39 +335,44 @@
                 // Display the names of selected files
                 const fileNames = Array.from(attachmentInput.files).map(file => file.name);
                 fileNameDisplay.innerText = fileNames.join(', ');
+                fileNameDisplay.style.display = "block";
             }
-        }
-    });
-
-    document.querySelector('#donateResourceForm').addEventListener('submit', function (event) {
-        const attachmentInput = document.getElementById("AttachmentSecond");
-        const notificationMessage = document.getElementById("notificationImgMessageSecond");
-
-        if (attachmentInput.files.length === 0) {
-            event.preventDefault();  // Prevent form submission if no file is selected
-            notificationMessage.innerText = "Please upload at least one proof image.";
-            notificationMessage.style.display = "block";
-        } else {
-            notificationMessage.style.display = "none";  // Hide the message if files are selected
         }
     });
 
     //---------------sweetalert for donate---------------------
     document.querySelector('#donateResourceForm').addEventListener('submit', function (event) {
-        // Prevent the default form submission
-        event.preventDefault();
-        var form = this;  // Reference to the form
+        event.preventDefault(); // Prevent default form submission behavior
 
-        // Validate the form using jQuery validation (or you can use native JavaScript validation if desired)
+        const attachmentInput = document.getElementById("AttachmentSecond");
+        const notificationMessage = document.getElementById("notificationImgMessageSecond");
+
+        // Clear previous messages
+        notificationMessage.style.display = "none";
+
+        let isValid = true;
+
+        // Check if the file is uploaded
+        if (attachmentInput.files.length === 0) {
+            notificationMessage.innerText = "Please upload at least one proof image.";
+            notificationMessage.style.display = "block";
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return; // Exit if form is not valid
+        }
+
+        var form = this; // Reference to the form
+
         if ($(form).valid()) {  // Assuming jQuery validation is used
 
-            // Custom SweetAlert2 dialog using Tailwind CSS
             const swalWithTailwind = Swal.mixin({
                 customClass: {
                     confirmButton: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded",
                     cancelButton: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-4"
                 },
-                buttonsStyling: false // Disable default styling to use custom classes
+                buttonsStyling: false
             });
 
             swalWithTailwind.fire({
@@ -381,37 +385,31 @@
                 reverseButtons: true
             }).then(result => {
                 if (result.isConfirmed) {
-                    // If confirmed, send the form data using fetch API
-
-                    // Create a FormData object to handle the file and form data
                     const formData = new FormData(form);
 
                     fetch(form.action, {
                         method: 'POST',
-                        body: formData // The FormData object already handles multipart/form-data
+                        body: formData
                     })
-                        .then(response => response.json())  // Parse the JSON response
+                        .then(response => response.json()) // Parse response as JSON
                         .then(data => {
-                            // Check if the server returned success
                             if (data.success) {
                                 swalWithTailwind.fire({
                                     title: "Donate successful!",
                                     html: `<p>${data.message}</p><p>Thank you for your contribution!</p>`,
                                     icon: "success"
                                 }).then(() => {
-                                    // Optionally, reload or redirect after success
-                                    window.location.reload();
+                                    window.location.reload(); // Reload the page on success
                                 });
                             } else {
                                 swalWithTailwind.fire({
-                                    title: "Fail to donate!",
+                                    title: "Failed to donate!",
                                     text: data.message,
                                     icon: "error"
                                 });
                             }
                         })
                         .catch(error => {
-                            // Handle network errors or other issues
                             swalWithTailwind.fire({
                                 title: "Error",
                                 text: "An error occurred while processing your request: " + error,
@@ -428,6 +426,8 @@
             });
         }
     });
+
+
 </script>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>

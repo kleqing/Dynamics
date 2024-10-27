@@ -9,8 +9,10 @@
         public static string Error = "error";
         public static string Organization = "organization";
         public static string Project = "project";
+        public static string User = "user";
         public static string Allocation = "allocation";
         public static string Subtitle = "subtitle";
+        public static string ReturnUrl = "returnurl";
         public static int DefaultPage = 1;
         public static int DefaultPageSize = 9;
     }

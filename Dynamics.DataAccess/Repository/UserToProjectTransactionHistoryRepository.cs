@@ -25,7 +25,7 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
     public Task<UserToProjectTransactionHistory?> GetAsync(
         Expression<Func<UserToProjectTransactionHistory, bool>> filter)
     {
-        return _context.UserToProjectTransactionHistories.Where(filter).FirstOrDefaultAsync();
+        return _context.UserToProjectTransactionHistories.Where(filter).Include(u => u.ProjectResource).FirstOrDefaultAsync();
     }
 
     public async Task<UserToProjectTransactionHistory> DeleteTransactionByIdAsync(Guid id)
@@ -98,5 +98,12 @@ public class UserToProjectTransactionHistoryRepository : IUserToProjectTransacti
         }
 
         return false;
+    }
+
+    public IQueryable<UserToProjectTransactionHistory> GetAllAsQueryable(Expression<Func<UserToProjectTransactionHistory, bool>>? filter = null)
+    {
+        return filter == null
+            ? _context.UserToProjectTransactionHistories
+            : _context.UserToProjectTransactionHistories.Where(filter);
     }
 }

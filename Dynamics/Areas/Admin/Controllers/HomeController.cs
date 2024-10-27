@@ -2,6 +2,7 @@
 using Dynamics.Areas.Admin.Models;
 using Dynamics.Areas.Admin.Ultility;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Models;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +17,9 @@ namespace Dynamics.Areas.Admin.Controllers
     public class HomeController : Controller
     {
         public readonly IAdminRepository _adminRepository;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public HomeController(IAdminRepository adminRepository, SignInManager<IdentityUser> signInManager)
+        public HomeController(IAdminRepository adminRepository, SignInManager<User> signInManager)
         {
             _signInManager = signInManager;
             _adminRepository = adminRepository;
@@ -109,9 +110,9 @@ namespace Dynamics.Areas.Admin.Controllers
                 int recordIndex = 3;
                 foreach (var user in top5User)
                 {
-                    workSheet.Cells[recordIndex, 1].Value = user.UserFullName;
-                    workSheet.Cells[recordIndex, 2].Value = user.UserEmail;
-                    workSheet.Cells[recordIndex, 3].Value = user.UserPhoneNumber;
+                    workSheet.Cells[recordIndex, 1].Value = user.UserName;
+                    workSheet.Cells[recordIndex, 2].Value = user.Email;
+                    workSheet.Cells[recordIndex, 3].Value = user.PhoneNumber;
                     workSheet.Cells[recordIndex, 4].Value = user.UserAddress;
                     recordIndex++;
                 }
@@ -178,7 +179,7 @@ namespace Dynamics.Areas.Admin.Controllers
                 workSheet.Cells[1, 1].Style.Font.Size = 14;
                 workSheet.Cells[1, 1].Style.Font.Bold = true;
                 workSheet.Cells["A1:D1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                workSheet.Cells["1A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                workSheet.Cells["A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
                 workSheet.Cells[2, 1].Value = "Request Name";
                 workSheet.Cells[2, 2].Value = "Request Description";
@@ -198,7 +199,7 @@ namespace Dynamics.Areas.Admin.Controllers
                     workSheet.Cells[recordIndex, 1].Value = request.RequestTitle;
                     workSheet.Cells[recordIndex, 2].Value = request.Content;
                     workSheet.Cells[recordIndex, 3].Value = request.CreationDate;
-                    workSheet.Cells[recordIndex, 4].Value = request.User.UserFullName;
+                    workSheet.Cells[recordIndex, 4].Value = request.User.UserName;
                     recordIndex++;
                 }
 

@@ -105,9 +105,9 @@ namespace Dynamics.Areas.Admin.Controllers
                 int recordIndex = 3;
                 foreach (var user in listUser)
                 {
-                    workSheet.Cells[recordIndex, 1].Value = user.UserFullName;
-                    workSheet.Cells[recordIndex, 2].Value = user.UserEmail;
-                    workSheet.Cells[recordIndex, 3].Value = user.UserPhoneNumber;
+                    workSheet.Cells[recordIndex, 1].Value = user.UserName;
+                    workSheet.Cells[recordIndex, 2].Value = user.Email;
+                    workSheet.Cells[recordIndex, 3].Value = user.PhoneNumber;
                     workSheet.Cells[recordIndex, 4].Value = user.UserAddress;
                     workSheet.Cells[recordIndex, 5].Value = user.UserDOB;
                     workSheet.Cells[recordIndex, 6].Value = user.UserDescription;

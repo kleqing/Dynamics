@@ -2,14 +2,13 @@
 using Dynamics.DataAccess;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.Dto;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq.Expressions;
-using Dynamics.Models.Models.DTO;
 using Project = Dynamics.Models.Models.Project;
 
 namespace Dynamics.Services;
@@ -29,6 +28,7 @@ public class ProjectService : IProjectService
     private readonly IHttpContextAccessor _accessor;
     private readonly IRequestRepository _requestRepo;
     private readonly ILogger<ProjectService> _logger;
+    private readonly INotificationService _notificationService;
 
     public ProjectService(IMapper mapper, IProjectRepository projectRepo,
         IProjectResourceRepository projectResourceRepo,
@@ -40,9 +40,10 @@ public class ProjectService : IProjectService
         IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
         IProjectHistoryRepository projectHistoryRepository,
         CloudinaryUploader cloudinaryUploader,
-        ILogger<ProjectService> logger)
+        ILogger<ProjectService> logger, INotificationService notificationService)
     {
         _logger = logger;
+        _notificationService = notificationService;
         _mapper = mapper;
         _projectRepo = projectRepo;
         _projectResourceRepo = projectResourceRepo;
@@ -288,7 +289,6 @@ public class ProjectService : IProjectService
         };
         return result;
     }
-
     public async Task<DetailProjectVM> ReturnDetailProjectVMAsync(Guid projectID, HttpContext context)
     {
         var projectObj =
@@ -303,9 +303,9 @@ public class ProjectService : IProjectService
             }
             context.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
             var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
-            context.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
+            context.Session.SetString("currentProjectLeaderID", leaderOfProject.Id.ToString());
             var ceoOfProject = FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectObj.ProjectID);
-            context.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
+            context.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
 
             List<string> statistic = await GetStatisticOfProjectAsync(projectObj.ProjectID);
             DetailProjectVM detailProjectVM = new DetailProjectVM()
@@ -326,53 +326,6 @@ public class ProjectService : IProjectService
         }
         return null;
     }
-
-    public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
-    {
-        _logger.LogWarning("update project is here");
-        var res = await _projectRepo.UpdateAsync(entity);
-        if (!res) return false;
-        //updating 2 member who is new and old leader of project
-        var oldProjectLeaderUser = _accessor.HttpContext.Session.GetString("currentProjectLeaderID");
-        _logger.LogWarning("old leader is here");
-        var oldProjectLeader = _projectMemberRepo
-            .FilterProjectMember(x => x.UserID.Equals(oldProjectLeaderUser) && x.ProjectID.Equals(entity.ProjectID))
-            .FirstOrDefault();
-        _logger.LogWarning("new leader is here");
-        var newProjectLeader = await _context.ProjectMembers.FirstOrDefaultAsync(x =>
-            x.UserID.Equals(newProjectLeaderID) && x.ProjectID.Equals(entity.ProjectID));
-        var ceoOfProjectID = _accessor.HttpContext.Session.GetString("currentProjectCEOID");
-        if (oldProjectLeader != null && newProjectLeader != null &&
-            !oldProjectLeader.UserID.Equals(newProjectLeader.UserID))
-        {
-            if (oldProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
-            {
-                oldProjectLeader.Status = 2;
-            }
-            else
-            {
-                oldProjectLeader.Status = 1;
-            }
-
-            _logger.LogWarning("update old leader is here");
-            await _projectMemberRepo.UpdateAsync(oldProjectLeader);
-            if (newProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
-            {
-                newProjectLeader.Status = 2;
-            }
-            else
-            {
-                newProjectLeader.Status = 3;
-            }
-
-            _logger.LogWarning("update new leader is here");
-            await _projectMemberRepo.UpdateAsync(newProjectLeader);
-            return true;
-        }
-
-        return true;
-    }
-
     //get images
     public async Task<string> GetAllImagesAsync(Guid id, string owner)
     {
@@ -399,7 +352,7 @@ public class ProjectService : IProjectService
 
     public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
     {
-        if (string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
+        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
         if (phaseID != Guid.Empty)
         {
             var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
@@ -413,7 +366,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfPhase = allImagesOfPhase.Replace(img + ",", "");
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1? allImagesOfPhase.Replace(img, ""): allImagesOfPhase.Replace(img + ",","");
                         }
                     }
 
@@ -439,7 +392,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfProject = allImagesOfProject.Replace(img + ",", "");
+                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img + ",", "");
                         }
                     }
 
@@ -458,7 +411,7 @@ public class ProjectService : IProjectService
     {
         if (images != null && images.Count() > 0)
         {
-            var resAttachment = await Util.UploadImages(images, $@"{folder}");
+            var resAttachment = await _cloudinaryUploader.UploadMultiImagesAsync(images);
             return resAttachment;
         }
 
@@ -475,7 +428,7 @@ public class ProjectService : IProjectService
             //var resImage = await UploadImagesAsync(images, @"images\Project");
             var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
             if (resImage.Equals("Wrong extension")) return resImage;
-            projectObj.Attachment = !resImage.Equals("No file") ? resImage : null;
+            projectObj.Attachment = !resImage.Equals("No file")? resImage : projectObj.Attachment;
             var res = await UpdateProjectAlongWithUpdateLeaderAsync(projectObj, updateProject.NewLeaderID);
             if (!res) return MyConstants.Error;
             return MyConstants.Success;
@@ -483,7 +436,47 @@ public class ProjectService : IProjectService
 
         return MyConstants.Error;
     }
+    public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
+    {
+        _logger.LogWarning("update project is here");
+        var res = await _projectRepo.UpdateAsync(entity);
+        if (!res) return false;
+        //updating 2 member who is new and old leader of project
+        var oldProjectLeaderUser = _accessor.HttpContext.Session.GetString("currentProjectLeaderID");
+        _logger.LogWarning("old leader is here");
+        var oldProjectLeader = _projectMemberRepo.FilterProjectMember(x => x.UserID.Equals(new Guid(oldProjectLeaderUser)) && x.ProjectID.Equals(entity.ProjectID)).FirstOrDefault();
+        _logger.LogWarning("new leader is here");
+        var newProjectLeader = await _context.ProjectMembers.FirstOrDefaultAsync(x =>
+            x.UserID.Equals(newProjectLeaderID) && x.ProjectID.Equals(entity.ProjectID));
+        var ceoOfProjectID = _accessor.HttpContext.Session.GetString("currentProjectCEOID");
+        if (oldProjectLeader != null && newProjectLeader != null &&
+            !oldProjectLeader.UserID.Equals(newProjectLeader.UserID))
+        {
+            if (oldProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
+            {
+                oldProjectLeader.Status = 2;
+            }
+            else
+            {
+                oldProjectLeader.Status = 1;
+            }
 
+            _logger.LogWarning("update old leader is here");
+            await _projectMemberRepo.UpdateAsync(oldProjectLeader);
+            if (newProjectLeader.UserID.ToString().Equals(ceoOfProjectID))
+            {
+                newProjectLeader.Status = 2;
+            }
+            else
+            {
+                newProjectLeader.Status = 3;
+            }
+            _logger.LogWarning("update new leader is here");
+            await _projectMemberRepo.UpdateAsync(newProjectLeader);
+            return true;
+        }
+        return true;
+    }
 
     //working with member of project-----------------------------------------------------------------------------------------
     //get leader of project
@@ -534,7 +527,12 @@ public class ProjectService : IProjectService
             .FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.UserID.Equals(memberID)).FirstOrDefault();
         if (existingJoinRequest == null) // Not existed, add new with status = 0
         {
-            var res = await _projectMemberRepo.AddJoinRequest(memberID, projectID);
+            var res = await _projectMemberRepo.AddJoinRequest(new ProjectMember()
+            {
+                UserID = memberID,
+                ProjectID = projectID,
+                Status = 0
+            });
             if (res)
             {
                 return MyConstants.Success;
@@ -671,33 +669,33 @@ public class ProjectService : IProjectService
         return MyConstants.Error;
     }
 
-    public async Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID)
-    {
-        var allUserDonate =
-            await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
-                u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
-        if (allUserDonate == null)
-        {
-            return null;
-        }
-
-        var allOrganizationDonate =
-            await _organizationToProjectTransactionHistoryRepo.GetAllOrganizationDonateAsync(u =>
-                u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
-        if (allOrganizationDonate == null)
-        {
-            return null;
-        }
-
-        return new ProjectTransactionHistoryVM()
-        {
-            UserDonate = allUserDonate,
-            OrganizationDonate = allOrganizationDonate
-        };
-    }
+    // public async Task<ProjectTransactionHistoryVM> ReturnProjectTransactionHistoryVMAsync(Guid projectID)
+    // {
+    //     var allUserDonate =
+    //         await _userToProjectTransactionHistoryRepo.GetAllUserDonateAsync(u =>
+    //             u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
+    //     if (allUserDonate == null)
+    //     {
+    //         return null;
+    //     }
+    //
+    //     var allOrganizationDonate =
+    //         await _organizationToProjectTransactionHistoryRepo.GetAllOrganizationDonateAsync(u =>
+    //             u.ProjectResource.ProjectID.Equals(projectID) && u.Status == 1 || u.Status == -1);
+    //     if (allOrganizationDonate == null)
+    //     {
+    //         return null;
+    //     }
+    //
+    //     return new ProjectTransactionHistoryVM()
+    //     {
+    //         UserDonate = allUserDonate,
+    //         OrganizationDonate = allOrganizationDonate
+    //     };
+    // }
 
     public async Task<bool> AcceptDonateProjectRequestAllAsync(Guid projectID, string donor,
-        List<IFormFile> proofImages)
+        List<IFormFile> proofImages, string link)
     {
         var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(proofImages);
         if (resImage.Equals("Wrong extension") || resImage.Equals("No file"))
@@ -723,6 +721,8 @@ public class ProjectService : IProjectService
                         {
                             return false;
                         }
+                        await _notificationService.ProcessProjectDonationNotificationAsync
+                            (projectID, userDonate.TransactionID, link, "AcceptUserDonate");
                     }
 
                     break;
@@ -744,6 +744,8 @@ public class ProjectService : IProjectService
                         {
                             return false;
                         }
+                        await _notificationService.ProcessProjectDonationNotificationAsync
+                            (projectID, orgDonate.TransactionID, link, "AcceptOrgDonate");
                     }
 
                     break;
@@ -753,7 +755,7 @@ public class ProjectService : IProjectService
         return true;
     }
 
-    public async Task<bool> DenyDonateProjectRequestAllAsync(Guid projectID, string donor, string reasonToDeny)
+    public async Task<bool> DenyDonateProjectRequestAllAsync(Guid projectID, string donor, string reasonToDeny, string link)
     {
         switch (donor)
         {
@@ -774,6 +776,8 @@ public class ProjectService : IProjectService
                     {
                         return false;
                     }
+                    await _notificationService.ProcessProjectDonationNotificationAsync
+                        (projectID, userDonate.TransactionID, link, "DenyUserDonate");
                 }
 
                 break;
@@ -794,6 +798,8 @@ public class ProjectService : IProjectService
                     {
                         return false;
                     }
+                    await _notificationService.ProcessProjectDonationNotificationAsync
+                        (projectID, orgDonate.TransactionID, link, "DenyOrgDonate");
                 }
 
                 break;

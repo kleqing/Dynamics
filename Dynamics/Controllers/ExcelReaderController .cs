@@ -9,6 +9,7 @@ using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
 using Newtonsoft.Json;
 using Dynamics.DataAccess.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -35,16 +36,28 @@ namespace Dynamics.Controllers
             _userToProjectTransactionHistoryRepo = userToProjectTransactionHistoryRepository;
             _cloudinaryUploader = cloudinaryUploader;
         }
-
-        public async Task<ActionResult> Upload(IFormFile file)
+        [Authorize]
+        public async Task<ActionResult> Upload(IFormFile file, List<IFormFile> images)
         {
             if (file != null && file.Length > 0)
             {
                 try
                 {
+                    var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                    if (resImage.Equals("Wrong extension"))
+                    {
+                        TempData[MyConstants.Error] = "Wrong extension of some proof images file.";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
+                    else if (resImage.Equals("No file"))
+                    {
+                        TempData[MyConstants.Error] = "Please select at least a proof image to upload.";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
+
                     var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
-                    //get current user
+                    //Get current user
                     var userString = HttpContext.Session.GetString("user");
                     User currentUser = null;
                     if (userString != null)
@@ -79,11 +92,12 @@ namespace Dynamics.Controllers
                                 var userToOrganizationTransactionHistory = new UserToOrganizationTransactionHistory()
                                 {
                                     ResourceID = currentResource.ResourceID,
-                                    UserID = currentUser.UserID,
+                                    UserID = currentUser.Id,
                                     Status = 0,
                                     Time = DateOnly.FromDateTime(DateTime.UtcNow),
                                     Amount = resource.Quantity,
                                     Message = worksheet.Cells[row, 4].Value?.ToString(),
+                                    Attachments = resImage,
                                 };
 
                                 await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(userToOrganizationTransactionHistory);
@@ -145,14 +159,14 @@ namespace Dynamics.Controllers
                                     Quantity = Convert.ToInt32(worksheet.Cells[row, 2].Value) >= 0 ? Convert.ToInt32(worksheet.Cells[row, 2].Value) : 0,
                                     Unit = worksheet.Cells[row, 5].Value?.ToString(),
                                 };
-
+                                var currentResource = await _projectResourceRepo.GetAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
                                 if (resource.Quantity == 0)
                                 {
+                                    resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";
                                     continue;
                                 }
 
                                 // get current resource
-                                var currentResource = await _projectResourceRepo.GetAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
 
                                 var userToProjectTransactionHistory = new UserToProjectTransactionHistory()
                                 {
@@ -168,7 +182,7 @@ namespace Dynamics.Controllers
                                 {
                                     resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";
                                 }
-                                else
+                                else if (quantityAfterDonate < currentResource.ExpectedQuantity && resource.Quantity > 0)
                                 {
                                     userToProjectTransactionHistory.Attachments = resImage;
                                     await _userToProjectTransactionHistoryRepo.AddUserDonateRequestAsync(userToProjectTransactionHistory);
@@ -176,10 +190,10 @@ namespace Dynamics.Controllers
                             }
                         }
                     }
-                    if (resourceCannotDonate != null)
+                    if (!string.IsNullOrEmpty(resourceCannotDonate))
                     {
-                         TempData[MyConstants.Success] = "Send donate requests successfully.";
-                        TempData[MyConstants.Info] = "But donate request of  " + resourceCannotDonate.TrimEnd(',',' ') + " cannot send because of exceed the expected quantity.";
+                         //TempData[MyConstants.Success] = "Send donate requests successfully.";
+                        TempData[MyConstants.Info] = "Send donate requests successfully.\nBut donate request of  " + resourceCannotDonate.TrimEnd(',',' ') + " cannot send because of invalid quantity of donation.";
                     }
                     else
                     {

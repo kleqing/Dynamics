@@ -258,7 +258,7 @@ namespace Dynamics.DataAccess.Repository
             Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
             var organizationToProjectHistory =
-                await _db.OrganizationToProjectTransactionHistory.Where(filter).FirstOrDefaultAsync();
+                await _db.OrganizationToProjectTransactionHistory.Where(filter).Include(h => h.ProjectResource).FirstOrDefaultAsync();
             return organizationToProjectHistory;
         }
 
@@ -286,11 +286,20 @@ namespace Dynamics.DataAccess.Repository
             return await organizations.ToListAsync();
         }
 
-        public IQueryable<Organization> GetAll()
+        public IQueryable<Organization> GetAll(Expression<Func<Organization, bool>>? filter = null)
         {
+            if (filter != null)
+            {
+                return _db.Organizations.Where(filter)
+                    .Include(o => o.OrganizationMember)
+                    .ThenInclude(om => om.User)
+                    .OrderByDescending(o => o.StartTime)
+                    .ThenBy(o => o.OrganizationID);
+            }
+
             return _db.Organizations.Include(o => o.OrganizationMember)
                 .ThenInclude(om => om.User)
-                .OrderByDescending(o=> o.StartTime)
+                .OrderByDescending(o => o.StartTime)
                 .ThenBy(o => o.OrganizationID);
         }
 

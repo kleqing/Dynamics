@@ -66,7 +66,7 @@
                             </th>
                             <td class="p-2 text-lg">@(i + 1)</td>
                             <td class="p-2 text-lg">@item.Time</td>
-                            <td class="p-2 text-lg">@item.User.UserFullName</td>
+                            <td class="p-2 text-lg">@item.User.UserName</td>
                             <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
                             <td class="p-2 text-lg">@item.Amount</td>
                             <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
@@ -90,7 +90,6 @@
                                         <li class="hover:bg-red-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('DenyModal').showModal()">Deny</a></li>
                                     </ul>
                                 </div>
-                                <!-- You can open the modal using ID.showModal() method -->
                                     <!-- Proof Images Modal for this specific item -->
                                     <dialog id="proofImagesModal_@item.TransactionID" class="modal">
                                         <div class="modal-box w-11/12 max-w-5xl">
@@ -110,7 +109,7 @@
                                                     </button>
                                                     <!-- Image Modal for each proof image (one per item) -->
                                                 <dialog id="proof_image" class="modal">
-                                                    <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                    <div class="modal-box w-fit h-fit p-0 m-0" style="background-color: rgba(0, 0, 0, 0);">
                                                         <img id="modalImage" alt="current-proof-img" class=" h-[80vh] w-auto rounded-xl shadow-md cursor-pointer" />
                                                     </div>
                                                     <form method="dialog" class="modal-backdrop ">
@@ -128,7 +127,7 @@
                                 <!--modal of accept-->
                                 <dialog id="AcceptModal" class="modal">
                                     <div class="modal-box w-11/12 max-w-5xl">
-                                        <div class="modal-action  flex flex-col">
+                                        <div class="modal-action flex flex-col">
                                             <h2 class=" text-black font-bold text-3xl text-center mb-4">Accept request</h2>
                                             <form id="acceptForm" method="post" asp-action="AcceptDonateRequest" asp-controller="Project" enctype="multipart/form-data" >
                                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -146,7 +145,7 @@
                                                             </div>
                                                             <input asp-for="@reviewProjectDonateRequestVM.Attachments" name="proofImages" multiple id="dropzone-file" type="file" class="hidden" />
                                                             <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
-                                                            <div id="notificationImgMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+                                                            <span id="notificationImgMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
 
                                                         </label>
                                                     </div>
@@ -276,7 +275,6 @@
         document.getElementById('proof_image').showModal();
     }
     //drag
-
     </script>
 
 

@@ -8,7 +8,7 @@
     ViewData["Title"] = "CreateProjectByImportData";
 }
 
-<div class="container  my-5 pt-12 flex justify-center items-center">
+<div class="container  my-5 pt-12 flex justify-center items-center" style="margin: auto">
     <div class=" bg-white p-8 rounded-lg shadow-lg">
         <div class="flex justify-center items-center py-5 my-5">
             <h1 class="text-3xl font-semibold mx-5">Create a new project</h1>
@@ -128,12 +128,12 @@
                                 <option>Options</option>
                                 @foreach (var item in Model.OrganizationVM.OrganizationMember)
                                 {
-                                    if (item.UserID.Equals(Model.OrganizationVM.CEO.UserID))
+                                    if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
                                     {
-                                        <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserFullName] - [@item.User.UserEmail] - [@item.UserID]</option>
+                                        <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email] - [@item.UserID]</option>
                                         continue;
                                     }
-                                    <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserFullName] - [@item.User.UserEmail] - [@item.UserID]</option>
+                                    <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email] - [@item.UserID]</option>
                                 }
                             </select>
                         </div>

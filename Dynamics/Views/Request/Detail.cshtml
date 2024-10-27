@@ -11,9 +11,6 @@
     {
         projectImages = Model.Attachment.TrimEnd(',', ' ').Split(",");
     }
-
-    User user = Accessor.HttpContext.Session.GetCurrentUser();
-    if (user == null) throw new Exception("WARNING NO USER SESSION");
 }
 
 <!-- container start -->
@@ -60,20 +57,29 @@
             </div>
             <!-- end part 1-image -->
             <div class="border-t p-6 ">
-                <h2 class="font-semibold mb-2 text-black text-3xl">Contact Information:</h2>
-                <p class="text-gray-600">✉ @Model.RequestEmail</p>
-                <p class="text-gray-600">📞 @Model.RequestPhoneNumber</p>
-                <p class="text-gray-600">🏠 @Model.Location</p>
+                <h2 class="font-semibold mb-2 text-black text-2xl">Contact Information:</h2>
+                <p class="text-gray-600  text-md">✉ @Model.RequestEmail</p>
+                <p class="text-gray-600  text-md">📞 @Model.RequestPhoneNumber</p>
+                <p class="text-gray-600  text-md">🏠 @Model.Location</p>
             </div>
             <div class="border-t p-4 mt-0">
-                <h2 class="font-semibold mb-2 text-black text-3xl">Description</h2>
-                <p id="notViewMore" class="text-gray-600 line-clamp-3">
-                    @Model.Content
-                </p>
-                <a onclick="viewMoreDescription()" class="cursor-pointer text-gray-400 flex justify-center font-normal">View more...</a>
+                <h2 class="font-semibold mb-2 text-black text-2xl">Description</h2>
+
+                <details id="descriptionDetails" class="collapse bg-base-200">
+                    <summary class="collapse-title text-md font-medium cursor-pointer">
+                        <div id="description-container" class="cursor-pointer" onclick="toggleDescription()">
+                            <p class="text-gray-600 text-md line-clamp-3" id="summaryText">
+                                @Model.Content
+                            </p>
+                            <p class="hidden" id="fullText">
+                                @Model.Content
+                            </p>
+                        </div>
+                    </summary>
+                </details>
             </div>
             <div class="border-t p-4 mt-0">
-                <h2 class="font-semibold mb-2 text-black text-3xl">Requester</h2>
+                <h2 class="font-semibold mb-2 text-black text-2xl">Requester</h2>
                 <div class="flex justify-start">
                     <div>
                         <img class="rounded-full w-14 h-14 mx-4 mb-4"
@@ -83,20 +89,20 @@
                     <div class="flex flex-col ">
                         <p class="text-gray-600 font-normal">
                             Requester:
-                            <span class="text-black font-bold">
-                                @Model.User.UserFullName
+                            <span class="text-black font-bold  text-md">
+                                @Model.User.UserName
                             </span>
                         </p>
-                        <p class="text-gray-400 font-normal text-base ">Address: @Model.User.UserAddress</p>
+                        <p class="text-gray-400 font-normal  text-md ">Address: @Model.User.UserAddress</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
-            @* Show edit button and no accept button *@
-            @if (Model.UserID.Equals(new Guid(userIDString)))
-            {
+        @* Show edit button and no accept button *@
+        @if (!string.IsNullOrEmpty(userIDString) && Model.UserID.Equals(new Guid(userIDString)))
+        {
+            <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
                 <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
                     <button type="button" class="flex items-center gap-8">
                         Edit request detail <i class="fa-solid fa-pen-to-square text-xl"></i>
@@ -108,16 +114,13 @@
                         Delete request <i class="fa-regular fa-circle-xmark text-xl"></i>
                     </button>
                 </form>
-            }
-            else
-            {
                 <a asp-action="AcceptRequest" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
                     <button type="button" class="flex items-center gap-8">
                         Accept this request!
                     </button>
                 </a>
-            }
-        </div>
+            </div>
+        }
     </div>
 </main>
 <script>
@@ -228,10 +231,20 @@
 
     // Initialize the carousel
     updateCarousel();
-    // View more
-    function viewMoreDescription() {
-        const notViewMore = document.getElementById('notViewMore');
-        notViewMore.classList.toggle('line-clamp-3');
+    function toggleDescription() {
+        const summaryText = document.getElementById('summaryText');
+        const fullText = document.getElementById('fullText').textContent;
+
+        if (summaryText.classList.contains('line-clamp-3')) {
+            // Hiển thị toàn bộ nội dung
+            summaryText.classList.remove('line-clamp-3');
+            summaryText.textContent = fullText;
+        } else {
+            // Thu gọn nội dung
+            summaryText.classList.add('line-clamp-3');
+            summaryText.textContent = fullText;
+        }
     }
+
 
 </script>

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
+using Dynamics.Models.Dto;
 using Dynamics.Models.Models;
-using Dynamics.Models.Models.DTO;
 using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.Services;
@@ -8,14 +8,40 @@ namespace Dynamics.Services;
 public interface ITransactionViewService
 {
     /**
-     * Get the transaction entity in dto for display
+     * Get all transactions from 
      */
-    Task<List<UserTransactionDto>> GetUserToOrganizationTransactionDTOsAsync(
-        Expression<Func<UserToOrganizationTransactionHistory, bool>> predicate);
+    
+    /**
+     *  Execute the query user to org and map it to dtos
+     */
+    Task<List<UserTransactionDto>> GetUserToOrganizationTransactionDTOs(IQueryable<UserToOrganizationTransactionHistory> query);
 
     /**
-    * Get the transaction entity in dto for display
+    * Execute the query user to prj and map it to dtos
     */
-    Task<List<UserTransactionDto>> GetUserToProjectTransactionDTOsAsync(
-        Expression<Func<UserToProjectTransactionHistory, bool>> predicate);
+    Task<List<UserTransactionDto>> GetUserToProjectTransactionDTOs(IQueryable<UserToProjectTransactionHistory> query);
+
+    /**
+     * Execute the query org to prj and map it to dtos
+     */
+    Task<List<UserTransactionDto>> GetOrganizationToProjectTransactionDTOs(
+     IQueryable<OrganizationToProjectHistory> query);
+    /**
+     * Setup for user related display transaction
+     */
+    Task<List<UserTransactionDto>> SetupUserTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
+        IQueryable<UserToProjectTransactionHistory> userToProjQuery,
+        IQueryable<UserToOrganizationTransactionHistory> userToOrgQuery);
+
+    Task<List<OrganizationTransactionDto>> SetupOrganizationTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
+     IQueryable<OrganizationToProjectHistory> organizationToProjectQueryable,
+     IQueryable<UserToOrganizationTransactionHistory> userToOrgQueryable);
+
+    Task<List<UserTransactionDto>> SetupProjectTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
+     IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
+     IQueryable<OrganizationToProjectHistory> orgToPrjQueryable);
+
+    Task<List<OrganizationTransactionDto>> GetUserToOrganizationTransactionDtosAsync(IQueryable<UserToOrganizationTransactionHistory> query);
+    Task<List<OrganizationTransactionDto>> GetOrganizationToProjectTransactionDtosAsync(IQueryable<OrganizationToProjectHistory> query);
+    
 }

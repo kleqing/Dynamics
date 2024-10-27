@@ -1,5 +1,6 @@
 ﻿using Dynamics.DataAccess;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Models;
 using Dynamics.Services;
 using Dynamics.Utility;
 using Dynamics.Utility.Mapper;
@@ -44,8 +45,6 @@ namespace Dynamics
                 // Get user profile
                 googleOptions.ClaimActions.MapJsonKey("picture", "picture");
             });
-            // Add service for notification
-            builder.Services.AddSignalR();
             // Add database
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -53,27 +52,25 @@ namespace Dynamics
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
             });
-            builder.Services.AddDbContext<AuthDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbContextConnection"));
-            });
 
             // Identity and roles
             builder.Services
-                .AddIdentity<IdentityUser, IdentityRole>(options =>
+                .AddIdentity<User, IdentityRole<Guid>>(options =>
                 {
                     options.User.AllowedUserNameCharacters =
-                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ";
+                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ()!@#$%^&*()_+-=";
                     options.User.RequireUniqueEmail = true;
-                    options.SignIn.RequireConfirmedAccount = true; // No confirm account required
+                    options.SignIn.RequireConfirmedAccount = true;
                     options.Password.RequireDigit = false;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequiredLength = 6;
                 })
-                .AddEntityFrameworkStores<AuthDbContext>()
+                .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Lockout for 2 minutes
@@ -140,6 +137,9 @@ namespace Dynamics
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IRequestService, RequestService>();
             builder.Services.AddScoped<IOrganizationService, OrganizationService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<ISearchService, SearchService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
             // VNPAY Service
             builder.Services.AddTransient<IVnPayService, VnPayService>();
             builder.Services.AddScoped<IPagination, Pagination>();
@@ -200,9 +200,6 @@ namespace Dynamics
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            
-            // Specify hub for clients to connect to
-            app.MapHub<NotificationHub>("/notification");
                 
             app.MapControllers();
             app.UseSession();

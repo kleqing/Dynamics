@@ -12,7 +12,7 @@
               method="post" class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
             <div asp-validation-summary="ModelOnly" class="text-error"></div>
             <div>
-                <input type="hidden" value="@DateOnly.FromDateTime(DateTime.Now)" asp-for="@Model.CreationDate"/>
+                <input type="hidden" value="@DateTime.Now" asp-for="@Model.CreationDate"/>
                 <input class="hidden" name="cityNameInput">
                 <input class="hidden" name="districtNameInput"/>
                 <input class="hidden" name="wardNameInput">
@@ -125,6 +125,7 @@
         <div class="loader"></div>
     </div>
 </div>
+
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>

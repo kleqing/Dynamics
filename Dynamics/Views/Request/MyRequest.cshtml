@@ -1,10 +1,10 @@
 ﻿@using Dynamics.Utility
-@model List<Dynamics.Models.Models.Dto.RequestOverviewDto>
+@model List<Dynamics.Models.Dto.RequestOverviewDto>
 
 @{
     ViewData["Title"] = "My Request";
     User currentUser = Accessor.HttpContext.Session.GetCurrentUser();
-    if (currentUser != null) ViewBag.userID = currentUser.UserID;
+    if (currentUser != null) ViewBag.userID = currentUser.Id;
 }
 
 <body>
@@ -14,7 +14,7 @@
             Create new request
         </button>
     </a>
-    <h1 class="text-3xl">Manage your requests</h1>
+    <h1 class="text-3xl font-bold">Manage your requests</h1>
     <div class="flex w-full justify-end items-center gap-2 mb-3">
         <!-- Search form -->
         <form asp-action="MyRequest" method="get" class="flex items-center gap-4 w-full max-w-xl">
@@ -80,7 +80,7 @@
             <ul class="gap-4 flex justify-center flex-wrap container">
                 @foreach (var item in Model)
                 {
-                <partial name="CustomComponent/OverviewCard/RequestOverview" model="item" />
+                    <partial name="CustomComponent/OverviewCard/RequestOverview" model="item" />
                 }
             </ul>
         </div>
@@ -112,6 +112,7 @@
     </div>
 </main>
 </body>
+<partial name="CustomComponent/_SweetAlertToast"/>
 <script>
         function setFilter(filter) {
             document.getElementById("filterQuery").value = filter;

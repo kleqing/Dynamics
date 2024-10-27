@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Dynamics.Models.Models
+namespace Dynamics.Models.Dto
 {
     public class ChangePasswordDto
     {
@@ -19,6 +19,7 @@ namespace Dynamics.Models.Models
         [MaxLength(100, ErrorMessage = "The Password must be at least 6 and at max 100 characters long.")]
         [MinLength(6, ErrorMessage = "The Password must be at least 6 and at max 100 characters long.")]
         [Required]
+        [Compare("NewPassword", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 }

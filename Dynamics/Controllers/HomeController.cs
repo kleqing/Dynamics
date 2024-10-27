@@ -18,10 +18,11 @@ namespace Dynamics.Controllers
         private readonly IOrganizationRepository _organizationRepo;
         private readonly IOrganizationService _organizationService;
         private readonly IPagination _pagination;
+        private readonly IRoleService _roleService;
 
         public HomeController(IUserRepository userRepo, IRequestRepository requestRepo,
             IProjectRepository projectRepo, IProjectService projectService, IRequestService requestService,
-            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination)
+            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination, IRoleService roleService)
         {
             _userRepo = userRepo;
             _requestRepo = requestRepo;
@@ -31,6 +32,7 @@ namespace Dynamics.Controllers
             _organizationRepo = organizationRepo;
             _organizationService = organizationService;
             _pagination = pagination;
+            _roleService = roleService;
         }
 
         // // Landing page
@@ -157,6 +159,12 @@ namespace Dynamics.Controllers
         public IActionResult Announce()
         {
             return View();
+        }
+
+        public async Task<IActionResult> TestRole(Guid userId, string role)
+        {
+            await _roleService.AddUserToRoleAsync(userId, role);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

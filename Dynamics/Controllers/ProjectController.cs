@@ -39,6 +39,7 @@ namespace Dynamics.Controllers
         private readonly ITransactionViewService _transactionViewService;
         private readonly IPagination _pagination;
         private readonly INotificationService _notificationService;
+        private readonly IRoleService _roleService;
 
         public ProjectController(IProjectRepository _projectRepo,
             IOrganizationRepository _organizationRepo,
@@ -55,7 +56,8 @@ namespace Dynamics.Controllers
             CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
             IUserRepository userRepository,
             IOrganizationVMService organizationService, INotificationService notificationService,
-            ITransactionViewService transactionViewService)
+            ITransactionViewService transactionViewService, 
+            IRoleService roleService)
         {
             this._projectRepo = _projectRepo;
             this._organizationRepo = _organizationRepo;
@@ -75,6 +77,7 @@ namespace Dynamics.Controllers
             _userRepository = userRepository;
             this._organizationService = organizationService;
             _transactionViewService = transactionViewService;
+            _roleService = roleService;
             _notificationService = notificationService;
         }
 
@@ -1519,7 +1522,13 @@ namespace Dynamics.Controllers
             }
 
             projectVM.OrganizationVM = currentOrganization;
-            projectVM.LeaderID = currentUser.Id;
+            
+            if (!await _roleService.IsInRoleAsync(currentUser, RoleConstants.ProjectLeader) && projectVM.LeaderID == Guid.Empty)
+            {
+                projectVM.LeaderID = currentUser.Id;
+
+            }
+            
             if (projectVM.LeaderID != Guid.Empty)
             {
                 var Leader = new User();
@@ -1593,7 +1602,7 @@ namespace Dynamics.Controllers
                                 await _requestRepo.UpdateAsync(request);
                             }
 
-
+                            await _roleService.AddUserToRoleAsync(projectVM.LeaderID, RoleConstants.ProjectLeader);
                             return RedirectToAction(nameof(AutoJoinProject),
                                 new { projectId = project.ProjectID, leaderId = projectVM.LeaderID });
                         }

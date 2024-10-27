@@ -48,7 +48,7 @@ namespace Dynamics.Controllers
 
                     // Add data
                     int row = 2;
-                    if (currentOrganization.OrganizationResource.Count == 0)
+                    if (currentOrganization.OrganizationResource.Count == 1)
                     {
                         TempData[MyConstants.Error] = "This organization has no resource to donate";
                         return RedirectToAction("ManageOrganizationResource", "Organization");

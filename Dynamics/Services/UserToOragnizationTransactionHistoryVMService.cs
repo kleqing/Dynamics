@@ -68,10 +68,10 @@ namespace Dynamics.Services
         }
 
         //for Donors
-        public async Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistoryByUserID(Guid userId)
+        public async Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistory(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
         {
             var result = await _db.UserToOrganizationTransactionHistories
-                                .Where(uto => uto.UserID.Equals(userId))
+                                .Where(filter)
                                 .OrderByDescending(uto => uto.Time)
                                 .ThenBy(uto => uto.Status)
                                 .Include(uto => uto.User)

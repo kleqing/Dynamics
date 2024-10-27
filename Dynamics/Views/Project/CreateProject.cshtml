@@ -2,6 +2,7 @@
 @using Newtonsoft.Json
 @model Dynamics.Models.Models.ViewModel.ProjectVM
 @inject IHttpContextAccessor Accessor
+@inject IRoleService roleService
 
 
 @{
@@ -82,6 +83,8 @@
                 </label>
                 <input asp-for="ProjectEmail" name="ProjectEmail" type="email" id="project-contact" rows="4" class="w-full p-2 border border-gray-300 rounded"
                        placeholder="Enter Email">
+                        <span asp-validation-for="ProjectEmail" class="text-red-500"></span>
+
             </div>
 
             <div class="mb-6">
@@ -90,6 +93,8 @@
                 </label>
                 <input asp-for="ProjectPhoneNumber" name="ProjectPhoneNumber" type="tel" id="project-contact" rows="4" class="w-full p-2 border border-gray-300 rounded"
                        placeholder="Enter tel">
+                        <span asp-validation-for="ProjectPhoneNumber" class="text-red-500"></span>
+
             </div>
 
             <div class="mb-6">
@@ -136,15 +141,20 @@
                     </label>
                     <select asp-for="LeaderID" id="project-lead" class="w-full p-2 border border-gray-300 rounded">
                         <option>Options</option>
-                        @foreach (var item in Model.OrganizationVM.OrganizationMember)
+                        @foreach (var item in Model.OrganizationVM.OrganizationMember.Where(om => om.Status > 0).ToList())
                         {
+                            if(await roleService.IsInRoleAsync(item.User, RoleConstants.ProjectLeader))
+                            {
+                               continue;       
+                            }
+
                             if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
                             {
-                                <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email] - [@item.UserID]</option>
+                                <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email]</option>
                                 continue;
                             }
 
-                            <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email] - [@item.UserID]</option>
+                            <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
                         }
                     </select>
                 </div>

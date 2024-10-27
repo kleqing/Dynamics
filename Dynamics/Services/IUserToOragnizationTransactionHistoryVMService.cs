@@ -10,7 +10,7 @@ namespace Dynamics.Services
 
         Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistoryIsAccept(Guid organizationId);
 
-        Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistoryByUserID(Guid userId);
+        Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistory(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
 
     }
 }

@@ -34,6 +34,8 @@ namespace Dynamics.Controllers
         private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepository;
         private readonly ITransactionViewService _transactionViewService;
         private readonly IPagination _pagination;
+        private readonly IRoleService _roleService;
+        private readonly IProjectMemberRepository _projectMemberRepository;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -46,7 +48,7 @@ namespace Dynamics.Controllers
             , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
             IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
-            ITransactionViewService transactionViewService, IPagination pagination)
+            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository)
         {
 
             _organizationRepository = organizationRepository;
@@ -65,6 +67,8 @@ namespace Dynamics.Controllers
             _organizationToProjectTransactionHistoryRepository = organizationToProjectTransactionHistoryRepository;
             _transactionViewService = transactionViewService;
             _pagination = pagination;
+            _roleService = roleService;
+            _projectMemberRepository = projectMemberRepository;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -77,7 +81,7 @@ namespace Dynamics.Controllers
 
         //GET: /Organization/Create
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             //get current user
             var userString = HttpContext.Session.GetString("user");
@@ -87,6 +91,11 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
+            if (currentUser.UserAddress == null || currentUser.PhoneNumber == null)
+            {
+                TempData[MyConstants.Error] = "You need update Your profile before Create new organization";
+                return RedirectToAction("Edit", "User");    
+            }
 
             var organization = new Organization()
             {
@@ -155,6 +164,7 @@ namespace Dynamics.Controllers
                     Unit = "VND",
                 };
                 await _organizationRepository.AddOrganizationResourceSync(organizationResource);
+                await _roleService.AddUserToRoleAsync(currentUser.Id, RoleConstants.HeadOfOrganization);
                 TempData[MyConstants.Success] = "Create organization successfully!";
                 return RedirectToAction(nameof(JoinOrganization), new { organizationId = organization.OrganizationID, status = 2, userId = currentUser.Id });//status 2 : CEOID   0 : processing   1 : membert
             }
@@ -311,7 +321,7 @@ namespace Dynamics.Controllers
                     return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
                 }
 
-                return RedirectToAction(nameof(Detail), new { organizationId = organizationId });
+                return RedirectToAction(nameof(MyOrganization), new { organizationId = organizationId });
             }
             catch (Exception ex)
             {
@@ -378,8 +388,19 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
+            var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
+            var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
+
             if (!newCEOID.Equals(currentCEOID))
             {
+                //Get All Projects in Organization 
+                var projects = await _projectRepository.GetAllProjectsByOrganizationIDAsync(p => p.OrganizationID.Equals(organizationId));
+                if(await _roleService.IsInRoleAsync(newCEO, RoleConstants.ProjectLeader) && await _roleService.IsInRoleAsync(currentCEOID, RoleConstants.ProjectLeader))
+                {
+                    TempData[MyConstants.Error] = "both is being head of project so not transfer!.";
+                    return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
+                }
+
                 var organizationMemberCurrent = new OrganizationMember()
                 {
                     UserID = currentCEOID,
@@ -395,6 +416,65 @@ namespace Dynamics.Controllers
                     Status = 2,
                 };
                 await _organizationRepository.UpdateOrganizationMemberAsync(organizationMemberNew);
+
+                await _roleService.AddUserToRoleAsync(newCEOID, RoleConstants.HeadOfOrganization);
+                await _roleService.DeleteRoleFromUserAsync(currentCEOID, RoleConstants.HeadOfOrganization);
+
+                foreach(var project in projects)
+                {
+                    var projectMember = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(newCEOID) && pm.ProjectID.Equals(project.ProjectID));
+                    //newCeo is membber of project
+                    if(projectMember != null && projectMember.Status == 1)
+                    {
+                        projectMember.Status = 2;
+                        await _projectMemberRepository.UpdateAsync(projectMember);
+                    }
+
+                    if (projectMember != null && projectMember.Status == 3)
+                    {
+                        projectMember.Status = 2;
+                        await _projectMemberRepository.UpdateAsync(projectMember);
+                    }
+
+                    if (projectMember == null) // new Ceo is outside Project
+                    {
+                        
+
+                        var newProjectMember = new ProjectMember()
+                        {
+                            UserID = newCEOID,
+                            ProjectID = project.ProjectID,
+                            Status = 2,
+                        };
+
+                        await _projectRepository.AddProjectMemberAsync(newProjectMember);
+                    }
+
+                    //Delete role Project Leader of leader organization current
+                    var leaderProject = await _projectMemberRepository.GetAsync(pm => pm.Status == 3 && pm.ProjectID.Equals(project.ProjectID));
+                    if (leaderProject == null)
+                    {
+                        await _roleService.AddUserToRoleAsync(newCEO, RoleConstants.ProjectLeader);
+                        await _roleService.DeleteRoleFromUserAsync(currentCEO, RoleConstants.ProjectLeader);
+                    }
+
+
+
+                    var projectMember1 = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(currentCEOID) && pm.ProjectID.Equals(project.ProjectID));
+                    projectMember1.Status = 1;
+                    await _projectMemberRepository.UpdateAsync(projectMember1);
+                }
+                //if(await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(newCEOID)) != null)
+                //{
+                //    var projectMember = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(newCEOID));
+                //    projectMember.Status = 2;
+                //    await _projectMemberRepository.UpdateAsync(projectMember);
+
+                //    var projectMember1 = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(currentCEOID));
+                //    projectMember1.Status = 1;
+                //    await _projectMemberRepository.UpdateAsync(projectMember1);
+
+                //}
 
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
@@ -785,6 +865,9 @@ namespace Dynamics.Controllers
         [Authorize]
         public async Task<IActionResult> MyDonors()
         {
+            var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+
+
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
             if (userString != null)
@@ -792,7 +875,7 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryByUserID(currentUser.Id);
+            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistory(uto => uto.UserID.Equals(currentUser.Id) && uto.OrganizationResource.Organization.OrganizationID.Equals(currentOrganization.OrganizationID));
             return View(userToOrganizationTransactionHistoryInAOrganizations);
         }
 

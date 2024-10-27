@@ -89,14 +89,14 @@
                     <div class="flex items-center gap-4">
                         <span class="text-gray-400 font-medium">1</span>
                         <div class="relative">
-                            <a asp-action ="Index" asp-controller="User" asp-route-id="@Model.CEO.UserName">
+                            <a asp-action="Index" asp-controller="User" asp-route-username="@Model.CEO.UserName">
                                 <img src ="@(Model.CEO.UserAvatar ?? "https://via.placeholder.com/32") " alt="@Model.CEO.UserName"
                                      class="w-12 h-12 rounded-full object-cover border-2 border-blue-500">
                             </a>
                             <div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-white"></div>
                         </div>
                         <div class="flex flex-col">
-                            <a asp-action="Index" asp-controller="User" asp-route-id="@Model.CEO.UserName">
+                            <a asp-action="Index" asp-controller="User" asp-route-username="@Model.CEO.UserName">
                                 <span class="font-semibold text-gray-800">@Model.CEO.UserName</span>
                             </a>
                             <span class="text-sm text-blue-600 font-medium">Leader</span>
@@ -133,13 +133,13 @@
                         <div class="flex items-center gap-4">
                             <span class="text-gray-400 font-medium">@index</span>
                             <div>
-                                <a asp-action="Details" asp-controller="User" asp-route-id="@item.User.UserName">
+                                <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName">
                                     <img src="@(item.User.UserAvatar ?? "https://via.placeholder.com/32")" alt="@item.User.UserName" alt="Member Name"
                                          class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                                 </a>
                             </div>
                             <div class="flex flex-col">
-                                <a asp-action="Details" asp-controller="User" asp-route-id="@item.User.UserName">
+                                <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName">
                                     <span class="font-semibold text-gray-800">@item.User.UserName</span>
                                 </a>
                                 <span class="text-sm text-gray-500">Member</span>

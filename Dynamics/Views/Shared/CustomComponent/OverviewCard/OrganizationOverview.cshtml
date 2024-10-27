@@ -98,9 +98,13 @@
                                     View detail organization
                                 </a>
                             }
-                            else
+                            else if (Model.OrganizationStatus == 0)
                             {
                                 <button class="btn btn-secondary h-8 min-h-0 outline-none border-none">Processing Accept By Admin, please wait in 24h</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-error h-16 outline-none border-none">Because of violating community standards, your wish list will be locked.</button>
                             }
                             break;
                     }

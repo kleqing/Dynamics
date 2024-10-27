@@ -4,6 +4,7 @@
 @using Microsoft.IdentityModel.Tokens
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
+@inject IRoleService roleService
 
 
 @{
@@ -28,11 +29,21 @@
     </div>
 
     <div class="flex justify-center my-5">
-        <a asp-action="Create" asp-controller="Organization" class="my-5">
-            <button id="createOrgBtn" class="btn btn-wide btn-primary text-white">
+        @if(await roleService.IsInRoleAsync(currentUser, RoleConstants.HeadOfOrganization))
+        {
+            <button id="createOrgBtn" class="btn btn-wide btn-neutral text-white tooltip" data-tip="You are being a head of a organization">
                 Create new organization now!
             </button>
-        </a>
+        }
+        else
+        {
+            <a asp-action="Create" asp-controller="Organization" class="my-5">
+                <button id="createOrgBtn" class="btn btn-wide btn-primary text-white">
+                    Create new organization now!
+                </button>
+            </a>
+        }
+        
     </div>
 
     <div class="my-5">

@@ -296,13 +296,17 @@ namespace Dynamics.Controllers
 
             try
             {
-                if (status == 2 || status == 0)
+                if (status == 0)
                 {
                     await _organizationRepository.AddOrganizationMemberSync(organizationMember);
                     TempData[MyConstants.Success] = "You have successfully joined the organization.";
                     var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                         Request.Scheme);
                     await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "send");
+                }
+                else if(status == 2)
+                {
+                    await _organizationRepository.AddOrganizationMemberSync(organizationMember);
                 }
                 else
                 {
@@ -464,18 +468,6 @@ namespace Dynamics.Controllers
                     projectMember1.Status = 1;
                     await _projectMemberRepository.UpdateAsync(projectMember1);
                 }
-                //if(await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(newCEOID)) != null)
-                //{
-                //    var projectMember = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(newCEOID));
-                //    projectMember.Status = 2;
-                //    await _projectMemberRepository.UpdateAsync(projectMember);
-
-                //    var projectMember1 = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(currentCEOID));
-                //    projectMember1.Status = 1;
-                //    await _projectMemberRepository.UpdateAsync(projectMember1);
-
-                //}
-
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
                 await _notificationService.TransferOrganizationCeoNotificationAsync(newCEOID, currentCEOID, organizationId, link);
@@ -630,12 +622,12 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> SendResourceOrganizationToProject(OrganizationToProjectHistory transaction, Guid projectId, List<IFormFile> file)
         {
             var resourceSent = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.Equals(transaction.OrganizationResourceID));
-            var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(file);
+           
 
 
-            if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity && !(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
+            if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity)
             {
-                transaction.Attachments = resImages;
+                
 
                 var project = await _projectVMService.GetProjectAsync(p => p.ProjectID.Equals(projectId));
                 bool duplicate = false;
@@ -654,6 +646,21 @@ namespace Dynamics.Controllers
                 if (duplicate)
                 {
                     transaction.ProjectResourceID = projectResource.ResourceID;
+
+                    if(projectResource.ExpectedQuantity - projectResource.Quantity ==  0)
+                    {
+                        TempData[MyConstants.Error] = "Resource is full not recieves donate";
+                        return RedirectToAction(nameof(ManageOrganizationResource));
+                    }
+                    
+                    if(transaction.Amount > (projectResource.ExpectedQuantity - projectResource.Quantity))
+                    {
+                        ViewBag.MessageExcessQuantity = $"*Quantity more than 0 and less than equal {projectResource.ExpectedQuantity - projectResource.Quantity}";
+                        return View(transaction);
+                    }
+
+
+
                 }
                 else
                 {
@@ -687,6 +694,18 @@ namespace Dynamics.Controllers
                     }
                 }
 
+                var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(file);
+                if (resImages.Equals("Wrong extension") || resImages.Equals("No file"))
+                {
+                    TempData[MyConstants.Error] = resImages.Equals("No file")
+                      ? "No file to upload!"
+                      : "Extension of some files is wrong!";
+
+                    ViewBag.Images = resImages.Equals("Wrong extension") ? "*Wrong extension" : "*Please upload at least one image proof";
+                    return View(transaction);
+                }
+                transaction.Attachments = resImages;
+
                 if (await _organizationRepository.AddOrganizationToProjectHistoryAsync(transaction))
                 {
                     resourceSent.Quantity -= transaction.Amount;
@@ -710,14 +729,7 @@ namespace Dynamics.Controllers
             {
                 ViewBag.MessageProject = "*Choose project to send";
             }
-            if (resImages.Equals("Wrong extension") || resImages.Equals("No file"))
-            {
-                TempData[MyConstants.Error] = resImages.Equals("No file")
-                  ? "No file to upload!"
-                  : "Extension of some files is wrong!";
-
-                ViewBag.Images =  resImages.Equals("Wrong extension") ? "*Wrong extension" :  "*Please upload at least one image proof";
-            }
+            
            
             return View(transaction);
         }

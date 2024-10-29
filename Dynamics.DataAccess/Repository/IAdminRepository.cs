@@ -34,11 +34,6 @@ namespace Dynamics.DataAccess.Repository
         Task<List<Organization>> GetTop5Organization();
         Task<Organization?> GetOrganization(Expression<Func<Organization, bool>> filter);
 
-        // 2024-10-16
-        Task<Organization?> GetOrganizationInfomation(Expression<Func<Organization, bool>> filter);
-        Task<int> MemberJoinedOrganization(Guid id);
-
-
         // 2024-9-30
         // Recent item
         Task<List<Request>> ViewRecentItem();
@@ -53,12 +48,25 @@ namespace Dynamics.DataAccess.Repository
         // 2024-10-2
         // Project
         Task<List<Project>> ViewProjects();
-        //public Task<List<Project>> ViewProjectsDetail(Guid id);
         Task<Project?> GetProjects(Expression<Func<Project, bool>> filter);
         Task<bool> BanProject(Guid id);
+
+        // 2024-28-10
+        public Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter);
+
 
         // 2024-10-4
         // Report
         Task<List<Report>> ViewReport();
+
+        // 2024-10-27
+        public Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
+
+        public Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(
+            Expression<Func<OrganizationToProjectHistory, bool>> filter);
+        
+        public Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
+            Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
+
     }
 }

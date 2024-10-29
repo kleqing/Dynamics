@@ -1,0 +1,130 @@
+﻿@using Dynamics.Utility
+@* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+<link rel="stylesheet" href="~/css/sweetalert2.css"/>
+<script src="~/js/sweetalert2.js"></script>
+@{
+    if (TempData[MyConstants.Success] != null)
+    {
+        <script>
+            const swalWithTailwind = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                showCloseButton: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+                background: '#15803d',
+                color:'#F5F5F5',
+                iconColor:'#F5F5F5',
+                closeButtonHtml: `<div style="position: absolute;top: 10px;right: 10px;">
+<svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+</svg>
+</div>`,
+            });
+            swalWithTailwind.fire({
+                title: "@TempData[MyConstants.Success]",
+                icon: "success",
+                text: '@(TempData[MyConstants.Subtitle] ?? "")'
+                });        
+        
+        </script>
+    }
+    else if (TempData[MyConstants.Error] != null)
+    {
+        <script>
+            const swalWithTailwind = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                showCloseButton: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+                background: '#B91C1C',
+                color:'#F5F5F5',
+                iconColor:'#F5F5F5',
+                closeButtonHtml: `<div style="    position: absolute;top: 10px;right: 10px;">
+<svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+</svg>
+</div>`,
+            });
+            swalWithTailwind.fire({
+                title: "@TempData[MyConstants.Error]",
+                icon: "error",
+                text: '@(TempData[MyConstants.Subtitle] ?? "")'
+            });
+        
+        </script>
+    }
+    else if (TempData[MyConstants.Info] != null)
+    {
+        <script>
+            const swalWithTailwind = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                showCloseButton: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+                background: '#0369a1',
+                color:'#F5F5F5',
+                iconColor:'#F5F5F5',
+                closeButtonHtml: `<div style="    position: absolute;top: 10px;right: 10px;">
+<svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+</svg>
+</div>`,
+            });
+            swalWithTailwind.fire({
+                title: "@TempData[MyConstants.Info]",
+                icon: "info",
+                text: '@(TempData[MyConstants.Subtitle] ?? "")'
+            });
+        
+        </script>
+    }
+    else if (TempData[MyConstants.Warning] != null)
+    {
+        <script>
+            const swalWithTailwind = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                showCloseButton: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+                background: '#FF8225',
+                color:'#F5F5F5',
+                iconColor:'#F5F5F5',
+                closeButtonHtml: `<div style="position: absolute;top: 10px;right: 10px;">
+<svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+</svg>
+</div>`,
+            });
+            swalWithTailwind.fire({
+                title: "@TempData[MyConstants.Warning]",
+                icon: "warning",
+                text: '@(TempData[MyConstants.Subtitle] ?? "")'
+            });
+        
+        </script>
+    }
+}

@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Dynamics</title>
+    @* This layout should not contains anybootstrap stuff at all *@
+    <link rel="stylesheet" href="~/css/original.css"/>
+    <link rel="stylesheet" href="~/css/output.css">
+    <link
+        href="https://cdn.jsdelivr.net/npm/@@splidejs/splide@4.1.4/dist/css/splide.min.css"
+        rel="stylesheet"/>
+</head>
+<body class="bg-base-100 relative">
+<header class="relative">
+    <partial name="CustomComponent/_Navbar"/>
+    <!-- Background image for navbar and a button -->
+    <div class="relative flex justify-center items-center z-0">
+        <img
+            class="object-cover w-full h-80"
+            src="https://wallpapers.com/images/featured/anime-scenery-ahd1eqpvwq8aoofp.jpg"
+            alt=""/>
+        <a class="btn btn-primary absolute top-100px align-with-navbar-center mx-6"
+            asp-action="Create" asp-controller="Request"
+           >Create a request</a>
+    </div>
+    <!-- End background image -->
+</header>
+
+@RenderBody()
+
+
+@* This is used for icons *@
+<script src="https://kit.fontawesome.com/ba8c3661b4.js" crossorigin="anonymous"></script>
+@* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+@* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+@* <script src="~/js/site.js" asp-append-version="true"></script> *@
+@await RenderSectionAsync("Scripts", required: false)
+    <partial name="CustomComponent/_Footer" />
+</body>
+</html>

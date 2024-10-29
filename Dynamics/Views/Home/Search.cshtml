@@ -1,0 +1,48 @@
+﻿@using Microsoft.IdentityModel.Tokens
+@model HomepageViewModel
+
+@{
+    ViewData["Title"] = "Search result";
+    Layout = "CustomLayout/_LayoutWithNavbarOnly";
+}
+
+<main class="p-16 min-h-screen">
+    <h1 class="text-center font-bold text-3xl">Search result for: @(TempData["query"] ?? "")</h1>
+    @if (!Model.Projects.IsNullOrEmpty())
+    {
+        <h2 class="font-bold text-3xl mb-4">Found projects: </h2>
+        <section class="w-full flex flex-wrap gap-8 justify-center mb-16">
+            @foreach (var projectOverviewDto in Model.Projects)
+            {
+                <partial name="CustomComponent/OverviewCard/ProjectsOverview" model="projectOverviewDto"/>
+            }
+        </section>
+    }
+
+    @if (!Model.Requests.IsNullOrEmpty())
+    {
+        <h2 class="font-bold text-3xl mb-4">Found requests: </h2>
+        <section class="w-full flex flex-wrap gap-8 justify-center mb-16">
+            @{
+                if (!Model.Requests.IsNullOrEmpty())
+                {
+                    foreach (var request in Model.Requests)
+                    {
+                        <partial name="CustomComponent/OverviewCard/RequestOverview" model="request"/>
+                    }
+                }
+            }
+        </section>
+    }
+
+    @if (!Model.Organizations.IsNullOrEmpty())
+    {
+        <h2 class="font-bold text-3xl mb-4">Found organizations: </h2>
+        <section class="w-full flex flex-wrap gap-8 justify-center mb-16">
+            @foreach (var modelOrganization in Model.Organizations)
+            {
+                <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="modelOrganization"/>
+            }
+        </section>
+    }
+</main>

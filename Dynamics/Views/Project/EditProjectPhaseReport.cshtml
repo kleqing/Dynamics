@@ -1,0 +1,184 @@
+﻿@model History
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+
+
+<link rel="stylesheet" href="~/css/output.css">
+<!-- Navbar -->
+@{
+    ViewData["Title"] = "Edit Project Phase Report";
+    Layout = "~/Views/Shared/_LayoutProject.cshtml";
+    var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
+    ViewBag.currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+}
+<!-- include container + button -->
+<div class="m-w-screen-2xl flex items-center justify-center relative">
+    <!-- turn back button -->
+    <a asp-action="ManageProjectPhaseReport" asp-route-id="@currentProjectID" title="Turn back to project updates">
+        <button class="flex  absolute top-2 right-0 items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+            Previous Page
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </a>
+    <!-- container start -->
+    <div class="flex flex-col relative" style="width: 60%;">
+        <div class="w-full flex-col shadow-md p-6 rounded-3xl  mb-10">
+            <h2 class=" text-black font-bold text-3xl text-center ">Update phase report</h2>
+            <!-- form 1 -->
+            <form asp-action="EditProjectPhaseReport" asp-controller="Project" enctype="multipart/form-data" method="post">
+                <input type="hidden" asp-for="@Model.HistoryID" />
+                <input type="hidden" asp-for="@Model.ProjectID" />
+                <div asp-validation-summary="ModelOnly" class="text-error"></div>
+                <div class="grid grid-cols-2 gap-x-10 gap-y-3">
+                    <div>
+                        <label asp-for="@Model.Phase" class="block mb-2 text-md font-medium text-gray-900">Enter phase title</label>
+                        <input asp-for="@Model.Phase" type="text" id="phase_title"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               required />
+                        <span asp-validation-for="Phase" class="text-error"></span>
+                    </div>
+                    <div class="flex flex-col mt-4">
+                        <div class="flex justify-start items-center">
+                            <label for="Attachment" class="block mb-2 text-md font-medium text-gray-900 pr-4">Upload phase images</label>
+                            <input multiple asp-for="Attachment" type="file" name="images" id="Attachment" style="display:none;" />
+                            <input type="hidden" id="attachmentHidden" asp-for="Attachment" value="@Model.Attachment" />
+
+                            <button id="button" type="button" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
+                                p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white bg-blue-800" onclick="thisFileUpload();">
+                                Choose images
+                            </button>
+                        </div>
+                        <!-- Image file name will be shown here -->
+                        <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
+                        <span class="text-gray-400 text-sm">The images will appear in your phase summary</span>
+                        <div id="notificationImgMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
+
+                    </div>
+                    <div>
+                        <label asp-for="Content"
+                               class="block mb-2 text-md font-medium text-gray-900">Enter phase description</label>
+                        <textarea asp-for="Content" id="Content" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write your thoughts here..."></textarea>
+                        <span asp-validation-for="Content" class="text-error"></span>
+                    </div>
+                    <!-- start time -->
+                    <div>
+                        <label asp-for="Date" class="block mb-2 text-md font-medium text-gray-900">Select start time of phase</label>
+                        <input type="date" asp-for="Date"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               id="dateInput" max="@ViewBag.currentDate"
+                               required />
+                               <div class="flex flex-col">
+                        <span class="text-gray-400 text-sm">The date that your phase starts.</span>
+                        <span asp-validation-for="Date" class="text-error"></span>
+                        <div id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div  class="flex justify-start gap-6 pt-10">
+                        
+                        @{
+                            string[] imagesPhase = new string[1] { "," };
+                            if (Model.Attachment != null)
+                            {
+                                imagesPhase = Model.Attachment.TrimEnd(',', ' ').Split(",");
+                            }
+                        }
+                        @foreach (var img in imagesPhase)
+                        {
+                            <div class="flex flex-col">
+                           
+
+                                <button type="button" onclick="openModal('@img','phase_image')">
+                                    <img id="uploadedFile" class="h-24 w-24 object-cover rounded-1/2"
+                                         src="@img"
+                                         alt="Current phase photo" />
+                                </button>
+                               
+                            <a asp-action="DeleteImage" asp-route-imgpath="@img" asp-route-phaseid="@Model.HistoryID" class="text-gray-900 text-sm font-semibold hover:text-red-500">Remove image</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="flex justify-center gap-x-6">
+                    <button type="submit"
+                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                        Update report
+                    </button>
+                    <button type="reset"
+                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                        Reset report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <dialog id="phase_image" class="modal">
+        <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+            <img id="modalImage" alt="current-proof-img" class=" h-[80vh] w-auto rounded-xl shadow-md cursor-pointer" />
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+    <!-- container end -->
+</div>
+<script>
+    //modal
+    function openModal(imgSrc, modalid) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById(modalid).showModal();
+    }
+    function thisFileUpload() {
+        document.getElementById("Attachment").click();
+    };
+    const maxFiles = 6;
+    // Event listener to update the file name after the file is selected
+    document.getElementById("Attachment").addEventListener('change', function () {
+        if (document.getElementById("Attachment").files.length > 0) {
+
+            if (document.getElementById("Attachment").files.length > maxFiles) {
+                document.getElementById("notificationImgMessage").innerText = "You can upload a maximum of 6 files.";
+                document.getElementById("notificationImgMessage").style.display = "block";
+                input.value = '';  // Reset the input if the file limit is exceeded
+            } else {
+                document.getElementById("notificationImgMessage").style.display = "none";
+            }
+            var files = document.getElementById("Attachment").files;
+            var fileNames = [];
+
+            for (var i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+            }
+            // Join file names with a separator (comma or newline)
+            document.getElementById("fileName").innerText = fileNames.join(', ');
+            document.getElementById("attachmentHidden").value = fileNames.join(', ');
+
+        }
+    });
+
+    var disabledDates = @Json.Serialize(ViewBag.DisabledDates);
+    var currentDate = new Date('@ViewBag.currentDate');
+
+    // Add an event listener to check when the user selects a date
+    document.getElementById('dateInput').addEventListener('input', function () {
+        var dateInput = this;
+        var selectedDate = new Date(dateInput.value); // Convert input value to Date object
+
+        // Check if the selected date is in the list of disabled dates
+        if (disabledDates.includes(dateInput.value)) {
+            document.getElementById("notificationMessage").innerText = "This date already has a report! Please select another date.";
+            document.getElementById("notificationMessage").style.display = "block";
+            dateInput.value = '';  // Clear the selection
+        } else if (selectedDate > currentDate) {
+            document.getElementById("notificationMessage").innerText = "This date hasn't come yet! Please select another date.";
+            document.getElementById("notificationMessage").style.display = "block";
+            dateInput.value = '';  // Clear the selection
+        } else {
+            // Hide the notification if the date is valid
+            document.getElementById("notificationMessage").style.display = "none";
+        }
+    });
+</script>

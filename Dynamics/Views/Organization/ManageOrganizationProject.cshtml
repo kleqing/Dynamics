@@ -1,0 +1,255 @@
+﻿@model Dynamics.Models.Models.ViewModel.OrganizationVM
+@using Dynamics.Utility
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+
+
+@{
+    ViewData["Title"] = "ManageOrganizationProject";
+    Layout = "_LayoutOrganization";
+}
+
+
+
+@{
+    //current usser
+    var userString = Accessor.HttpContext.Session.GetString("user");
+    User currentUser = null;
+    if (userString != null)
+    {
+        currentUser = JsonConvert.DeserializeObject<User>(userString);
+    }
+    
+}
+
+
+<div class="min-h-screen bg-gray-50 py-12 p-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 relative inline-block">
+                Organization Projects
+                 
+            </h1>
+        </div>
+
+        <!-- Project Grid -->
+        <div class="grid grid-cols-3 gap-8">
+            <!-- New Project Card (Only for CEO) -->
+            @if (currentUser!=null && currentUser.Id.Equals(Model.CEO.Id))
+            {
+                <a href="/Project/CreateProject" class="transform transition duration-300 hover:scale-105">
+                    <div class="h-full rounded-2xl border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white overflow-hidden shadow-sm hover:shadow-md">
+                        <div class="flex flex-col items-center justify-center h-[500px] space-y-6 p-8">
+                            <div class="rounded-full bg-gray-100 p-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-700">Create New Project</h3>
+                            <p class="text-gray-500">Start a new initiative</p>
+                        </div>
+                    </div>
+                </a>
+            }
+
+            <!-- Project Cards -->
+            @foreach (var item in Model.Project)
+            {
+                
+                string[] images = new string[1] { "," };
+                if (@item.Attachment != null)
+                {
+                    images = item.Attachment.TrimEnd(',', ' ').Split(",");
+                }
+
+
+                <div class="transform transition duration-300 hover:scale-105">
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md">
+                        <!-- Image Section -->
+                        <div class="relative">
+                            <a href="/Project/ManageProject/@item.ProjectID">
+                                <img src="@(images[0] ?? "https://localhost:7276/images/Organization/0.jpg")"
+                                     alt="Project Image"
+                                     class="w-full h-56 object-cover">
+                            </a>
+                            <!-- Status Badges -->
+                            <div class="absolute top-4 left-4 flex gap-2">
+                                <span class="px-3 py-1 text-sm font-medium text-white bg-green-500 rounded-full">
+                                    Project
+                                </span>
+                                @switch (item.ProjectStatus)
+                                {
+                                    case 0:
+                                        <span class="px-3 py-1 text-sm font-medium text-white bg-pink-500 rounded-full">
+                                            Preparing
+                                        </span>
+                                        break;
+                                    case 1:
+                                        <span class="px-3 py-1 text-sm font-medium text-white bg-orange-500 rounded-full">
+                                            On-going
+                                        </span>
+                                        break;
+                                    case 2:
+                                        <span class="px-3 py-1 text-sm font-medium text-white bg-green-500 rounded-full">
+                                            Finished
+                                        </span>
+                                        break;
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Content Section -->
+                        <div class="p-6">
+                            <a href="/Project/ManageProject/@item.ProjectID">
+                                <h2 class="text-xl font-bold text-gray-900 mb-2 hover:text-gray-600">
+                                    @item.ProjectName
+                                </h2>
+                            </a>
+
+                            <!-- Organization Info -->
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <span>By @Model.OrganizationName</span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <span>Hà Nội</span>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <p class="text-gray-600 mb-6 line-clamp-3">
+                                @item.ProjectDescription
+                            </p>
+
+                            <!-- Volunteers -->
+                            <div class="flex items-center mb-4">
+                                <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span class="text-sm font-medium text-gray-600">123 volunteers</span>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="relative pt-1">
+                                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded-full bg-gray-200">
+                                    <div class="w-4/5 shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500 rounded-full">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Raised Amount -->
+                            <div class="text-green-600 font-bold text-lg">
+                                Raised: 999,999,999 VND
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* <div class="py-5 pt-12 px-5 flex justify-center">
+    <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
+        <h1 class="text-3xl font-semibold mb-4 text-center ">
+            <span class="border-b-2 border-gray-500 border-solid py-2">Organization Projects</span>
+        </h1>
+
+        <div class="grid grid-cols-3 gap-6 py-5 flex justify-center">
+            @if (@currentUser.UserID.Equals(Model.CEO.UserID))
+            {
+                
+                 <div class="card mx-5 my-2 w-96 ">
+                    <a asp-action="CreateProject" asp-controller="Project">
+                        <div class="w-full h-full p-12 bg-gray-200 rounded-lg shadow-lg cursor-pointer hover:shadow-lg transition duration-300">
+                            <p class="text-gray-700 text-3xl text-center font-medium pt-12 mb-10">New Project</p>
+                            <div class="relative mr-2 pb-12">
+                                <button class="border text-white rounded-full  flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-64 w-64" fill="none" viewBox="0 0 24 24"
+                                         stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-12"></div>
+                        </div>
+                        
+                    </a>
+                </div>
+                
+            }
+            
+            @foreach(var item in Model.Project)
+            {
+                <div class=" card bg-base-100 w-96 shadow-xl mx-5 my-2">
+                    <div class="relative">
+                        <figure>
+                            <a asp-action="ManageProject" asp-controller="Project" asp-route-id="@item.ProjectID">
+                                <img src="@(item.Attachment ?? "https://localhost:7276/images/Organization/0.jpg")" alt="Ảnh dự án" class="w-96 h-64 object-cover">
+
+                            </a>
+                        </figure>
+                        <div class="">
+                            <div class="absolute top-2 left-8">
+                                <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Project</p>
+
+                            </div>
+                            <div class="absolute top-2 right-8">
+                                @if (item.ProjectStatus == 0)
+                                {
+                                    <p class="bg-pink-300 text-white text-lg font-semibold px-2 py-0.5 rounded-full">Preparing</p>
+                                }
+                                
+                                @if(item.ProjectStatus == 1)
+                                {
+                                    <p class="bg-red-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">On-going</p>
+                                }
+
+                                @if (item.ProjectStatus == 2)
+                                {
+                                    <p class="bg-green-500 text-white text-lg font-semibold px-2 py-0.5 rounded-full">finish</p>
+                                }
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="p-3 card-body">
+                        <a asp-action="ManageProject" asp-controller="Project" asp-route-id="@item.ProjectID">
+                            <h1 class="card-title">@item.ProjectName</h1>
+                        </a>
+                        <div class="flex justify-between items-center text-xs  mb-2">
+                            <h3 class="text-sm">By @Model.OrganizationName</h3>
+                            <h3 class="text-sm">Hà Nội</h3>
+                        </div>
+                        <p class=" text-base mb-3">
+                            @item.ProjectDescription
+                        </p>
+                        <div class="flex items-center text-xs text-gray-500 mb-2">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                            </svg>
+                            <h2 class="text-sm font-semibold">123 volunteer</h2>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                            <div class="bg-green-500 h-1.5 rounded-full" style="width: 80%"></div>
+                        </div>
+                        <div class="text-green-500 font-semibold text-xl">
+                            Raised 999,999,999 VND
+                        </div>
+                    </div>
+                </div>
+
+            }
+
+
+
+            
+        </div>
+    </div>
+</div> *@
+    

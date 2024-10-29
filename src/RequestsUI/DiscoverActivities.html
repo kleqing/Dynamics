@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>activities</title>
+    <link rel="stylesheet" href="../../styles/output.css" />
+  </head>
+  <body>
+    <h1 class="text-xl">TODO: INSERT YOUR NAVBAR HERE</h1>
+    <main class="w-full h-full flex flex-col gap-6 items-center p-16">
+      <h1 class="text-3xl text-error font-bold">Discover all active charities events</h1>
+      <!-- Right search bar -->
+      <div class="flex w-full justify-end items-center gap-2">
+        <!-- TODO: Implement search -->
+        <label class="input input-bordered flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="h-4 w-4 opacity-70"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <input type="text" class="grow" placeholder="Search something..." />
+        </label>
+        <!-- TODO: Implement filter dropdown -->
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-outline m-1">Filter</div>
+          <ul
+            tabindex="0"
+            class="dropdown-content menu bg-base-100 rounded-box border z-[1] w-52 p-2 shadow-md"
+          >
+            <li><a>Item 1</a></li>
+            <li><a>Item 2</a></li>
+          </ul>
+        </div>
+      </div>
+      <!-- End right search bar -->
+      <!-- Discover section -->
+      <section class="w-full bg-base-100 flex flex-wrap gap-16 justify-center">
+        <!-- Card -->
+        <li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide">
+          <figure>
+            <img
+              class="w-full object-cover h-48"
+              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+              alt="Shoes"
+            />
+          </figure>
+          <div class="card-body p-4 gap-3 w-full">
+            <!-- Badge left -->
+            <div
+              class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3"
+            >
+              Request
+            </div>
+            <div class="flex flex-col">
+              <h2
+                class="card-title text-cyan-950 font-bold h-14"
+                style="
+                  display: -webkit-box;
+                  line-clamp: 2;
+                  -webkit-line-clamp: 2; /* Limit to 2 lines */
+                  -webkit-box-orient: vertical;
+                  overflow: hidden;
+                "
+              >
+                <!-- TODO: Set title -->
+                A Miracle Chance To Fight for Her Life ( and Heart )
+              </h2>
+              <div class="flex justify-between">
+                <!-- TODO: Set author and location -->
+                <span class="text-gray-400">Author name</span>
+                <span>HN</span>
+              </div>
+            </div>
+            <p
+              style="
+                display: -webkit-box;
+                line-clamp: 3;
+                -webkit-line-clamp: 3; /* Limit to 3 lines */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                margin-bottom: 16px;
+              "
+            >
+              <!-- TODO: Set the contents -->
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos tempora
+              odit qui praesentium magni, ratione saepe velit error ad eum in corporis explicabo
+              eaque iste blanditiis nemo.
+            </p>
+            <div class="card-actions justify-center">
+              <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
+                Accept
+              </button>
+            </div>
+          </div>
+        </li>
+        <!-- End card -->
+        <!-- Card -->
+        <li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide">
+          <figure>
+            <img
+              class="w-full object-cover h-48"
+              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+              alt="Shoes"
+            />
+          </figure>
+          <div class="card-body p-4 gap-3 w-full">
+            <!-- Badge left -->
+            <div
+              class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3"
+            >
+              Request
+            </div>
+            <div class="flex flex-col">
+              <h2
+                class="card-title text-cyan-950 font-bold h-14"
+                style="
+                  display: -webkit-box;
+                  line-clamp: 2;
+                  -webkit-line-clamp: 2; /* Limit to 2 lines */
+                  -webkit-box-orient: vertical;
+                  overflow: hidden;
+                "
+              >
+                <!-- TODO: Set title -->
+                A Miracle Chance To Fight for Her Life ( and Heart )
+              </h2>
+              <div class="flex justify-between">
+                <!-- TODO: Set author and location -->
+                <span class="text-gray-400">Author name</span>
+                <span>HN</span>
+              </div>
+            </div>
+            <p
+              style="
+                display: -webkit-box;
+                line-clamp: 3;
+                -webkit-line-clamp: 3; /* Limit to 3 lines */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                margin-bottom: 16px;
+              "
+            >
+              <!-- TODO: Set the contents -->
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos tempora
+              odit qui praesentium magni, ratione saepe velit error ad eum in corporis explicabo
+              eaque iste blanditiis nemo.
+            </p>
+            <div class="card-actions justify-center">
+              <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
+                Accept
+              </button>
+            </div>
+          </div>
+        </li>
+        <!-- End card -->
+        <!-- Card -->
+        <li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide">
+          <figure>
+            <img
+              class="w-full object-cover h-48"
+              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+              alt="Shoes"
+            />
+          </figure>
+          <div class="card-body p-4 gap-3 w-full">
+            <!-- Badge left -->
+            <div
+              class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3"
+            >
+              Request
+            </div>
+            <div class="flex flex-col">
+              <h2
+                class="card-title text-cyan-950 font-bold h-14"
+                style="
+                  display: -webkit-box;
+                  line-clamp: 2;
+                  -webkit-line-clamp: 2; /* Limit to 2 lines */
+                  -webkit-box-orient: vertical;
+                  overflow: hidden;
+                "
+              >
+                <!-- TODO: Set title -->
+                A Miracle Chance To Fight for Her Life ( and Heart )
+              </h2>
+              <div class="flex justify-between">
+                <!-- TODO: Set author and location -->
+                <span class="text-gray-400">Author name</span>
+                <span>HN</span>
+              </div>
+            </div>
+            <p
+              style="
+                display: -webkit-box;
+                line-clamp: 3;
+                -webkit-line-clamp: 3; /* Limit to 3 lines */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                margin-bottom: 16px;
+              "
+            >
+              <!-- TODO: Set the contents -->
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos tempora
+              odit qui praesentium magni, ratione saepe velit error ad eum in corporis explicabo
+              eaque iste blanditiis nemo.
+            </p>
+            <div class="card-actions justify-center">
+              <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
+                Accept
+              </button>
+            </div>
+          </div>
+        </li>
+        <!-- End card -->
+        <!-- Card -->
+        <li class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide">
+          <figure>
+            <img
+              class="w-full object-cover h-48"
+              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+              alt="Shoes"
+            />
+          </figure>
+          <div class="card-body p-4 gap-3 w-full">
+            <!-- Badge left -->
+            <div
+              class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3"
+            >
+              Request
+            </div>
+            <div class="flex flex-col">
+              <h2
+                class="card-title text-cyan-950 font-bold h-14"
+                style="
+                  display: -webkit-box;
+                  line-clamp: 2;
+                  -webkit-line-clamp: 2; /* Limit to 2 lines */
+                  -webkit-box-orient: vertical;
+                  overflow: hidden;
+                "
+              >
+                <!-- TODO: Set title -->
+                A Miracle Chance To Fight for Her Life ( and Heart )
+              </h2>
+              <div class="flex justify-between">
+                <!-- TODO: Set author and location -->
+                <span class="text-gray-400">Author name</span>
+                <span>HN</span>
+              </div>
+            </div>
+            <p
+              style="
+                display: -webkit-box;
+                line-clamp: 3;
+                -webkit-line-clamp: 3; /* Limit to 3 lines */
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                margin-bottom: 16px;
+              "
+            >
+              <!-- TODO: Set the contents -->
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos tempora
+              odit qui praesentium magni, ratione saepe velit error ad eum in corporis explicabo
+              eaque iste blanditiis nemo.
+            </p>
+            <div class="card-actions justify-center">
+              <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
+                Accept
+              </button>
+            </div>
+          </div>
+        </li>
+        <!-- End card -->
+      </section>
+      <!-- End discover section -->
+
+      <!-- Pagination -->
+      <div class="join flex gap-2 mt-6">
+        <button class="join-item btn btn-ghost">&lt; Prev</button>
+        <div>
+          <button class="join-item btn btn-ghost btn-active">1</button>
+          <button class="join-item btn btn-ghost">2</button>
+          <button class="join-item btn btn-ghost">3</button>
+          <button class="join-item btn btn-ghost pointer-events-none">...</button>
+          <button class="join-item btn btn-ghost">8</button>
+          <button class="join-item btn btn-ghost">9</button>
+          <button class="join-item btn btn-ghost">10</button>
+        </div>
+        <button class="join-item btn btn-ghost">Next &gt;</button>
+      </div>
+      <!-- End pagination -->
+    </main>
+  </body>
+</html>

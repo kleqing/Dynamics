@@ -1,0 +1,234 @@
+﻿@model Dynamics.Models.Models.ViewModel.MyProjectVM
+@inject IProjectRepository ProjectRepository
+@inject IProjectService ProjectService
+
+@{
+    ViewData["Title"] = "Index";
+}
+<link rel="stylesheet" href="~/css/output.css"/>
+<!-- container -->
+<div class="w-full min-h-screen p-16">
+    <!-- PART 1 -->
+    <div class="w-full">
+        <!-- title -->
+        <h2 class="text-black font-bold text-3xl text-center my-6"> Projects that you are in charge of</h2>
+        <!-- search bar -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-end mb-6 w-full gap-4">
+            <form asp-action="Index" method="get" class="flex items-center gap-4 w-full max-w-xl">
+                <!-- Search input -->
+                <div class="relative w-full">
+                    <label for="default-search" class="sr-only">Search</label>
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="text" name="searchQuery" class="input input-bordered input-sm bg-white" placeholder="Search for something..."/>
+                </div>
+
+                <!-- Filter dropdown -->
+                <input type="hidden" name="filterQuery" id="filterQuery"/>
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" id="filterButton" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        Filter
+                    </div>
+                    <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box border z-[1] w-52 p-2 shadow-md mt-4">
+                        <li>
+                            <a onclick="setFilter('All')">All</a>
+                        </li>
+                        <li>
+                            <a onclick="setFilter('Name')">Name</a>
+                        </li>
+                        <li>
+                            <a onclick="setFilter('Description')">Description</a>
+                        </li>
+                        <li>
+                            <a onclick="setFilter('Project Leader')">Project Leader</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Date range dropdown -->
+                <div class="relative">
+                    <button type="button" id="dateButton" class="inline-flex items-center justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        Date
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <!-- Date input dropdown -->
+                    <div id="dateDropdown" class="hidden absolute right-0 z-10 mt-2 w-52 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                        <div class="p-4 flex flex-col gap-2">
+                            <div>
+                                <label for="DateFrom" class="block text-sm font-medium text-gray-700">From</label>
+                                <input type="date" name="dateFrom" id="DateFrom" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+                            </div>
+                            <div>
+                                <label for="DateTo" class="block text-sm font-medium text-gray-700">To</label>
+                                <input type="date" name="dateTo" id="DateTo" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search button -->
+                <button type="submit" class="ml-4 bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+            </form>
+        </div>
+        <section class="gap-4 flex flex-wrap justify-center w-full">
+            @foreach (var project in Model.ProjectsILead)
+            {
+                <partial name="CustomComponent/OverviewCard/ProjectsOverview" model="project"/>
+            }
+        </section>
+    </div>
+    <!-- pagination projectILead -->
+    <div class="pagination my-4 flex justify-center space-x-1.5">
+        @if (ViewBag.currentPagePIL > 1)
+        {
+            <a href="@Url.Action("Index", new { pageNumberPIL = ViewBag.currentPagePIL - 1, pageNumberPIM = ViewBag.currentPagePIM, pageNumberPOT = ViewBag.currentPagePOT, pageSize = ViewBag.pageSize })">
+                <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
+            </a>
+        }
+
+        @for (int i = 1; i <= ViewBag.totalPagesPIL; i++)
+        {
+            <a href="@Url.Action("Index", new { pageNumberPIL = i, pageNumberPIM = ViewBag.currentPagePIM, pageNumberPOT = ViewBag.currentPagePOT, pageSize = ViewBag.pageSize })"
+               class="@(ViewBag.currentPagePIL == i ? "btn-primary" : "")">
+                <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
+            </a>
+        }
+        @if (ViewBag.currentPagePIL < ViewBag.totalPagesPIL)
+        {
+            <a href="@Url.Action("Index", new { pageNumberPIL = ViewBag.currentPagePIL + 1, pageNumberPIM = ViewBag.currentPagePIM, pageNumberPOT = ViewBag.currentPagePOT, pageSize = ViewBag.pageSize })">
+                <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
+            </a>
+        }
+    </div>
+<!-- end PART 1 -->
+
+<!-- PART 2 -->
+<section class="pt-12 w-full">
+    <!-- title -->
+    <h2 class="text-black font-bold text-3xl text-center my-6">Project that you are in part of</h2>
+    <!-- search bar -->
+    <div class="flex relative justify-end mb-6 w-full">
+        <div class="flex gap-x-6">
+            <!-- choose filer/search & button review donate request -->
+            <form class="max-w-md  flex items-center">
+                <label for="default-search"
+                       class="mb-2 text-sm font-medium text-gray-900 sr-only ">
+                    Search
+                </label>
+                <div class="relative ">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="search" id="default-search"
+                           class="block w-full px-14 py-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500  "
+                           placeholder="Search for something..." required/>
+                </div>
+            </form>
+            <!-- filter dropdown -->
+            <div class="relative inline-block text-left py-2">
+                <div>
+                    <button type="button"
+                            class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                            id="menu-button-2" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
+                        Filter
+                        <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
+                             aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Dropdown menu -->
+                <div id="dropdown-menu-2"
+                     class="hidden absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none
+                            transition ease-out duration-100 transform opacity-0 scale-95"
+                     role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
+                    <div class="py-1" role="none">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Name</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Date</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Type resource</a>
+                    </div>
+                </div>
+            </div>
+            <!--
+            Dropdown menu, show/hide based on menu state.
+
+            Entering: "transition ease-out duration-100"
+            From: "transform opacity-0 scale-95"
+            To: "transform opacity-100 scale-100"
+            Leaving: "transition ease-in duration-75"
+            From: "transform opacity-100 scale-100"
+            To: "transform opacity-0 scale-95"
+            -->
+
+        </div>
+    </div>
+    <!-- list project -->
+    <div class="gap-4 flex justify-center flex-wrap w-full">
+        @foreach (var project in Model.ProjectsIAmMember)
+        {
+            <partial name="CustomComponent/OverviewCard/ProjectsOverview" model="project"/>
+        }
+    </div>
+</section>
+
+<!-- pagination -->
+<div class="pagination mt-4 flex justify-center space-x-1.5">
+    @if (ViewBag.currentPagePIM > 1)
+    {
+        <a href="@Url.Action("Index", new { pageNumberPIM = ViewBag.currentPagePIM - 1, pageNumberPOT = ViewBag.currentPagePOT, pageNumberPIL = ViewBag.currentPagePIL, pageSize = ViewBag.pageSize })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Previous</button>
+        </a>
+    }
+
+    @for (int i = 1; i <= ViewBag.totalPagesPIM; i++)
+    {
+        <a href="@Url.Action("Index", new { pageNumberPIM = i, pageNumberPOT = ViewBag.currentPagePOT, pageNumberPIL = ViewBag.currentPagePIL, pageSize = ViewBag.pageSize })"
+           class="@(ViewBag.currentPagePIM == i ? "btn-primary" : "")">
+            <button class="btn bg-white text-black rounded-lg border-solid">@i</button>
+        </a>
+    }
+    @if (ViewBag.currentPagePIM < ViewBag.totalPagesPIM)
+    {
+        <a href="@Url.Action("Index", new { pageNumberPOT = ViewBag.currentPagePOT, pageNumberPIL = ViewBag.currentPagePIL, pageNumberPIM = ViewBag.currentPagePIM + 1, pageSize = ViewBag.pageSize })">
+            <button class="btn bg-white text-black rounded-lg border-solid">Next</button>
+        </a>
+    }
+</div>
+<!-- end PART 2 -->
+</div>
+
+<!-- end container -->
+<script>
+    // set filter for visibility
+    function setFilter(filter) {
+        document.getElementById("filterQuery").value = filter;
+        document.getElementById("filterButton").innerHTML = filter;
+    }
+    // dropdown for date
+    const dateButton = document.getElementById('dateButton');
+    const dateDropdown = document.getElementById('dateDropdown');
+
+    dateButton.addEventListener('click', () => {
+        dateDropdown.classList.toggle('hidden');
+    });
+
+    // Close the dropdown if clicked outside
+    window.addEventListener('click', function(e) {
+        if (!dateButton.contains(e.target) && !dateDropdown.contains(e.target)) {
+            dateDropdown.classList.add('hidden');
+        }
+    });
+
+</script>

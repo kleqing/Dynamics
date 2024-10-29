@@ -330,7 +330,7 @@
                                     </div> *@
                                     <div class="col">
                                         <a class="dropdown-icon-item" href="https://github.com/kleqing/Charity-activity-management-system">
-                                            <img src="assets/images/brands/github.png" alt="Github">
+                                            <img src="~/Admin/assets/images/brands/github.png" alt="Github">
                                             <span>GitHub</span>
                                         </a>
                                     </div>
@@ -528,6 +528,13 @@
                         </a>
                     </li>
 
+                    <li class="side-nav-item">
+                        <a href="/Admin/Payments" class="side-nav-link">
+                            <i class="ri-bank-card-line"></i>
+                            <span> Payments </span>
+                        </a>
+                    </li>
+
                     @*// If there is more item in the side bar menu, add them here
                     <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
@@ -638,14 +645,19 @@
 
                                         <div class="col-md-4">
                                             <div class="mb-4">
-                                                <h5>Start Date</h5>
-                                                <p>@Html.DisplayFor(model => model.StartTime)</p>
+                                                <h5>Phone number</h5>
+                                                <p>@Html.DisplayFor(model => model.ProjectPhoneNumber)</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="row">
-                                       
+                                        <div class="col-md-4">
+                                            <div class="mb-4">
+                                                <h5>Start Date</h5>
+                                                <p>@Html.DisplayFor(model => model.StartTime)</p>
+                                            </div>
+                                        </div>
 
                                         <div class="col-md-4">
                                             <div class="mb-4">
@@ -661,7 +673,6 @@
                                                     }
                                                     else if (Model.isBanned == false && Model.ProjectStatus == 0)
                                                     {
-                                                        
 													}
                                                     else if (Model.isBanned == false && Model.ProjectStatus == 1)
 													{
@@ -696,24 +707,77 @@
                                             </div>
                                         </div>
 
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div id="tooltip-container">
+                                                <h5>Team Members</h5>
+                                                @foreach (var members in Model.ProjectMember)
+                                                {
+                                                    <a href="/User?username=@members.User.UserName" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="top" title="@members.User.UserName" class="d-inline-block">
+                                                        <img src="@members.User.UserAvatar" class="rounded-circle img-thumbnail avatar-sm" alt="friend">
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                            
+                                        <div class="col-md-4">
+                                            <div class="mb-4">
+                                                <h5>Thumbnail</h5>
+                                                <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+                                                    <div class="carousel-inner">
+                                                        @if (Model.Attachment != null)
+                                                        {
+                                                            var images = Model.Attachment.Split(",");
+                                                            bool isActive = true;
+
+                                                            foreach (var image in images)
+                                                            {
+                                                            <div class="carousel-item @(isActive ? "active" : "")">
+                                                                <img src="@image.Trim()" class="d-block w-100" alt="Project Image">
+                                                            </div>
+                                                            isActive = false;
+                                                            }
+                                                        }
+                                                    </div>
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                         <div class="col-md-4">
                                             <div class="mb-4">
                                                 <h5>Status</h5>
                                                 @if (Model.ProjectStatus == -1 && !Model.isBanned)
+
                                                 {
                                                     <span class="badge badge-danger-lighten">Canceled</span>
                                                 }
+
                                                 else if (Model.ProjectStatus == 0 && !Model.isBanned)
+
                                                 {
                                                     <span class="badge badge-warning-lighten">Preparing</span>
                                                 }
+
                                                 else if (Model.ProjectStatus != 2)
+
                                                 {
                                                     <a href="#" class="btn @(Model.isBanned ? "badge badge-danger-lighten" : "badge badge-success-lighten") btn-ban" data-id="@Model.ProjectID">
                                                         @(Model.isBanned ? "Banned" : "Active")
                                                     </a>
                                                 }
+
                                                 else
+
                                                 {
                                                     <span class="badge badge-success-lighten">Finished</span>
                                                 }
@@ -721,9 +785,7 @@
                                         </div>
                                     </div>
                                 </div> <!-- end card-body-->
-                                    
                             </div> <!-- end card-->
-
                         </div> <!-- end col -->
                     </div>
                     <!-- end row -->

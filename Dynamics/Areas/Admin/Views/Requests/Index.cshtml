@@ -529,6 +529,13 @@
                         </a>
                     </li>
 
+                    <li class="side-nav-item">
+                        <a href="/Admin/Payments" class="side-nav-link">
+                            <i class="ri-bank-card-line"></i>
+                            <span> Payments </span>
+                        </a>
+                    </li>
+
                     @*// If there is more item in the side bar menu, add them here
                     <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
@@ -715,7 +722,23 @@
                                     <p><strong>Email:</strong > <span id="request-email"></span></p>
                                     <p><strong>Phone number:</strong> <span id="request-phonenumber"></span></p>
                                     <p><strong>Creation Date:</strong> <span id="request-createdate"></span></p>
-								</div>
+                                    <p><strong>Thumbnail:</strong></p>
+                                    <div id="request-image-carousel" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            <!-- Các ảnh sẽ được thêm động qua JavaScript -->
+                                        </div>
+                                        <!-- Nút điều hướng Carousel -->
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#request-image-carousel" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#request-image-carousel" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+
+                                </div>
 							</div>
                         </div>
                     </div>
@@ -1444,11 +1467,29 @@
                             $('#request-name').text(response.data.requestTitle);
                             $('#request-content').text(response.data.content);
                             $('#request-location').text(response.data.location);
-                            $('#request-email').text(response.data.requestPhoneNumber);
+                            $('#request-email').text(response.data.requestEmail);
                             $('#request-phonenumber').text(response.data.requestPhoneNumber);
                             $('#request-createdate').text(response.data.creationDate);
 
-                            // Show the offcanvas element
+                            var attachments = response.data.attachment ? response.data.attachment.split(',') : [];
+                            var carouselInner = $('#request-image-carousel .carousel-inner');
+                            carouselInner.empty(); // Xóa nội dung cũ
+
+                            if (attachments.length > 0) {
+                                attachments.forEach((attachment, index) => {
+                                    var activeClass = index === 0 ? ' active' : '';
+                                    var carouselItem = `
+                                        <div class="carousel-item${activeClass}">
+                                            <img src="${attachment.trim()}" class="d-block w-100" alt="Thumbnail ${index + 1}">
+                                        </div>
+                                    `;
+                                    carouselInner.append(carouselItem);
+                                });
+                            } else {
+                                carouselInner.append('<div class="carousel-item active"><p>No images available</p></div>');
+                            }
+
+                            // Hiển thị offcanvas
                             var offcanvasElement = document.getElementById('offcanvasDelete');
                             var offcanvas = new bootstrap.Offcanvas(offcanvasElement);
                             offcanvas.show();

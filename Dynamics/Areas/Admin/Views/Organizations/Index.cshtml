@@ -528,6 +528,13 @@
                         </a>
                     </li>
 
+                    <li class="side-nav-item">
+                        <a href="/Admin/Payments" class="side-nav-link">
+                            <i class="ri-bank-card-line"></i>
+                            <span> Payments </span>
+                        </a>
+                    </li>
+
                     @*// If there is more item in the side bar menu, add them here
                     <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarCrm" aria-expanded="false" aria-controls="sidebarCrm" class="side-nav-link">
@@ -672,10 +679,8 @@
                                                         </td>
 
                                                         <td class="table-action text-center">
-                                                            <a href="#" class="badge badge-primary-lighten action-btn" data-id="@item.OrganizationID">View more</a>
+                                                            <a href="/Organization/Detail?organizationId=@item.OrganizationID" class="badge badge-primary-lighten action-btn">View more</a>
                                                         </td>
-
-
                                                     </tr>
                                                 }
                                             </tbody>
@@ -690,36 +695,6 @@
                 </div> <!-- container -->
 
             </div> <!-- content -->
-
-            <!-- Off Canvas-->
-            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasDelete" aria-labelledby="offcanvasDeleteLabel">
-                <div class="offcanvas-header">
-                    <h5 id="offcanvasDeleteLabel" class="text-center w-100">Organization Information</h5>
-                </div>
-                <div class="offcanvas-body d-flex flex-column">
-                    <!-- Content section -->
-                    <div class="mb-auto">
-                        <div class="row">
-                            <div class="col-12">
-                                <p><strong>Organization Name:</strong> <span id="organization-name"></span></p>
-                                <p><strong>Description:</strong> <span id="organization-description"></span></p>
-                                <p><strong>Email:</strong> <span id="organization-email"></span></p>
-                                <p><strong>Phone:</strong> <span id="organization-phone"></span></p>
-                                <p><strong>Address:</strong> <span id="organization-address"></span></p>
-                                <p><strong>Member in this Organization:</strong> <span id="organization-member"></span></p>
-                                <p><strong>Started Day:</strong> <span id="organization-startday"></span></p>
-                                <p><strong>Shutdown Day:</strong> <span id="organization-shutdownday"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Close button section -->
-                    <div class="mt-auto">
-                        <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Footer Start -->
             <footer class="footer">
@@ -1399,37 +1374,4 @@
     <!-- App js -->
     <script src="assets/js/app.min.js"></script>
     <script src="~/Admin/assets/controller/OrganizationController.js"></script>
-
-    <script>
-        $(document).on('click', '.action-btn', function () {
-            var orgId = $(this).data('id');  // Get ID
-
-            if (orgId) {
-                $.ajax({
-                    url: '/Admin/Organizations/GetOrganizationInfo',
-                    type: 'GET',
-                    data: { id: orgId },
-                    success: function (response) {
-                        if (response.success) {
-                            $('#organization-name').text(response.data.organizationName);
-                            $('#organization-description').text(response.data.organizationDescription);
-                            $('#organization-email').text(response.data.organizationEmail);
-                            $('#organization-phone').text(response.data.organizationPhoneNumber);
-                            $('#organization-address').text(response.data.organizationAddress);
-                            $('#organization-startday').text(response.data.startTime);
-                            $('#organization-member').text(response.data.memberCount);
-                            $('#organization-shutdownday').text(response.data.shutdownDay || 'Not yet');
-
-                            // Show the offcanvas element
-                            var offcanvasElement = document.getElementById('offcanvasDelete');
-                            var offcanvas = new bootstrap.Offcanvas(offcanvasElement);
-                            offcanvas.show();
-                        } else {
-                            alert(response.message);
-                        }
-                    }
-                });
-            }
-        });
-    </script>
 </body>

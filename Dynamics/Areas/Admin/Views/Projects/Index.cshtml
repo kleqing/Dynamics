@@ -331,23 +331,47 @@
                         </div><!-- end col-->
                     </div>
                     <!-- end row-->
-
+                    
                     <div class="row">
                         @foreach (var project in Model)
                         {
-                            <div class="col-md-6 col-xxl-3">
-                                <!-- project card -->
+                            var carouselId = "carouselExample" + project.ProjectID;
+                            
+                            <div class="col-sm-6 col-lg-3">
                                 <div class="card d-block">
+                                    
+                                    <div id="@carouselId" class="carousel slide card-img-top" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            @if (project.Attachment != null)
+                                            {
+                                                var images = project.Attachment.Split(",");
+                                                bool isActive = true;
+
+                                                foreach (var image in images)
+                                                {
+                                                    <div class="carousel-item @(isActive ? "active" : "")">
+                                                        <img src="@image.Trim()" class="d-block w-100" alt="Project Image">
+                                                    </div>
+                                                    isActive = false;
+                                                }
+                                            }
+                                        </div>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+
                                     <div class="card-body">
-                                        <!-- project title-->
-
-                                        <h4 class="mt-0">
-                                            <a href="@Url.Action("Details", "Projects", new { Area = "Admin", id = project.ProjectID })" class="text-title">@project.ProjectName</a>
-                                        </h4>
+                                        <h5 class="card-title">@project.ProjectName</h5>
                                         <div class="badge @GetStatusClass(project.ProjectStatus)">@GetStatusText(project.ProjectStatus)</div>
-
+                                    
                                         @{
-                                            var maxLength = 50;
+                                            var maxLength = 100;
 
                                             var projectDescription = project.ProjectDescription;
 
@@ -355,83 +379,82 @@
 
                                             var shortDescription = isTooLong ? projectDescription.Substring(0, maxLength) + "..." : projectDescription;
                                         }
-
-                                        <p class="text-muted font-13 my-3 project-description">
+                                        <br/><br/>
+                                        <p class="card-text project-description text-muted">
+                                            <strong>Description:</strong>
                                             @shortDescription
                                             @if (isTooLong)
-
                                             {
                                                 <a href="javascript:void(0);" class="fw-bold text-muted" onclick="toggleDescription(this)"></a>
                                             }
                                         </p>
-
-                                        <!-- project detail-->
                                         <p class="mb-1">
-                                            <span class="pe-2 text-nowrap mb-2 d-inline-block">
-                                                <i class="mdi mdi-calendar-clock text-muted"></i>
-                                                Create Date:
-                                                <b>@project.StartTime?.ToString("yyyy-MM-dd")</b>
-                                            </span>
+                                        <span class="pe-2 text-nowrap mb-2 d-inline-block">
+                                            <i class="mdi mdi-calendar-clock text-muted"></i>
+                                            Create Date:
+                                            <b>@project.StartTime?.ToString("yyyy-MM-dd")</b>
+                                        </span>
 
-                                            @if (project.ProjectStatus == 2 && project.isBanned == false)
-                                            {
-                                                if (project.EndTime != null)
-                                                {
-                                                    <span class="text-nowrap mb-2 d-inline-block">
-														<i class="mdi mdi-calendar-check-outline text-muted"></i>
-														End Date:
-														<b>@project.EndTime?.ToString("yyyy-MM-dd")</b>
-													</span>
-												}
-												else
-												{
-													<span class="text-nowrap mb-2 d-inline-block">
-														<i class="mdi mdi-calendar-check-outline text-muted"></i>
-														End Date:
-														<b class="text-danger">Not set</b>
-													</span>
-                                                }
-                                            }
-                                            else if (project.isBanned)
+                                        @if (project.ProjectStatus == 2 && project.isBanned == false)
+                                        {
+                                            if (project.EndTime != null)
                                             {
                                                 <span class="text-nowrap mb-2 d-inline-block">
-													<i class="mdi mdi-calendar-remove text-muted"></i>
-                  
+                                                    <i class="mdi mdi-calendar-check-outline text-muted"></i>
                                                     End Date:
-													<b class="text-danger">Banned</b>
-												</span>
-                                            }
-                                            else if (project.ProjectStatus == -1 && project.isBanned == false)
-											{
-												<span class="text-nowrap mb-2 d-inline-block">
-													<i class="mdi mdi-calendar-remove text-muted"></i>
-													End Date:
-													<b class="text-danger">Canceled</b>
-												</span>
-											}
-                                            else if (project.ProjectStatus == 0)
-                                            {
-                                                <span class="text-nowrap mb-2 d-inline-block">
-                                                    <i class="mdi mdi-calendar-remove text-muted"></i>
-                                                    End Date:
-                                                    <b class="text-warning">Preparing</b>
+                                                    <b>@project.EndTime?.ToString("yyyy-MM-dd")</b>
                                                 </span>
                                             }
-                                            else if (project.ProjectStatus == 1)
+                                            else
                                             {
                                                 <span class="text-nowrap mb-2 d-inline-block">
-                                                    <i class="mdi mdi-calendar-remove text-muted"></i>
+                                                    <i class="mdi mdi-calendar-check-outline text-muted"></i>
                                                     End Date:
-                                                    <b class="text-primary">On going</b>
+                                                    <b class="text-danger">Not set</b>
                                                 </span>
                                             }
-                                        </p>
-                                    </div> <!-- end card-body-->
+                                        }
+                                        else if (project.isBanned)
+                                        {
+                                            <span class="text-nowrap mb-2 d-inline-block">
+                                                <i class="mdi mdi-calendar-remove text-muted"></i>
+                                                End Date:
+                                                <b class="text-danger">Banned</b>
+                                            </span>
+                                        }
+                                        else if (project.ProjectStatus == -1 && project.isBanned == false)
+                                        {
+                                            <span class="text-nowrap mb-2 d-inline-block">
+                                                <i class="mdi mdi-calendar-remove text-muted"></i>
+                                                End Date:
+                                                <b class="text-danger">Canceled</b>
+                                            </span>
+                                        }
+                                        else if (project.ProjectStatus == 0)
+                                        {
+                                            <span class="text-nowrap mb-2 d-inline-block">
+                                                <i class="mdi mdi-calendar-remove text-muted"></i>
+                                                End Date:
+                                                <b class="text-warning">Preparing</b>
+                                            </span>
+                                        }
+                                        else if (project.ProjectStatus == 1)
+                                        {
+                                            <span class="text-nowrap mb-2 d-inline-block">
+                                                <i class="mdi mdi-calendar-remove text-muted"></i>
+                                                End Date:
+                                                <b class="text-primary">On going</b>
+                                            </span>
+                                        }
+                                        <br/>
+                                        <a href="@Url.Action("Details", "Projects", new { Area = "Admin", id = project.ProjectID })" class="card-link text-custom">View more</a>
+                                        <a href="/Project/ManageProject/@project.ProjectID" class="card-link text-custom">View in user page</a>
+                                    </div><!-- end card-body-->
                                 </div> <!-- end card-->
-                            </div> <!-- end col -->
+                            </div>
+                            <!-- end col -->
                         }
                     </div>
-
                     <!-- end row -->
 
                 </div> <!-- content -->

@@ -247,6 +247,58 @@ namespace Dynamics.Controllers
             return View(organization);
         }
 
+        public async Task<IActionResult> ShutDown(Guid organizationId)
+        {
+            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
+
+            bool boolOrganizationResource = true;
+            foreach(var or in organizationVM.OrganizationResource)
+            {
+                if(or.Quantity > 0)
+                {
+                    boolOrganizationResource = false;
+                    break;
+                }
+            }
+
+            var boolProject = true;
+            foreach (var p in organizationVM.Project)
+            {
+                if(p.ProjectStatus != 2 && p.ProjectStatus != -1)
+                {
+                    boolProject = false;
+                    break;
+                }
+            }
+
+            var organization = await _organizationRepository.GetOrganizationAsync(o => o.OrganizationID.Equals(organizationId));
+            if(boolOrganizationResource && boolProject)
+            {
+                organization.ShutdownDay = DateOnly.FromDateTime(DateTime.UtcNow);
+                organization.OrganizationStatus = -2;
+                if (await _organizationRepository.UpdateOrganizationAsync(organization))
+                {
+                    TempData[MyConstants.Success] = "Shut Down organization successfully!";
+                    return RedirectToAction(nameof(MyOrganization), new { organizationId = organizationId });
+                }
+                else
+                {
+                    TempData[MyConstants.Error] = "Shut Down organization Faild!";
+                    return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+                }
+                    
+            }
+            else if(!boolOrganizationResource)
+            {
+                TempData[MyConstants.Error] = "Shut Down organization Faild beacause exist at least a organization resource available!";
+                return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+            }
+            else
+            {
+                TempData[MyConstants.Error] = "Shut Down organization Faild beacause exist at least a project available!";
+                return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+            }
+        }
 
         //Organization Member
         public async Task<IActionResult> ManageOrganizationMember()

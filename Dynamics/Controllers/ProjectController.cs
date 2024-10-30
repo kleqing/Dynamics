@@ -1503,7 +1503,7 @@ namespace Dynamics.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject(ProjectVM projectVM, IFormFile image, int expectedQuantity,
+        public async Task<IActionResult> CreateProject(ProjectVM projectVM, List<IFormFile> images, int expectedQuantity,
             string Unit)
         {
             var currentOrganization =
@@ -1542,9 +1542,21 @@ namespace Dynamics.Controllers
 
                 if (projectVM != null)
                 {
-                    if (image != null)
+                    if (images.Count != 0)
                     {
-                        projectVM.Attachment = await _cloudinaryUploader.UploadImageAsync(image);
+                        // organization.OrganizationPictures = Util.UploadImage(image, @"images\Organization");
+                        var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                        if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
+                        {
+                            projectVM.Attachment = resImages;
+
+                        }
+                        else
+                        {
+                            TempData[MyConstants.Error] = resImages.Equals("No file")
+                           ? "No file to upload!"
+                           : "Extension of some files is wrong!";
+                        }
                     }
 
                     if (projectVM.ProjectEmail == null)

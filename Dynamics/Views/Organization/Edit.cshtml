@@ -74,9 +74,18 @@
 
             </div>
 
-            <div class="flex justify-center">
+            <div class="flex justify-center mb-4">
                 <button type="submit" class="px-6 py-2 bg-blue-900 text-white font-medium rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Save!
+                </button>
+            </div>
+        </form>
+
+        <form asp-action="ShutDown" asp-controller="Organization">
+            <input asp-for="@Model.OrganizationID" value="@Model.OrganizationID" name="organizationId" class="hidden">
+            <div class="flex justify-center mb-4">
+                <button type="submit" class="px-6 py-2 bg-red-700 text-white font-medium rounded-md hover:bg-red-500">
+                    Shutdown!
                 </button>
             </div>
         </form>

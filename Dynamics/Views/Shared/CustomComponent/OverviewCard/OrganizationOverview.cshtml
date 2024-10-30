@@ -92,7 +92,13 @@
                             </a>
                             break;
                         case > 0:
-                            if (Model.OrganizationStatus == 1)
+                            if (Model.ShutdownDay != new DateOnly())
+                            {
+                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID" class="btn btn-neutral h-8 min-h-0 outline-none border-none">
+                                    Organization was shutdown
+                                </a>
+                            }
+                            else if (Model.OrganizationStatus == 1)
                             {
                                 <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID" class="btn btn-neutral h-8 min-h-0 outline-none border-none">
                                     View detail organization

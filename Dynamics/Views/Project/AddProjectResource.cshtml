@@ -10,7 +10,7 @@
     var projectResources = Accessor.HttpContext.Session.Get<List<ProjectResource>>(MySettingSession.SESSION_Resources_In_A_PRoject_KEY);
 }
 
-<div class="container  my-5 pt-12 flex justify-center items-center">
+<div class="my-5 flex justify-center items-center w-full">
     <div class=" bg-white p-8 rounded-lg shadow-lg">
         <div class="border border-solid border-gray-500 rounded-box px-5 py-5 mt-10 w-auto">
             <form asp-action="AddProjectResource" asp-controller="Project" class="py-5">

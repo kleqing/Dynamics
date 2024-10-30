@@ -16,6 +16,7 @@ public class OrganizationOverviewDto
     public int OrganizationStatus { get; set; }
     [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
     public DateOnly StartTime { get; set; }
+    public DateOnly ShutdownDay { get; set; }
     public virtual ICollection<OrganizationMember> OrganizationMember { get; set; }
 
 }

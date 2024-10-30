@@ -1,0 +1,238 @@
+﻿@model Dynamics.Models.Models.ViewModel.UserVM
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "CustomLayout/_LayoutWithNavbarOnly";
+}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit user</title>
+    <link rel="stylesheet" href="~/css/original.css" />
+    <link rel="stylesheet" href="~/css/output.css">
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Edit profile -->
+    <div class="flex md:p-6 pb-0 flex-1">
+        @await Html.PartialAsync("CustomComponent/_UserSidebar", "Edit")
+        <!-- Main content -->
+        <div class="divider divider-horizontal"></div>
+        <form asp-action="Edit" asp-controller="User" enctype="multipart/form-data" method="post" id="user-information"
+              class="flex flex-col gap-4 justify-center items-center flex-1 rounded-md shadow-md p-12">
+            <h1 class="font-bold text-center text-3xl">Change user profile</h1>
+            <div class="flex justify-around w-full h-full">
+                <div class="flex flex-col w-1/2">
+                    <div asp-validation-summary="ModelOnly" class="text-error"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-bold text-lg">Username</span>
+                        </label>
+                        <input type="text" placeholder="Enter new name" asp-for="UserName"
+                               class="input input-bordered w-full bg-white input-primary"
+                               name="UserName" />
+                        <span asp-validation-for="UserName" class="text-error"></span>
+                    </div>
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-bold text-lg">Email</span>
+                        </label>
+                        <input type="email" disabled placeholder="Enter new email"
+                               class="input input-bordered w-full bg-white input-primary" value="@Model.Email" />
+                        <input type="hidden" asp-for="@Model.Email" />
+                        <span asp-validation-for="Email" class="text-error"></span>
+                    </div>
+                    <div class="form-control w-full">
+                        <label class="label">
+                            <span class="label-text font-bold text-lg">Phone number</span>
+                        </label>
+                        <input type="tel" placeholder="Enter new phone" asp-for="PhoneNumber"
+                               class="input input-bordered w-full bg-white input-primary"
+                               name="PhoneNumber" />
+                        <span asp-validation-for="PhoneNumber" class="text-error"></span>
+                    </div>
+                    @{
+                        var province = "";
+                        var district = "";
+                        var ward = "";
+                        var homeAddr = "";
+                        // If user has address, split them and put in order
+                        if (Model.UserAddress != null)
+                        {
+                            // Example: 23 Phan Nhu, Thanh Khe Tay, Thanh Khe, Da Nang
+                            var splitAddr = Model.UserAddress.Split(",").ToList();
+                            // In case some address is missing, we left it as empty
+                            for (int i = 0; i < splitAddr.Count; i++)
+                            {
+                                switch (i)
+                                {
+                                    case 0:
+                                        homeAddr = splitAddr[0];
+                                        break;
+                                    case 1:
+                                        ward = splitAddr[1];
+                                        break;
+                                    case 2:
+                                        district = splitAddr[2];
+                                        break;
+                                    case 3:
+                                        province = splitAddr[3];
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    <label class="form-control w-full">
+                        <span class="label label-text font-bold text-lg">User address</span>
+                        <div>
+                            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="city" aria-label=".form-select-sm">
+                                <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
+                            </select>
+
+                            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="district" aria-label=".form-select-sm">
+                                <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
+                            </select>
+
+                            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="ward" aria-label=".form-select-sm">
+                                <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
+                            </select>
+                        </div>
+                        <input type="text"
+                               placeholder="Enter street and house number"
+                               class="input input-bordered w-full bg-white input-primary"
+                               value="@homeAddr"
+                               id="HomeAddress" />
+                        @* the original one should be located here: *@
+                        <input type="hidden" asp-for="UserAddress" name="UserAddress" id="UserAddressStr" value="@Model.UserAddress" />
+                    </label>
+                    <br />
+                    <!-- Be careful as this one must strictly follow format YYYY-MM-DD -->
+                    <label asp-for="UserDOB" class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text font-bold text-lg">Date of birth (Month/Day/Year)</span>
+                        </div>
+                        <input type="date" asp-for="UserDOB"
+                               class="input input-bordered w-full bg-white input-primary" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
+                               name="UserDOB" />
+                    </label>
+                    <br />
+                    <label asp-for="UserDescription" class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text font-bold text-lg">User description</span>
+                        </div>
+                        <textarea placeholder="Tell people more about you"
+                                  class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"
+                                  asp-for="UserDescription"
+                                  rows="5"
+                                  name="UserDescription">
+                    </textarea>
+                        <br />
+                        <span asp-validation-for="UserDescription" class="text-error"></span>
+                    </label>
+                    @* <textarea placeholder="Tell people more about you" class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"></textarea> *@
+                </div>
+                <div class="flex flex-col gap-2 font-bold text-lg">
+                    <h3>Profile picture</h3>
+                    <label for="changeProfile" class="relative hover:scale-105 duration-150 transition-all hover:cursor-pointer">
+                        <input type="hidden" name="UserAvatar" asp-for="UserAvatar" value="@Model.UserAvatar" />
+                        <input type="file" name="image" id="changeProfile" style="display: none" />
+                        <!-- TODO: Subtitles the user avatar here -->
+                        <img src="@Model.UserAvatar" alt="User's Name" id="avatar"
+                             class="avatar w-40 h-40 object-cover rounded-full shadow-md" />
+                        <div id="uploadBtn"
+                             class="bg-slate-900 text-white flex gap-2 items-center justify-center rounded w-16 p-1 text-sm h-8 absolute bottom-0 left-0 hover:bg-slate-600">
+                            &#x270E; Edit
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div id="buttons" class="flex gap-2 w-fu">
+                <input type="submit" value="Save" id="update__btn" class="btn btn-primary rounded-btn min-w-40" />
+            </div>
+        </form>
+        <!-- End content -->
+    </div>
+    <!-- End edit profile -->
+    <partial name="_ValidationScriptsPartial" />
+    <partial name="CustomComponent/_SweetAlertToast" />
+    .<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    @* Get all the address information before submit *@
+    <script>
+        let cities = document.getElementById("city");
+        let districts = document.getElementById("district");
+        let wards = document.getElementById("ward");
+        let Parameter = {
+            url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+            method: "GET",
+            responseType: "application/json",
+        };
+        let promise = axios(Parameter);
+        promise.then(function (result) {
+            renderCity(result.data);
+        });
+
+        function renderCity(data) {
+            for (const x of data) {
+                cities.options[cities.options.length] = new Option(x.Name, x.Id);
+            }
+            cities.onchange = function () {
+                district.length = 1;
+                ward.length = 1;
+                if (this.value !== "") {
+                    const result = data.filter(n => n.Id === this.value);
+
+                    for (const k of result[0].Districts) {
+                        district.options[district.options.length] = new Option(k.Name, k.Id);
+                    }
+                }
+            };
+            district.onchange = function () {
+                ward.length = 1;
+                const dataCity = data.filter((n) => n.Id === cities.value);
+                if (this.value !== "") {
+                    const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+                    for (const w of dataWards) {
+                        wards.options[wards.options.length] = new Option(w.Name, w.Id);
+                    }
+                }
+            };
+        }
+
+
+        // Get stuff for the addresses
+        let myBtn = document.querySelector('#update__btn');
+        let myForm = document.querySelector('#user-information');
+        console.log(myBtn);
+        console.log(myForm);
+        myForm.addEventListener('submit', (e) => {
+            console.log(myForm)
+            // Get the selected text for city, district, and ward
+            const cityName = cities.options[cities.selectedIndex].text;
+            const districtName = districts.options[districts.selectedIndex].text;
+            const wardName = wards.options[wards.selectedIndex].text;
+            const homeAddr = document.querySelector('#HomeAddress');
+            console.log("City:", cityName);
+            console.log("District:", districtName);
+            console.log("Ward:", wardName);
+            console.log("Home: ", homeAddr.value);
+            // Set our real user address data here:
+            let userAddr = document.querySelector("#UserAddressStr");
+            userAddr.value = `${homeAddr.value}, ${wardName}, ${districtName}, ${cityName}`
+            console.log('User value: ', userAddr);
+            console.log(userAddr.value);
+        })
+    </script>
+
+    @* Change picture realtime *@
+    <script>
+        $("#changeProfile").on("change", function (event) {
+            const file = event.target.files[0];
+            const tempUrl = URL.createObjectURL(file);
+            $("#avatar").attr("src", tempUrl);
+        });
+    </script>
+</body>
+</html>

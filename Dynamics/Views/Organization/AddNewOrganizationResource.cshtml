@@ -1,0 +1,61 @@
+﻿@using Dynamics.Utility
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+@model  Dynamics.Models.Models.OrganizationResource
+
+
+
+@{
+    ViewData["Title"] = "AddNewOrganizationResource";
+}
+
+<div class="py-5 pt-12 px-5 my-5 flex justify-center">
+    <div class="bg-white border border-solid border-gray-500 shadow-xl rounded-box px-5 py-5 w-auto">
+
+        <h1 class="text-3xl font-semibold mb-10 text-center ">
+           <span class="border-b-2 border-gray-500 border-solid py-2">Manage and allocate resources for your projects</span>
+        </h1>
+
+        <div>
+            <form asp-action="AddNewOrganizationResource" asp-controller="Organization" class="py-5">
+
+                <div class="py-5">
+                    <h1 class="text-2xl text-center font-medium mb-2">Add resources Organization</h1>
+                </div>
+                <div>
+                    <input asp-for="ResourceID" name="ResourceID" class="hidden">
+                    <input asp-for="OrganizationID" name="OrganizationID" class="hidden">
+                    <input asp-for="Quantity" name="Quantity" class="hidden">
+                </div>
+
+                <div class="flex mb-4 justify-around">
+
+                    <div class="w-1\/2 mx-2">
+                        <label asp-for="ResourceName" class="block text-base text-start font-medium text-gray-700 mb-1 mx-5">
+                            Enter resource name
+                        </label>
+                        <input asp-for="ResourceName" type="text" class="w-full p-2 mx-5 border border-gray-300 rounded-btn" placeholder="Resource name">
+                        <span asp-validation-for="ResourceName" class="text-red-500"></span>
+                    </div>
+                    <div class="w-1\/2 mx-2">
+                        <label asp-for="Unit" class="block text-base text-start font-medium text-gray-700 mb-1 mx-5">
+                            Unit
+                        </label>
+                        <input asp-for="Unit" type="text" class="w-full p-2 mx-5 border border-gray-300 rounded-btn" placeholder="Enter unit">
+                        <span asp-validation-for="Unit" class="text-red-500"></span>
+
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button class="bg-blue-900 text-white px-4 py-2 rounded mt-10">Add Organization Resource</button>
+                </div>
+            </form>
+
+            <a >
+                    <p class="text-blue-800 text-white px-4 py-2 rounded mt-10">&larr; Go back</p>
+            </a>
+
+        </div>
+    </div>
+ </div>

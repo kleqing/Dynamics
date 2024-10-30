@@ -1,0 +1,29 @@
+﻿@model Dynamics.Models.Dto.VnPayResponseDto
+
+@{
+    ViewData["Title"] = "Payment success";
+    Layout = "_Layout";
+    var returnUrl = Accessor.HttpContext.Session.GetString("paymentRedirect") ?? "~/";
+}
+@if (Model == null)
+{
+    <script type="text/javascript">
+        window.location.href = '@Url.Action("Index", "Home")';
+    </script>
+}
+else
+{
+    <main class="w-full min-h-screen flex flex-col gap-4 items-center justify-center">
+        <div class="relative w-full max-w-screen-lg rounded shadow-md flex flex-col gap-4 p-16 border">
+            <p class="text-6xl text-center text-success mb-4">
+                <i class="fa-regular fa-circle-check"></i>
+            </p>
+            <h1 class="font-bold text-center text-3xl text-success">Payment success!, thank you for your donation</h1>
+            <p>Transaction ID: @Model.TransactionID</p>
+            <p>Amount: @Model.Amount VND</p>
+            <p>Message: @Model.Message</p>
+            <p>Time: @Html.DisplayFor(model => model.Time)</p>
+            <a class="btn btn-primary btn-md max-w-sm mx-auto" asp- href="@returnUrl">Go back</a>
+        </div>
+    </main>
+}

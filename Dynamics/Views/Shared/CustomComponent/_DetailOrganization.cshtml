@@ -1,0 +1,472 @@
+﻿@using Dynamics.Models.Models.ViewModel
+@using Dynamics.Utility
+@using Microsoft.AspNetCore.Http
+@using Newtonsoft.Json
+
+@inject IHttpContextAccessor Accessor
+
+@{
+    var userString = Accessor.HttpContext.Session.GetString("user");
+    User currentUser = null;
+    if (userString != null)
+    {
+        currentUser = JsonConvert.DeserializeObject<User>(userString);
+    }
+}
+
+
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Thay đổi cách import Lucide -->
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
+<style>
+    .tab-content:not(.active) {
+      display: none;
+    }
+</style>
+
+
+<div class="bg-gray-50/50 p-8">
+    <div class="container mx-auto max-w-8xl space-y-8">
+        <!-- Header Section -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="p-8">
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- Organization Info -->
+                    <div class="space-y-6">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                        <line x1="8" y1="21" x2="16" y2="21" />
+                                        <line x1="12" y1="17" x2="12" y2="21" />
+                                    </svg>
+                                    <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <h1 class="text-2xl font-bold text-gray-900">@Model.OrganizationName</h1>
+                                    </a>
+                                </div>
+                                <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-gray-100 text-gray-900">
+                                    Non-Profit Organization
+                                </span>
+                            </div>
+                            @{
+                                bool isJoined = false;
+                                int count = 0;
+
+                                //role is CEO
+                                if (currentUser != null && currentUser.Id.Equals(Model.CEO.Id))
+                                {
+                                    <a asp-action="Edit" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                            </svg>
+                                            Edit
+                                        </button>
+                                    </a>
+                                }
+
+                                var organizationMember = new OrganizationMember();// save satatus of currentUser
+                                @foreach (var item in Model.OrganizationMember)
+                                {
+                                    if (currentUser != null && item.User.Id.Equals(@currentUser.Id))
+                                    {
+                                        isJoined = true;
+                                        organizationMember = item;
+                                    }
+                                }
+
+                                //request join
+                                if (organizationMember.Status == 0)
+                                {
+                                    <div class="flex justify-center my-5 gap-2">
+                                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2" type="button" disabled>
+                                            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing
+                                        </button>
+
+                                        <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                            <input value="@currentUser.Id" name="userId" type="hidden">
+                                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2" type="submit">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+
+                                //member
+                                if (organizationMember.Status == 1)
+                                {
+                                    <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
+                                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2" type="submit">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                                            </svg>
+                                            Out Organization
+                                        </button>
+                                    </form>
+                                }
+
+                                //user
+                                if (!isJoined)
+                                {
+                                    <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        @if (currentUser != null)
+                                        {
+                                            <input value="@currentUser.Id" name="Id" type="hidden">
+                                        }
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                                <path d="M20 8v6"></path>
+                                                <path d="M23 11h-6"></path>
+                                            </svg>
+                                            Join
+                                        </button>
+                                    </form>
+                                }
+
+                            }
+                        </div>
+
+                        <div class="flex items-center gap-2 text-gray-600">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span>Leader Organization: @Model.CEO.UserName</span>
+                        </div>
+
+                        
+
+                        <div class="flex items-center gap-5 text-gray-600">
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                <span>Created: @Model.StartTime</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                <span>Close: @(Model.ShutdownDay != null ? Model.ShutdownDay : "active")</span>
+                            </div>
+                           
+                        </div>
+
+                        <div class="relative">
+                            <!-- Description Header with Toggle -->
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-gray-800 cursor-pointer" onclick="toggleDescription()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                                <span>Description</span>
+                                <!-- Down Arrow Icon -->
+                                <svg id="arrow-icon" class="w-4 h-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+
+                            <!-- Description Content -->
+                            <div id="description-content" class="mt-2 overflow-hidden max-h-12 transition-all duration-300">
+                                <p class="text-gray-600 text-sm">
+                                    @Model.OrganizationDescription <!-- Phần nội dung mô tả đầy đủ -->
+                                </p>
+                            </div>
+
+                            <!-- Show More Button -->
+                            @* <button id="show-more" onclick="toggleDescription()"
+                                    class="text-blue-500 hover:text-blue-600 text-sm mt-1">
+                                Show more...
+                            </button> *@
+                        </div>
+
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="lg:border-l lg:border-r border-gray-100 lg:px-8">
+                        <h2 class="text-lg font-semibold mb-6">Contact Information</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round" class="text-blue-600">
+                                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Email</p>
+                                    <p class="text-gray-700">@Model.OrganizationEmail</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Phone</p>
+                                    <p class="text-gray-500 italic">@Model.OrganizationPhoneNumber</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round" class="text-orange-600">
+                                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Address</p>
+                                    <p class="text-gray-500 italic">@Model.OrganizationAddress</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div class="flex items-center gap-2 text-blue-600 mb-1">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    </svg>
+                                    <span class="font-medium">Members</span>
+                                </div>
+                                <p class="text-2xl font-bold text-blue-700"> @Model.Members</p>
+                            </div>
+
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <div class="flex items-center gap-2 text-purple-600 mb-1">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+                                    </svg>
+                                    <span class="font-medium">Projects</span>
+                                </div>
+                                <p class="text-2xl font-bold text-purple-700">@Model.Projects</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- Rest of your HTML remains the same -->
+                    <!-- Organization Image -->
+                    @{
+                        string[] images = new string[1] { "," };
+                        if (@Model.OrganizationPictures != null)
+                        {
+                            images = Model.OrganizationPictures.TrimEnd(',', ' ').Split(",");
+                        }
+                    }
+
+                    <div class="relative">
+                        <img src="@(images[0] ?? "https://via.placeholder.com/300x200")" alt="Organization Cover"
+                             class="w-full h-full object-cover rounded-xl shadow-md">
+                        <button class="absolute bottom-4 right-4 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white text-gray-900 hover:bg-gray-100 h-9 px-4 py-2">
+                            Change Cover
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+        
+</div>
+<script>
+    function toggleDescription() {
+        const content = document.getElementById('description-content');
+        const arrow = document.getElementById('arrow-icon');
+        const showMoreBtn = document.getElementById('show-more');
+
+        if (content.classList.contains('max-h-12')) {
+            // Expand
+            content.classList.remove('max-h-12');
+            content.classList.add('max-h-screen');
+            arrow.classList.add('rotate-180');
+            showMoreBtn.textContent = 'Show less';
+        } else {
+            // Collapse
+            content.classList.remove('max-h-screen');
+            content.classList.add('max-h-12');
+            arrow.classList.remove('rotate-180');
+            showMoreBtn.textContent = 'Show more...';
+        }
+    }
+</script>
+@* 
+<div class="p-5 ">
+    <div class="border border-solid border-gray-500 rounded-box">
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row gap-6 justify-center">
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold mb-4">@Model.OrganizationName</h1>
+                    <p class="text-sm font-semibold mb-2 ">Leader Organization: @Model.CEO.UserName</p>
+                    <p class="text-sm font-semibold mb-2 ">Created: @Model.StartTime </p>
+                    <p class="text-sm font-semibold mb-2 ">Members: @Model.Members</p>
+                    <p class="text-sm font-semibold mb-2 ">Projects: @Model.Projects</p>
+                    <p class="text-sm font-semibold mb-2 ">Email Organization: @Model.OrganizationEmail</p>
+                    <p class="text-sm font-semibold mb-2 ">Phone Organization: @Model.OrganizationPhoneNumber</p>
+                    <p class="text-sm font-semibold mb-2 ">Address Organization: @Model.OrganizationAddress</p>
+                    <p class="text-sm font-semibold mb-2 ">Description: @Model.OrganizationDescription</p>
+
+                </div>
+                <div class=" flex-1">
+                    <div>
+                        <div class="flex justify-center">
+                            <img src="https://via.placeholder.com/300x200" alt="Organization representation" class="w-1\/2 h-1\/2 object-cover rounded ">
+
+                        </div>
+                        <p class="text-xl font-bold py-5 text-center">Organization OR</p>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <div class="h-25">
+                            @{
+                                bool isJoined = false;
+                                int count = 0;
+
+                                //role is CEO
+                                if (currentUser.Id.Equals(Model.CEO.Id))
+                                {
+                                    <a asp-action="Edit" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <button class="bg-red-500 hover:bg-red-600 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
+                                            Update Information
+                                        </button>
+                                    </a>
+                                }
+
+                                var organizationMember = new OrganizationMember();// save satatus of currentUser
+                                @foreach (var item in Model.OrganizationMember)
+                                {
+                                    if (item.User.Id.Equals(@currentUser.Id))
+                                    {
+                                        isJoined = true;
+                                    organizationMember = item;
+                                    }
+                                }
+
+                                //request join
+                                if (organizationMember.Status == 0)
+                                {
+                                    <div class="flex justify-center my-5">
+                                        <button class="bg-blue-500 hover:bg-blue-900 text-white font-bold w-auto text-sm px-5 py-4 rounded mr-5" type="submit">
+                                            Processing
+                                        </button>
+
+                                     <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
+                                        <button class="bg-red-500 hover:bg-blue-900 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
+                                           Cancel
+                                        </button>
+                                     </form>
+                                    </div>
+                                }
+
+                                //member
+                                if (organizationMember.Status == 1)
+                                {
+                                    <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
+                                        <button class="bg-red-500 hover:bg-red-600 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
+                                            Out Organization
+                                        </button>
+                                    </form>
+                                }
+
+                                //user
+                                if (!isJoined)
+                                {
+                                    <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
+                                        <button class="bg-red-500 hover:bg-red-600 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
+                                            Join Organization
+                                        </button>
+                                    </form>
+                                }
+
+                            }
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <div class="flex-1">
+                    <div>
+                        <img src="@(Model.OrganizationPictures ?? "https://via.placeholder.com/300x200")" alt="Organization representation" class="rounded-box w-full h-64 object-contain">
+                    </div>
+                    <p class="text-xl font-semibold pt-5 text-center">Organization representation image</p>
+                </div>
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+</div>
+
+
+
+<div class="flex justify-center   mt-6">
+    <nav class="flex gap-6">
+       
+        <a asp-action="ManageOrganizationMember" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-blue-500 pb-2 px-5 text-2xl font-medium">Member</a>
+        <a asp-action="ManageOrganizationResource" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-blue-500 pb-2 px-5 text-2xl font-medium">Resources</a>
+        @if (currentUser.Id.Equals(Model.CEO.Id))
+        {
+        <a asp-action="ReviewDonateRequest" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-gray-500 pb-2 px-5 text-2xl font-medium">Request Donate</a>
+        } 
+
+        <a asp-action="ManageOrganizationProject" asp-controller="Organization" class="border-b-2 border-gray-300 border-blue text-gray-500 pb-2 px-5 text-2xl font-medium">Projects</a>
+        <a asp-action="ManageOrganizationTranactionHistory" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-gray-500 pb-2 px-5 text-2xl font-medium">Transaction history</a>
+
+    </nav>
+</div>
+
+ *@

@@ -1,14 +1,66 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\hotaru\\OneDrive - The Creator\\Documents\\Github\\Dynamics\\",
+  "WorkspaceRootPath": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A699A939-4DEF-46AB-8970-6ED0AFF1A542}|Dynamics.csproj|c:\\users\\hotaru\\onedrive - the creator\\documents\\github\\dynamics\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{A699A939-4DEF-46AB-8970-6ED0AFF1A542}|Dynamics.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\shared\\customcomponent\\overviewcard\\organizationoverview.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\shared\\customcomponent\\overviewcard\\organizationoverview.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30059C3-B494-4650-B578-6D38C14953F2}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|c:\\users\\hotaru\\onedrive - the creator\\documents\\github\\dynamics\\dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D30059C3-B494-4650-B578-6D38C14953F2}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\shared\\customcomponent\\_detailorganization.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\shared\\customcomponent\\_detailorganization.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C3C3663F-6303-41B0-BECA-4DABFEB8769C}|Dynamics.Models\\Dynamics.Models.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics.models\\dto\\organizationoverviewdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C3C3663F-6303-41B0-BECA-4DABFEB8769C}|Dynamics.Models\\Dynamics.Models.csproj|solutionrelative:dynamics.models\\dto\\organizationoverviewdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\services\\organizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\organizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\services\\iorganizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\iorganizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\services\\organizationvmservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\organizationvmservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\organization\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\detail.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\organization\\manageorganizationproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\manageorganizationproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\organization\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\project\\addprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\addprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\materials-fpt-cn5\\swp391\\project\\dynamics\\dynamics\\views\\shared\\_layoutorganization.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\shared\\_layoutorganization.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,37 +70,199 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "OrganizationService.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Services\\OrganizationService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\OrganizationService.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Services\\OrganizationService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\OrganizationService.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAAAB8AAAA/AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T07:16:28.484Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "HomeController.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Controllers\\HomeController.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Controllers\\HomeController.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Controllers\\HomeController.cs",
+              "RelativeToolTip": "Dynamics\\Controllers\\HomeController.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAAAEQAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T07:16:07.356Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJwAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T07:15:01.621Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IOrganizationService.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Services\\IOrganizationService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\IOrganizationService.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Services\\IOrganizationService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\IOrganizationService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T07:14:10.401Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "OrganizationOverviewDto.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics.Models\\Dto\\OrganizationOverviewDto.cs",
+              "RelativeDocumentMoniker": "Dynamics.Models\\Dto\\OrganizationOverviewDto.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics.Models\\Dto\\OrganizationOverviewDto.cs",
+              "RelativeToolTip": "Dynamics.Models\\Dto\\OrganizationOverviewDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwBEAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T07:12:44.778Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\hotaru\\OneDrive - The Creator\\Documents\\Github\\Dynamics\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\hotaru\\OneDrive - The Creator\\Documents\\Github\\Dynamics\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABBAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-10-19T18:12:40.756Z",
+              "Title": "OrganizationOverview.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Shared\\CustomComponent\\OverviewCard\\OrganizationOverview.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Shared\\CustomComponent\\OverviewCard\\OrganizationOverview.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Shared\\CustomComponent\\OverviewCard\\OrganizationOverview.cshtml*",
+              "RelativeToolTip": "Dynamics\\Views\\Shared\\CustomComponent\\OverviewCard\\OrganizationOverview.cshtml*",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAGEAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T07:10:47.489Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\hotaru\\OneDrive - The Creator\\Documents\\Github\\Dynamics\\Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\hotaru\\OneDrive - The Creator\\Documents\\Github\\Dynamics\\Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-18T08:50:42.803Z",
+              "Title": "_DetailOrganization.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Shared\\CustomComponent\\_DetailOrganization.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Shared\\CustomComponent\\_DetailOrganization.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Shared\\CustomComponent\\_DetailOrganization.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Shared\\CustomComponent\\_DetailOrganization.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKwAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T07:09:10.718Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Detail.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Organization\\Detail.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\Detail.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Organization\\Detail.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Organization\\Detail.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T07:08:37.66Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "OrganizationVMService.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Services\\OrganizationVMService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\OrganizationVMService.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Services\\OrganizationVMService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\OrganizationVMService.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAAACUAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T06:31:18.47Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Organization\\Edit.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\Edit.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Organization\\Edit.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Organization\\Edit.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFQAAABlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T06:10:01.828Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ManageOrganizationProject.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAAAGcAAABZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T01:29:56.983Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "OrganizationController.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Controllers\\OrganizationController.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Controllers\\OrganizationController.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Controllers\\OrganizationController.cs",
+              "RelativeToolTip": "Dynamics\\Controllers\\OrganizationController.cs",
+              "ViewState": "AgIAAPcAAAAAAAAAAAAAABQBAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T00:17:08.943Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "AddProjectResource.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Project\\AddProjectResource.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\AddProjectResource.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Project\\AddProjectResource.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\AddProjectResource.cshtml",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAAwAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T01:11:02.067Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "_LayoutOrganization.cshtml",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Shared\\_LayoutOrganization.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Shared\\_LayoutOrganization.cshtml",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Views\\Shared\\_LayoutOrganization.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Shared\\_LayoutOrganization.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-10-30T00:18:25.141Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ProjectController.cs",
+              "DocumentMoniker": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Controllers\\ProjectController.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Controllers\\ProjectController.cs",
+              "ToolTip": "D:\\materials-fpt-cn5\\SWP391\\Project\\Dynamics\\Dynamics\\Controllers\\ProjectController.cs",
+              "RelativeToolTip": "Dynamics\\Controllers\\ProjectController.cs",
+              "ViewState": "AgIAAPQFAAAAAAAAAAAAwBcGAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-30T00:17:16.927Z"
             }
           ]
         }

@@ -1,0 +1,470 @@
+﻿@using Dynamics.Utility
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+@model IEnumerable<Dynamics.Models.Models.UserToOrganizationTransactionHistory>
+
+@{
+    ViewData["Title"] = "ReviewDonateRequest";
+    Layout = "_LayoutOrganization";
+    // Layout = "_LayoutOrganization";
+ }
+
+
+<div class="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 text-center">
+                Review Donation Requests
+            </h1>
+            <p class="mt-2 text-center text-gray-600">
+                Manage incoming donation requests from users
+            </p>
+        </div>
+
+        <!-- Request List -->
+        <div class="space-y-4">
+            @{
+                int i = 0;
+            }
+            @foreach (var item in Model)
+            {
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                    <!-- Request Header -->
+                    <div class="p-4 sm:p-6">
+                        <div class="flex items-center justify-between flex-wrap gap-4">
+                            <!-- User Info -->
+                            <div class="flex items-center space-x-4">
+                                <div class="relative">
+                                    <img src="@item.User.UserAvatar" alt="@item.User.UserName"
+                                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
+                                    <span class="absolute -top-2 -right-2 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">
+                                        @(i + 1)
+                                    </span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">@item.User.UserName</h3>
+                                    <p class="text-sm text-gray-500">@item.Time</p>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-3">
+                                <button onclick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()"
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    View Proof
+                                </button>
+
+                                <button onclick="document.getElementById('DenyModal').showModal()"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                    Deny
+                                </button>
+
+                                <button onclick="document.getElementById('AcceptModal').showModal()"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    Accept
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Donation Details -->
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="text-sm text-gray-500">Resource</p>
+                                <p class="font-medium">@item.OrganizationResource.ResourceName</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Unit</p>
+                                <p class="font-medium">@item.OrganizationResource.Unit</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Amount</p>
+                                <p class="font-medium">@item.Amount</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Message</p>
+                                <p class="font-medium">@item.Message</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proof Images Modal -->
+                <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                    <div class="modal-box w-11/12 max-w-5xl bg-white rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900">Proof Images</h2>
+                            <form method="dialog">
+                                <button class="text-gray-400 hover:text-gray-500">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        @{
+                            string[] proofImages = new string[1] { "," };
+                            if (@item.Attachments != null)
+                            {
+                                proofImages = @item.Attachments.TrimEnd(',', ' ').Split(",");
+                            }
+                        }
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            @foreach (var img in proofImages)
+                            {
+                                <div class="aspect-w-1 aspect-h-1">
+                                    <button onclick="openModal('@img','proof_image')" class="w-full h-full">
+                                        <img src="@img" alt="proof-img" class="w-full h-full object-cover rounded-lg hover:opacity-75 transition-opacity duration-200" />
+                                    </button>
+
+                                    <dialog id="proof_image" class="modal">
+                                        <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                            <img id="modalImage" alt="current-proof-img" class=" h-full w-full rounded-xl shadow-md cursor-pointer" />
+                                        </div>
+                                        <form method="dialog" class="modal-backdrop ">
+                                            <button>close</button>
+                                        </form>
+                                    </dialog>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog>
+
+                <!-- Accept Modal -->
+                <dialog id="AcceptModal" class="modal">
+                    <div class="modal-box max-w-2xl bg-white rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900">Accept Request</h2>
+                            <form method="dialog">
+                                <button class="text-gray-400 hover:text-gray-500">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <form id="acceptForm" asp-action="AcceptRquestDonate" asp-controller="Organization" asp-route-transactionId="@item.TransactionID" enctype="multipart/form-data">
+                            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4"></div>
+
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <input name="proofImages" multiple id="dropzone-file" type="file" class="hidden" />
+                                <label for="dropzone-file" class="cursor-pointer">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" />
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-600">
+                                        <span class="font-medium text-blue-600 hover:text-blue-500">Upload files</span> or drag and drop
+                                    </p>
+                                    <p class="mt-1 text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                </label>
+                                <div id="notificationImgMessage" class="mt-2 text-red-500 text-sm" style="display:none;"></div>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    Accept Request
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog>
+
+                <!-- Deny Modal -->
+                <dialog id="DenyModal" class="modal">
+                    <div class="modal-box max-w-2xl bg-white rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900">Deny Request</h2>
+                            <form method="dialog">
+                                <button class="text-gray-400 hover:text-gray-500">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <form id="denyForm" asp-action="DenyRequestDonate" asp-controller="Organization" asp-route-transactionId="@item.TransactionID">
+                            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm mb-4"></div>
+
+                            <div>
+                                <label for="Reason" class="block text-sm font-medium text-gray-700">
+                                    Reason for denial
+                                </label>
+                                <textarea id="Reason"
+                                          name="reason"
+                                          rows="4"
+                                          class="mt-1 block w-full p-2 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                                          placeholder="Please provide a reason for denying this request..."
+                                          required></textarea>
+                            </div>
+
+                            <div class="mt-6 flex justify-end">
+                                <button type="submit"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                    Deny Request
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <form method="dialog" class="modal-backdrop">
+                        <button>close</button>
+                    </form>
+                </dialog>
+                i++;
+            }
+        </div>
+
+         <!-- Empty State -->
+        @if (Model.Count() == 0)
+        {
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No pending donation requests</h3>
+                <p class="mt-1 text-sm text-gray-500">There are no donation requests waiting for review at this time.</p>
+                <p class="mt-1 text-xs text-gray-400">New requests will appear here when users submit donations</p>
+            </div>
+        }
+    </div>
+</div>
+
+
+@* <div class="py-5 pt-12 px-5 flex justify-center">
+    <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
+
+        <h1 class="text-3xl font-semibold mb-10 text-center ">
+            Review user donation request
+        </h1>
+
+        <div class=" flex justify-center mt-10 mb-10">
+             <div class=" px-5 py-3 w-auto">
+                    <ul class="space-y-4">
+
+                        @{int i = 0;}
+                        @foreach (var item in Model)
+                        {
+                            <div class="w-full border rounded-lg  p-4 bg-white shadow-xl rounded-box ">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center space-x-3 mr-5">
+                                        <span class="font-semibold">@(i+1).</span>
+                                    <img src="@item.User.UserAvatar" alt="User avatar" class="w-10 h-10 rounded-full">
+                                        <div class="mx-5">
+                                            <h2 class="font-semibold">@(item.User.UserFullName)</h2>
+                                            <p class="text-sm text-gray-500">@item.Time</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-x-3 mx-5">
+                                       
+                                        <a>
+                                            <button onclick="document.getElementById('DenyModal').showModal()" class="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600">Deny</button>
+                                        </a>
+
+                                       
+                                         <a>
+                                            <button onClick="document.getElementById('AcceptModal').showModal()" class="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600">Accept</button>
+                                        </a>
+
+
+
+                                        <!--   View proof -->
+                                        <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                                        <!-- You can open the modal using ID.showModal() method -->
+                                        <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                            <div class="modal-box w-11/12 max-w-5xl">
+                                                <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                                @{
+                                                    string[] proofImages = new string[1] { "," };
+                                                    if (@item.Attachments != null)
+                                                    {
+                                                        proofImages = @item.Attachments.TrimEnd(',', ' ').Split(",");
+                                                    }
+                                                }
+                                                <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
+                                                    @foreach (var img in proofImages)
+                                                    {
+                                                        <button onclick="openModal('@img','proof_image')">
+                                                            <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer" />
+                                                        </button>
+                                                        <dialog id="proof_image" class="modal">
+                                                            <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                                <img id="modalImage" alt="current-proof-img" class=" h-full w-full rounded-xl shadow-md cursor-pointer" />
+                                                            </div>
+                                                            <form method="dialog" class="modal-backdrop ">
+                                                                <button>close</button>
+                                                            </form>
+                                                        </dialog>
+
+
+                                                    }
+                                                </div>
+
+                                            </div>
+                                            <form method="dialog" class="modal-backdrop">
+                                                <button>close</button>
+                                            </form>
+                                        </dialog>
+
+
+                                        <!--modal of accept-->
+                                        <dialog id="AcceptModal" class="modal">
+                                            <div class="modal-box w-11/12 max-w-5xl">
+                                                <div class="modal-action  flex flex-col">
+                                                    <h2 class=" text-black font-bold text-3xl text-center mb-4">Accept request</h2>
+                                                    <form id="acceptForm" asp-action="AcceptRquestDonate" asp-controller="Organization" asp-route-transactionId="@item.TransactionID" enctype="multipart/form-data">
+                                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                                        <div class="grid grid-cols-1 gap-y-3">
+                                                            <div class="flex items-center justify-center w-full">
+                                                                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50  hover:bg-gray-100 ">
+                                                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                        <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                                                        </svg>
+                                                                        <p class="mb-2 text-sm text-gray-500 "><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                                                        <p class="text-xs text-gray-500 ">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                                                                    </div>
+                                                                    <input name="proofImages" multiple id="dropzone-file" type="file" class="hidden" />
+                                                                    <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
+                                                                    <div id="notificationImgMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="flex justify-center items-center gap-x-6">
+                                                            <button type="submit"
+                                                                    class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                                                Accept
+                                                            </button>
+
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <form method="dialog" class="modal-backdrop">
+                                                <button>close</button>
+                                            </form>
+                                        </dialog>
+
+                                        <!--modal of Deny-->
+                                        <dialog id="DenyModal" class="modal modal-bottom sm:modal-middle">
+                                            <div class="modal-box">
+                                                <div class="modal-action  flex flex-col">
+                                                    <h2 class=" text-black font-bold text-3xl text-center mb-4">Deny request</h2>
+                                                    <form id="denyForm" asp-action="DenyRequestDonate" asp-controller="Organization" asp-route-transactionId="@item.TransactionID">
+                                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                                    
+                                                        <div class="grid grid-cols-1 gap-y-3">
+                                                            <div>
+                                                                <label class="block mb-2 text-md font-medium text-gray-900">Enter reason to deny this request</label>
+                                                                <textarea id="Reason" name="reason" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-white bg-opacity-70 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write reason here..." required></textarea>
+                                                                <span  class="text-danger text-sm font-semibold"></span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="flex justify-center items-center gap-x-6">
+                                                            <button type="submit"
+                                                                    class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                                                Deny
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <form method="dialog" class="modal-backdrop">
+                                                <button>close</button>
+                                            </form>
+                                        </dialog>
+                                        
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 gap-6">
+                                <span class="font-semibold">@(item.OrganizationResource.ResourceName)</span>
+                                    <span>@item.OrganizationResource.Unit</span>
+                                    <span>@item.Amount</span>
+                                    <span class="text-gray-600">send To this Organization: @item.OrganizationResource.Organization.OrganizationName</span>
+                                </div>
+                            </div>
+                            i++;
+                    }
+                    </ul>
+                </div>
+        </div>
+    </div>
+</div> *@
+
+<!-- end container -->
+<script>
+    function openModal(imgSrc, modalid) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById(modalid).showModal();
+    }
+    function toggleDropdown(menuId) {
+        var dropdownMenu = document.getElementById(menuId);
+        dropdownMenu.classList.toggle("hidden");
+        dropdownMenu.classList.toggle("transform");
+        dropdownMenu.classList.toggle("opacity-100");
+        dropdownMenu.classList.toggle("scale-100");
+    }
+
+</script>
+
+<script>
+        //show files have uploaded
+    const maxFiles = 4;
+    // Event listener to update the file name after the file is selected
+    document.getElementById("dropzone-file").addEventListener('change', function () {
+        if (document.getElementById("dropzone-file").files.length > 0) {
+
+            if (document.getElementById("dropzone-file").files.length > maxFiles) {
+                document.getElementById("notificationImgMessage").innerText = "You can only upload a maximum of " + maxFiles + " files.";
+                document.getElementById("notificationImgMessage").style.display = "block";
+                input.value = '';  // Reset the input if the file limit is exceeded
+            } else {
+                document.getElementById("notificationImgMessage").style.display = "none";
+            }
+            var files = document.getElementById("dropzone-file").files;
+            var fileNames = [];
+
+            for (var i = 0; i < files.length; i++) {
+                fileNames.push(files[i].name);
+            }
+            // Join file names with a separator (comma or newline)
+            document.getElementById("fileName").innerText = fileNames.join(', ');
+
+        }
+    });
+    document.querySelector('#acceptForm').addEventListener('submit', function (event) {
+        const attachmentInput = document.getElementById("dropzone-file");
+        const notificationMessage = document.getElementById("notificationImgMessage");
+
+        if (attachmentInput.files.length === 0) {
+            event.preventDefault();  // Prevent form submission if no file is selected
+            notificationMessage.innerText = "Please upload at least one proof image.";
+            notificationMessage.style.display = "block";
+        } else {
+            notificationMessage.style.display = "none";  // Hide the message if files are selected
+        }
+    }); 
+        //modal of proof image
+    function openImageModal(imgSrc) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById('proof_image').showModal();
+    }
+    //drag
+</script>

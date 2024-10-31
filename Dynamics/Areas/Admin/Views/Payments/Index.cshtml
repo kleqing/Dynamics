@@ -341,84 +341,32 @@
                     <!-- end page title -->
 
                     <div class="row">
-                        @foreach (var project in Model.listUserToProject)
+                        @foreach (var transaction in Model.listTransaction)
                         {
-                            <div class="col-md-6 col-xxl-3" data-type="Usertoproject">
+                            <div class="col-md-6 col-xxl-3" data-type="@transaction.Type">
                                 <div class="card d-block">
                                     <div class="card-body">
                                         <h4 class="mt-0">
-                                            <a href="/Admin/Payments/Details/@project.TransactionID?Type=UserToProject" class="text-title">
-                                                Sent by: @project.User.UserName
+                                            <a href="/Admin/Payments/Details/@transaction.TransactionID?Type=@transaction.Type" class="text-title">
+                                                Sent by @transaction.Sender
                                             </a>
                                         </h4>
-                                        <div class="badge bg-primary">User to Project</div>
+                                        <div class="badge bg-@(transaction.Type == "UserToProject" ? "primary" : transaction.Type == "OrganizationToProject" ? "warning" :  transaction.Type == "UserToOrganization" ? "success" : "secondary")">
+                                            @transaction.Type.Replace("To", " to ")
+                                        </div>
                                         <p class="text-muted font-13 my-3 project-description">
-                                            <span class="description-content">Message: @project.Message</span>
+                                            <span class="description-content">Message: @transaction.Message</span>
                                         </p>
                                         <p class="mb-1">
                                             <span class="pe-2 text-nowrap mb-2 d-inline-block">
                                                 <i class="mdi mdi-calendar-clock text-muted"> Send Date:</i>
-                                                <b>@project.Time.ToString("yyyy-MM-dd")</b>
+                                                <b>@transaction.Time.ToString("yyyy-MM-dd")</b>
                                             </span>
                                         </p>
                                     </div> <!-- end card-body -->
                                 </div> <!-- end card -->
-                            </div> <!-- end col -->
-                            <div id="noResults" class="col-12 text-center mt-3" style="display: none;">
-                                <p>No matching records found</p>
                             </div>
-                        }
-                        @foreach(var org in Model.listOrganizationToProject)
-                        {
-                            <div class="col-md-6 col-xxl-3" data-type="Organizationtoproject">
-                                <div class="card d-block">
-                                    <div class="card-body">
-                                        <h4 class="mt-0">
-                                            <a href="/Admin/Payments/Details/@org.TransactionID?Type=OrganizationToProject" class="text-title">
-                                                Sent by: @org.OrganizationResource.Organization.OrganizationName
-                                            </a>
-                                        </h4>
-                                        <div class="badge bg-primary">User to Project</div>
-                                        <p class="text-muted font-13 my-3 project-description">
-                                            <span class="description-content">Message: @org.Message</span>
-                                        </p>
-                                        <p class="mb-1">
-                                                <span class="pe-2 text-nowrap mb-2 d-inline-block">
-                                                    <i class="mdi mdi-calendar-clock text-muted"> Send Date:</i>
-                                                    <b>@org.Time.ToString("yyyy-MM-dd")</b>
-                                                </span>
-                                        </p>
-                                    </div> <!-- end card-body -->
-                                </div> <!-- end card -->
-                            </div> <!-- end col -->
-                            <div id="noResults" class="col-12 text-center mt-3" style="display: none;">
-                                <p>No matching records found</p>
-                            </div>
-                        }
-
-                        @foreach(var org in Model.listUserToOrganization)
-                        {
-                            <div class="col-md-6 col-xxl-3" data-type="Usertoorganization">
-                                <div class="card d-block">
-                                    <div class="card-body">
-                                        <h4 class="mt-0">
-                                            <a href="/Admin/Payments/Details/@org.TransactionID?Type=OrganizationToProject" class="text-title">
-                                                Sent by: @org.OrganizationResource.Organization.OrganizationName
-                                            </a>
-                                        </h4>
-                                        <div class="badge bg-primary">User to Project</div>
-                                        <p class="text-muted font-13 my-3 project-description">
-                                            <span class="description-content">Message: @org.Message</span>
-                                        </p>
-                                        <p class="mb-1">
-                                                <span class="pe-2 text-nowrap mb-2 d-inline-block">
-                                                    <i class="mdi mdi-calendar-clock text-muted"> Send Date:</i>
-                                                    <b>@org.Time.ToString("yyyy-MM-dd")</b>
-                                                </span>
-                                        </p>
-                                    </div> <!-- end card-body -->
-                                </div> <!-- end card -->
-                            </div> <!-- end col -->
+                            <!-- end col -->
                             <div id="noResults" class="col-12 text-center mt-3" style="display: none;">
                                 <p>No matching records found</p>
                             </div>

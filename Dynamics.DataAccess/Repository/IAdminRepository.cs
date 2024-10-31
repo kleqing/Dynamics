@@ -52,7 +52,7 @@ namespace Dynamics.DataAccess.Repository
         Task<bool> BanProject(Guid id);
 
         // 2024-28-10
-        public Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter);
+        Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter);
 
 
         // 2024-10-4
@@ -60,13 +60,21 @@ namespace Dynamics.DataAccess.Repository
         Task<List<Report>> ViewReport();
 
         // 2024-10-27
-        public Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
+        Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
 
-        public Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(
+        Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(
             Expression<Func<OrganizationToProjectHistory, bool>> filter);
         
-        public Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
+        Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
             Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
+
+        Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter);
+
+        Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
+            Expression<Func<OrganizationResource, bool>> filter);
+
+        Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
+            Expression<Func<OrganizationResource, bool>> filter);
 
     }
 }

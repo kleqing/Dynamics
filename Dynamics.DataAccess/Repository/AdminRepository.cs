@@ -352,6 +352,7 @@ namespace Dynamics.DataAccess.Repository
         {
             var list =  await _db.UserToProjectTransactionHistories.Where(filter).Include(u => u.User)
                 .Include(r => r.ProjectResource)
+                .ThenInclude(p => p.Project)
                 .ToListAsync();
             if (list == null)
             {
@@ -374,7 +375,6 @@ namespace Dynamics.DataAccess.Repository
                 return null;
             }
             return list;
-
         }
 
         public async Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
@@ -392,5 +392,38 @@ namespace Dynamics.DataAccess.Repository
 
             return list;
         }
+
+        public async Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter)
+        {
+            return await _db.ProjectResources
+                .Where(filter)
+                .Include(p => p.Project)
+                .Include(up => up.UserToProjectTransactionHistory)
+                .ToListAsync();
+        }
+
+        public async Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
+            Expression<Func<OrganizationResource, bool>> filter)
+        {
+            return await _db.OrganizationResources
+                .Where(filter)
+                .Include(o => o.Organization)
+                .Include(ot => ot.OrganizationToProjectHistory)
+                .ThenInclude(p => p.ProjectResource)
+                .ThenInclude(pr => pr.Project)
+                .ToListAsync();
+        }
+        
+        public async Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
+            Expression<Func<OrganizationResource, bool>> filter)
+        {
+            return await _db.OrganizationResources
+                .Where(filter)
+                .Include(o => o.Organization)
+                .ThenInclude(or => or.OrganizationMember)
+                .ThenInclude(u => u.User)
+                .ToListAsync();
+        }
+        
     }
 }

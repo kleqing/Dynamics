@@ -196,7 +196,6 @@ namespace Dynamics.Controllers
                     ModelState.AddModelError(string.Empty, error.Description);
                     TempData[MyConstants.Error] = error.Description;
                 }
-
                 return RedirectToAction("Account", "User");
             }
 

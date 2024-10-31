@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@using Dynamics.Utility
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Microsoft.IdentityModel.Tokens
 @model Dynamics.Models.Models.ViewModel.UserHistoryViewModel
 @{
@@ -9,7 +10,7 @@
 
 <main class="flex md:p-6 pb-0 flex-1 min-h-screen">
     @* Left *@
-    @Html.Partial("CustomComponent/_UserSidebar", "History")
+    @await Html.PartialAsync("CustomComponent/_UserSidebar", "History")
     <div class="divider divider-horizontal"></div>
     @* Right *@
     <div class="w-full flex flex-col gap-6 items-center py-4 rounded-md shadow-md">
@@ -23,15 +24,14 @@
                 </div>
             </div>
         </nav>
-        <section class="py-8 px-16 w-full">
+        <section class="w-full max-w-screen-lg mx-auto">
             <div class="w-full">
                 <h1 class="text-3xl font-bold text-start">Succeeded donations</h1>
                 <h2 class="text-neutral text-start">View your past successful donations</h2>
             </div>
-            <!-- Right search bar -->
-            
+            <!-- Left search bar -->
             <form class="flex w-full justify-start items-center gap-2 my-4" id="searchForm" method="get" asp-action="History">
-                @* Hidden pagination inputs *@
+                @* Hidden pagination inputs so that when a filter and pagination go along together, the  *@
                 <input type="hidden" value="@Model.PaginationRequestDto.PageNumber" name="PageNumber"/>
                 <input type="hidden" value="@Model.PaginationRequestDto.PageSize" name="PageSize"/>
                 <input type="hidden" value="@Model.PaginationRequestDto.TotalPages" name="TotalPage"/>
@@ -55,40 +55,44 @@
                     </div>
                     <select class="select select-bordered join-item bg-white" name="Filter">
                         @{
-                            // Default
-                            if (string.IsNullOrEmpty(Model.SearchRequestDto.Filter))
+                            // Check if user already has filter before
+                            bool isFilteredBefore = !string.IsNullOrEmpty(Model.SearchRequestDto.Filter);
+                            foreach (var filterOptions in Model.FilterOptions)
                             {
-                                <option selected value="Filter">Filter</option>
-                                <option>Money</option>
-                                <option>Resource</option>
-                                <option>Organization</option>
-                                <option>Project</option>
-                            }
-                            else
-                            {
-                                // Keep the old filter back
-                                foreach (var modelFilterOption in Model.FilterOptions)
+                                if (filterOptions.Key.Equals(SearchOptionsConstants.Filter, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (modelFilterOption.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                                    // If there is no selected filter before, we make the Filter option selected and disabled
+                                    if (!isFilteredBefore)
                                     {
-                                        <option selected>@modelFilterOption</option>
+                                        <option value="@filterOptions.Value" selected disabled>@filterOptions.Key</option>
                                     }
                                     else
                                     {
-                                        <option>@modelFilterOption</option>
+                                        <option value="@filterOptions.Value" disabled>@filterOptions.Key</option>
+                                    }
+                                }
+                                else
+                                {
+                                    // If a filter exist, select that filter automatically
+                                    if (isFilteredBefore && filterOptions.Value.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@filterOptions.Value"> @filterOptions.Key</option>
                                     }
                                 }
                             }
                         }
                     </select>
                     <input name="DateFrom" type="date" placeholder="From date" class="input input-bordered join-item bg-white"
-                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")" />
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
                     <input name="DateTo" type="date" placeholder="To date" class="input input-bordered join-item bg-white rounded-md"
-                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")" />
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
                 </div>
                 <button class="btn btn-primary">Search</button>
             </form>
-            <span id="searchValidation" class="text-error"></span>
             <!-- End right search bar -->
             <!-- List of activity -->
             <ul class="flex flex-col gap-2 w-full">
@@ -119,24 +123,24 @@
                                     {
                                         <tr class="hover:bg-slate-50 border-b border-slate-200">
                                             <!-- User date | Message | Target | resource | type -->
-                                            <th class="text-xl">@count</th>
+                                            <th>@count</th>
                                             <td>
-                                                <p class="text-xl">@Html.DisplayFor(m => transaction.Time)</p>
+                                                <p>@Html.DisplayFor(m => transaction.Time)</p>
                                             </td>
                                             <td>
-                                                <p class="text-xl">
+                                                <p>
                                                     @(transaction.Message ?? "No message")
                                                 </p>
                                             </td>
                                             <td>
-                                                <p class="text-xl">
+                                                <p>
                                                     @transaction.Name
                                                 </p>
                                             </td>
-                                            <td class="text-xl">
-                                                <p class="text-success">@transaction.Amount @transaction.Unit</p>
+                                            <td>
+                                                <p>@transaction.Amount @transaction.Unit</p>
                                             </td>
-                                            <td class="text-xl">
+                                            <td>
                                                 <!-- Type of donation -->
                                                 @if (transaction.ResourceName.Equals("money", StringComparison.OrdinalIgnoreCase))
                                                 {
@@ -163,25 +167,31 @@
 </main>
 <script>
     let searchForm = document.getElementById('searchForm');
-    if (searchForm == null) alert('Cannot find search form');
+    let dateFrom = null;
+    let dateTo = null;
+    if (searchForm == null) console.log('Cannot find search form');
+    else {
+        dateFrom = searchForm.querySelector('input[name="DateFrom"]');
+        dateTo = searchForm.querySelector('input[name="DateTo"]');
+    }
     // Setting the dates dynamically
-    const dateFrom = searchForm.querySelector('input[name="DateFrom"]');
-    const dateTo = searchForm.querySelector('input[name="DateTo"]');
-    
-    dateFrom.addEventListener('change', (e) => {
-        let dateFromValue = dateFrom.value;
-        if (dateFromValue) {
-            dateTo.min = dateFromValue;
-        } else {
-            dateTo.removeAttribute('min'); // If date from is cleared, cleared the date to as well
-        }
-    })
-    dateTo.addEventListener('change', function() {
-        const dateToValue = dateTo.value;
-        if (dateToValue) {
-            dateFrom.max = dateToValue;
-        } else {
-            dateFrom.removeAttribute('max');
-        }
-    });
+
+    if (dateFrom != null && dateTo != null) {
+        dateFrom.addEventListener('change', (e) => {
+            let dateFromValue = dateFrom.value;
+            if (dateFromValue) {
+                dateTo.min = dateFromValue;
+            } else {
+                dateTo.removeAttribute('min'); // If date from is cleared, cleared the date to as well
+            }
+        })
+        dateTo.addEventListener('change', function() {
+            const dateToValue = dateTo.value;
+            if (dateToValue) {
+                dateFrom.max = dateToValue;
+            } else {
+                dateFrom.removeAttribute('max');
+            }
+        });
+    }
 </script>

@@ -89,7 +89,7 @@
                     <div class="flex items-center gap-4">
                         <span class="text-gray-400 font-medium">1</span>
                         <div class="relative">
-                            <a asp-action ="Index" asp-controller="User" asp-route-id="@Model.CEO.UserName">
+                            <a asp-action ="Index" asp-controller="User" asp-route-username="@Model.CEO.UserName">
                                 <img src ="@(Model.CEO.UserAvatar ?? "https://via.placeholder.com/32") " alt="@Model.CEO.UserName"
                                      class="w-12 h-12 rounded-full object-cover border-2 border-blue-500">
                             </a>

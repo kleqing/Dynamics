@@ -806,13 +806,13 @@ namespace Dynamics.Controllers
             var moneyResource = await _projectResourceRepo.GetAsync(pr =>
                 pr.ResourceName.ToLower().Equals("money") && pr.ProjectID.Equals(projectID));
             if (moneyResource == null) throw new Exception("warning: PROJECT DOES NOT HAVE MONEY RESOURCE");
-            sendDonateRequestVM.VnPayRequestDto = new VnPayRequestDto
+            sendDonateRequestVM.PayRequestDto = new PayRequestDto
             {
                 TargetId = projectID,
                 TargetType = MyConstants.Project,
                 ResourceID = moneyResource.ResourceID,
             };
-            // Last but not least, setup a return url:
+            // Last but not least, set up a return url:
             var url = Url.Action("ManageProject", "Project", new { id = projectID }, Request.Scheme);
             ViewBag.returnUrl = url ?? "~/";
             return View(sendDonateRequestVM);

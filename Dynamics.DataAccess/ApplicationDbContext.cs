@@ -31,7 +31,8 @@ namespace Dynamics.DataAccess
         public virtual DbSet<Request> Requests { get; set; }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
-
+        public virtual DbSet<Wallet> Wallets { get; set; }
+        public virtual DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Enable sensitive data logging
@@ -64,9 +65,22 @@ namespace Dynamics.DataAccess
             modelBuilder.Entity<History>().HasKey(r => r.HistoryID);
             modelBuilder.Entity<Notification>().HasKey(n => n.NotificationID);
             modelBuilder.Entity<User>().HasKey(u => u.Id);
-
+            modelBuilder.Entity<Wallet>().HasKey(w => w.WalletId);
+            modelBuilder.Entity<UserWalletTransaction>().HasKey(uwt => uwt.TransactionId);
             // Relationships (Foreign Keys)
 
+            // User to wallet: A user has a wallet
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Wallet)
+                .WithOne(w => w.User)
+                .HasForeignKey<Wallet>(w => w.UserId);
+            
+            // Wallet to UserWalletTransaction: Each wallet has multiple transaction
+            modelBuilder.Entity<Wallet>()
+                .HasMany(w => w.WalletTransactions)
+                .WithOne(w => w.Wallet)
+                .HasForeignKey(uwt => uwt.WalletId);
+            
             // Report to User: one user can have many reports
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reporter)

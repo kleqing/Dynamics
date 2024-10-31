@@ -12,11 +12,10 @@ namespace Dynamics.DataAccess.Repository
         private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
 
-        public AdminRepository(ApplicationDbContext db, UserManager<User> userManager
-        , IUserRepository userRepository)
+        public AdminRepository(ApplicationDbContext db, UserManager<User> userManager, IUserRepository userRepository)
         {
             _db = db;
-            this._userManager = userManager;
+            _userManager = userManager;
             _userRepository = userRepository;
         }
 

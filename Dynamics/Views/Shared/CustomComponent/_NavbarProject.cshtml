@@ -28,13 +28,12 @@
     <div class="absolute inset-0 bg-cover bg-center filter blur-sm" style="background-image: url('@projectFirstImage');background-size: cover; background-position: center;"></div>
 
     <!-- Div chứa nội dung không bị mờ -->
-    <div class="flex-col relative z-10 text-center">
+    <div class="flex flex-col relative z-10 text-center p-6 gap-4 bg-white w-full max-w-screen-md">
         @* remind: inject to take project name, organization name *@
-        <h2 class="text-black font-bold text-6xl">@currentProject?.ProjectName</h2>
+        <h2 class="text-black font-bold text-4xl">@currentProject?.ProjectName</h2>
         <h4 class="font-mona-sans text-gray-700 font-semibold text-3xl">By @currentProject?.Organization.OrganizationName</h4>
     </div>
 </div>
-
 
 
 <!-- end banner project -->

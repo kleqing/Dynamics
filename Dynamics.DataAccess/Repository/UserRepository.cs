@@ -122,7 +122,7 @@ namespace Dynamics.DataAccess.Repository
             existingItem.UserAddress = user.UserAddress;
             existingItem.UserDOB = user.UserDOB;
             existingItem.UserDescription = user.UserDescription;
-
+            existingItem.UserAvatar = user.UserAvatar;
             // Only update the property that has the same name between 2 models
             //_db.Entry(existingItem).CurrentValues.SetValues(user);
             //await _userManager.UpdateAsync(existingItem);

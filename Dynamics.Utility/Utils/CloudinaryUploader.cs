@@ -47,7 +47,6 @@ public class CloudinaryUploader
     public async Task<string> UploadMultiImagesAsync(List<IFormFile> files, bool? checkValid = true)
     {
         if (checkValid == true && files.Count == 0) return "No file";
-
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp",".svg" };
         List<string> result = new List<string>();
         foreach (var file in files)

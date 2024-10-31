@@ -36,6 +36,8 @@ namespace Dynamics.Models.Models
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         [NotMapped]
         public int ProjectCount { get; set; }
+        
+        public Guid WalletId { get; set; } = Guid.Empty;
         [ValidateNever]
         // Self-referencing relationships for reports
         public virtual ICollection<Report> ReportsMade { get; set; }
@@ -46,5 +48,6 @@ namespace Dynamics.Models.Models
         public virtual ICollection<UserToOrganizationTransactionHistory> UserToOrganizationTransactionHistories { get; set; }
         public virtual ICollection<UserToProjectTransactionHistory> UserToProjectTransactionHistories { get; set; }
         public virtual ICollection<Notification> Notifications { get; set; }
+        public virtual Wallet Wallet { get; set; }
     }
 }

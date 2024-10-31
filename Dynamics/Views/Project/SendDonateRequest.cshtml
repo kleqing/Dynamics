@@ -21,56 +21,64 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
+
     var organizationUserLead = await OrganizationRepository.GetOrganizationUserLead(currentUser.Id);
     var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(currentUser.Id));
     var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
     var leader = await UserRepository.GetAsync(x => x.Id == new Guid(currentProjectLeaderID));
 }
 <!-- Donate by money -->
-<section class="md:px-32 my-16">
+<section class="my-16 w-full max-w-screen-md mx-auto relative">
+    <a asp-action="ManageProject" asp-controller="Project" asp-route-id="@currentProjectID" title="Turn back to donors detail">
+        <button class="flex absolute top-2 right-0 items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+            Previous Page
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+                <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </a>
     <h2 class="text-center font-bold text-2xl mb-6">Donate by money</h2>
-    <form asp-action="Pay" asp-controller="Payment" method="post" class="donateMoneyForm flex md:gap-32 gap-16">
-        <input type="hidden" name="TargetType" value="@Model.VnPayRequestDto.TargetType"/>
-        <input type="hidden" name="ResourceID" value="@Model.VnPayRequestDto.ResourceID"/>
-        <input type="hidden" name="TargetId" value="@Model.VnPayRequestDto.TargetId"/>
+    <span class="text-neutral text-center max-w-md mx-auto block">Money from your <a class="link link-primary" asp-action="Index" asp-controller="Wallet">Dynamics wallet</a> will be spent first. If you don't have enough, you will be redirected to top up page.</span>
+    <form id="donateByMoneyForm" asp-action="SpendDynamicsMoney" asp-controller="Wallet" method="post" class="donateMoneyForm w-full flex flex-col justify-center items-center gap-8">
+        <input type="hidden" name="TargetType" value="@Model.PayRequestDto.TargetType"/>
+        <input type="hidden" name="ResourceID" value="@Model.PayRequestDto.ResourceID"/>
+        <input type="hidden" name="TargetId" value="@Model.PayRequestDto.TargetId"/>
         <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
-        <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
+        <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl"/>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <!-- Inputs -->
         @if (Model.TypeDonor.Equals("User"))
         {
-            <div class="flex-1">
+            <div class="w-full">
                 <!-- Money amount -->
                 <label Name="Amount" class="form-control w-full">
-                    <span class="label label-text text-lg">Enter money amount (Unit here)</span>
+                    <span class="label label-text text-lg">Enter your donation</span>
                     <input Name="Amount" type="number"
                            placeholder="Enter money amount"
-                           class="input input-bordered w-full" min="1"/>
-
+                           class="input input-bordered w-full" min="6000" max="20000000" required/>
                 </label>
                 <!-- Message (maybe limit them ?) -->
                 <label Name="Message" class="form-control w-full">
                     <span class="label label-text text-lg">Leave a message (optional)</span>
-                    <textarea Name="Message" placeholder="Enter message"
-                              class="textarea textarea-bordered textarea-md w-full"></textarea>
-
+                    <textarea Name="Message" placeholder="Enter message" id="donationMsg"
+                              class="textarea textarea-bordered textarea-md w-full" maxlength="500"></textarea>
                 </label>
             </div>
         }
         @if (Model.TypeDonor.Equals("Organization"))
         {
             @* REMIND *@
-            <div class="flex-1">
+            <div class="w-full">
                 <h2 class="w-full max-w-md font-semibold text-blue-600 text-lg"> You are donate as @(organizationUserLead != null ? organizationUserLead.OrganizationName : "Your Organization")</h2>
                 <input type="hidden" Name="FromID"/>
 
                 <!-- Money amount -->
                 <label Name="Amount" class="form-control w-full">
-                    <span class="label label-text text-lg">Enter money amount (Unit here)</span>
+                    <span class="label label-text text-lg">Enter money amount</span>
                     <input Name="Amount" type="number"
                            placeholder="Enter money Amount"
-                           class="input input-bordered w-full" min="1"/>
-                    <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 1</span>
+                           class="input input-bordered w-full" min="5000" required/>
+                    <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 5000</span>
                 </label>
                 <!-- Message (maybe limit them ?) -->
                 <label Name="Message" class="form-control w-full">
@@ -83,7 +91,7 @@
         }
 
         <!-- Buttons -->
-        <div class="flex-1 flex flex-col gap-4 justify-center">
+        <div class="flex-1 flex flex-col gap-4 justify-center items-center">
             <!-- Button for CEO -->
             <!--if userid is ceoid of a organization[check status of userid in organmember ==2], if yes show the button-->
             @*       @if (statusProjectMemberOfUser >= 2)
@@ -100,109 +108,206 @@
                 </div>
             }      *@
             <!-- Other button -->
-            <button type="submit" class="btn btn-success bg-blue-700 text-white w-full font-bold text-lg outline-none border-0">Confirm payment</button>
-            <a asp-action="ManageProject" asp-route-id="@currentProjectID">
-                <button type="button" class="btn bg-base-200 hover:bg-base-300 font-bold text-lg">
-                    Back to project &larr;
-                </button>
-            </a>
+            <button type="submit" class="btn btn-success" id="donateByMoneyBtn" style="min-width: 150px;">Confirm donation</button>
+
+            @* Modal if user has enough money *@
+            <dialog id="confirmDonationModal" class="modal">
+                <input type="hidden" value="@currentUser.Id" id="userId"/>
+                <div class="modal-box text-black w-full max-w-screen-md">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <h3 class="text-lg font-bold">Confirm your donation</h3>
+                    <div class="py-4">
+                        <p class="text-success balance">Your current balance: <span></span> VND</p>
+                        <p class="text-error after">Your balance after donation: <span></span> VND</p>
+                        <p class="mt-4">Thank you for your generosity! By confirming your donation, you are making a positive impact.</p>
+                        <p class="mt-2 donAmount">Would you like to proceed with your donation of <strong class="text-success"><span></span> VND</strong>?</p>
+
+                        <form method="post" id="confirmPayment" asp-action="SpendDynamicsMoney" asp-controller="Wallet">
+                            <input type="hidden" name="amount"/>
+                            <input type="hidden" name="returnUrl" value="@Url.Action("ManageProject", "Project", new { id = currentProjectID }, Accessor.HttpContext.Request.Scheme)"/>
+                        </form>
+                    </div>
+                    <div class="modal-action">
+                        <button class="btn btn-primary" id="confirmDonationBtn">Confirm payment</button>
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <button class="btn">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
+            @* Modal if user does not have enough money *@
+            <dialog id="needMoreMoneyModal" class="modal">
+                <div class="modal-box text-black w-full max-w-screen-md">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <h3 class="text-lg font-bold">You are almost there!</h3>
+                    <div class="py-4">
+                        <p class="text-error donAmount">Donation amount: <span></span> VND</p>
+                        <p class="text-error needed">Just <span></span> VND are needed to support this project!</p>
+                        <p class="text-xs text-neutral mb-2">Minimum of 10000*</p>
+                        <p class="text-success balance">Your current balance: <span></span> VND</p>
+                        <p class="mt-4">Would you like to top up now and complete your donation?</p>
+                        <form method="post" id="confirmTopup" asp-action="TopUpAndPay" asp-controller="Wallet">
+                            <input name="amount" value="10000" type="hidden"/>
+                            <input type="hidden" name="returnUrl" value="@Url.Action("ManageProject", "Project", new { id = currentProjectID }, Accessor.HttpContext.Request.Scheme)"/>
+                            <input type="hidden" name="TargetType" value="@Model.PayRequestDto.TargetType"/>
+                            <input type="hidden" name="ResourceID" value="@Model.PayRequestDto.ResourceID"/>
+                            <input type="hidden" name="TargetId" value="@Model.PayRequestDto.TargetId"/>
+                            <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
+                            <input type="hidden" name="Message"/>
+                            <input type="hidden" name="payAmount" />
+                        </form>
+                    </div>
+                    <div class="modal-action">
+                        <button class="btn btn-primary" id="cfmBtn">Top up and donate</button>
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <button class="btn">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
         </div>
     </form>
 </section>
 
 <!-- ----------------------------------------------------------------------------Donate by resource ----------------------------------------->
-<section class="md:px-32 mb-16">
+<section class="mb-16 w-full max-w-screen-md mx-auto">
     <h2 class="text-center font-bold text-2xl mb-6">Donate by resource</h2>
-    <!-- upload excel file-->
-    <div class="flex gap-x-6 justify-center">
-        <div>
-            <a asp-action="ExportProjectExcel" asp-controller="ExcelExport">
-                <button type="submit" class="btn btn-primary">Export Excel</button>
-            </a>
-        </div>
-        <div>
-            <form id="donateResourceByImport" asp-action="UploadProjectExcel" asp-controller="ExcelReader" enctype="multipart/form-data">
-                <div class="flex gap-x-6">
-                    <label class="form-control">
-                        <input id="file-upload" type="file" name="file" class="file-input file-input-bordered w-full max-w-xs">
+    <div class="flex justify-center min-h-96 w-full">
+        @* Donation by excel *@
+        <div class="flex flex-col flex-1 p-6 rounded-md shadow-lg">
+            <div class="mb-6">
+                <h3 class="font-medium text-center text-xl min-h-14">Register multiple donations by Excel</h3>
+                <span class="label label-text text-neutral">If you donate multiple resources at once, download the Excel file, modify it and re-submit back to the web.</span>
+            </div>
+            <div class="mb-4">
+                <p class="mb-2 label label-text">1. Download project Excel template</p>
+                <div class="w-full flex">
+                    <a asp-action="ExportProjectExcel" asp-controller="ExcelExport" class="btn btn-primary btn-sm mx-auto">
+                        <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01"/>
+                        </svg>
+                        <button type="submit">Download Excel</button>
+                    </a>
+                </div>
+            </div>
+            <form id="donateResourceByImport" asp-action="UploadProjectExcel" asp-controller="ExcelReader" enctype="multipart/form-data" class="flex flex-col h-full flex-1">
+                <div class="flex-1">
+                    <label class="form-control mb-4">
+                        <p class="mb-2 label label-text">2. Upload your Excel file after modified here</p>
+                        <label class="flex justify-center w-full" for="file-upload">
+                            <div class="btn btn-primary btn-sm">
+                                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01"/>
+                                </svg>
+                                <span>Upload Excel file</span>
+                            </div>
+                        </label>
+                        <input id="file-upload" type="file" name="file" placeholder="Upload Excel file" style="display: none">
+                        <span class="text-neutral text-center" id="excelFileName"></span>
                         <div id="notificationExcelMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
                     </label>
-                    <div class="flex flex-col">
-                        <div class="flex justify-start items-center">
-                            <input multiple asp-for="@Model.UserDonate.Attachments" type="file" name="images" id="AttachmentFirst" style="display:none;" />
-                            <button id="button" type="button" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
-                                p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white bg-blue-800" onclick="thisFileUploadFirst();"
-                                    title="These images are used to help the project leader make sure you have actually sent the donation..">
-                                Upload proof images
-                            </button>
+                    <div class="flex flex-col mb-4">
+                        <p class="mb-2 label label-text">3. Upload proof images</p>
+                        <div class="mb-4 w-full">
+                            <div class="w-full flex justify-center">
+                                <label class="btn btn-primary btn-sm" for="AttachmentFirst" title="These images are used to help the project leader make sure you have actually sent the donation..">
+                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M16 18H8l2.5-6 2 4 1.5-2 2 4Zm-1-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 18h8l-2-4-1.5 2-2-4L8 18Zm7-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                                    </svg>
+                                    Upload images
+                                </label>
+                                <input multiple asp-for="@Model.UserDonate.Attachments" type="file" name="images" id="AttachmentFirst" style="display:none;"/>
+                            </div>
+
+                            <span id="notificationImgMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
                         </div>
                         <!-- Image file name will be shown here -->
-                        <span id="fileNameFirst" class="text-gray-600 text-sm mt-2"></span>
-                        <span id="notificationImgMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
+                        <div id="imageContainer" class="flex flex-wrap gap-2 flex-1"></div>
                     </div>
+                </div>
+                <div class="w-full flex justify-center">
                     <button type="submit"
-                            class="items-start text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
+                            class="btn btn-success mx-auto">
                         Confirm
                     </button>
                 </div>
+            </form>
+        </div>
+        <!-- upload excel file-->
+        <div class="divider divider-horizontal">OR</div>
+        <div class="flex flex-col flex-1 p-6 rounded-md shadow-lg gap-2">
+            <div>
+                <h3 class="font-medium text-center text-xl min-h-14">Register single donation</h3>
+                <span class="label label-text text-neutral">Register a single resource donation request</span>
+            </div>
 
+            <form enctype="multipart/form-data" method="post" id="donateResourceForm" asp-action="SendDonateRequest" class="flex flex-col gap-2">
+                <div class="flex-1">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID"/>
+                    @if (Model.TypeDonor.Equals("User"))
+                    {
+                        <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.Id"/>
+                        <input type="hidden" asp-for="@Model.TypeDonor" value="User"/>
+                        <div class="form-control w-full max-w-md">
+                            <label asp-for="@Model.UserDonate.ProjectResourceID" class="label label-text">Select a resource</label>
+                            <select asp-for="@Model.UserDonate.ProjectResourceID"
+                                    class="select select-bordered w-full"
+                                    asp-items="@(ViewData["ResourceTypeList"] as ICollection<SelectListItem>)">
+                                <option required disabled selected class="text-center">Select Resource Type</option>
+                            </select>
+                            <span asp-validation-for="@Model.UserDonate.ProjectResourceID" class="text-danger text-red-500 text-sm font-semibold"></span>
+                        </div>
+                        <!-- Enter amount -->
+                        <label asp-for="@Model.UserDonate.Amount" class="form-control w-full max-w-md">
+                            <span class="label label-text">Enter amount</span>
+                            <input id="Amount" asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="5000" required/>
+                            <span asp-validation-for="@Model.UserDonate.Amount" class="text-danger text-red-500 text-sm font-semibold"></span>
+                        </label>
+                        <label asp-for="@Model.UserDonate.Message" class="form-control w-full max-w-md">
+                            <span class="label label-text">Leave a message (optional)</span>
+                            <textarea asp-for="@Model.UserDonate.Message" placeholder="Enter message"
+                              class="textarea textarea-bordered textarea-md w-full"></textarea>
+                        </label>
+                        <div class="flex flex-col mb-4 w-full justify-center gap-2">
+                            <span class="label label-text">Upload proof images</span>
+                            <div class="flex justify-center items-center">
+                                <label class="btn btn-primary btn-sm" for="AttachmentSecond"
+                                       title="These images are used to help the project leader make sure you have actually sent the donation..">
+                                    <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M16 18H8l2.5-6 2 4 1.5-2 2 4Zm-1-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1ZM8 18h8l-2-4-1.5 2-2-4L8 18Zm7-8.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0Z"/>
+                                    </svg>
+                                    Upload images
+                                </label>
+                                <input multiple asp-for="@Model.UserDonate.Attachments" type="file" name="images" id="AttachmentSecond" style="display:none;"/>
+                            </div>
+                            <!-- Image file name will be shown here -->
+                            @* <span id="fileNameSecond" class="text-gray-600 text-sm mt-2" style="display:none;"></span> *@
+                            <span id="notificationImgMessageSecond" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
+                            <div id="imageContainer2" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    }
+                </div>
+                <div class="flex justify-center w-full">
+                    <button type="submit" class="btn btn-success">Confirm</button>
+                </div>
             </form>
         </div>
     </div>
-    <span class=" flex justify-center label label-text text-">If you donate multiple resources at once, download the excel and enter it into the web.</span>
-
-    <!-- Step 1 -->
-    <form enctype="multipart/form-data" method="post" id="donateResourceForm" asp-action="SendDonateRequest" class=" flex flex-col justify-center items-center gap-4 mb-8">
-        <h3 class="text-center font-bold text-xl">1. Register a donation request</h3>
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID"/>
-        @if (Model.TypeDonor.Equals("User"))
-        {
-            <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.Id"/>
-            <input type="hidden" asp-for="@Model.TypeDonor" value="User"/>
-            <div class="form-control w-full max-w-md">
-                <label asp-for="@Model.UserDonate.ProjectResourceID" class="block mb-2 text-lg font-medium text-gray-900">Select a resource </label>
-                <select asp-for="@Model.UserDonate.ProjectResourceID"
-                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        asp-items="@(ViewData["ResourceTypeList"] as ICollection<SelectListItem>)">
-                    <option required disabled selected>---Select Resource Type---</option>
-                </select>
-                <span asp-validation-for="@Model.UserDonate.ProjectResourceID" class="text-danger text-red-500 text-sm font-semibold"></span>
-            </div>
-
-            <!-- Enter amount -->
-            <label asp-for="@Model.UserDonate.Amount" class="form-control w-full max-w-md">
-                <span class="label label-text text-lg font-medium">Enter amount</span>
-                <input id="Amount" asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="1"/>
-                <span asp-validation-for="@Model.UserDonate.Amount" class="text-danger text-red-500 text-sm font-semibold"></span>
-        </label>
-            <label asp-for="@Model.UserDonate.Message" class="form-control w-full max-w-md">
-                <span class="label label-text text-lg">Leave a message (optional)</span>
-                <textarea asp-for="@Model.UserDonate.Message" placeholder="Enter message"
-                          class="textarea textarea-bordered textarea-md w-full"></textarea>             
-            </label>
-            <div class="flex flex-col mt-4 form-control w-full max-w-md">
-                <div class="flex justify-start items-center">
-                    <label asp-for="@Model.UserDonate.Attachments" class="block mb-2 text-md font-medium text-gray-900 pr-4">Upload proof images</label>
-                    <input multiple asp-for="@Model.UserDonate.Attachments" type="file" name="images" id="AttachmentSecond" style="display:none;" />
-                    <button id="button" type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
-                    p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white bg-blue-800" onclick="thisFileUploadSecond();"
-                            title="These images are used to help the project leader make sure you have actually sent the donation.">
-                        Choose images
-                    </button>
-                </div>
-                <!-- Image file name will be shown here -->
-                <span id="fileNameSecond" class="text-gray-600 text-sm mt-2" style="display:none;"></span>
-                <span id="notificationImgMessageSecond" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
-            </div>
-        }
-        <button type="submit" class="btn btn-primary bg-blue-700 text-white font-bold">Confirm</button>
-    </form>
 
     <!-- Step 2 -->
-    <div class="flex flex-col justify-center items-center gap-4 mb-8">
+    <div class="flex flex-col justify-center items-center gap-4 my-8">
+        <h1 class="text-center font-bold text-2xl">Things to do after donation</h1>
         <h3 class="text-center font-bold text-xl">
-            2. Contact with the leader of the project to discuss further
+            1. Send your resource(s) and then contact with the leader of the project to confirm.
         </h3>
         <div>
             <!-- If you already have this script at layout, you won't need it here. It is for displaying the icons -->
@@ -222,7 +327,7 @@
     <!-- Step 3 -->
     <!-- Either show user a button to redirect to user history page or just use the table below -->
     <div class="flex flex-col justify-center items-center gap-4">
-        <h3 class="text-center font-bold text-xl">3. Keep track of your donation at ...</h3>
+        <h3 class="text-center font-bold text-xl">2. Keep track of your donation here or at <a class="link link-primary" asp-action="RequestsStatus" asp-controller="User">request status page</a></h3>
         <!-- Table -->
         <div class="overflow-x-auto">
             <table class="table">
@@ -235,39 +340,65 @@
                 </tr>
                 </thead>
                 <tbody>
-          @if (Model.TypeDonor.Equals("User"))
-        {
-            for(int i = 0; i < Model.UserTransactionHistory?.Count();i++){
-                var item  = Model.UserTransactionHistory.ElementAt(i);
-                            <tr>
-                                <th>@(i+1)</th>
-                                <td>@item.ProjectResource?.ResourceName</td>
-                                <td>@item.Amount</td>
-                                <td>
-                                    @if (item.Status == 1)
-                                    {
-                                        <div class="badge badge-success min-w-24">Accepted</div>
-                                    }
-                                    else{
-                                         <div class="badge badge-error min-w-24">Pending</div>
-                                        }
-                                </td>
-                            </tr>
-                        }
-                        <!-- row 1 -->
+                @if (Model.TypeDonor.Equals("User"))
+                {
+                    for (int i = 0; i < Model.UserTransactionHistory?.Count(); i++)
+                    {
+                        var item = Model.UserTransactionHistory.ElementAt(i);
+                        <tr>
+                            <th>@(i + 1)</th>
+                            <td>@item.ProjectResource?.ResourceName</td>
+                            <td>@item.Amount</td>
+                            <td>
+                                @if (item.Status == 1)
+                                {
+                                    <div class="badge badge-success min-w-24">Accepted</div>
+                                }
+                                else
+                                {
+                                    <div class="badge badge-error min-w-24">Pending</div>
+                                }
+                            </td>
+                        </tr>
                     }
+
+                    <!-- row 1 -->
+                }
                 </tbody>
             </table>
         </div>
         <!-- End table -->
-        <button class="btn btn-primary">Click me</button>
     </div>
 </section>
+@* Check money script *@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="~/js/CheckForDonateMoneyFromWallet.js"></script>
 <script>
-    //-------------upload images for import file---------------
-    function thisFileUploadFirst() {
-        document.getElementById("AttachmentFirst").click();
-    };
+    document.getElementById("AttachmentFirst").addEventListener("change", e => handleFileUpload(e, "imageContainer"));
+    document.getElementById('AttachmentSecond').addEventListener('change', e => handleFileUpload(e, "imageContainer2"));
+    
+    function handleFileUpload(event, displayId) {
+        console.log(displayId);
+        const files = event.target.files;
+        const imageContainer = document.getElementById(displayId);
+        // Clear existing images
+        imageContainer.innerHTML = "";
+
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Create a new img element
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.className = "w-24 rounded object-cover h-24";
+                    // Append the image to the container
+                    imageContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }    
     const maxFiles = 4;
     // Event listener to update the file name after the file is selected
     document.getElementById("AttachmentFirst").addEventListener('change', function () {
@@ -286,17 +417,22 @@
                 notificationMessage.style.display = "none";
                 // Display the names of selected files
                 const fileNames = Array.from(attachmentInput.files).map(file => file.name);
-                fileNameDisplay.innerText = fileNames.join(', ');
+                // fileNameDisplay.innerText = fileNames.join(', ');
             }
         }
     });
+    const excelfileInput = document.getElementById("file-upload");
+    const displayExcelFileName = document.getElementById('excelFileName');
+    excelfileInput.addEventListener('change', e => {
+        let excelFile = excelfileInput.files[0];
+        displayExcelFileName.innerHTML = excelFile.name;
+    })
 
     document.querySelector('#donateResourceByImport').addEventListener('submit', function (event) {
         const attachmentInput = document.getElementById("AttachmentFirst");
         const notificationMessage = document.getElementById("notificationImgMessageFirst");
-        const excelfileInput = document.getElementById("file-upload");
         const notificationExcelMessage = document.getElementById("notificationExcelMessageFirst");
-
+        
         if (attachmentInput.files.length === 0) {
             event.preventDefault();  // Prevent form submission if no file is selected
             notificationMessage.innerText = "Please upload at least one proof image.";
@@ -308,21 +444,37 @@
             event.preventDefault();  // Prevent form submission if no file is selected
             notificationExcelMessage.innerText = "An excel file must be uploaded.";
             notificationExcelMessage.style.display = "block";
+            return;
         } else {
             notificationExcelMessage.style.display = "none";  // Hide the message if files are selected
+        }
+        // Check if upload file is in correct format:
+        // Get the uploaded file
+        let excelFile = excelfileInput.files[0];
+        const allowedExtensions = ['xlsx', 'xls', 'csv'];
+        function isValidFile(file) {
+            if (!file) return false;
+            const fileExtension = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase();
+            return allowedExtensions.includes(fileExtension);
+        }
+    
+        if (!isValidFile(excelFile)) {
+            event.preventDefault();
+            notificationExcelMessage.innerText = "Invalid Excel file";
+            notificationExcelMessage.style.display = "block";
         }
     });
     //-----------------------upload image for one resource---------------
     function thisFileUploadSecond() {
         document.getElementById("AttachmentSecond").click();
-    };
+    }
 
     // Event listener to update the file name after the file is selected
     document.getElementById("AttachmentSecond").addEventListener('change', function () {
         const attachmentInput = document.getElementById("AttachmentSecond");
         const notificationMessage = document.getElementById("notificationImgMessageSecond");
         const fileNameDisplay = document.getElementById("fileNameSecond");
-
+        
         if (attachmentInput.files.length > 0) {
             // Check if the number of selected files exceeds the limit
             if (attachmentInput.files.length > maxFiles) {
@@ -426,7 +578,6 @@
             });
         }
     });
-
 
 </script>
 

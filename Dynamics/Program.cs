@@ -130,6 +130,9 @@ namespace Dynamics
             builder.Services
                 .AddScoped<IUserToOrganizationTransactionHistoryRepository,
                     UserToOrganizationTransactionHistoryRepository>();
+            // Wallet repos
+            builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+            builder.Services.AddScoped<IUserWalletTransactionRepository, UserWalletTransactionRepository>();
             // Automapper
             builder.Services.AddAutoMapper(typeof(MyMapper));
             // Add custom services
@@ -143,6 +146,9 @@ namespace Dynamics
             // VNPAY Service
             builder.Services.AddTransient<IVnPayService, VnPayService>();
             builder.Services.AddScoped<IPagination, Pagination>();
+            // Wallet service
+            builder.Services.AddScoped<IWalletService, WalletService>();
+            builder.Services.AddScoped<IUserWalletTransactionService, UserWalletTransactionService>();
             // Add email sender
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             // Cloudinary

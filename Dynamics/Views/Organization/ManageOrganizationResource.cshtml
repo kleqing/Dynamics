@@ -57,7 +57,7 @@
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-visible">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr class="bg-gray-50">
@@ -84,7 +84,7 @@
                                             {
                                                 @if (item.Quantity <= 0)
                                                 {
-                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed" disabled>
+                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed tooltip" disabled data-tip="Not enough resource">
                                                         Send
                                                     </button>
                                                 }

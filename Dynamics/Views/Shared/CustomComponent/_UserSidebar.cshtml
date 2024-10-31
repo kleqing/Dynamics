@@ -1,6 +1,6 @@
 ﻿@model string
 <!-- Sidebar -->
-<div class="p-2 pt-12 w-full max-w-52 relative">
+<aside class="p-2 pt-12 w-full max-w-52 relative">
     <ul class="flex flex-col gap-2 sticky top-1/4">
         @{
             if (Model.Equals("Edit", StringComparison.OrdinalIgnoreCase))
@@ -32,7 +32,16 @@
                 <a asp-action="History" asp-controller="User" class="btn btn-ghost text-start"> History </a>
             }
         }
-        <a href="settings/awards" class="btn btn-ghost text-start"> Awards </a>
+        @{
+            if (Model.Equals("Wallet", StringComparison.OrdinalIgnoreCase))
+            {
+                <a asp-action="Index" asp-controller="Wallet" class="btn btn-ghost text-start btn-active"> Your wallet </a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-controller="Wallet" class="btn btn-ghost text-start"> Your wallet </a>
+            }
+        }
     </ul>
-</div>
+</aside>
 <!-- End sidebar -->

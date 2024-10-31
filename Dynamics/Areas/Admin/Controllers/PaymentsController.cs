@@ -34,11 +34,40 @@ namespace Dynamics.Areas.Admin.Controllers
                 var organizationTransactionToProjects = await _adminRepository.ViewOrganizationToProjectTransactionHistory(o => true);
                 var userTransactionToOrganization = await _adminRepository.ViewUserToOrganizationTransactionHistory(u => true);
 
+                var allTransaction = new List<TransactionBase>();
+                
+                allTransaction.AddRange(userTransactionToProject.Select(p => new TransactionBase
+                {
+                    TransactionID = p.TransactionID,
+                    Time = p.Time,
+                    Message = p.Message,
+                    Type = "UserToProject",
+                    Sender = p.User.UserName
+                }));
+                
+                allTransaction.AddRange(organizationTransactionToProjects.Select(p => new TransactionBase
+                {
+                    TransactionID = p.TransactionID,
+                    Time = p.Time,
+                    Message = p.Message,
+                    Type = "OrganizationToProject",
+                    Sender = p.OrganizationResource.Organization.OrganizationName
+                }));
+                
+                allTransaction.AddRange(userTransactionToOrganization.Select(p => new TransactionBase
+                {
+                    TransactionID = p.TransactionID,
+                    Time = p.Time,
+                    Message = p.Message,
+                    Type = "UserToOrganization",
+                    Sender = p.User.UserName
+                }));
+                
+                var sortedTransaction = allTransaction.OrderByDescending(t => t.Time).ToList();
+                
                 var model = new Payment
                 {
-                    listUserToProject = userTransactionToProject,
-                    listOrganizationToProject = organizationTransactionToProjects,
-                    listUserToOrganization = userTransactionToOrganization
+                    listTransaction = sortedTransaction
                 };
                 
                 return View(model);
@@ -61,10 +90,16 @@ namespace Dynamics.Areas.Admin.Controllers
                         return NotFound();
                     }
 
+                    var projectID = userToProject.FirstOrDefault().ProjectResource.Project.ProjectID;
+                    
+                    var listResource = await _adminRepository.ViewUserToProjectResource(p => p.ProjectID == projectID);
+
                     var userToProjectdetail = userToProject.FirstOrDefault();
+                    
                     var model = new Payment
                     {
                         listUserToProject = new List<UserToProjectTransactionHistory> { userToProjectdetail },
+                        listUserDonateToProjectTable = listResource
                     };
                     return View("Details", model);
                 }
@@ -76,12 +111,17 @@ namespace Dynamics.Areas.Admin.Controllers
                     {
                         return NotFound();
                     }
+
+                    var orgID = organizationToProject.FirstOrDefault().OrganizationResource.Organization.OrganizationID;
+
+                    var listResource = await _adminRepository.ViewOrganizationToProjectResource(i => i.OrganizationID == orgID);
                     
                     var orgToProjectdetail = organizationToProject.FirstOrDefault();
 
                     var model = new Payment
                     {
-                        listOrganizationToProject = new List<OrganizationToProjectHistory> { orgToProjectdetail }
+                        listOrganizationToProject = new List<OrganizationToProjectHistory> { orgToProjectdetail },
+                        listOrganizationDonateToProjectTable = listResource
                     };
                     return View("Details", model);
                 }
@@ -95,11 +135,16 @@ namespace Dynamics.Areas.Admin.Controllers
                         return NotFound();
                     }
                     
+                    var orgID = userToOrganization.FirstOrDefault().OrganizationResource.Organization.OrganizationID;
+                    
+                    var listResource = await _adminRepository.ViewUserDonateOrganizationResource(o => o.OrganizationID == orgID);
+
                     var userToOrgDetail = userToOrganization.FirstOrDefault();
                     
                     var model = new Payment
                     {
-                        listUserToOrganization = new List<UserToOrganizationTransactionHistory>() { userToOrgDetail }
+                        listUserToOrganization = new List<UserToOrganizationTransactionHistory>() { userToOrgDetail },
+                        listUserDonateToOrganizationTable = listResource
                     };
                     return View("Details", model);
                 }

@@ -193,7 +193,7 @@
                             <td class="p-2 text-lg">@item.Time</td>
                             <td class="p-2 text-lg">@item.User.UserName</td>
                             <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
-                            <td class="p-2 text-lg">@item.Amount</td>
+                            <td class="p-2 text-lg">@item.Amount.ToString("N0")</td>
                             <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
                             <td class="p-2 text-lg">@item.Message</td>
                             <td class="p-2 ">
@@ -269,7 +269,7 @@
             <div class="bg-green-500 h-3 rounded-full" style="width: @(Model.ProgressDonate >=100?100:Model.ProgressDonate)%"></div>       
         </div>
         <span class=" font-normal text-gray-500 p-2 text-2xl">
-            pledged of <span class="font-bold text-black text-4xl">@Model.ExpectedAmountOfMoneyDonate</span> VND goal
+            pledged of <span class="font-bold text-black text-4xl">@Model.ExpectedAmountOfMoneyDonate.ToString("N0")</span> VND goal
         </span>
 
         <div class="flex font-normal text-gray-500 flex-col p-2 text-2xl">

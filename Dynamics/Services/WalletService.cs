@@ -100,7 +100,7 @@ public class WalletService : IWalletService
             TransactionId = transactionId ?? Guid.NewGuid(),
             WalletId = userWallet.WalletId,
             Amount = amount,
-            Message = msg ?? $"Topped up {amount} VND to Dynamics digital wallet",
+            Message = msg ?? $"Topped up {amount:N0} VND to Dynamics digital wallet",
             TransactionType = TransactionConstants.TopUp,
             Time = DateTime.Now,
         });
@@ -118,7 +118,7 @@ public class WalletService : IWalletService
             TransactionId = transactionId ?? Guid.NewGuid(),
             WalletId = userWallet.WalletId,
             Amount = amount,
-            Message = msg ?? $"Spent {amount} VND from Dynamics wallet",
+            Message = msg ?? $"Spent {amount:N0} VND from Dynamics wallet",
             TransactionType = TransactionConstants.Donate,
             Time = DateTime.Now,
         });
@@ -143,7 +143,7 @@ public class WalletService : IWalletService
         // Set up our request Dto:
         payRequestDto.TransactionID = Guid.NewGuid();
         payRequestDto.Time = DateTime.Now;
-        payRequestDto.Message ??= $"Donated {payRequestDto.Amount} VND";
+        payRequestDto.Message ??= $"Donated {payRequestDto.Amount:N0} VND";
         payRequestDto.Status = 0; // Always has the status of accepted (If error we caught it before)
         return payRequestDto;
     }

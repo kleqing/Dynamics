@@ -6,6 +6,7 @@ using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Services;
 using Dynamics.Utility;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Plugins;
@@ -109,7 +110,7 @@ public class WalletController : Controller
         {
             FromId = user.Id,
             Amount = amount,
-            Message = $"Top up {amount} VND to {user.UserName} wallet.",
+            Message = $"Top up {amount:N0} VND to {user.UserName} wallet.",
             Time = DateTime.Now,
             TransactionId = Guid.NewGuid()
         };
@@ -144,7 +145,7 @@ public class WalletController : Controller
         {
             FromId = user.Id,
             Amount = amount,
-            Message = $"Top up {amount} VND to {user.UserName} wallet.",
+            Message = $"Top up {amount:N0} VND to {user.UserName} wallet.",
             Time = DateTime.Now,
             TransactionId = Guid.NewGuid()
         };
@@ -215,7 +216,7 @@ public class WalletController : Controller
             payRequestDto = _walletService.SetupPayRequestDto(payRequestDto);
             await _walletService.AddTransactionToDatabaseAsync(payRequestDto);
             TempData[MyConstants.Success] = "Transaction success!";
-            TempData[MyConstants.Subtitle] = "New balance: " + userWallet.Amount + "VND";
+            TempData[MyConstants.Subtitle] = $"New balance: {userWallet.Amount:N0}";
         }
         catch (Exception e)
         {
@@ -230,5 +231,40 @@ public class WalletController : Controller
     public IActionResult RefundCoins(string refundCoinVM)
     {
         return View();
+    }
+    
+    // After payment 
+    [Authorize]
+    public async Task<IActionResult> PaymentCallBack()
+    {
+        // Get the query from the request (VnPay passed these for us) and put it in the response dto
+        var responseDto = _vnPayService.ExtractPaymentResult(Request.Query);
+        var requestDto = HttpContext.Session.Get<VnPayCreatePaymentDto>("payment");
+        HttpContext.Session.Remove("payment"); // Remove when not needed anymore
+        if (responseDto == null || responseDto.VnPayResponseCode != "00")
+        {
+            TempData["message"] = "Payment failed, Error code: " + responseDto.VnPayResponseCode;
+            return RedirectToAction(nameof(PaymentFailure), responseDto);
+        }
+
+        await _walletService.TopUpWalletAsync(requestDto.FromId, responseDto.Amount, responseDto.Message, responseDto.TransactionID);
+        var payRequestDto = HttpContext.Session.Get<PayRequestDto>("donateRequest");
+        if (payRequestDto != null)
+        {
+            return RedirectToAction("SpendDynamicsMoney", "Wallet");
+        }
+
+        TempData["message"] = "Payment Successful";
+        return RedirectToAction(nameof(PaymentSuccess), responseDto);
+    }
+
+    public IActionResult PaymentSuccess(VnPayResponseDto resp)
+    {
+        return View(resp);
+    }
+
+    public IActionResult PaymentFailure(VnPayResponseDto resp)
+    {
+        return View(resp);
     }
 }

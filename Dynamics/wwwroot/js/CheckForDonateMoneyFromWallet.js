@@ -19,6 +19,7 @@ needMoreMoneyModal.querySelector('#cfmBtn').addEventListener('click', (e) => {
 })
 donateByMoneyForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    console.log('Triggering donate by money form')
     let userId = document.querySelector('#userId').value;
     let donationAmount = donateByMoneyForm.querySelector('input[name="Amount"]').value;
     // Query to server to know if the money is enough
@@ -29,6 +30,7 @@ donateByMoneyForm.addEventListener('submit', (e) => {
         UserId: userId,
         AmountToDonate: parseInt(donationAmount, 10),
     }).then(r => {
+        console.log('Fetch success!')
         console.log(r.data);
         let data = r.data;
         let info = {
@@ -53,7 +55,10 @@ donateByMoneyForm.addEventListener('submit', (e) => {
             if (topupAmount < 10000) topupAmount = 10000;
             needMoreMoneyModal.querySelector('input[name=amount]').value = topupAmount; // The amount to top up
             let msgInput = document.querySelector('#donationMsg');
-            needMoreMoneyModal.querySelector('input[name=Message]').value = msgInput.value;
+            let carryMsgFormInput = needMoreMoneyModal.querySelector('input[name=Message]');
+            console.log(carryMsgFormInput);
+            console.log(msgInput)
+            carryMsgFormInput.value = msgInput.value;
             needMoreMoneyModal.querySelector('input[name=payAmount]').value = info.amountToDon // Get the amount of money user want to donate
             needMoreMoneyModal.showModal();
         }
@@ -63,8 +68,4 @@ donateByMoneyForm.addEventListener('submit', (e) => {
     }).finally(() => {
         donateByMoneyBtn.innerHTML = tempBtn;
     })
-    
-    
 })
-
-

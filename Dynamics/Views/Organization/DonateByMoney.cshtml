@@ -1,4 +1,5 @@
-﻿@model Dynamics.Models.Dto.PayRequestDto
+﻿@using Dynamics.Utility
+@model Dynamics.Models.Dto.PayRequestDto
 @{
     ViewData["Title"] = "DonateByMoney";
     Layout = "_LayoutOrganizationForm";
@@ -15,14 +16,17 @@
         }
         else throw new Exception("HOW CAN YOU FORGOT TO SET THE LIMIT FOR ORGANIZATION?");
     }
+
+    var currentUser = Accessor.HttpContext.Session.GetCurrentUser();
 }
 
 <div class="py-5 pt-12 px-5 my-5 flex justify-center">
     <div class="bg-white shadow-xl border border-solid border-gray-500 rounded-box p-16 w-full max-w-screen-lg">
         @if (projects == null)
         {
-            <h1 class="text-2xl font-bold mb-6 text-center">Donate by money</h1>
-            <form asp-controller="Payment" asp-action="Pay" id="payForm" onsubmit="return validateForm()" class="flex justify-center items-center gap-6">
+            <h1 class="text-2xl font-bold mb-6 text-center">Donate money to organization</h1>
+            <span class="text-neutral text-center max-w-md mx-auto block">Money from your <a class="link link-primary" asp-action="Index" asp-controller="Wallet">Dynamics wallet</a> will be spent first. If you don't have enough, you will be redirected to top up page.</span>
+            <form asp-controller="Payment" asp-action="Pay" id="donateByMoneyForm" class="flex justify-center items-center gap-6">
                 <input type="hidden" name="TargetType" value="@Model.TargetType"/>
                 <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
                 <input type="hidden" name="TargetID" value="@Model.TargetId"/>
@@ -37,31 +41,32 @@
 
                     <div class="mb-4 mx-5">
                         <label for="amount" class="block text-base font-medium text-gray-700 mb-1">Enter amount</label>
-                        <input type="text" id="amount" placeholder="Enter your money amount"
+                        <input type="number" id="amount" placeholder="Enter your money amount"
+                               required
+                               min="10000" max="20000000"
                                name="Amount"
                                class="w-full input input-primary rounded-md border bg-white">
                         <span id="amountValidation" class="text-error h-6"></span>
                     </div>
 
                     <div class="mb-6 mx-5">
-                        <label for="message" class="block text-base font-medium text-gray-700 mb-1">Enter message</label>
-                        <textarea id="message" rows="4" placeholder="Enter your message" name="Message"
+                        <label for="donationMsg" class="block text-base font-medium text-gray-700 mb-1">Enter message</label>
+                        <textarea rows="4" placeholder="Enter your message" name="Message" id="donationMsg"
                                       class="w-full textarea-md border textarea-primary rounded-md"></textarea>
                     </div>
                 </div>
 
                 <div class="flex flex-col space-y-4 mx-5">
                     <button type="submit"
-                            class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
+                            class="btn btn-success" id="donateByMoneyBtn">
                         Confirm Payment
                         <div class="ml-5">
                             <img src="https://assets.website-files.com/5d38b13ee324043c2fc59cdd/609af0e8068562ec31cde421_Custom-Colors-for-QR-Codes.png" alt="QR Code" class="ml-2 w-5 h-5">
-
                         </div>
                     </button>
 
                     <button type="button"
-                            class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
+                            class="btn btn-neutral">
                         Back to project
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"
@@ -71,16 +76,77 @@
                     </button>
                 </div>
             </form>
+            @* Modal if user has enough money *@
+            <dialog id="confirmDonationModal" class="modal">
+                <input type="hidden" value="@currentUser.Id" id="userId"/>
+                <div class="modal-box text-black w-full max-w-screen-md">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <h3 class="text-lg font-bold">Confirm your donation</h3>
+                    <div class="py-4">
+                        <p class="text-success balance">Your current balance: <span></span> VND</p>
+                        <p class="text-error after">Your balance after donation: <span></span> VND</p>
+                        <p class="mt-4">Thank you for your generosity! By confirming your donation, you are making a positive impact.</p>
+                        <p class="mt-2 donAmount">Would you like to proceed with your donation of <strong class="text-success"><span></span> VND</strong>?</p>
+                        <form method="post" id="confirmPayment" asp-action="SpendDynamicsMoney" asp-controller="Wallet">
+                            <input type="hidden" name="amount"/>
+                            <input type="hidden" name="returnUrl" value="@Url.Action("Detail", "Organization", new { organizationId = Model.TargetId }, Accessor.HttpContext.Request.Scheme)"/>
+                        </form>
+                    </div>
+                    <div class="modal-action">
+                        <button class="btn btn-primary" id="confirmDonationBtn">Confirm payment</button>
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <button class="btn">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
+            @* Modal if user does not have enough money *@
+            <dialog id="needMoreMoneyModal" class="modal">
+                <div class="modal-box text-black w-full max-w-screen-md">
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+                    </form>
+                    <h3 class="text-lg font-bold">You are almost there!</h3>
+                    <div class="py-4">
+                        <p class="text-error donAmount">Donation amount: <span></span> VND</p>
+                        <p class="text-error needed">Just <span></span> VND are needed to support this project!</p>
+                        <p class="text-xs text-neutral mb-2">Minimum donation amount is 10,000*</p>
+                        <p class="text-success balance">Your current balance: <span></span> VND</p>
+                        <p class="mt-4">Would you like to top up now and complete your donation?</p>
+                        <form method="post" id="confirmTopup" asp-action="TopUpAndPay" asp-controller="Wallet">
+                            <input name="amount" value="10000" type="hidden"/>
+                            <input type="hidden" name="returnUrl" value="@Url.Action("Detail", "Organization", new { organizationId = Model.TargetId }, Accessor.HttpContext.Request.Scheme)"/>
+                            <input type="hidden" name="TargetType" value="@Model.TargetType"/>
+                            <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
+                            <input type="hidden" name="TargetId" value="@Model.TargetId"/>
+                            <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
+                            <input type="hidden" name="Message" value=""/>
+                            <input type="hidden" name="payAmount" value=""/>
+                        </form>
+                    </div>
+                    <div class="modal-action">
+                        <button class="btn btn-primary" id="cfmBtn">Top up and donate</button>
+                        <form method="dialog">
+                            <!-- if there is a button in form, it will close the modal -->
+                            <button class="btn">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
         }
         else
         {
-            <h1 class="text-2xl font-bold mb-6 text-center">Allocate money</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center">Allocate money to project</h1>
+            <span class="text-neutral text-center max-w-md mx-auto block">The money allocate to project will be in digital form. To receive real money, please create a withdrawal request after project reach certain milestones</span>
             <form asp-controller="Payment" asp-action="Pay" id="payForm" onsubmit="return validateForm()" class="flex justify-center items-center gap-6">
                 <input type="hidden" name="TargetType" value="@Model.TargetType"/>
                 <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
                 <input type="hidden" name="FromID" value="@Model.FromID"/>
                 <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl"/>
-                
+
                 <div class="mx-5 flex-1">
                     <div class="mb-4 mx-5">
                         <label class="form-control w-full">
@@ -148,16 +214,28 @@
                 </div>
             </form>
         }
-        <script>
+    </div>
+</div>
+@* Check money script *@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="~/js/CheckForDonateMoneyFromWallet.js"></script>
+
+<script>
+    // This function only validates on organization allocate to project side
             function validateForm() {
                 // Reset validation messages
-                document.getElementById("amountValidation").innerText = "";
-                document.getElementById("projectOptionValidation").innerText = "";
-
+                let amountValidation = document.getElementById("amountValidation")
+                let projectOptionValidation = document.getElementById("projectOptionValidation")
+                try {
+                    amountValidation.innerText = "";
+                    projectOptionValidation.innerText = "";
+                } catch (e) {
+                    console.warn(e.message)
+                }
                 const amountInput = document.getElementById("amount");
                 const projectSelect = document.getElementById("TargetId");
                 const limitMoneyAmount = @limitMoneyAmount; // Get the maximum limit from the input max attribute
-
+                
                 let isValid = true;
 
                 // Validate amount
@@ -176,7 +254,7 @@
                 }
 
                 return isValid; // Prevent form submission if invalid
-            }
-        </script>
-    </div>
-</div>
+            }        
+            let isAllocating = @Html.Raw(obj != null)
+            if (isAllocating) validateForm();
+</script>

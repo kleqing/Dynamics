@@ -348,7 +348,7 @@
                             <th>@donCount</th>
                             <td>@Html.DisplayFor(u => donationRequest.Time)</td>
                             <td>@donationRequest.ResourceName</td>
-                            <td>@donationRequest.Amount</td>
+                            <td>@donationRequest.Amount.ToString("N0")</td>
                             <td>@donationRequest.Unit</td>
                             <td>@donationRequest.Name</td>
                             <td>@donationRequest.Message</td>

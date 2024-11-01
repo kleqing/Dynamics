@@ -62,7 +62,7 @@
                       value="@Model.ProjectProgress"
                       max="100">
             </progress>
-            <p class="w-full text-success">Raised @Model.ProjectRaisedMoney VND</p>
+            <p class="w-full text-success">Raised @Model.ProjectRaisedMoney.ToString("N0") VND</p>
             <a class="btn btn-primary h-8 min-h-0 outline-none border-none"
                asp-action="ManageProject" asp-route-id="@Model.ProjectID"
                asp-controller="Project">

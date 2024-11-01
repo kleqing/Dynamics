@@ -77,7 +77,7 @@
                     <span class="label label-text text-lg">Enter money amount</span>
                     <input Name="Amount" type="number"
                            placeholder="Enter money Amount"
-                           class="input input-bordered w-full" min="5000" required/>
+                           class="input input-bordered w-full" min="10000" max="20000000" required/>
                     <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 5000</span>
                 </label>
                 <!-- Message (maybe limit them ?) -->
@@ -109,70 +109,69 @@
             }      *@
             <!-- Other button -->
             <button type="submit" class="btn btn-success" id="donateByMoneyBtn" style="min-width: 150px;">Confirm donation</button>
-
-            @* Modal if user has enough money *@
-            <dialog id="confirmDonationModal" class="modal">
-                <input type="hidden" value="@currentUser.Id" id="userId"/>
-                <div class="modal-box text-black w-full max-w-screen-md">
-                    <form method="dialog">
-                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                    </form>
-                    <h3 class="text-lg font-bold">Confirm your donation</h3>
-                    <div class="py-4">
-                        <p class="text-success balance">Your current balance: <span></span> VND</p>
-                        <p class="text-error after">Your balance after donation: <span></span> VND</p>
-                        <p class="mt-4">Thank you for your generosity! By confirming your donation, you are making a positive impact.</p>
-                        <p class="mt-2 donAmount">Would you like to proceed with your donation of <strong class="text-success"><span></span> VND</strong>?</p>
-
-                        <form method="post" id="confirmPayment" asp-action="SpendDynamicsMoney" asp-controller="Wallet">
-                            <input type="hidden" name="amount"/>
-                            <input type="hidden" name="returnUrl" value="@Url.Action("ManageProject", "Project", new { id = currentProjectID }, Accessor.HttpContext.Request.Scheme)"/>
-                        </form>
-                    </div>
-                    <div class="modal-action">
-                        <button class="btn btn-primary" id="confirmDonationBtn">Confirm payment</button>
-                        <form method="dialog">
-                            <!-- if there is a button in form, it will close the modal -->
-                            <button class="btn">Close</button>
-                        </form>
-                    </div>
-                </div>
-            </dialog>
-            @* Modal if user does not have enough money *@
-            <dialog id="needMoreMoneyModal" class="modal">
-                <div class="modal-box text-black w-full max-w-screen-md">
-                    <form method="dialog">
-                        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                    </form>
-                    <h3 class="text-lg font-bold">You are almost there!</h3>
-                    <div class="py-4">
-                        <p class="text-error donAmount">Donation amount: <span></span> VND</p>
-                        <p class="text-error needed">Just <span></span> VND are needed to support this project!</p>
-                        <p class="text-xs text-neutral mb-2">Minimum of 10000*</p>
-                        <p class="text-success balance">Your current balance: <span></span> VND</p>
-                        <p class="mt-4">Would you like to top up now and complete your donation?</p>
-                        <form method="post" id="confirmTopup" asp-action="TopUpAndPay" asp-controller="Wallet">
-                            <input name="amount" value="10000" type="hidden"/>
-                            <input type="hidden" name="returnUrl" value="@Url.Action("ManageProject", "Project", new { id = currentProjectID }, Accessor.HttpContext.Request.Scheme)"/>
-                            <input type="hidden" name="TargetType" value="@Model.PayRequestDto.TargetType"/>
-                            <input type="hidden" name="ResourceID" value="@Model.PayRequestDto.ResourceID"/>
-                            <input type="hidden" name="TargetId" value="@Model.PayRequestDto.TargetId"/>
-                            <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
-                            <input type="hidden" name="Message"/>
-                            <input type="hidden" name="payAmount" />
-                        </form>
-                    </div>
-                    <div class="modal-action">
-                        <button class="btn btn-primary" id="cfmBtn">Top up and donate</button>
-                        <form method="dialog">
-                            <!-- if there is a button in form, it will close the modal -->
-                            <button class="btn">Close</button>
-                        </form>
-                    </div>
-                </div>
-            </dialog>
         </div>
     </form>
+    @* Modal if user has enough money *@
+    <dialog id="confirmDonationModal" class="modal">
+        <input type="hidden" value="@currentUser.Id" id="userId"/>
+        <div class="modal-box text-black w-full max-w-screen-md">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="text-lg font-bold">Confirm your donation</h3>
+            <div class="py-4">
+                <p class="text-success balance">Your current balance: <span></span> VND</p>
+                <p class="text-error after">Your balance after donation: <span></span> VND</p>
+                <p class="mt-4">Thank you for your generosity! By confirming your donation, you are making a positive impact.</p>
+                <p class="mt-2 donAmount">Would you like to proceed with your donation of <strong class="text-success"><span></span> VND</strong>?</p>
+
+                <form method="post" id="confirmPayment" asp-action="SpendDynamicsMoney" asp-controller="Wallet">
+                    <input type="hidden" name="amount"/>
+                    <input type="hidden" name="returnUrl" value="@Url.Action("ManageProject", "Project", new { id = currentProjectID }, Accessor.HttpContext.Request.Scheme)"/>
+                </form>
+            </div>
+            <div class="modal-action">
+                <button class="btn btn-primary" id="confirmDonationBtn">Confirm payment</button>
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+    @* Modal if user does not have enough money *@
+    <dialog id="needMoreMoneyModal" class="modal">
+        <div class="modal-box text-black w-full max-w-screen-md">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="text-lg font-bold">You are almost there!</h3>
+            <div class="py-4">
+                <p class="text-error donAmount">Donation amount: <span></span> VND</p>
+                <p class="text-error needed">Just <span></span> VND are needed to support this project!</p>
+                <p class="text-success balance">Current balance: <span></span> VND</p>
+                <p class="mt-4">Would you like to top up now and complete your donation?</p>
+                <p class="text-xs text-neutral mb-4">Minimum top up amount is 10,000 VND*</p>
+                <form method="post" id="confirmTopup" asp-action="TopUpAndPay" asp-controller="Wallet">
+                    <input name="amount" value="10000" type="hidden"/>
+                    <input type="hidden" name="returnUrl" value="@Url.Action("ManageProject", "Project", new { id = currentProjectID }, Accessor.HttpContext.Request.Scheme)"/>
+                    <input type="hidden" name="TargetType" value="@Model.PayRequestDto.TargetType"/>
+                    <input type="hidden" name="ResourceID" value="@Model.PayRequestDto.ResourceID"/>
+                    <input type="hidden" name="TargetId" value="@Model.PayRequestDto.TargetId"/>
+                    <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
+                    <input type="hidden" name="Message"/>
+                    <input type="hidden" name="payAmount" />
+                </form>
+            </div>
+            <div class="modal-action">
+                <button class="btn btn-primary" id="cfmBtn">Top up and donate</button>
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
 </section>
 
 <!-- ----------------------------------------------------------------------------Donate by resource ----------------------------------------->
@@ -208,7 +207,7 @@
                                 <span>Upload Excel file</span>
                             </div>
                         </label>
-                        <input id="file-upload" type="file" name="file" placeholder="Upload Excel file" style="display: none">
+                        <input id="file-upload" type="file" name="file" placeholder="Upload Excel file" style="display: none" accept=".xlsx">
                         <span class="text-neutral text-center" id="excelFileName"></span>
                         <div id="notificationExcelMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
                     </label>

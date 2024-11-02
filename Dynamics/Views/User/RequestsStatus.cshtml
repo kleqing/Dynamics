@@ -42,7 +42,7 @@
     {
         <h1 class="text-3xl font-bold mb-4 ">Your requests to join organizations:</h1>
         <!-- Right search bar -->
-        <div class="flex w-full justify-end items-center gap-2 mb-4">
+        <div class="flex w-full justify-end items-center gap-2 mb-4 overflow-x-visible">
             @* Search bar *@
             <div class="join">
                 <div class="input input-bordered flex items-center gap-2 rounded-r-none">
@@ -144,7 +144,7 @@
     {
         <h1 class="text-3xl font-bold mb-4 ">Your requests to join projects:</h1>
         <!-- right search bar -->
-        <div class="flex w-full justify-end items-center gap-2 mb-4">
+        <div class="flex w-full justify-end items-center gap-2 mb-4 overflow-x-visible">
             <div class="join">
                 <!-- TODO: Implement search -->
                 <div>
@@ -173,7 +173,7 @@
         </div>
         <!-- End right search bar -->
         <!-- List of activity -->
-        <ul class="flex flex-col gap-2 w-full h-full max-h-80 p-4" style="overflow: auto; overflow-x: hidden">
+        <ul class="flex flex-col gap-2 w-full h-full max-h-80 p-4 overflow-x-visible">
             @{
                 foreach (var modelProjectJoinRequest in Model.ProjectJoinRequests)
                 {

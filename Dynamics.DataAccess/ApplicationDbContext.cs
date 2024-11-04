@@ -17,7 +17,6 @@ namespace Dynamics.DataAccess
         }
 
         public virtual DbSet<Report> Reports { get; set; }
-        public virtual DbSet<Award> Awards { get; set; }
         public virtual DbSet<Organization> Organizations { get; set; }
         public virtual DbSet<OrganizationMember> OrganizationMember { get; set; }
         public virtual DbSet<OrganizationResource> OrganizationResources { get; set; }
@@ -51,7 +50,6 @@ namespace Dynamics.DataAccess
 
             // Primary Keys
             modelBuilder.Entity<Report>().HasKey(r => r.ReportID);
-            modelBuilder.Entity<Award>().HasKey(a => a.AwardID);
             modelBuilder.Entity<OrganizationResource>().HasKey(or => or.ResourceID);
             modelBuilder.Entity<Organization>().HasKey(o => o.OrganizationID);
             modelBuilder.Entity<OrganizationToProjectHistory>().HasKey(o => o.TransactionID);
@@ -69,10 +67,10 @@ namespace Dynamics.DataAccess
             modelBuilder.Entity<UserWalletTransaction>().HasKey(uwt => uwt.TransactionId);
             // Relationships (Foreign Keys)
 
-            // User to wallet: A user has a wallet
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Wallet)
-                .WithOne(w => w.User)
+            // Wallet to user: Each wallet belong to a user
+            modelBuilder.Entity<Wallet>()
+                .HasOne(w => w.User)
+                .WithOne(u => u.Wallet)
                 .HasForeignKey<Wallet>(w => w.UserId);
             
             // Wallet to UserWalletTransaction: Each wallet has multiple transaction
@@ -87,12 +85,6 @@ namespace Dynamics.DataAccess
                 .WithMany(u => u.ReportsMade)
                 .HasForeignKey(r => r.ReporterID)
                 .OnDelete(DeleteBehavior.NoAction);
-
-            // Award to User
-            modelBuilder.Entity<Award>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.Award)
-                .HasForeignKey(a => a.UserID);
 
             // OrganizationResource to Organization
             modelBuilder.Entity<OrganizationResource>()

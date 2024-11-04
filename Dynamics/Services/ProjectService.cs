@@ -218,7 +218,7 @@ public class ProjectService : IProjectService
                 List<string> statistic = new List<string>()
                 {
                     projectResouceMoney?.Quantity.ToString(), projectResouceMoney?.ExpectedQuantity.ToString(),
-                    progressValue.ToString(), numberOfProjectContributor.ToString(), timeLeft.ToString()
+                    progressValue.ToString(), numberOfProjectContributor.ToString(), timeLeft.Days.ToString()
                 };
                 return statistic;
             }
@@ -316,7 +316,7 @@ public class ProjectService : IProjectService
                 ExpectedAmountOfMoneyDonate = Convert.ToInt32(statistic[1]),
                 ProgressDonate = Convert.ToDouble(statistic[2]),
                 NumberOfProjectContributor = Convert.ToInt32(statistic[3]),
-                TimeLeftEndDay = Convert.ToInt32(statistic[3]),
+                TimeLeftEndDay = Convert.ToInt32(statistic[4]),
                 Random5Donors = await GetRandom5DonorsAsync(projectObj.ProjectID)
             };
             if (detailProjectVM != null)

@@ -154,7 +154,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 user.UserAvatar = MyConstants.DefaultAvatarUrl;
                 // TODO: remove these
                 user.isBanned = false;
-                user.UserRole = MyConstants.User;
                 _logger.LogWarning("REGISTER: CREATING IDENTITY USER");
                 // Create a user with email and input password
                 var result = await _userManager.CreateAsync(user, Input.Password);

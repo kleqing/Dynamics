@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace Dynamics.Models.Models
 {
@@ -12,7 +13,9 @@ namespace Dynamics.Models.Models
         //public Guid Id { get; set; }
         //[Required]
         //[Display(Name = "Username")]
-        [MaxLength(50)] public override string? UserName { get; set; }
+        [MaxLength(50)] 
+        [Required]
+        public override string UserName { get; set; }
 
         [DataType(DataType.Date)]
         [Display(Name = "Date of Birth")]
@@ -34,9 +37,6 @@ namespace Dynamics.Models.Models
         [ValidateNever] public string? UserAvatar { get; set; }
 
         [MaxLength(1000)] public string? UserDescription { get; set; }
-
-        // TODO: Remove them
-        public string UserRole { get; set; }
         public bool isBanned { get; set; }
 
         [DataType(DataType.DateTime)]
@@ -50,7 +50,6 @@ namespace Dynamics.Models.Models
         // Self-referencing relationships for reports
         public virtual ICollection<Report> ReportsMade { get; set; }
 
-        [ValidateNever] public virtual ICollection<Award> Award { get; set; }
         [ValidateNever] public virtual ICollection<Request> Request { get; set; }
         [ValidateNever] public virtual ICollection<ProjectMember> ProjectMember { get; set; }
         [ValidateNever] public virtual ICollection<OrganizationMember> OrganizationMember { get; set; }
@@ -61,6 +60,8 @@ namespace Dynamics.Models.Models
         public virtual ICollection<UserToProjectTransactionHistory> UserToProjectTransactionHistories { get; set; }
 
         [ValidateNever] public virtual ICollection<Notification> Notifications { get; set; }
-        [ValidateNever] public virtual Wallet Wallet { get; set; }
+        [ValidateNever] 
+        [JsonIgnore]
+        public virtual Wallet Wallet { get; set; }
     }
 }

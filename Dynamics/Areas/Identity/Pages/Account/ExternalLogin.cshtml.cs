@@ -92,12 +92,15 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
             var userEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
             var businessUser = await _userRepo.GetAsync(u => u.Email == userEmail);
-            if (businessUser != null && businessUser.UserRole.Equals(RoleConstants.Banned))
+            if (businessUser != null)
             {
-                ModelState.AddModelError("", "User account is banned!");
-                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                var isBanned = await _roleService.IsInRoleAsync(businessUser.Id, RoleConstants.Banned);
+                if (isBanned || businessUser.isBanned == true)
+                {
+                    ModelState.AddModelError("", "User account is banned!");
+                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                }
             }
-            
             // Checking if the user already have an account with the same email, we will use that account to log in instead
             var existingUser = await _userManager.FindByEmailAsync(userEmail ?? "No email");
             if (existingUser != null)
@@ -197,7 +200,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
                 // TODO: Remove these
                 user.isBanned = false;
-                user.UserRole = MyConstants.User;
                 var result = await _userManager.CreateAsync(user); // Create user with no password bc of Google login
 
                 if (result.Succeeded)

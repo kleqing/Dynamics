@@ -12,7 +12,6 @@ namespace Dynamics.DataAccess.Repository
         private readonly ApplicationDbContext _db;
         private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
-       
 
         public AdminRepository(ApplicationDbContext db, UserManager<User> userManager
         , IUserRepository userRepository)
@@ -235,11 +234,11 @@ namespace Dynamics.DataAccess.Repository
                 // If user is banned, remove admin role (change to user)
                 if (user.isBanned)
                 {
-                    await _userRepository.AddToRoleAsync(id, RoleConstants.Banned);
+                    await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
                 }
                 else
                 {
-                    await _userRepository.AddToRoleAsync(id, RoleConstants.User);
+                    await _userManager.AddToRoleAsync(user, RoleConstants.User);
                 }
                 await _db.SaveChangesAsync();
                 return user.isBanned;  // Return ban value (true/false)
@@ -268,7 +267,6 @@ namespace Dynamics.DataAccess.Repository
         public async Task ChangeUserRole(Guid id)
         {
             var authUser = await _userManager.FindByIdAsync(id.ToString());
-            var businessUser = await GetUser(u => u.Id == id);
 
             var currentRoles = await _userManager.GetRolesAsync(authUser);
             string newRole = currentRoles.Contains(RoleConstants.Admin) ? RoleConstants.User : RoleConstants.Admin;
@@ -278,13 +276,11 @@ namespace Dynamics.DataAccess.Repository
             {
                 await _userManager.RemoveFromRoleAsync(authUser, RoleConstants.User);
                 await _userManager.AddToRoleAsync(authUser, RoleConstants.Admin);
-                businessUser.UserRole = RoleConstants.Admin;
             }
             else
             {
                 await _userManager.RemoveFromRoleAsync(authUser, RoleConstants.Admin);
                 await _userManager.AddToRoleAsync(authUser, RoleConstants.User);
-                businessUser.UserRole = RoleConstants.User;
             }
 
             await _db.SaveChangesAsync();

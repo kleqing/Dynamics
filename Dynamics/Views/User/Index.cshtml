@@ -1,6 +1,6 @@
 ﻿@using Dynamics.Utility
 @model Dynamics.Models.Models.User
-
+@inject IRoleService roleService
 
 @{
 ViewData["Title"] = "Details";
@@ -22,7 +22,7 @@ ViewData["Title"] = "Details";
                     <li class="flex items-center py-3">
                         <span>Status</span>
                         <span class="ml-auto">
-                            @if (Model.UserRole.Equals(RoleConstants.Banned))
+                            @if (await roleService.IsInRoleAsync(Model.Id, RoleConstants.Admin))
                             {
                                 <span class="bg-error py-1 px-2 rounded text-white text-sm">Banned</span>
                             }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
 using Aspose.Cells;
+using Dynamics.Services;
 
 namespace Dynamics.Areas.Admin.Controllers
 {
@@ -21,10 +22,12 @@ namespace Dynamics.Areas.Admin.Controllers
     public class UsersController : Controller
     {
         private readonly IAdminRepository _adminRepository = null;
+        private readonly IRoleService _roleService;
 
-        public UsersController(IAdminRepository adminRepository)
+        public UsersController(IAdminRepository adminRepository, IRoleService roleService)
         {
             _adminRepository = adminRepository;
+            _roleService = roleService;
         }
 
         // GET: Admin/Users
@@ -58,7 +61,6 @@ namespace Dynamics.Areas.Admin.Controllers
         public async Task<JsonResult> UserAsAdmin(Guid id)
         {
             await _adminRepository.ChangeUserRole(id);
-
             var userRole = await _adminRepository.GetUserRole(id);
 
             return Json(new
@@ -113,7 +115,9 @@ namespace Dynamics.Areas.Admin.Controllers
                     workSheet.Cells[recordIndex, 6].Value = user.UserDescription;
                     workSheet.Cells[recordIndex, 7].Value = user.CreatedDate.ToString();
                     workSheet.Cells[recordIndex, 8].Value = user.isBanned == true ? "Banned" : "Active";
-                    workSheet.Cells[recordIndex, 9].Value = user.UserRole == "admin" ? "Admin" : "User";
+                    // workSheet.Cells[recordIndex, 9].Value = user.UserRole == "admin" ? "Admin" : "User";
+                    // Use role service instead
+                    workSheet.Cells[recordIndex, 9].Value = await _roleService.IsInRoleAsync(user.Id, RoleConstants.Admin) ? "Admin" : "User";
                     recordIndex++;
                 }
 

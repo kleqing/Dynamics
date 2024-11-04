@@ -57,7 +57,7 @@
 
                     <div class="mb-4">
                         <label asp-for="@Model.Attachments" class="block text-sm font-medium text-gray-700 mb-1">Image Proof</label>
-                        <input asp-for="@Model.Attachments" value="@Model.Attachments" multiple id="file-upload" type="file" name="file" class="file-input file-input-bordered w-full max-w-sm" accept="image/*">
+                        <input asp-for="@Model.Attachments" value="@Model.Attachments" multiple id="file-upload" type="file" name="file" class="file-input file-input-bordered w-full max-w-sm ">
                         @if (ViewBag.Images != null)
                         {
                             <span class="text-red-500 d-inline-flex">

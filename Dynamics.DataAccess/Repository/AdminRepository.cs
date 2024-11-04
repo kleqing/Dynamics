@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-
-
 namespace Dynamics.DataAccess.Repository
 {
     public class AdminRepository : IAdminRepository
@@ -20,7 +18,7 @@ namespace Dynamics.DataAccess.Repository
         , IUserRepository userRepository)
         {
             _db = db;
-            this._userManager = userManager;
+            _userManager = userManager;
             _userRepository = userRepository;
         }
 

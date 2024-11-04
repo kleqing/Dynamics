@@ -3,8 +3,6 @@
 @using Microsoft.IdentityModel.Tokens
 @using Newtonsoft.Json
 @model Dynamics.Models.Models.ViewModel.HomepageViewModel
-@inject IRoleService roleService
-
 @{
     ViewData["Title"] = "HomePage";
     var isAuthenticated = User.Identity.IsAuthenticated;
@@ -26,11 +24,8 @@
     }
 }
 
-
-
 <!-- The body of the home page -->
-<div class="-mt-12 z-10 relative bg-white rounded-3xl px-8 py-16 flex flex-col gap-16">
-    
+<div class="-mt-12 z-10 relative bg-white rounded-3xl px-8 py-16 flex flex-col gap-16 custom__scrollbar">
     <section class="flex flex-col items-center justify-center gap-4">
         <p class="text-3xl text-center font-bold">Discover</p>
         <div class="w-full flex justify-center gap-4">

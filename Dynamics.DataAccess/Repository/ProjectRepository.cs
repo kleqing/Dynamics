@@ -68,7 +68,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> FinishProjectAsync(FinishProjectVM entity)
         {
-            var projectObj = await _db.Projects.Include(x=>x.ProjectMember).Include(x=>x.ProjectResource).ThenInclude(x=>x.UserToProjectTransactionHistory).AsSplitQuery().
+            var projectObj = await _db.Projects.Include(x=>x.ProjectMember).Include(x=>x.ProjectResource).ThenInclude(x=>x.OrganizationToProjectHistory).AsSplitQuery().
                 Include(x=>x.ProjectResource).ThenInclude(x=>x.UserToProjectTransactionHistory).AsSplitQuery().
                 Where(x => x.ProjectID.Equals(entity.ProjectID)).FirstOrDefaultAsync();
             if (projectObj != null)

@@ -17,4 +17,5 @@ public interface ISearchService
 
     IQueryable<OrganizationToProjectHistory> GetOrgToPrjQueryWithSearchParams(SearchRequestDto searchRequestDto,
         IQueryable<OrganizationToProjectHistory> query);
+    IQueryable<UserWalletTransaction> GetUserWalletTransactionWithSearchParams(SearchRequestDto searchRequestDto, IQueryable<UserWalletTransaction> query);
 }

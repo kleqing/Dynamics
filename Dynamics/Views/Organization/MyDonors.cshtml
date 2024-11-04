@@ -103,14 +103,14 @@
                     {
                         var item = Model.ElementAt(i);
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2 text-lg">@(i + 1)</td>
-                            <td class="p-2 text-lg font-semibold">@item.Time</td>
-                            <td class="p-2 text-lg font-semibold">@item.User.UserName</td>
-                            <td class="p-2 text-lg font-semibold">@item.OrganizationResource.ResourceName</td>
-                            <td class="p-2 text-lg">@item.Amount</td>
-                            <td class="p-2 text-lg">@item.OrganizationResource.Unit</td>
-                            <td class="p-2 text-lg">@item.Message</td>
-                            <td class="p-2 ">
+                            <td class="text-lg">@(i + 1)</td>
+                            <td class="text-lg font-semibold">@item.Time</td>
+                            <td class="text-lg font-semibold">@item.User.UserName</td>
+                            <td class="text-lg font-semibold">@item.OrganizationResource.ResourceName</td>
+                            <td class="text-lg">@item.Amount.ToString("N0")</td>
+                            <td class="text-lg">@item.OrganizationResource.Unit</td>
+                            <td class="text-lg">@item.Message</td>
+                            <td class="">
                                 <div class="w-fit">
                                     @if (item.Status == 1)
                                     {

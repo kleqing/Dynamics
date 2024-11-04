@@ -35,7 +35,7 @@
 }
 
 <!-- container start -->
-<div class="m-w-screen-2xl ml-20 flex  justify-start relative">
+<div class="mx-auto max-w-screen-xl flex justify-start relative">
     @if (statusProjectMemberOfUser>=2)
     {
         <!-- edit button -->
@@ -46,7 +46,7 @@
             </button>
         </a>
     }
-    <div class="relative my-12  flex flex-col text-xl" style="width: 66%">
+    <div class="relative my-12 flex flex-col text-xl" style="width: 66%">
         <!-- part 1-image -->
         <div class="ml-0  w-full justify-center items-center">
             <div class="relative items-center">
@@ -176,7 +176,7 @@
                         <th></th>
                         <th class="text-xl">Date</th>
                         <th class="text-xl">Name</th>
-                        <th class="text-xl">Resource Name</th>
+                        <th class="text-xl">Resource</th>
                         <th class="text-xl">Quantity</th>
                         <th class="text-xl">Unit</th>
                         <th class="text-xl">Message</th>
@@ -189,14 +189,14 @@
                     {
                         var item =  Model.Random5Donors.ElementAt(i);
                         <tr class="hover:bg-slate-50">
-                            <td class="p-2 text-lg">@(i + 1)</td>
-                            <td class="p-2 text-lg">@item.Time</td>
-                            <td class="p-2 text-lg">@item.User.UserName</td>
-                            <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
-                            <td class="p-2 text-lg">@item.Amount</td>
-                            <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
-                            <td class="p-2 text-lg">@item.Message</td>
-                            <td class="p-2 ">
+                            <td class=" text-lg">@(i + 1)</td>
+                            <td class=" text-lg">@item.Time</td>
+                            <td class=" text-lg">@item.User.UserName</td>
+                            <td class=" text-lg">@item.ProjectResource.ResourceName</td>
+                            <td class=" text-lg">@item.Amount.ToString("N0")</td>
+                            <td class=" text-lg">@item.ProjectResource.Unit</td>
+                            <td class=" text-lg">@item.Message</td>
+                            <td class=" ">
                                 <div class="w-fit">
                                         @if (item.Status == 1)
                                         {
@@ -262,35 +262,43 @@
 </div>
     <!-- part 1-fundraising -->
     <!-- when using fixed+relative, need to modify top-bottom-left-right to specify the object at fixed/absolute -->
-        <div  class="sticky top-20 right-15 h-fit ml-12 mr-20 " style="width:28%;">
-    <div class=" flex flex-col text-4xl justify-start shadow-2xl p-6 my-10 mx-2 rounded-3xl bg-white w-full">
-        <span class=" font-bold text-green-500 p-2 tex-6xl">Raised @Model.CurrentAmountOfMoneyDonate VND</span>
-        <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 ">
-            <div class="bg-green-500 h-3 rounded-full" style="width: @(Model.ProgressDonate >=100?100:Model.ProgressDonate)%"></div>       
-        </div>
-        <span class=" font-normal text-gray-500 p-2 text-2xl">
-            pledged of <span class="font-bold text-black text-4xl">@Model.ExpectedAmountOfMoneyDonate</span> VND goal
+        <div  class="sticky top-20 right-15 h-fit ml-12 mr-12 " style="width:28%;">
+    <div class=" flex flex-col gap-2 justify-start shadow-2xl p-6 my-10 mx-2 rounded-3xl bg-white w-full">
+        <span class="font-bold text-success text-center text-2xl">@Model.CurrentAmountOfMoneyDonate.ToString("N0") VND</span>
+        <span class=" font-normal text-neutral text-center mb-2">
+            raised of <span class="font-bold">@Model.ExpectedAmountOfMoneyDonate.ToString("N0")</span> VND goal
         </span>
-
-        <div class="flex font-normal text-gray-500 flex-col p-2 text-2xl">
-            <span class="text-black font-bold text-4xl">@Model.NumberOfProjectContributor</span>
-            <div>Contributors</div>
+        <div class="flex flex-col">
+            <div class="w-full bg-neutral rounded-full h-3">
+                <div class="bg-green-500 h-3 rounded-full" style="width: @(Model.ProgressDonate >=100?100:Model.ProgressDonate)%"></div>
+            </div>
+            <div class="w-full flex justify-between">
+                <span class="text-success">@(Model.ProgressDonate.ToString("F2"))% funded</span>
+                <span class="text-neutral">@Model.NumberOfProjectContributor contributors</span>
+            </div>
         </div>
-        <div class="flex font-normal text-gray-500 flex-col p-2 text-2xl">
-            <span class="text-black font-bold text-4xl">@Model.TimeLeftEndDay</span>
-            <div>days till the end</div>
+        <span class="hidden" id="daysLeft">@Model.TimeLeftEndDay</span>
+        <div class="flex font-normal bg-gray-300/30 rounded px-6 py-4 gap-6 justify-center timeLeftContainer">
+            <div class="flex flex-col justify-center">
+                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+            </div>
+            <div>
+                <p>Time left</p>
+                <p class="timeLeftContainer__time"><span class="font-bold" id="d">111</span> d <span class="font-bold" id="h">111</span> h <span class="font-bold" id="m">111</span> m</p>
+            </div>
         </div>
         <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
-                <button type="button" style="width:98%;"
-                class="text-gray-900 bg-green-500 from-teal-200 to-lime-200 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 focus:outline-none focus:ring-lime-200 dark:focus:ring-teal-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-            Donate
-            this project
+                <button type="button" style="width:100%;"
+                class="text-white hover:text-black bg-success transition-all ease-in duration-75 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 font-medium rounded-lg text-sm btn btn-success btn-lg text-center me-2 mb-2">
+                Donate this project
         </button>
             </a>
             @if (statusProjectMemberOfUser == -1)
             {
                 <a asp-action="JoinProjectRequest" asp-route-memberid="@(!string.IsNullOrEmpty(userIDString)?new Guid(userIDString):Guid.Empty)" asp-route-projectid="@currentProjectID">
-                    <button style="width:98%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+                    <button style="width:100%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
                         <span class="relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                         Join this project
                     </span>
@@ -300,7 +308,7 @@
             else if (statusProjectMemberOfUser == 0)
             {
                 <a asp-action="JoinProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
-                    <button style="width:98%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+                    <button style="width:100%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
                         <span class=" relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                             Processing join request
                         </span>
@@ -310,7 +318,7 @@
             else if (statusProjectMemberOfUser == -2)
             {
                 <a asp-action="AcceptJoinInvitation" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
-                    <button style="width:98%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+                    <button style="width:100%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
                         <span class=" relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                             Accept invitation
                         </span>
@@ -320,7 +328,7 @@
             else if (statusProjectMemberOfUser >= 1)
             {
                 <a asp-action="LeaveProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
-                    <button style="width:98%;"class="  relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
+                    <button style="width:100%;"class="  relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
                         <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                             Leave this project
                         </span>
@@ -328,7 +336,7 @@
                 </a>
             }
 
-            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : $"window.location.href='/Identity/Account/Login?returnUrl={Uri.EscapeDataString($"~/Project/ManageProject?id={currentProjectID}")}'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+            <button onclick="@(User.Identity.IsAuthenticated ? "ReportModal.showModal()" : $"window.location.href='/Identity/Account/Login?returnUrl={Uri.EscapeDataString($"~/Project/ManageProject?id={currentProjectID}")}'")" type="button" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full">
                 <span class="relative w-full px-5 py-2.5 transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                 Report
             </span>
@@ -371,6 +379,47 @@
 
 
 </div>
+<!-- Display the countdown timer in an element -->
+<p id="demo"></p>
+
+<script>
+    let remainingTime = document.querySelector('#daysLeft');
+    let days = (Number)(remainingTime.innerText);
+    console.log('Days: '  + days);
+    if (days === 0 || isNaN(days)) {
+        let container = document.getElementsByClassName("timeLeftContainer")[0];
+        container.style.display = "none";
+    } else {
+        let now = new Date().getTime();
+        let midnight = new Date();
+        midnight.setHours(0, 0, 0, 0);
+        let timeSinceMidnight = now - midnight.getTime();
+        let countDownDate = now + (days * 24 * 60 * 60 * 1000) - timeSinceMidnight; // Current time + total days - time passed since 24:00
+        console.log(countDownDate)
+        let countDown = function () {
+            // Get today's date and time
+            now = new Date().getTime();
+            // Find the distance between now and the count down date
+            let distance = countDownDate - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            console.log('Countdown')
+            console.log(days)
+            console.log(hours)
+            console.log(minutes)
+            // Display the result in the element with id="demo"
+            document.getElementsByClassName("timeLeftContainer__time")[0].innerHTML =
+                `<span class="font-bold" id="d">${days}</span> d <span class="font-bold" id="h">${hours}</span> h <span class="font-bold" id="m">${minutes}</span> m`
+        }
+        countDown(); // call first
+        // Update the count down every 60 second
+        let x = setInterval(countDown, (5000));
+    }
+</script>
 
 <script>
     @*  modal *@
@@ -457,6 +506,4 @@ function toggleDescription() {
         summaryText.textContent = fullText;
     }
 }
-
-
 </script>

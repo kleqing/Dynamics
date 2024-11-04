@@ -25,7 +25,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly IUserRepository _userRepo;
-        private readonly IRoleService roleService;
+        private readonly IRoleService _roleService;
+        private readonly IWalletService _walletService;
 
         public ExternalLoginModel(
             SignInManager<User> signInManager,
@@ -34,7 +35,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender,
             IUserRepository userRepo,
-            IRoleService roleService)
+            IRoleService roleService, IWalletService walletService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -42,7 +43,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _userRepo = userRepo;
-            this.roleService = roleService;
+            _roleService = roleService;
+            _walletService = walletService;
         }
 
         [BindProperty] public InputModel Input { get; set; }
@@ -200,9 +202,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    if (!await roleService.IsInRoleAsync(user.Id, RoleConstants.User))
+                    await _walletService.CreateEmptyWalletAsync(user.Id); // Wallet
+                    if (!await _roleService.IsInRoleAsync(user.Id, RoleConstants.User))
                     {
-                        await roleService.AddUserToRoleAsync(user.Id, RoleConstants.User); // Init default role
+                        await _roleService.AddUserToRoleAsync(user.Id, RoleConstants.User); // Init default role
                     }
 
                     if (result.Succeeded)

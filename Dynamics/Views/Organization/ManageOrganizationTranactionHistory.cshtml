@@ -139,13 +139,13 @@
                         @if (item.Type.Equals("OrgToPrj"))
                         {
                             <td class="p-2 text-lg text-red-900">
-                                -@item.Amount
+                                -@item.Amount.ToString("N0")
                             </td>
                         }
                         else
                         {
                             <td class="p-2 text-lg text-green-900">
-                                +@item.Amount
+                                +@item.Amount.ToString("N0")
                             </td>
                         }
 
@@ -360,7 +360,7 @@
 
     </div>
 </div> *@
-
+<partial name="_ValidationDatePartial"/>
 <script>
     function toggleDropdown() {
         var dropdownMenu = document.getElementById("dropdown-menu");

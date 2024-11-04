@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using Humanizer;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Dynamics.Controllers
 {
@@ -22,7 +24,8 @@ namespace Dynamics.Controllers
 
         public HomeController(IUserRepository userRepo, IRequestRepository requestRepo,
             IProjectRepository projectRepo, IProjectService projectService, IRequestService requestService,
-            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination, IRoleService roleService)
+            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination
+            ,IRoleService roleService)
         {
             _userRepo = userRepo;
             _requestRepo = requestRepo;
@@ -159,12 +162,6 @@ namespace Dynamics.Controllers
         public IActionResult Announce()
         {
             return View();
-        }
-
-        public async Task<IActionResult> TestRole(Guid userId, string role)
-        {
-            await _roleService.AddUserToRoleAsync(userId, role);
-            return RedirectToAction(nameof(Index));
         }
     }
 }

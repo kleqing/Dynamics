@@ -18,13 +18,13 @@ namespace Dynamics.Controllers
     public class OrganizationController : Controller
     {
 
-        IOrganizationRepository _organizationRepository;
-        IUserRepository _userRepository;
-        IProjectRepository _projectRepository;
-        IOrganizationVMService _organizationService;
-        IUserToOragnizationTransactionHistoryVMService _userToOragnizationTransactionHistoryVMService;
-        IProjectVMService _projectVMService;
-        IOrganizationToProjectHistoryVMService _organizationToProjectHistoryVMService;
+        private readonly IOrganizationRepository _organizationRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IOrganizationVMService _organizationService;
+        private readonly IUserToOragnizationTransactionHistoryVMService _userToOragnizationTransactionHistoryVMService;
+        private readonly IProjectVMService _projectVMService;
+        private readonly IOrganizationToProjectHistoryVMService _organizationToProjectHistoryVMService;
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly IOrganizationService _orgDisplayService;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
@@ -75,13 +75,13 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> Index()
         {
             var orgs = _organizationRepository.GetAll(org => org.OrganizationStatus == 1);
-            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs.ToList());
+            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(await orgs.ToListAsync());
             return View(organizationVMs);
         }
 
         //GET: /Organization/Create
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             //get current user
             var userString = HttpContext.Session.GetString("user");
@@ -112,6 +112,23 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Organization organization, List<IFormFile> images)
         {
+            // Check if user already has an organization
+            //get current user
+            var userString = HttpContext.Session.GetString("user");
+            User currentUser = null;
+            if (userString != null)
+            {
+                currentUser = JsonConvert.DeserializeObject<User>(userString);
+            }
+
+            var existOrg = await _organizationRepository.GetOrganizationUserLead(currentUser.Id);
+            if (existOrg != null)
+            {
+                TempData[MyConstants.Error] = "Create organization failed!";
+                TempData[MyConstants.Subtitle] = "You already a leader of an organization";
+                return View(organization);
+            }
+            
             //set picture for Organization
             if (images.Count != 0)
             {
@@ -129,10 +146,6 @@ namespace Dynamics.Controllers
                    : "Extension of some files is wrong!";
                 }
             }
-
-            //get current user
-            var userString = HttpContext.Session.GetString("user");
-            User currentUser = null;
             if (userString != null)
             {
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
@@ -193,10 +206,10 @@ namespace Dynamics.Controllers
 
         }//fix session done
 
-        public async Task<IActionResult> Detail(Guid organizationId)
+        public async Task<IActionResult> Detail(Guid Id)
         {
             //Creat current organization
-            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
+            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(Id));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
             return View(organizationVM);
@@ -389,12 +402,12 @@ namespace Dynamics.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid userId)
+        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid Id)
         {
-            var organizationMember = await _organizationRepository.GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == userId);
+            var organizationMember = await _organizationRepository.GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == Id);
             var statusUserOut = organizationMember.Status;
 
-            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, userId);
+            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, Id);
 
             var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
@@ -411,7 +424,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User request denied successfully.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "deny");
+                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(Id, organizationId, link, "deny");
                 return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
             }
             else if (statusUserOut == 0)
@@ -419,7 +432,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "You have successfully left the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "left");
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link, "left");
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -427,7 +440,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "remove");
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link, "remove");
                 return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
         }
@@ -674,13 +687,9 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> SendResourceOrganizationToProject(OrganizationToProjectHistory transaction, Guid projectId, List<IFormFile> file)
         {
             var resourceSent = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.Equals(transaction.OrganizationResourceID));
-           
-
-
+            
             if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity)
             {
-                
-
                 var project = await _projectVMService.GetProjectAsync(p => p.ProjectID.Equals(projectId));
                 bool duplicate = false;
                 var projectResource = new ProjectResource();
@@ -781,7 +790,6 @@ namespace Dynamics.Controllers
             {
                 ViewBag.MessageProject = "*Choose project to send";
             }
-            
            
             return View(transaction);
         }
@@ -818,7 +826,7 @@ namespace Dynamics.Controllers
             // Setup for display
             ViewBag.donatorName = currentUser.UserName;
             ViewBag.returnUrl = Url.Action("Detail", "Organization", new { organizationId }, Request.Scheme) ?? "~/";
-            var vnPayRequestModel = new VnPayRequestDto
+            var vnPayRequestModel = new PayRequestDto
             {
                 FromID = currentUser.Id,
                 ResourceID = new Guid(resourceId),
@@ -843,7 +851,7 @@ namespace Dynamics.Controllers
             if (organizationMoneyResource == null) throw new Exception("WARNING: Organization MONEY resource not found");
             ViewData["limitAmount"] = organizationMoneyResource.Quantity;
             ViewBag.returnUrl = Url.Action("Detail", "Organization", new { organizationId }, Request.Scheme) ?? "~/";
-            var vnPayRequestModel = new VnPayRequestDto
+            var vnPayRequestModel = new PayRequestDto
             {
                 // Target project id will be rendered in a form of options
                 FromID = new Guid(organizationId),

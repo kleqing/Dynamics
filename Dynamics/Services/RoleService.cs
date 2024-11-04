@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Web.Mvc;
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Models;
@@ -14,7 +15,8 @@ public class RoleService : IRoleService
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
-
+    
+    
     public RoleService(UserManager<User> userManager,
         RoleManager<IdentityRole<Guid>> roleManager, 
         IUserRepository userRepository, IMapper mapper)
@@ -25,7 +27,6 @@ public class RoleService : IRoleService
         _mapper = mapper;
     }
 
-    //Get all roles of a user
     public async Task<List<string>> GetRolesFromUserAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -33,14 +34,12 @@ public class RoleService : IRoleService
         return await GetRolesFromUserAsync(user);
     }
 
-
     public async Task<List<string>> GetRolesFromUserAsync(User user)
     {
         var roles = await _userManager.GetRolesAsync(user);
         return roles.ToList();
     }
 
-    //Get all user <=> this role specific
     public async Task<List<UserVM>> GetUsersIncludingRoles(Expression<Func<User, bool>>? filter = null)
     {
         var users = new List<User>();
@@ -76,7 +75,6 @@ public class RoleService : IRoleService
         await _userManager.AddToRoleAsync(user, roleName);
     }
 
-
     public async Task AddUserToRolesAsync(Guid userId, IEnumerable<string> roleName)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -88,7 +86,6 @@ public class RoleService : IRoleService
     {
         await _userManager.AddToRolesAsync(user, roleName);
     }
-
 
     public async Task<bool> IsInRoleAsync(User user, string roleName)
     {

@@ -34,7 +34,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             public string Password { get; set; }
-
+            
+            [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
@@ -67,12 +68,27 @@ namespace Dynamics.Areas.Identity.Pages.Account
             {
                 return Page();
             }
+
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                // Don't reveal that the user does not exist
-                return RedirectToPage("./ResetPasswordConfirmation");
+                ModelState.AddModelError(string.Empty, "Invalid email address.");
+                return Page();
             }
+
+            if (user.PasswordHash == null)
+            {
+                ModelState.AddModelError(string.Empty, "Your account does associate with a password");
+                return Page();
+            }
+            // Check if user enter the old password
+            var passwordHasher = _userManager.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, Input.Password);
+            if (passwordHasher == PasswordVerificationResult.Success)
+            {
+                ModelState.AddModelError(string.Empty, "New password cannot be the same as old password.");
+                return Page();
+            }
+            
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {

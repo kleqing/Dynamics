@@ -19,6 +19,7 @@
                 <input asp-for="@Model.OrganizationID" value="@Model.OrganizationID" class="hidden">
                 <input type="date" asp-for="@Model.StartTime" class="hidden" name="StartTime"/>
                 <input asp-for="OrganizationPictures" name ="OrganizationPictures" class="hidden">
+                <input asp-for="@Model.OrganizationStatus" type="hidden"/>
             </div>
             <div class="mb-4">
                 <label asp-for="OrganizationName" class="block text-sm font-medium text-gray-700 mb-1">Enter organization name:</label>

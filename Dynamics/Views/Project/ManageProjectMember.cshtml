@@ -146,17 +146,17 @@
                 <tbody class="text-base text-gray-900">
                 @foreach (var item in Model.ProjectMembers)
                 {
-                    <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
+                    <tr class="hover:bg-slate-50 border-b border-slate-200">
                         <td class="p-4 border-b border-blue-gray-50">
                             <div class="flex items-center gap-3">
                                 <img src="@item.User.UserAvatar"
                                      alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center"/>
                                 <div class="flex flex-col">
                                     <p class="block font-sans antialiased font-normal leading-normal ">
-                                        <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.UserID" class="text-black font-bold"> @item.User.UserFullName</a>
+                                        <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id" class="text-black font-bold"> @item.User.UserName</a>
                                     </p>
                                     <p class="block font-sans antialiased font-normal leading-normal  ">
-                                        @item.User.UserEmail
+                                        @item.User.Email
                                     </p>
                                 </div>
                             </div>
@@ -186,7 +186,7 @@
                             <td class="p-4 border-b border-blue-gray-50">
                                 @if (item.Status == 1)
                                 {
-                                    <a asp-action="DeleteProjectMember" asp-controller="Project" asp-route-id="@item.User.UserID" type="button" class="h-10 text-white  bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Remove</a>
+                                    <a asp-action="DeleteProjectMember" asp-controller="Project" asp-route-id="@item.User.Id" type="button" class="h-10 text-white  bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Remove</a>
                                 }
                             </td>
                         }

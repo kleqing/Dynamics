@@ -50,16 +50,12 @@
                                     Non-Profit Organization
                                 </span>
                             </div>
-
-
-
-
                             @{
                                 bool isJoined = false;
                                 int count = 0;
 
                                 //role is CEO
-                                if (currentUser != null && currentUser.UserID.Equals(Model.CEO.UserID))
+                                if (currentUser != null && currentUser.Id.Equals(Model.CEO.Id))
                                 {
                                     <a asp-action="Edit" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
                                         <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
@@ -75,7 +71,7 @@
                                 var organizationMember = new OrganizationMember();// save satatus of currentUser
                                 @foreach (var item in Model.OrganizationMember)
                                 {
-                                    if (currentUser != null && item.User.UserID.Equals(@currentUser.UserID))
+                                    if (currentUser != null && item.User.Id.Equals(@currentUser.Id))
                                     {
                                         isJoined = true;
                                         organizationMember = item;
@@ -95,7 +91,7 @@
                                         </button>
 
                                         <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                            <input value="@currentUser.UserID" name="userId" type="hidden">
+                                            <input value="@currentUser.Id" name="Id" type="hidden">
                                             <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2" type="submit">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -111,7 +107,7 @@
                                 if (organizationMember.Status == 1)
                                 {
                                     <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                        <input value="@currentUser.UserID" name="userId" type="hidden">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
                                         <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2" type="submit">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -129,7 +125,7 @@
                                     <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
                                         @if (currentUser != null)
                                         {
-                                            <input value="@currentUser.UserID" name="userId" type="hidden">
+                                            <input value="@currentUser.Id" name="Id" type="hidden">
                                         }
                                         <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -152,7 +148,7 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <span>Leader Organization: @Model.CEO.UserFullName</span>
+                            <span>Leader Organization: @Model.CEO.UserName</span>
                         </div>
 
                         
@@ -346,7 +342,7 @@
             <div class="flex flex-col md:flex-row gap-6 justify-center">
                 <div class="flex-1">
                     <h1 class="text-3xl font-bold mb-4">@Model.OrganizationName</h1>
-                    <p class="text-sm font-semibold mb-2 ">Leader Organization: @Model.CEO.UserFullName</p>
+                    <p class="text-sm font-semibold mb-2 ">Leader Organization: @Model.CEO.UserName</p>
                     <p class="text-sm font-semibold mb-2 ">Created: @Model.StartTime </p>
                     <p class="text-sm font-semibold mb-2 ">Members: @Model.Members</p>
                     <p class="text-sm font-semibold mb-2 ">Projects: @Model.Projects</p>
@@ -372,7 +368,7 @@
                                 int count = 0;
 
                                 //role is CEO
-                                if (currentUser.UserID.Equals(Model.CEO.UserID))
+                                if (currentUser.Id.Equals(Model.CEO.Id))
                                 {
                                     <a asp-action="Edit" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
                                         <button class="bg-red-500 hover:bg-red-600 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
@@ -384,7 +380,7 @@
                                 var organizationMember = new OrganizationMember();// save satatus of currentUser
                                 @foreach (var item in Model.OrganizationMember)
                                 {
-                                    if (item.User.UserID.Equals(@currentUser.UserID))
+                                    if (item.User.Id.Equals(@currentUser.Id))
                                     {
                                         isJoined = true;
                                     organizationMember = item;
@@ -400,7 +396,7 @@
                                         </button>
 
                                      <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                        <input value="@currentUser.UserID" name="userId" type="hidden">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
                                         <button class="bg-red-500 hover:bg-blue-900 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
                                            Cancel
                                         </button>
@@ -412,7 +408,7 @@
                                 if (organizationMember.Status == 1)
                                 {
                                     <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                        <input value="@currentUser.UserID" name="userId" type="hidden">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
                                         <button class="bg-red-500 hover:bg-red-600 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
                                             Out Organization
                                         </button>
@@ -423,7 +419,7 @@
                                 if (!isJoined)
                                 {
                                     <form asp-action="sendRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                        <input value="@currentUser.UserID" name="userId" type="hidden">
+                                        <input value="@currentUser.Id" name="Id" type="hidden">
                                         <button class="bg-red-500 hover:bg-red-600 text-white font-bold w-auto text-sm px-5 py-4 rounded " type="submit">
                                             Join Organization
                                         </button>
@@ -462,7 +458,7 @@
        
         <a asp-action="ManageOrganizationMember" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-blue-500 pb-2 px-5 text-2xl font-medium">Member</a>
         <a asp-action="ManageOrganizationResource" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-blue-500 pb-2 px-5 text-2xl font-medium">Resources</a>
-        @if (currentUser.UserID.Equals(Model.CEO.UserID))
+        @if (currentUser.Id.Equals(Model.CEO.Id))
         {
         <a asp-action="ReviewDonateRequest" asp-controller="Organization" class="border-b-2 border-gray-300 border-solid text-gray-500 pb-2 px-5 text-2xl font-medium">Request Donate</a>
         } 

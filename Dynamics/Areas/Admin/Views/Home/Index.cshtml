@@ -672,15 +672,15 @@
                                                     {
                                                     <tr>
                                                         <td>
-                                                            <h5 class="font-14 my-1 fw-normal">@item.UserFullName</h5>
+                                                            <h5 class="font-14 my-1 fw-normal">@item.UserName</h5>
                                                             <span class="text-muted font-13">Full Name</span>
                                                         </td>
                                                         <td>
-                                                            <h5 class="font-14 my-1 fw-normal">@item.UserEmail</h5>
+                                                            <h5 class="font-14 my-1 fw-normal">@item.Email</h5>
                                                             <span class="text-muted font-13">Email</span>
                                                         </td>
                                                         <td>
-                                                            <h5 class="font-14 my-1 fw-normal">@item.UserPhoneNumber</h5>
+                                                            <h5 class="font-14 my-1 fw-normal">@item.PhoneNumber</h5>
                                                             <span class="text-muted font-13">Phone Number</span>
                                                         </td>
                                                         <td>
@@ -772,7 +772,7 @@
                                                             <span class="time-ago" data-creation-date="@request.CreationDate.Value.ToUniversalTime().ToString("o")">
                                                                 @Dynamics.Areas.Admin.Ultility.RecentTime.GetTime(request.CreationDate.Value)
                                                             </span>
-                                                            by @request.User.UserFullName.ToString()
+                                                            by @request.User.UserName.ToString()
                                                         </small>
                                                     </p>
                                                 </div>

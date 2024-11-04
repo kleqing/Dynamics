@@ -71,7 +71,7 @@ namespace Dynamics.Areas.Admin.Controllers
                 int recordIndex = 3;
                 foreach (var reports in listReport)
                 {
-                    worksheet.Cells[recordIndex, 1].Value = reports.Reporter.UserFullName;
+                    worksheet.Cells[recordIndex, 1].Value = reports.Reporter.UserName;
                     worksheet.Cells[recordIndex, 2].Value = reports.Type;
                     worksheet.Cells[recordIndex, 3].Value = reports.Reason;
                     worksheet.Cells[recordIndex, 4].Value = reports.ReportDate.ToString();

@@ -21,10 +21,10 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
-    var organizationUserLead = await OrganizationRepository.GetOrganizationUserLead(currentUser.UserID);
-    var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(currentUser.UserID));
+    var organizationUserLead = await OrganizationRepository.GetOrganizationUserLead(currentUser.Id);
+    var ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(currentUser.Id));
     var statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
-    var leader = await UserRepository.GetAsync(x => x.UserID == new Guid(currentProjectLeaderID));
+    var leader = await UserRepository.GetAsync(x => x.Id == new Guid(currentProjectLeaderID));
 }
 <!-- Donate by money -->
 <section class="md:px-32 my-16">
@@ -33,7 +33,7 @@
         <input type="hidden" name="TargetType" value="@Model.VnPayRequestDto.TargetType"/>
         <input type="hidden" name="ResourceID" value="@Model.VnPayRequestDto.ResourceID"/>
         <input type="hidden" name="TargetId" value="@Model.VnPayRequestDto.TargetId"/>
-        <input type="hidden" Name="FromID" value="@currentUser?.UserID"/>
+        <input type="hidden" Name="FromID" value="@currentUser?.Id"/>
         <input type="hidden" name="returnUrl" value="@ViewBag.returnUrl" />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <!-- Inputs -->
@@ -158,7 +158,7 @@
         <input type="hidden" asp-for="@Model.ProjectID" value="@currentProjectID"/>
         @if (Model.TypeDonor.Equals("User"))
         {
-            <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.UserID"/>
+            <input type="hidden" asp-for="@Model.UserDonate.UserID" value="@currentUser?.Id"/>
             <input type="hidden" asp-for="@Model.TypeDonor" value="User"/>
             <div class="form-control w-full max-w-md">
                 <label asp-for="@Model.UserDonate.ProjectResourceID" class="block mb-2 text-lg font-medium text-gray-900">Select a resource </label>
@@ -209,10 +209,10 @@
             <script src="https://kit.fontawesome.com/ba8c3661b4.js"
                     crossorigin="anonymous"></script>
             <p>
-                <i class="fa-solid fa-at"></i> @leader.UserEmail
+                <i class="fa-solid fa-at"></i> @leader.Email
             </p>
             <p>
-                <i class="fa-solid fa-phone"></i> @leader.UserPhoneNumber
+                <i class="fa-solid fa-phone"></i> @leader.PhoneNumber
             </p>
             <p>
                 <i class="fa-solid fa-location-dot"></i> @leader.UserAddress

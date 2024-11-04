@@ -59,7 +59,7 @@ public class NotificationService : INotificationService
         var notif = new Notification
         {
             NotificationID = Guid.NewGuid(),
-            UserID = member.UserID,
+            UserID = member.Id,
             Message = $"Project {projectObj.ProjectName} has sent you an invitation to be their project member",
             Date = DateTime.Now,
             Link = linkUser,
@@ -71,8 +71,8 @@ public class NotificationService : INotificationService
         var notifLeader = new Notification
         {
             NotificationID = Guid.NewGuid(),
-            UserID = leaderOfProject.UserID,
-            Message = $"You have sent an invitation to \"{member.UserFullName}\" to join your project {projectObj.ProjectName}.\nClick this notification to cancel the invitation!",
+            UserID = leaderOfProject.Id,
+            Message = $"You have sent an invitation to \"{member.UserName}\" to join your project {projectObj.ProjectName}.\nClick this notification to cancel the invitation!",
             Date = DateTime.Now,
             Link = linkLeader,
             Status = 0 // Unread
@@ -85,13 +85,13 @@ public class NotificationService : INotificationService
         switch (type)
         {
             case "join":
-                var existed = _notifRepo.GetNotificationAsync(n => n.UserID.Equals(leaderOfProject.UserID) && n.Link.Equals(link));
+                var existed = _notifRepo.GetNotificationAsync(n => n.UserID.Equals(leaderOfProject.Id) && n.Link.Equals(link));
                 if (existed != null) break;
                 var approveNotif = new Notification
                 {
                     NotificationID = Guid.NewGuid(),
-                    UserID = leaderOfProject.UserID,
-                    Message = $"{member.UserFullName} has accepted your invitation",
+                    UserID = leaderOfProject.Id,
+                    Message = $"{member.UserName} has accepted your invitation",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -102,7 +102,7 @@ public class NotificationService : INotificationService
                 var cancelNotif = new Notification
                 {
                     NotificationID = Guid.NewGuid(),
-                    UserID = member.UserID,
+                    UserID = member.Id,
                     Message = $"Your invitation to join the project {project.ProjectName} has been cancelled",
                     Date = DateTime.Now,
                     Link = link,
@@ -114,8 +114,8 @@ public class NotificationService : INotificationService
                 var denyNotif = new Notification
                 {
                     NotificationID = Guid.NewGuid(),
-                    UserID = leaderOfProject.UserID,
-                    Message = $"{member.UserFullName} has denied your invitation",
+                    UserID = leaderOfProject.Id,
+                    Message = $"{member.UserName} has denied your invitation",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -215,11 +215,11 @@ public class NotificationService : INotificationService
 
     public async Task DeleteProjectMemberNotificationAsync(Guid memberid, string link, string projectName)
     {
-        var user = await _userRepo.GetAsync(u => u.UserID.Equals(memberid));
+        var user = await _userRepo.GetAsync(u => u.Id.Equals(memberid));
         var notif = new Notification
         {
             NotificationID = Guid.NewGuid(),
-            UserID = user.UserID,
+            UserID = user.Id,
             Message = $"You have been removed from {projectName}.",
             Date = DateTime.Now,
             Link = link,
@@ -581,13 +581,13 @@ public class NotificationService : INotificationService
     public async Task TransferOrganizationCeoNotificationAsync(Guid newCEOId, Guid oldCEOId, Guid orgId, string link)
     {
         var org = await _orgRepo.GetOrganizationAsync(o => o.OrganizationID.Equals(orgId));
-        var newCEO = await _userRepo.GetAsync(u => u.UserID.Equals(newCEOId));
-        var oldCEO = await _userRepo.GetAsync(u => u.UserID.Equals(oldCEOId));
+        var newCEO = await _userRepo.GetAsync(u => u.Id.Equals(newCEOId));
+        var oldCEO = await _userRepo.GetAsync(u => u.Id.Equals(oldCEOId));
         var newCEONotif = new Notification
         {
             NotificationID = Guid.NewGuid(),
             UserID = newCEOId,
-            Message = $"You have been appointed to be {org.OrganizationName} organization CEO by {oldCEO.UserFullName}.",
+            Message = $"You have been appointed to be {org.OrganizationName} organization CEO by {oldCEO.UserName}.",
             Date = DateTime.Now,
             Link = link,
             Status = 0 // Unread
@@ -596,7 +596,7 @@ public class NotificationService : INotificationService
         {
             NotificationID = Guid.NewGuid(),
             UserID = oldCEOId,
-            Message = $"You have transferred your CEO position from {org.OrganizationName} organization to {newCEO.UserFullName}.",
+            Message = $"You have transferred your CEO position from {org.OrganizationName} organization to {newCEO.UserName}.",
             Date = DateTime.Now,
             Link = link,
             Status = 0 // Unread

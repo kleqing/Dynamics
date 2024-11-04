@@ -7,6 +7,7 @@
 @{
     ViewData["Title"] = "ManageOrganizationTransactionHistory";
     Layout = "_LayoutOrganizationForm";
+    // Layout = "_LayoutOrganization";
     int count = ((Model.PaginationRequestDto.PageNumber - 1) * Model.PaginationRequestDto.PageSize) + 1;
 }
 
@@ -19,7 +20,7 @@
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
     <!--SECTION 1: USER DONATE-->
     <!-- title -->
-    <h2 class=" text-black font-bold text-3xl text-center my-4">User transaction history</h2>
+    <h2 class=" text-black font-bold text-3xl text-center my-4">Organization transaction history</h2>
     <!-- PART 1 -->
     <div class="flex relative justify-between my-2" style="width:92%">
         <div class="flex gap-x-6">

@@ -303,9 +303,9 @@ public class ProjectService : IProjectService
             }
             context.Session.SetString("currentProjectID", projectObj.ProjectID.ToString());
             var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
-            context.Session.SetString("currentProjectLeaderID", leaderOfProject.UserID.ToString());
+            context.Session.SetString("currentProjectLeaderID", leaderOfProject.Id.ToString());
             var ceoOfProject = FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectObj.ProjectID);
-            context.Session.SetString("currentProjectCEOID", ceoOfProject[0].UserID.ToString());
+            context.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
 
             List<string> statistic = await GetStatisticOfProjectAsync(projectObj.ProjectID);
             DetailProjectVM detailProjectVM = new DetailProjectVM()
@@ -352,7 +352,7 @@ public class ProjectService : IProjectService
 
     public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
     {
-        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
+        if (string.IsNullOrEmpty(imgPath)) return false;
         if (phaseID != Guid.Empty)
         {
             var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
@@ -366,7 +366,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1? allImagesOfPhase.Replace(img, ""): allImagesOfPhase.Replace(img + ",","");
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1 ? allImagesOfPhase.Replace(img, "") : allImagesOfPhase.Replace(img + ",", "");
                         }
                     }
 
@@ -406,6 +406,7 @@ public class ProjectService : IProjectService
 
         return false;
     }
+
 
     public async Task<string> UploadImagesAsync(List<IFormFile> images, string folder)
     {

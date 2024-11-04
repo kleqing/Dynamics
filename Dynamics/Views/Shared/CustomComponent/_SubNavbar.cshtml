@@ -10,11 +10,12 @@
     if (userString != null)
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
-
-        
-
     }
+
+    var currentPage = Accessor.HttpContext.Request.Path;
     var currentOrganization = Accessor.HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+    var activeClass = "tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-blue-500 text-blue-600";
+    var inactiveClass = "tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500";
 }
 
 <!-- Tabs Navigation -->
@@ -22,14 +23,14 @@
     <div class="border-b border-gray-200">
         <nav class="flex justify-center -mb-px">
             <a asp-action="ManageOrganizationMember" asp-controller="Organization">
-                <button class="tab-button active whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-blue-500 text-blue-600"
+                <button class="@((currentPage.Equals("/Organization/Detail", StringComparison.OrdinalIgnoreCase) || currentPage.Equals("/Organization/ManageOrganizationMember", StringComparison.OrdinalIgnoreCase) ) ? activeClass : inactiveClass)"
                         onclick="switchTab('members')">
                     Members
                 </button>
             </a>
            
             <a asp-action="ManageOrganizationResource" asp-controller="Organization">
-                <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                <button class="@(currentPage.Equals("/Organization/ManageOrganizationResource", StringComparison.OrdinalIgnoreCase) ? activeClass : inactiveClass)"
                         onclick="switchTab('resources')">
                     Resources
                 </button>
@@ -37,10 +38,10 @@
 
             
             
-            @if( currentUser != null && currentUser.UserID.Equals(currentOrganization.CEO.UserID))
+            @if( currentUser != null && currentUser.Id.Equals(currentOrganization.CEO.Id))
             {
                 <a asp-action="ReviewDonateRequest" asp-controller="Organization">
-                    <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    <button class="@(currentPage.Equals("/Organization/ReviewDonateRequest", StringComparison.OrdinalIgnoreCase) ? activeClass : inactiveClass)"
                         onclick="switchTab('donate')">
                         Request Donate
                     </button>
@@ -49,7 +50,7 @@
             else
             {
                 <a asp-action="MyDonors" asp-controller="Organization">
-                    <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    <button class="@(currentPage.Equals("/Organization/MyDonors", StringComparison.OrdinalIgnoreCase) ? activeClass : inactiveClass)"
                             onclick="switchTab('donate')">
                         My Donors
                     </button>
@@ -57,14 +58,14 @@
             }
            
             <a asp-action="ManageOrganizationProject" asp-controller="Organization">
-                <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                <button class="@(currentPage.Equals("/Organization/ManageOrganizationProject", StringComparison.OrdinalIgnoreCase) ? activeClass : inactiveClass)"
                         onclick="switchTab('projects')">
                     Projects
                 </button>
             </a>
             
             <a asp-action="ManageOrganizationTranactionHistory" asp-controller="Organization">
-                <button class="tab-button whitespace-nowrap py-4 px-6 border-b-2 font-medium text-2xl border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                <button class="@(currentPage.Equals("/Organization/ManageOrganizationTranactionHistory", StringComparison.OrdinalIgnoreCase) ? activeClass : inactiveClass)"
                         onclick="switchTab('transactions')">
                     Transaction History
                 </button>
@@ -76,7 +77,6 @@
 
 <script>
     function switchTab(tabId) {
-        
         // Update tab button styles
         document.querySelectorAll('.tab-button').forEach(button => {
             button.classList.remove('border-blue-500', 'text-blue-600');

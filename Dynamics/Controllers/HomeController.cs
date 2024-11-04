@@ -45,7 +45,7 @@ namespace Dynamics.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 var userEmail = User.FindFirstValue(ClaimTypes.Email);
-                var user = _userRepo.GetAsync(u => u.UserEmail == userEmail).Result;
+                var user = _userRepo.GetAsync(u => u.Email == userEmail).Result;
                 // Bad user
                 if (user == null) return RedirectToAction("Logout", "Auth");
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));

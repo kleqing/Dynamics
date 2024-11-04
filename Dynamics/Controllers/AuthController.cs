@@ -18,13 +18,13 @@ namespace Dynamics.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSender;
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager,
+        public AuthController(SignInManager<User> signInManager, UserManager<User> userManager,
             IUserRepository userRepo, IEmailSender emailSender)
         {
             _signInManager = signInManager;
@@ -78,7 +78,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> AddPasswordToAccount(ChangePasswordDto changePasswordDto)
         {
             var user = HttpContext.Session.GetCurrentUser();
-            var identiyUser = await _userManager.FindByIdAsync(user.UserID.ToString());
+            var identiyUser = await _userManager.FindByIdAsync(user.Id.ToString());
             if (identiyUser == null) throw new Exception("No user found");
             var result = _userManager.AddPasswordAsync(identiyUser, changePasswordDto.NewPassword);
             if (result.Result.Succeeded)

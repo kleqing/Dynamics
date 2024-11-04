@@ -66,7 +66,7 @@ public class TransactionViewService : ITransactionViewService
             .Select(uto => new OrganizationTransactionDto
         {
             TransactionID = uto.TransactionID,
-            Name = uto.User.UserFullName,
+            Name = uto.User.UserName,
             Unit = uto.OrganizationResource.Unit,
             Amount = uto.Amount,
             Message = uto.Message,

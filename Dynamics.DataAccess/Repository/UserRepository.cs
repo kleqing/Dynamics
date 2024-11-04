@@ -1,22 +1,20 @@
 ﻿using Dynamics.Models.Models;
+using Dynamics.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Dynamics.Utility;
 
 namespace Dynamics.DataAccess.Repository
 {
     public class UserRepository : IUserRepository
     {
         private readonly ApplicationDbContext _db;
-        private readonly AuthDbContext _authDbContext;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
-        public UserRepository(ApplicationDbContext db, AuthDbContext authDbContext,
-            UserManager<IdentityUser> userManager)
+        public UserRepository(ApplicationDbContext db,
+            UserManager<User> userManager)
         {
             _db = db;
-            _authDbContext = authDbContext;
             this._userManager = userManager;
         }
 
@@ -37,7 +35,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<User> DeleteById(Guid id)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.UserID.Equals(id));
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id.Equals(id));
             if (user != null)
             {
                 // TODO NO NO DON'T Delete, BAN HIM INSTEAD
@@ -69,7 +67,7 @@ namespace Dynamics.DataAccess.Repository
         public async Task AddToRoleAsync(Guid userId, string roleName)
         {
             var authUser = await _userManager.FindByIdAsync(userId.ToString());
-            var businessUser = await GetAsync(u => u.UserID == userId);
+            var businessUser = await GetAsync(u => u.Id == userId);
             if (authUser == null || businessUser == null) throw new Exception("ADD ROLE FAILED: USER NOT FOUND");
             businessUser.UserRole = roleName;
             // For identity, get the current role, delete it and add a new one
@@ -85,7 +83,7 @@ namespace Dynamics.DataAccess.Repository
         public async Task DeleteRoleFromUserAsync(Guid userId, string roleName = RoleConstants.User)
         {
             var authUser = await _userManager.FindByIdAsync(userId.ToString());
-            var businessUser = await GetAsync(u => u.UserID == userId);
+            var businessUser = await GetAsync(u => u.Id == userId);
             if (authUser == null || businessUser == null) throw new Exception("DELETE ROLE FAILED: USER NOT FOUND");
             var result = await _userManager.RemoveFromRoleAsync(authUser, roleName);
             businessUser.UserRole = roleName;
@@ -112,23 +110,22 @@ namespace Dynamics.DataAccess.Repository
         //
         public async Task<bool> UpdateAsync(User user)
         {
-            var existingItem = await GetAsync(u => user.UserID == u.UserID);
+            var existingItem = await GetAsync(u => user.Id == u.Id);
             if (existingItem == null)
             {
                 return false;
             }
-
-            // Things that identity might need to update: Name, Email
-            var identityUser = await _userManager.FindByIdAsync(user.UserID.ToString());
-            if (identityUser != null)
-            {
-                identityUser.UserName = user.UserFullName;
-                identityUser.Email = user.UserEmail;
-            }
+            // For other update method, create different repo method.
+            existingItem.UserName = user.UserName;
+            existingItem.Email = user.Email;
+            existingItem.PhoneNumber = user.PhoneNumber;
+            existingItem.UserAddress = user.UserAddress;
+            existingItem.UserDOB = user.UserDOB;
+            existingItem.UserDescription = user.UserDescription;
 
             // Only update the property that has the same name between 2 models
-            _db.Entry(existingItem).CurrentValues.SetValues(user);
-            await _userManager.UpdateAsync(identityUser);
+            //_db.Entry(existingItem).CurrentValues.SetValues(user);
+            //await _userManager.UpdateAsync(existingItem);
             await _db.SaveChangesAsync();
             return true;
         }

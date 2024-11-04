@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
-using Dynamics.Models.Models;
 using Dynamics.Models.Dto;
+using Dynamics.Models.Models;
+using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.Utility.Mapper;
 
@@ -11,7 +12,7 @@ public class MyMapper : Profile
         CreateMap<Request, RequestOverviewDto>()
             .ForMember(
                 rod => rod.Username,
-                opt => opt.MapFrom(r => r.User.UserFullName))
+                opt => opt.MapFrom(r => r.User.UserName))
             .ReverseMap();
         CreateMap<Project, ProjectOverviewDto>().ReverseMap();
         CreateMap<Organization, OrganizationOverviewDto>().ReverseMap();
@@ -30,5 +31,7 @@ public class MyMapper : Profile
             .ForMember(dest => dest.Time, opt => opt.Ignore())
             .ReverseMap()
             .ForMember(dest => dest.Time, opt => opt.Ignore());
+
+        CreateMap<User, UserVM>().ReverseMap();
     }
 }

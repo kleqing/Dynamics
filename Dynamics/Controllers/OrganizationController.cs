@@ -92,12 +92,10 @@ namespace Dynamics.Controllers
             {
                 OrganizationID = Guid.NewGuid(),
                 StartTime = DateOnly.FromDateTime(DateTime.UtcNow),
-                OrganizationEmail = currentUser.UserEmail,
-                OrganizationPhoneNumber = currentUser.UserPhoneNumber,
+                OrganizationEmail = currentUser.Email,
+                OrganizationPhoneNumber = currentUser.PhoneNumber,
                 OrganizationAddress = currentUser.UserAddress,
             };
-
-
             return View(organization);
         }
 
@@ -134,12 +132,12 @@ namespace Dynamics.Controllers
             //set contact for Organization
             if (organization.OrganizationEmail == null)
             {
-                organization.OrganizationEmail = currentUser.UserEmail;
+                organization.OrganizationEmail = currentUser.Email;
             }
 
             if (organization.OrganizationPhoneNumber == null)
             {
-                organization.OrganizationPhoneNumber = currentUser.UserPhoneNumber;
+                organization.OrganizationPhoneNumber = currentUser.PhoneNumber;
             }
 
             if (organization.OrganizationAddress == null)
@@ -158,7 +156,7 @@ namespace Dynamics.Controllers
                 };
                 await _organizationRepository.AddOrganizationResourceSync(organizationResource);
                 TempData[MyConstants.Success] = "Create organization successfully!";
-                return RedirectToAction(nameof(JoinOrganization), new { organizationId = organization.OrganizationID, status = 2, userId = currentUser.UserID });//status 2 : CEOID   0 : processing   1 : membert
+                return RedirectToAction(nameof(JoinOrganization), new { organizationId = organization.OrganizationID, status = 2, userId = currentUser.Id });//status 2 : CEOID   0 : processing   1 : membert
             }
             else
                 TempData[MyConstants.Error] = "Create organization failed!";
@@ -261,7 +259,7 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
             TempData[MyConstants.Success] = "Send request successfully!";
-            return RedirectToAction(nameof(JoinOrganization), new { organizationId = organizationId, status = 0, userId = currentUser.UserID});
+            return RedirectToAction(nameof(JoinOrganization), new { organizationId = organizationId, status = 0, userId = currentUser.Id});
         }
 
         public IActionResult ManageRequestJoinOrganization(Guid organizationId)
@@ -342,7 +340,7 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            if (statusUserOut == 0 && currentUser.UserID.Equals(organizationVM.CEO.UserID))
+            if (statusUserOut == 0 && currentUser.Id.Equals(organizationVM.CEO.Id))
             {
                 TempData[MyConstants.Success] = "User request denied successfully.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
@@ -674,11 +672,11 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
             // Setup for display
-            ViewBag.donatorName = currentUser.UserFullName;
+            ViewBag.donatorName = currentUser.UserName;
             ViewBag.returnUrl = Url.Action("Detail", "Organization", new { organizationId }, Request.Scheme) ?? "~/";
             var vnPayRequestModel = new VnPayRequestDto
             {
-                FromID = currentUser.UserID,
+                FromID = currentUser.Id,
                 ResourceID = new Guid(resourceId),
                 TargetId = new Guid(organizationId),
                 TargetType = MyConstants.Organization,
@@ -731,7 +729,7 @@ namespace Dynamics.Controllers
             var userToOrganizationTransactionHistory = new UserToOrganizationTransactionHistory()
             {
                 ResourceID = resourceId,
-                UserID = currentUser.UserID,
+                UserID = currentUser.Id,
                 Status = 0,
                 Time = DateOnly.FromDateTime(DateTime.Now),
             };
@@ -794,7 +792,7 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryByUserID(currentUser.UserID);
+            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryByUserID(currentUser.Id);
             return View(userToOrganizationTransactionHistoryInAOrganizations);
         }
 

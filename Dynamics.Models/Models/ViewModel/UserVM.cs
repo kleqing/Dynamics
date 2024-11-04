@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dynamics.Models.Models.ViewModel;
 /**
@@ -8,10 +8,11 @@ namespace Dynamics.Models.Models.ViewModel;
  */
 public class UserVM
 {
+    public Guid Id { get; set; }
     [Required]
     [Display(Name = "Username")]
     [MaxLength(50)]
-    public string UserFullName { get; set; }
+    public string UserName { get; set; }
     [DataType(DataType.Date)]
     [Display(Name = "Date of Birth")]
     [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
@@ -19,22 +20,26 @@ public class UserVM
     [Required]
     [DataType(DataType.EmailAddress)]
     [Display(Name = "Email Address")]
-    public string UserEmail { get; set; }
+    public string Email { get; set; }
     [DataType(DataType.PhoneNumber)]
     [Display(Name = "Phone Number")]
     [MaxLength(11)]
-    public string? UserPhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     [ValidateNever]
     public string? UserAddress { get; set; }
     [ValidateNever]
     public string? UserAvatar { get; set; }
+    [ValidateNever]
     [MaxLength(1000)]
     public string? UserDescription { get; set; }
+    [ValidateNever]
     public IEnumerable<string> UserRoles { get; set; }
     public bool isBanned { get; set; }
+    [ValidateNever]
     [DataType(DataType.DateTime)]
     [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
     public DateTime? CreatedDate { get; set; } = DateTime.Now;
+    [ValidateNever]
     [NotMapped]
     public int ProjectCount { get; set; }
 }

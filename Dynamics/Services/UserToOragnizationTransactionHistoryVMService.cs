@@ -23,8 +23,7 @@ namespace Dynamics.Services
                                  .OrderByDescending(uto => uto.Time)
                                  .Include(uto => uto.User) 
                                  .Include(uto => uto.OrganizationResource)
-                                        .ThenInclude(uto => uto.Organization)
-          
+                                 .ThenInclude(uto => uto.Organization)
                                   .Select(uto => new UserToOrganizationTransactionHistory
                                   {
                                       TransactionID = uto.TransactionID,
@@ -37,8 +36,7 @@ namespace Dynamics.Services
                                       Time = uto.Time,
                                       User = uto.User,
                                       OrganizationResource = uto.OrganizationResource,
-                                  })
-                                  .ToListAsync();
+                                  }).ToListAsync();
             return result;
         }
 

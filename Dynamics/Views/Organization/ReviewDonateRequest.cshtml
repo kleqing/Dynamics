@@ -3,12 +3,10 @@
 @inject IHttpContextAccessor Accessor
 @model IEnumerable<Dynamics.Models.Models.UserToOrganizationTransactionHistory>
 
-
-
-
 @{
     ViewData["Title"] = "ReviewDonateRequest";
     Layout = "_LayoutOrganizationForm";
+    // Layout = "_LayoutOrganization";
  }
 
 
@@ -38,14 +36,14 @@
                             <!-- User Info -->
                             <div class="flex items-center space-x-4">
                                 <div class="relative">
-                                    <img src="@item.User.UserAvatar" alt="@item.User.UserFullName"
+                                    <img src="@item.User.UserAvatar" alt="@item.User.UserName"
                                          class="w-12 h-12 rounded-full object-cover border-2 border-gray-200">
                                     <span class="absolute -top-2 -right-2 bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">
                                         @(i + 1)
                                     </span>
                                 </div>
                                 <div>
-                                    <h3 class="text-lg font-semibold text-gray-900">@item.User.UserFullName</h3>
+                                    <h3 class="text-lg font-semibold text-gray-900">@item.User.UserName</h3>
                                     <p class="text-sm text-gray-500">@item.Time</p>
                                 </div>
                             </div>

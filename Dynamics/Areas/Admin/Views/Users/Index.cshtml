@@ -650,13 +650,13 @@
                                                             <label class="form-check-label" for="customCheck2">&nbsp;</label>
                                                         </div>
                                                     </td>
-                                                    <td>@Html.DisplayFor(modelItem => item.UserFullName)</td>
-                                                    <td>@Html.DisplayFor(modelItem => item.UserPhoneNumber)</td>
-                                                    <td class="email">@Html.DisplayFor(modelItem => item.UserEmail)</td> <!-- Add class -->
+                                                    <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                                                    <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
+                                                    <td class="email">@Html.DisplayFor(modelItem => item.Email)</td> <!-- Add class -->
                                                     <td class="address">@Html.DisplayFor(modelItem => item.UserAddress)</td> <!-- Add class -->
                                                     <td>@Html.DisplayFor(modelItem => item.UserDOB)</td>
                                                     <td class="status">
-                                                        <a href="#" class="btn @(item.isBanned ? "badge badge-danger-lighten" : "badge badge-success-lighten") btn-ban" data-id="@item.UserID">
+                                                        <a href="#" class="btn @(item.isBanned ? "badge badge-danger-lighten" : "badge badge-success-lighten") btn-ban" data-id="@item.Id">
                                                             @(item.isBanned ? "Banned" : "Active")
                                                         </a>
                                                     </td>
@@ -670,7 +670,7 @@
                                                         else
 
                                                         {
-                                                            <a href="#" class="btn @(item.UserRole == Dynamics.Utility.RoleConstants.Admin ? "badge badge-warning-lighten" : "badge badge-primary-lighten") btn-admin" data-id="@item.UserID">
+                                                            <a href="#" class="btn @(item.UserRole == Dynamics.Utility.RoleConstants.Admin ? "badge badge-warning-lighten" : "badge badge-primary-lighten") btn-admin" data-id="@item.Id">
                                                                 @(item.UserRole == Dynamics.Utility.RoleConstants.Admin ? "Admin" : "User")
                                                             </a>
                                                         }

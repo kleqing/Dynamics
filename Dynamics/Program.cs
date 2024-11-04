@@ -1,5 +1,6 @@
 ﻿using Dynamics.DataAccess;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Models.Models;
 using Dynamics.Services;
 using Dynamics.Utility;
 using Dynamics.Utility.Mapper;
@@ -51,27 +52,25 @@ namespace Dynamics
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
             });
-            builder.Services.AddDbContext<AuthDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("AuthDbContextConnection"));
-            });
 
             // Identity and roles
             builder.Services
-                .AddIdentity<IdentityUser, IdentityRole>(options =>
+                .AddIdentity<User, IdentityRole<Guid>>(options =>
                 {
                     options.User.AllowedUserNameCharacters =
-                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ";
+                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ()!@#$%^&*()_+-=";
                     options.User.RequireUniqueEmail = true;
-                    options.SignIn.RequireConfirmedAccount = true; // No confirm account required
+                    options.SignIn.RequireConfirmedAccount = true;
                     options.Password.RequireDigit = false;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequiredLength = 6;
                 })
-                .AddEntityFrameworkStores<AuthDbContext>()
+                .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
             builder.Services.Configure<IdentityOptions>(options =>
             {
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2); // Lockout for 2 minutes
@@ -140,6 +139,7 @@ namespace Dynamics
             builder.Services.AddScoped<IOrganizationService, OrganizationService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<ISearchService, SearchService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
             // VNPAY Service
             builder.Services.AddTransient<IVnPayService, VnPayService>();
             builder.Services.AddScoped<IPagination, Pagination>();

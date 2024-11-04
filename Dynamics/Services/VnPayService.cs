@@ -151,7 +151,7 @@ public class VnPayService : IVnPayService
         if (!payRequestDto.TargetType.Equals(MyConstants.Allocation))
         {
             User u = JsonConvert.DeserializeObject<User>(context.Session.GetString("user"));
-            payRequestDto.FromID = u.UserID;
+            payRequestDto.FromID = u.Id;
         }
 
         // Set up our request Dto:

@@ -187,8 +187,8 @@ function getUserContact(){
 
     if (clicked % 2 === 1) {
         // Set the input fields with user's contact information
-        document.getElementById('RequestEmail').value = '@Model.User.UserEmail';
-        document.getElementById('RequestPhoneNumber').value = '@Model.User.UserPhoneNumber';
+        document.getElementById('RequestEmail').value = '@Model.User.Email';
+        document.getElementById('RequestPhoneNumber').value = '@Model.User.PhoneNumber';
         document.getElementById('RequestLocation').value = streetOnly;
 
         // Change the button element

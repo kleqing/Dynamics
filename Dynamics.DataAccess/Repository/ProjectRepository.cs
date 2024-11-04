@@ -76,6 +76,7 @@ namespace Dynamics.DataAccess.Repository
                 projectObj.ProjectStatus = 2;
                 projectObj.ReportFile = entity.ReportFile;
                 _db.Projects.Update(projectObj);
+                await _db.SaveChangesAsync();
                 foreach(var resouce in projectObj.ProjectResource)
                 {
                     foreach (var userDonate in resouce.UserToProjectTransactionHistory.Where(x=>x.Status==0).ToList())
@@ -91,7 +92,6 @@ namespace Dynamics.DataAccess.Repository
                 {
                     await _projectMemberRepo.DenyJoinRequestAsync(member.UserID, member.ProjectID);
                 }
-                await _db.SaveChangesAsync();
                 return true;
             }
             return false;

@@ -57,7 +57,7 @@ namespace Dynamics.Controllers
 
                     var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
-                    //get current user
+                    //Get current user
                     var userString = HttpContext.Session.GetString("user");
                     User currentUser = null;
                     if (userString != null)
@@ -92,7 +92,7 @@ namespace Dynamics.Controllers
                                 var userToOrganizationTransactionHistory = new UserToOrganizationTransactionHistory()
                                 {
                                     ResourceID = currentResource.ResourceID,
-                                    UserID = currentUser.UserID,
+                                    UserID = currentUser.Id,
                                     Status = 0,
                                     Time = DateOnly.FromDateTime(DateTime.UtcNow),
                                     Amount = resource.Quantity,

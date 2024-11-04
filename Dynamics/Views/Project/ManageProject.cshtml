@@ -140,7 +140,7 @@
                 <div class="flex flex-col ">
                     <p class="text-gray-600 font-normal">
                         Project leader: <span class="text-black font-bold  text-md">
-                           @Model.CurrentLeaderProject.UserFullName
+                           @Model.CurrentLeaderProject.UserName
                         </span>
                     </p>
                         <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentLeaderProject.UserAddress</p>
@@ -157,7 +157,7 @@
                     <div class="flex flex-col ">
                         <p class="text-gray-600 font-normal">
                             Requester: <span class="text-black font-bold  text-md">
-                                @Model.CurrentProject.Request?.User.UserFullName
+                                @Model.CurrentProject.Request?.User.UserName
                             </span>
                         </p>
                         <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentProject.Request?.User.UserAddress</p>
@@ -191,7 +191,7 @@
                         <tr class="hover:bg-slate-50">
                             <td class="p-2 text-lg">@(i + 1)</td>
                             <td class="p-2 text-lg">@item.Time</td>
-                            <td class="p-2 text-lg">@item.User.UserFullName</td>
+                            <td class="p-2 text-lg">@item.User.UserName</td>
                             <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
                             <td class="p-2 text-lg">@item.Amount</td>
                             <td class="p-2 text-lg">@item.ProjectResource.Unit</td>

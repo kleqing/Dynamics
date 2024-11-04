@@ -10,17 +10,18 @@ using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System.Text;
 using Dynamics.Utility;
+using Dynamics.Models.Models;
 
 
 namespace Dynamics.Areas.Identity.Pages.Account
 {
     public class ConfirmEmailModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepo;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public ConfirmEmailModel(UserManager<IdentityUser> userManager, IUserRepository userRepo, SignInManager<IdentityUser> signInManager)
+        public ConfirmEmailModel(UserManager<User> userManager, IUserRepository userRepo, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _userRepo = userRepo;

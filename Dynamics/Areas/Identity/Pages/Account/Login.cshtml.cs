@@ -21,13 +21,13 @@ namespace Dynamics.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger,
-            UserManager<IdentityUser> userManager, IUserRepository userRepository)
+        public LoginModel(SignInManager<User> signInManager, ILogger<LoginModel> logger,
+            UserManager<User> userManager, IUserRepository userRepository)
         {
             _signInManager = signInManager;
             _logger = logger;
@@ -73,9 +73,11 @@ namespace Dynamics.Areas.Identity.Pages.Account
         // Login
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/");
+            // Check if return url is specified in the previous page
+            if (TempData[MyConstants.ReturnUrl] != null) returnUrl = TempData[MyConstants.ReturnUrl].ToString(); 
+            else returnUrl ??= Url.Content("~/");
+            
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
@@ -97,7 +99,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
                     {
                         var resendConfirmationEmail =
                             Url.Action("ResendConfirmationEmail", "Auth", new { area = "", email = Input.Email },
-                                Request.Scheme); // Request scheme is used so that it generate the whole url instead of just relative
+                                Request
+                                    .Scheme); // Request scheme is used so that it generate the whole url instead of just relative
                         TempData["ConfirmationEmail"] = resendConfirmationEmail;
                         ModelState.AddModelError(string.Empty, "Your account is not confirmed!");
                         return Page();
@@ -114,15 +117,16 @@ namespace Dynamics.Areas.Identity.Pages.Account
                                 "You have too many invalid login attempts, please try again later.");
                             return Page();
                         }
+
                         ModelState.AddModelError(string.Empty, "Wrong email or password");
                         return Page();
                     }
 
                     // SerializeObject for session
                     _logger.LogWarning("LOGIN: GET BUSINESS USER");
-                    var businessUser = await _userRepository.GetAsync(u => u.UserEmail == user.Email);
+                    var businessUser = await _userRepository.GetAsync(u => u.Email == user.Email);
                     HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
-                    HttpContext.Session.SetString("currentUserID", businessUser.UserID.ToString());
+                    HttpContext.Session.SetString("currentUserID", businessUser.Id.ToString());
                     // Login as administrator
                     if (User.IsInRole(RoleConstants.Admin) && result.Succeeded)
                     {
@@ -134,8 +138,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
                         _logger.LogInformation("User logged in.");
                         if (returnUrl.Contains("JoinProjectRequest"))
                         {
-                            returnUrl = returnUrl.Replace("memberid=00000000-0000-0000-0000-000000000000", $"memberid={businessUser.UserID.ToString()}");
+                            returnUrl = returnUrl.Replace("memberid=00000000-0000-0000-0000-000000000000",
+                                $"memberid={businessUser.Id.ToString()}");
                         }
+
                         return Redirect(returnUrl);
                     }
 

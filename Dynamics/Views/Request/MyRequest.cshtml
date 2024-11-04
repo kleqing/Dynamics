@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "My Request";
     User currentUser = Accessor.HttpContext.Session.GetCurrentUser();
-    if (currentUser != null) ViewBag.userID = currentUser.UserID;
+    if (currentUser != null) ViewBag.userID = currentUser.Id;
 }
 
 <body>

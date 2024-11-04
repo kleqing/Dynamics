@@ -128,12 +128,12 @@
                                 <option>Options</option>
                                 @foreach (var item in Model.OrganizationVM.OrganizationMember)
                                 {
-                                    if (item.UserID.Equals(Model.OrganizationVM.CEO.UserID))
+                                    if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
                                     {
-                                        <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserFullName] - [@item.User.UserEmail] - [@item.UserID]</option>
+                                        <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email] - [@item.UserID]</option>
                                         continue;
                                     }
-                                    <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserFullName] - [@item.User.UserEmail] - [@item.UserID]</option>
+                                    <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email] - [@item.UserID]</option>
                                 }
                             </select>
                         </div>

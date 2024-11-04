@@ -31,7 +31,7 @@
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
 <!--SECTION 1: USER DONATE-->
 <!-- title -->
-<h2 class=" text-black font-bold text-3xl text-center my-4">Project transaction history</h2>
+<h2 class=" text-black font-bold text-3xl text-center my-4">Transaction history</h2>
 <!-- PART 1 -->
 <div class="flex relative justify-between my-2 gap-4 items-center" style="width:92%">
     <!-- search bar -->
@@ -123,19 +123,6 @@
                     }
                 </div>
             </a>
-                <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                    <div class="relative inline-flex">
-                        <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
-                            Review organization
-                            donate request
-                        </button>
-                        @if (ViewData["hasOrgDonateRequest"] != null && (bool)ViewData["hasOrgDonateRequest"])
-                        {
-                            <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
-                            </span>
-                        }
-                    </div>
-                </a>
         }
     </div>
 </div>

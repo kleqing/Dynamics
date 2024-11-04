@@ -2,29 +2,20 @@
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using CloudinaryDotNet.Actions;
 
 namespace Dynamics.DataAccess.Repository
 {
     public class AdminRepository : IAdminRepository
     {
         private readonly ApplicationDbContext _db;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
-        private readonly AuthDbContext _authDbContext;
 
-        public AdminRepository(ApplicationDbContext db, AuthDbContext authDbContext, UserManager<IdentityUser> userManager
+        public AdminRepository(ApplicationDbContext db, UserManager<User> userManager
         , IUserRepository userRepository)
         {
             _db = db;
-            _authDbContext = authDbContext;
             this._userManager = userManager;
             _userRepository = userRepository;
         }
@@ -221,13 +212,13 @@ namespace Dynamics.DataAccess.Repository
             // Get the detailed information of the top 5 users
             var userIds = topUsers.Select(x => x.UserID).ToList();
             var users = await _db.Users
-                .Where(u => userIds.Contains(u.UserID))  // Find users in the top list
+                .Where(u => userIds.Contains(u.Id))  // Find users in the top list
                 .ToListAsync();
 
             // Add the project count to each user (manually map the project count)
             foreach (var user in users)
             {
-                user.ProjectCount = topUsers.FirstOrDefault(x => x.UserID == user.UserID)?.ProjectCount ?? 0;
+                user.ProjectCount = topUsers.FirstOrDefault(x => x.UserID == user.Id)?.ProjectCount ?? 0;
             }
 
             return users;
@@ -235,7 +226,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> BanUserById(Guid id)
         {
-            var user = await GetUser(u => id == u.UserID);
+            var user = await GetUser(u => id == u.Id);
             if (user != null)
             {
                 user.isBanned = !user.isBanned;
@@ -275,7 +266,7 @@ namespace Dynamics.DataAccess.Repository
         public async Task ChangeUserRole(Guid id)
         {
             var authUser = await _userManager.FindByIdAsync(id.ToString());
-            var businessUser = await GetUser(u => u.UserID == id);
+            var businessUser = await GetUser(u => u.Id == id);
 
             var currentRoles = await _userManager.GetRolesAsync(authUser);
             string newRole = currentRoles.Contains(RoleConstants.Admin) ? RoleConstants.User : RoleConstants.Admin;

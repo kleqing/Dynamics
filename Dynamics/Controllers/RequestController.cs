@@ -4,23 +4,23 @@ using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System.Web.Mvc;
+using Controller = Microsoft.AspNetCore.Mvc.Controller;
 
 namespace Dynamics.Controllers
 {
     public class RequestController : Controller
     {
         private readonly IRequestRepository _requestRepo;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<RequestController> _logger;
         private readonly IRequestService _requestService;
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
 
-        public RequestController(IRequestRepository requestRepository, UserManager<IdentityUser> userManager,
+        public RequestController(IRequestRepository requestRepository, UserManager<User> userManager,
             ILogger<RequestController> logger,
             IRequestService? requestService, CloudinaryUploader? cloudinaryUploader, IOrganizationMemberRepository organizationMemberRepository)
         {
@@ -75,7 +75,7 @@ namespace Dynamics.Controllers
             if (!string.IsNullOrEmpty(userJson))
             {
                 var userJsonC = JsonConvert.DeserializeObject<User>(userJson);
-                userId = userJsonC.UserID;
+                userId = userJsonC.Id;
             }
 
             var requests = _requestRepo.GetAllById(userId);
@@ -120,13 +120,13 @@ namespace Dynamics.Controllers
             var userJson = HttpContext.Session.GetString("user");
             var user = JsonConvert.DeserializeObject<User>(userJson);
 
-            ViewBag.UserEmail = user.UserEmail;
-            ViewBag.UserPhoneNumber = user.UserPhoneNumber;
+            ViewBag.UserEmail = user.Email;
+            ViewBag.UserPhoneNumber = user.PhoneNumber;
             ViewBag.UserAddress = user.UserAddress;
             return View();
         }
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> Create(Request obj, List<IFormFile> images,
             string? cityNameInput, string? districtNameInput, string? wardNameInput)
         {
@@ -155,8 +155,8 @@ namespace Dynamics.Controllers
                 var userJson = HttpContext.Session.GetString("user");
                 var user = JsonConvert.DeserializeObject<User>(userJson);
 
-                ViewBag.UserEmail = user.UserEmail;
-                ViewBag.UserPhoneNumber = user.UserPhoneNumber;
+                ViewBag.UserEmail = user.Email;
+                ViewBag.UserPhoneNumber = user.PhoneNumber;
                 ViewBag.UserAddress = user.UserAddress;
 
                 if (!ModelState.IsValid)
@@ -168,7 +168,7 @@ namespace Dynamics.Controllers
                 /*var date = DateOnly.FromDateTime(DateTime.Now);
                 obj.CreationDate = date;*/
                 obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
-                obj.UserID = user.UserID;
+                obj.UserID = user.Id;
                 if (images != null && images.Count > 0)
                 {
                     string imagePath = await _cloudinaryUploader.UploadMultiImagesAsync(images);
@@ -207,7 +207,7 @@ namespace Dynamics.Controllers
                 return Unauthorized();
             }
 
-            var userId = Guid.Parse(user.Id);
+            var userId = user.Id;
             var request = await _requestRepo.GetAsync(r => r.RequestID.Equals(id));
             if (request == null)
             {
@@ -222,7 +222,7 @@ namespace Dynamics.Controllers
             return View(request);
         }
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<IActionResult> Edit(Request obj, List<IFormFile> images,
             string? cityNameInput, string? districtNameInput, string? wardNameInput)
         {
@@ -306,7 +306,7 @@ namespace Dynamics.Controllers
             return View(request);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.ActionName("Delete")]
         public async Task<IActionResult> DeletePost(Guid? id)
         {
             _logger.LogInformation("Get deleted request");
@@ -322,6 +322,7 @@ namespace Dynamics.Controllers
             return RedirectToAction("MyRequest", "Request");
         }
 
+        [Authorize]
         public async Task<IActionResult> AcceptRequest(Guid requestId)
         {
             var userString = HttpContext.Session.GetString("user");
@@ -331,11 +332,11 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            var orgMember = await _organizationMemberRepository.GetAsync(om => om.UserID == currentUser.UserID);
-            if (orgMember.Status != 2)
+            var orgMember = await _organizationMemberRepository.GetAsync(om => om.UserID == currentUser.Id);
+            if (orgMember != null && orgMember.Status != 2)
             {
                 TempData[MyConstants.Error] = "You need to create an organization first to accept this request.";
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Create", "Organization");
             }
             return RedirectToAction("CreateProject", "Project", new { requestId = requestId });
         }

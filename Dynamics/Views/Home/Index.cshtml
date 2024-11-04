@@ -21,7 +21,7 @@
     if (userString != null)
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
-        ViewBag.UserID = currentUser.UserID; // Uses to pass to the cards
+        ViewBag.UserID = currentUser.Id; // Uses to pass to the cards
     }
 }
 

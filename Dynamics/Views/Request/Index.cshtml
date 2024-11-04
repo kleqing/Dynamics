@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "All Request";
     User user = Accessor.HttpContext.Session.GetCurrentUser();
-    if (user != null) ViewBag.userID = user.UserID;
+    if (user != null) ViewBag.userID = user.Id;
 }
 <main class="w-full h-full flex flex-col gap-6 items-center p-16">
     <div class="p-4 rounded-lg max-w-xl justify-center mx-auto">

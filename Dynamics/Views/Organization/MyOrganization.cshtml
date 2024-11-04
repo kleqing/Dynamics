@@ -13,7 +13,7 @@
     if (userString != null)
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
-        ViewBag.userID = currentUser.UserID;
+        ViewBag.userID = currentUser.Id;
     }
 }
 <main class="flex flex-col items-center p-16">
@@ -24,7 +24,7 @@
         <div class="gap-4 flex justify-center flex-wrap w-full">
             @foreach (var item in Model)
             {
-                if (!currentUser.UserID.Equals(item.OrganizationLeader.UserID)) continue; // Get the one that user is CEO of
+                if (!currentUser.Id.Equals(item.OrganizationLeader.Id)) continue; // Get the one that user is CEO of
                 <partial name="CustomComponent/OverviewCard/OrganizationOverview" model="item"/>
                 break; // Since is CEO of one only, we break here;
             }

@@ -80,9 +80,9 @@
                     <b>Change password</b>
                 </h2>
                 <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
-                @if (currentUser.UserID != null)
+                @if (currentUser.Id != null)
                 {
-                    <input type="hidden" asp-for="@Model.UserId" value="@currentUser.UserID"/>
+                    <input type="hidden" asp-for="@Model.UserId" value="@currentUser.Id"/>
                 }
 
                 @* Old password *@
@@ -126,3 +126,4 @@
     <!-- End content -->
 </main>
 <!-- End edit profile -->
+<partial name="CustomComponent/_SweetAlertToast"/>

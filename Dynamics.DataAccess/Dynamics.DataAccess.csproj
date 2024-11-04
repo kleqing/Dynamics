@@ -22,9 +22,5 @@
     <ProjectReference Include="..\Dynamics.Utility\Dynamics.Utility.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 
 </Project>

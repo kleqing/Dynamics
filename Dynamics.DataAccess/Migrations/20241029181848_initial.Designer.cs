@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dynamics.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241025181253_RemovedUserID")]
-    partial class RemovedUserID
+    [Migration("20241029181848_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -497,9 +497,6 @@ namespace Dynamics.DataAccess.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("UserPhoneNumber")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserRole")
                         .IsRequired()

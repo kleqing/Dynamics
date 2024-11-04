@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dynamics.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class CreatedANew : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,18 +29,15 @@ namespace Dynamics.DataAccess.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    UserID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserDOB = table.Column<DateOnly>(type: "date", nullable: true),
-                    UserEmail = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserAvatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserRole = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     isBanned = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -57,7 +54,7 @@ namespace Dynamics.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.UserID);
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -118,7 +115,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_AspNetUserClaims_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -138,7 +135,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_AspNetUserLogins_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -162,7 +159,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_AspNetUserRoles_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -182,7 +179,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -201,7 +198,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_Awards_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -223,7 +220,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_Notifications_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -245,7 +242,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_Reports_AspNetUsers_ReporterID",
                         column: x => x.ReporterID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID");
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -271,7 +268,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_Requests_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -290,7 +287,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_OrganizationMember_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_OrganizationMember_Organizations_OrganizationID",
@@ -377,7 +374,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_UserToOrganizationTransactionHistories_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserToOrganizationTransactionHistories_OrganizationResources_ResourceID",
@@ -424,7 +421,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_ProjectMembers_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProjectMembers_Projects_ProjectID",
@@ -505,7 +502,7 @@ namespace Dynamics.DataAccess.Migrations
                         name: "FK_UserToProjectTransactionHistories_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
-                        principalColumn: "UserID",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserToProjectTransactionHistories_ProjectResources_ProjectResourceID",
@@ -548,16 +545,18 @@ namespace Dynamics.DataAccess.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_UserEmail",
+                name: "IX_AspNetUsers_Email",
                 table: "AspNetUsers",
-                column: "UserEmail",
-                unique: true);
+                column: "Email",
+                unique: true,
+                filter: "[Email] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_UserName",
                 table: "AspNetUsers",
                 column: "UserName",
-                unique: true);
+                unique: true,
+                filter: "[UserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",

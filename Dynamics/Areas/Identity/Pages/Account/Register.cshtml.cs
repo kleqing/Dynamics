@@ -130,7 +130,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 // If role not exist, create all of our possible role
                 // also, getAwaiter is the same as writing await keyword
                 _logger.LogWarning("REGISTER: CREATING ROLES");
-                if (!_roleManager.RoleExistsAsync(RoleConstants.User).GetAwaiter().GetResult())
+                if (!_roleManager.RoleExistsAsync(RoleConstants.Banned).GetAwaiter().GetResult())
                 {
                     _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.User)).GetAwaiter().GetResult();
                     _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.Admin)).GetAwaiter().GetResult();

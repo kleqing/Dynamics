@@ -352,7 +352,7 @@ public class ProjectService : IProjectService
 
     public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
     {
-        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
+        if (string.IsNullOrEmpty(imgPath)) return false;
         if (phaseID != Guid.Empty)
         {
             var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
@@ -366,7 +366,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1? allImagesOfPhase.Replace(img, ""): allImagesOfPhase.Replace(img + ",","");
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1 ? allImagesOfPhase.Replace(img, "") : allImagesOfPhase.Replace(img + ",", "");
                         }
                     }
 
@@ -406,6 +406,7 @@ public class ProjectService : IProjectService
 
         return false;
     }
+
 
     public async Task<string> UploadImagesAsync(List<IFormFile> images, string folder)
     {

@@ -238,7 +238,7 @@
         usersSelectedDiv.innerHTML = ''; // Clear any previous content
 
         document.getElementById('inviteForm').showModal();
-        var key = document.getElementById('key').value; // Get the value from the input field
+        var key = document.getElementById('key').value; // Get the value from the search field
 
         // Make an AJAX request to the server to get the list of users
         fetch(`/Project/GetUsersNotInProject?key=${key}`, {

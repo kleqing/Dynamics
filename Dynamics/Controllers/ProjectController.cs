@@ -286,12 +286,12 @@ namespace Dynamics.Controllers
             if (projectObj?.ProjectStatus == -1)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
-                return RedirectToAction(nameof(ManageProjectMember), new { id = id });
+                return RedirectToAction(nameof(ManageProject), new { id = id });
             }
             else if (projectObj?.ProjectStatus == 2)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
-                return RedirectToAction(nameof(ManageProjectMember), new { id = id });
+                return RedirectToAction(nameof(ManageProject), new { id = id });
             }
             var projectDto = _mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
             projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
@@ -469,6 +469,18 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> InviteMembers(string userIds)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
+            var projectObj =
+           await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(new Guid(currentProjectID)));
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+            }
+            else if (projectObj?.ProjectStatus == 2)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
+                return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
+            }
             if (string.IsNullOrEmpty(userIds))
             {
                 TempData[MyConstants.Error] = "No user selected!";
@@ -489,7 +501,6 @@ namespace Dynamics.Controllers
                     TempData[MyConstants.Error] = "Failed to send invitation!";
                     return RedirectToAction(nameof(ManageProjectMember), new { id = currentProjectID });
                 }
-                var projectObj = await _projectRepo.GetProjectAsync(x => x.ProjectID.Equals(new Guid(currentProjectID)));
                 var linkUser = Url.Action(nameof(AcceptJoinInvitation), "Project", new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                 var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project", new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                 //send to user and leader
@@ -1278,10 +1289,10 @@ namespace Dynamics.Controllers
             _logger.LogWarning("ManageProjectPhaseReport get");
             var allUpdate =
                 await _projectHistoryRepo.GetAllPhaseReportsAsync(u => u.ProjectID.Equals(projectID));
-            // if (allUpdate.ToList().Count() ==0)
-            // {
-            //     return RedirectToAction("NoData", new { msg = "No update has been created" });
-            // }
+            if (allUpdate.ToList().Count() == 0)
+            {
+                return RedirectToAction("NoData", new { msg = "No update has been created" });
+            }
 
             allUpdate = allUpdate.OrderByDescending(x => x.Date).ToList();
             return View(allUpdate);
@@ -1408,12 +1419,12 @@ namespace Dynamics.Controllers
             if (projectObj?.ProjectStatus == -1)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
-                return RedirectToAction(nameof(ManageProject), new { id = currentProjectID });
+                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = currentProjectID });
             }
             else if (projectObj?.ProjectStatus == 2)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
-                return RedirectToAction(nameof(ManageProject), new { id = currentProjectID });
+                return RedirectToAction(nameof(ManageProjectPhaseReport), new { id = currentProjectID });
             }
 
             var res = await _projectHistoryRepo.DeletePhaseReportAsync(id);
@@ -1424,12 +1435,12 @@ namespace Dynamics.Controllers
                     Request.Scheme);
                 await _notificationService.ProcessProjectPhaseNotificationAsync(new Guid(currentProjectID), link, "delete");
                 return RedirectToAction(nameof(ManageProjectPhaseReport),
-                    new { id = new Guid(HttpContext.Session.GetString("currentProjectID")) });
+                    new { id = currentProjectID });
             }
 
             TempData[MyConstants.Error] = "Fail to delete project update!";
             return RedirectToAction(nameof(ManageProjectPhaseReport),
-                new { id = new Guid(HttpContext.Session.GetString("currentProjectID")) });
+                 new { id = currentProjectID });
         }
 
 

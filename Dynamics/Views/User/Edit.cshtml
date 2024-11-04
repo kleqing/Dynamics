@@ -140,7 +140,7 @@
                     <h3>Profile picture</h3>
                     <label for="changeProfile" class="relative hover:scale-105 duration-150 transition-all hover:cursor-pointer">
                         <input type="hidden" name="UserAvatar" asp-for="UserAvatar" value="@Model.UserAvatar" />
-                        <input type="file" name="image" id="changeProfile" style="display: none" />
+                        <input type="file" name="image" id="changeProfile" style="display: none" accept=".jpg, .jpeg, .png, .gif, .bmp, .gif"/>
                         <!-- TODO: Subtitles the user avatar here -->
                         <img src="@Model.UserAvatar" alt="User's Name" id="avatar"
                              class="avatar w-40 h-40 object-cover rounded-full shadow-md" />

@@ -206,10 +206,10 @@ namespace Dynamics.Controllers
 
         }//fix session done
 
-        public async Task<IActionResult> Detail(Guid Id)
+        public async Task<IActionResult> Detail(Guid organizationId)
         {
             //Creat current organization
-            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(Id));
+            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
             return View(organizationVM);
@@ -247,7 +247,7 @@ namespace Dynamics.Controllers
 
                 if (await _organizationRepository.UpdateOrganizationAsync(organization))
                 {
-                    var link = Url.Action(nameof(Detail), "Organization", new { id = organization.OrganizationID },
+                    var link = Url.Action(nameof(Detail), "Organization", new { organizationId = organization.OrganizationID },
                         Request.Scheme);
                     await _notificationService.UpdateOrganizationNotificationAsync(organization.OrganizationID, link);
                     TempData[MyConstants.Success] = "Update organization successfully!";

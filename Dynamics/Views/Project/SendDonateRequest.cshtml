@@ -124,7 +124,7 @@
             <form id="donateResourceByImport" asp-action="UploadProjectExcel" asp-controller="ExcelReader" enctype="multipart/form-data">
                 <div class="flex gap-x-6">
                     <label class="form-control">
-                        <input id="file-upload" type="file" name="file" class="file-input file-input-bordered w-full max-w-xs">
+                        <input id="file-upload" type="file" name="file" class="file-input file-input-bordered w-full max-w-xs" accept=".xlsx,.doc,.docx,.xls">
                         <div id="notificationExcelMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
                     </label>
                     <div class="flex flex-col">
@@ -140,7 +140,7 @@
                         <span id="fileNameFirst" class="text-gray-600 text-sm mt-2"></span>
                         <span id="notificationImgMessageFirst" class="text-red-500 text-sm font-semibold" style="display:none;"></span>
                     </div>
-                    <button type="submit"
+                    <button type="submit" 
                             class="items-start text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
                         Confirm
                     </button>
@@ -290,17 +290,21 @@
             }
         }
     });
-
+    //-----------------------------sweetalert for donate resource file --------------------------
     document.querySelector('#donateResourceByImport').addEventListener('submit', function (event) {
+        event.preventDefault(); 
+
         const attachmentInput = document.getElementById("AttachmentFirst");
         const notificationMessage = document.getElementById("notificationImgMessageFirst");
         const excelfileInput = document.getElementById("file-upload");
         const notificationExcelMessage = document.getElementById("notificationExcelMessageFirst");
 
+        let isValid = true;
         if (attachmentInput.files.length === 0) {
             event.preventDefault();  // Prevent form submission if no file is selected
             notificationMessage.innerText = "Please upload at least one proof image.";
             notificationMessage.style.display = "block";
+            isValid = false;
         } else {
             notificationMessage.style.display = "none";  // Hide the message if files are selected
         }
@@ -308,8 +312,89 @@
             event.preventDefault();  // Prevent form submission if no file is selected
             notificationExcelMessage.innerText = "An excel file must be uploaded.";
             notificationExcelMessage.style.display = "block";
+            isValid = false;
         } else {
             notificationExcelMessage.style.display = "none";  // Hide the message if files are selected
+        }
+
+        if (!isValid) {
+            return; // Exit if form is not valid
+        }
+
+        var form = this; // Reference to the form
+
+        if ($(form).valid()) {  // Assuming jQuery validation is used
+
+            const swalWithTailwind = Swal.mixin({
+                customClass: {
+                    confirmButton: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded",
+                    cancelButton: "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-4"
+                },
+                buttonsStyling: false
+            });
+
+            swalWithTailwind.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, I confirm!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Processing...",
+                        text: "Please wait while your donation is being processed.",
+                        icon: "info",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json()) // Parse response as JSON
+                        .then(data => {
+                            Swal.close(); // Close loading alert
+                            if (data.success) {
+                                swalWithTailwind.fire({
+                                    title: "Donate successful!",
+                                    html: `<p>${data.message}</p><p>Thank you for your contribution!</p>`,
+                                    icon: "success"
+                                }).then(() => {
+                                    window.location.reload(); // Reload the page on success
+                                });
+                            } else {
+                                swalWithTailwind.fire({
+                                    title: "Failed to donate!",
+                                    text: data.message,
+                                    icon: "error"
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            swalWithTailwind.fire({
+                                title: "Error",
+                                text: "An error occurred while processing your request: " + error,
+                                icon: "error"
+                            });
+                        });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithTailwind.fire({
+                        title: "Cancelled",
+                        text: "Your donation request was canceled.",
+                        icon: "error"
+                    });
+                }
+            });
         }
     });
     //-----------------------upload image for one resource---------------
@@ -385,6 +470,18 @@
                 reverseButtons: true
             }).then(result => {
                 if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Processing...",
+                        text: "Please wait while your donation is being processed.",
+                        icon: "info",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
                     const formData = new FormData(form);
 
                     fetch(form.action, {
@@ -393,6 +490,7 @@
                     })
                         .then(response => response.json()) // Parse response as JSON
                         .then(data => {
+                            Swal.close(); // Close loading alert
                             if (data.success) {
                                 swalWithTailwind.fire({
                                     title: "Donate successful!",

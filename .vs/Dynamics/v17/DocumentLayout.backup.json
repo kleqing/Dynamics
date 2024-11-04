@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\vs_csharp-code\\NewSWP_2\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\sendresourceorganizationtoproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\sendresourceorganizationtoproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -167,6 +171,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "SendResourceOrganizationToProject.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAFoAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-03T16:16:54.368Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "ManageOrganizationResource.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
@@ -179,7 +196,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "ReviewUserDonateRequest.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
@@ -191,7 +208,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "UpdateProjectProfile.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
@@ -204,7 +221,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ManageProjectMember.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
@@ -217,7 +234,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "ManageProjectResource.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
@@ -229,7 +246,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "EditProjectPhaseReport.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\EditProjectPhaseReport.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\EditProjectPhaseReport.cshtml",
@@ -241,7 +258,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "ManageProjectPhaseReport.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectPhaseReport.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectPhaseReport.cshtml",
@@ -253,7 +270,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "AddProjectPhaseReport.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\AddProjectPhaseReport.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\AddProjectPhaseReport.cshtml",
@@ -265,7 +282,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "Project.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Models\\Models\\Project.cs",
               "RelativeDocumentMoniker": "Dynamics.Models\\Models\\Project.cs",
@@ -277,7 +294,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "ProjectRepository.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Repository\\ProjectRepository.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Repository\\ProjectRepository.cs",
@@ -289,7 +306,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "ProjectService.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\ProjectService.cs",
               "RelativeDocumentMoniker": "Dynamics\\Services\\ProjectService.cs",
@@ -301,7 +318,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "ProjectController.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\ProjectController.cs",
               "RelativeDocumentMoniker": "Dynamics\\Controllers\\ProjectController.cs",
@@ -313,7 +330,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "Register.cshtml.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
               "RelativeDocumentMoniker": "Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
@@ -325,7 +342,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "Register.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
@@ -337,7 +354,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "ApplicationDbContextModelSnapshot.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs",
@@ -349,7 +366,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "20241029181848_initial.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029181848_initial.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029181848_initial.cs",
@@ -361,7 +378,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "20241029180005_initial_1db.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs",
@@ -373,7 +390,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\appsettings.json",
               "RelativeDocumentMoniker": "Dynamics\\appsettings.json",
@@ -385,7 +402,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "Dynamics.DataAccess.csproj",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Dynamics.DataAccess.csproj",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Dynamics.DataAccess.csproj",
@@ -397,7 +414,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "20241029180825_initial_2.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs",
@@ -409,7 +426,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\ApplicationDbContext.cs",
@@ -421,7 +438,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "20241029180252_initial_1db.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs",
@@ -433,7 +450,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "HomeController.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Dynamics\\Controllers\\HomeController.cs",
@@ -445,7 +462,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "20241029174848_initial_1db.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs",

@@ -71,7 +71,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> Index()
         {
             var orgs = _organizationRepository.GetAll(org => org.OrganizationStatus == 1);
-            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs.ToList());
+            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(await orgs.ToListAsync());
             return View(organizationVMs);
         }
 

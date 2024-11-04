@@ -154,7 +154,7 @@
                     </div>
                 </div>
                 <div class="flex justify-center gap-x-6">
-                    <button type="submit"
+                    <button type="submit" 
                             class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
                         Update
                     </button> 
@@ -433,6 +433,19 @@
 
             return true;
         }
+        // Show loading alert
+        function showLoadingAlert() {
+            console.log('loading update project')
+            Swal.fire({
+                title: 'Updating Project...',
+                text: 'Please wait while we update the project details.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading(); // Show loading spinner
+                }
+            });
+        }
+
 
         // Validate when user changes the start or end date
         startDateInput.addEventListener('change', validateDates);
@@ -443,8 +456,11 @@
             if (!validateDates()) {
                 event.preventDefault(); // Prevent form submission if validation fails
             }
+            showLoadingAlert();
         });
     });
-    //---------------------upload report file------------------------
+    //------loading update project ------------
+      
+
 
 </script>

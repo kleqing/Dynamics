@@ -70,7 +70,7 @@ namespace Dynamics.Controllers
         //The index use the cards at homepage to display instead - Kiet
         public async Task<IActionResult> Index()
         {
-            var orgs = _organizationRepository.GetAll();
+            var orgs = _organizationRepository.GetAll(org => org.OrganizationStatus == 1);
             var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs.ToList());
             return View(organizationVMs);
         }

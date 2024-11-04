@@ -54,7 +54,7 @@ namespace Dynamics.DataAccess.Repository
 
         //Repo of huyen
         Task<List<Organization>> GetAllOrganizationsAsync();
-        IQueryable<Organization> GetAll();
+        IQueryable<Organization> GetAll(Expression<Func<Organization, bool>>? filter = null);
         Task<Organization> GetOrganizationUserLead(Guid userId);
         Task<Guid> GetOrgResourceIDCorresponding(Guid projectResourceID, Guid organizationUserLeadID);
         Task<List<Organization>> GetAllOrganizationsWithExpressionAsync(Expression<Func<Organization, bool>>? filter = null);

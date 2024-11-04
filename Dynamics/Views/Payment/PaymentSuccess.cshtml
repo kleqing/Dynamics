@@ -4,6 +4,8 @@
     ViewData["Title"] = "Payment success";
     Layout = "_Layout";
     var returnUrl = Accessor.HttpContext.Session.GetString("paymentRedirect") ?? "~/";
+    // Clear the returnUrl
+    Accessor.HttpContext.Session.Remove("paymentRedirect");
 }
 @if (Model == null)
 {
@@ -19,10 +21,41 @@ else
                 <i class="fa-regular fa-circle-check"></i>
             </p>
             <h1 class="font-bold text-center text-3xl text-success">Payment success!, thank you for your donation</h1>
-            <p>Transaction ID: @Model.TransactionID</p>
-            <p>Amount: @Model.Amount VND</p>
-            <p>Message: @Model.Message</p>
-            <p>Time: @Html.DisplayFor(model => model.Time)</p>
+            <table class="w-full max-w-lg mx-auto table">
+                <thead>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <b>Transaction ID:</b>
+                    </td>
+                    <td>@Model.TransactionID</td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Amount:</b>
+                    </td>
+                    <td>@Model.Amount VND</td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Message:</b>
+                    </td>
+                    <td>@Model.Message</td>
+                </tr>
+                <tr>
+                    <td>
+                        <b>Time:</b>
+                    </td>
+                    <td>@Html.DisplayFor(model => model.Time)</td>
+                </tr>
+                </tbody>
+            </table>
+
             <a class="btn btn-primary btn-md max-w-sm mx-auto" asp- href="@returnUrl">Go back</a>
         </div>
     </main>

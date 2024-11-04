@@ -39,6 +39,7 @@ namespace Dynamics.Controllers
         private readonly ITransactionViewService _transactionViewService;
         private readonly IPagination _pagination;
         private readonly INotificationService _notificationService;
+        private readonly IRoleService _roleService;
 
         public ProjectController(IProjectRepository _projectRepo,
             IOrganizationRepository _organizationRepo,
@@ -55,7 +56,8 @@ namespace Dynamics.Controllers
             CloudinaryUploader cloudinaryUploader, ILogger<ProjectController> logger,
             IUserRepository userRepository,
             IOrganizationVMService organizationService, INotificationService notificationService,
-            ITransactionViewService transactionViewService)
+            ITransactionViewService transactionViewService, 
+            IRoleService roleService)
         {
             this._projectRepo = _projectRepo;
             this._organizationRepo = _organizationRepo;
@@ -75,6 +77,7 @@ namespace Dynamics.Controllers
             _userRepository = userRepository;
             this._organizationService = organizationService;
             _transactionViewService = transactionViewService;
+            _roleService = roleService;
             _notificationService = notificationService;
         }
 
@@ -150,7 +153,7 @@ namespace Dynamics.Controllers
 
         public async Task<IActionResult> ViewAllProjects()
         {
-
+          
             return View(await _projectService.ReturnAllProjectsVMsAsync());
         }
 
@@ -822,13 +825,13 @@ namespace Dynamics.Controllers
             var moneyResource = await _projectResourceRepo.GetAsync(pr =>
                 pr.ResourceName.ToLower().Equals("money") && pr.ProjectID.Equals(projectID));
             if (moneyResource == null) throw new Exception("warning: PROJECT DOES NOT HAVE MONEY RESOURCE");
-            sendDonateRequestVM.VnPayRequestDto = new VnPayRequestDto
+            sendDonateRequestVM.PayRequestDto = new PayRequestDto
             {
                 TargetId = projectID,
                 TargetType = MyConstants.Project,
                 ResourceID = moneyResource.ResourceID,
             };
-            // Last but not least, setup a return url:
+            // Last but not least, set up a return url:
             var url = Url.Action("ManageProject", "Project", new { id = projectID }, Request.Scheme);
             ViewBag.returnUrl = url ?? "~/";
             return View(sendDonateRequestVM);
@@ -1516,7 +1519,7 @@ namespace Dynamics.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProject(ProjectVM projectVM, IFormFile image, int expectedQuantity,
+        public async Task<IActionResult> CreateProject(ProjectVM projectVM, List<IFormFile> images, int expectedQuantity,
             string Unit)
         {
             var currentOrganization =
@@ -1535,7 +1538,13 @@ namespace Dynamics.Controllers
             }
 
             projectVM.OrganizationVM = currentOrganization;
-            projectVM.LeaderID = currentUser.Id;
+            
+            if (!await _roleService.IsInRoleAsync(currentUser, RoleConstants.ProjectLeader) && projectVM.LeaderID == Guid.Empty)
+            {
+                projectVM.LeaderID = currentUser.Id;
+
+            }
+            
             if (projectVM.LeaderID != Guid.Empty)
             {
                 var Leader = new User();
@@ -1549,9 +1558,21 @@ namespace Dynamics.Controllers
 
                 if (projectVM != null)
                 {
-                    if (image != null)
+                    if (images.Count != 0)
                     {
-                        projectVM.Attachment = await _cloudinaryUploader.UploadImageAsync(image);
+                        // organization.OrganizationPictures = Util.UploadImage(image, @"images\Organization");
+                        var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(images);
+                        if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
+                        {
+                            projectVM.Attachment = resImages;
+
+                        }
+                        else
+                        {
+                            TempData[MyConstants.Error] = resImages.Equals("No file")
+                           ? "No file to upload!"
+                           : "Extension of some files is wrong!";
+                        }
                     }
 
                     if (projectVM.ProjectEmail == null)
@@ -1609,7 +1630,7 @@ namespace Dynamics.Controllers
                                 await _requestRepo.UpdateAsync(request);
                             }
 
-
+                            await _roleService.AddUserToRoleAsync(projectVM.LeaderID, RoleConstants.ProjectLeader);
                             return RedirectToAction(nameof(AutoJoinProject),
                                 new { projectId = project.ProjectID, leaderId = projectVM.LeaderID });
                         }

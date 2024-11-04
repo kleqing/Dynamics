@@ -46,6 +46,26 @@
 	<ItemGroup>
 	  <_ContentIncludedByDefault Remove="wwwroot\identity\css\site.css" />
 	  <_ContentIncludedByDefault Remove="wwwroot\identity\css\styles.css" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\00af60d6-2013-4916-ba37-1d9ca502be42\8knx24.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\3e1db3d3-b630-421a-ac42-f1e481e5a487\6d3c9cd5-a8f8-47f1-a976-44c715e5f80b.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\3e1db3d3-b630-421a-ac42-f1e481e5a487\7ac49722-9748-4e29-9420-23477a8dfdfb.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\3e1db3d3-b630-421a-ac42-f1e481e5a487\7d2319136bcd9206c25ebc3b670742b9.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\5b0ce30f-e75e-4460-b8dc-f120f9730ae0\hetcuu.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\7a99ec51-3955-4565-bacd-6b086b4a79ab\omori.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\003761a0-3f3c-47d6-aa31-631d3ba51186.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\274b7a60-1f49-4a0f-9265-3201610dbd73.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\39ceb2d24bb3610f7c2e873b5b86537f.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\49f8e348-ee34-442f-a0e0-8272c12e8fae.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\77857870-e7c1-469d-a213-0edf54c0d0db.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\Airplane-flight-in-the-sky-clouds_1600x900.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\coRu.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\8f7d5686-7752-4115-9235-93d782e43ef8\Ảnh đẹp.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\53d610ef-e877-4650-9115-5ac9d92056c5\haydecutoiyen.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\710569a4-5b46-4220-8a94-45835ce9f21e\Screenshot 2024-09-12 233655.png" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\710569a4-5b46-4220-8a94-45835ce9f21e\Screenshot 2024-10-06 223324.png" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\710569a4-5b46-4220-8a94-45835ce9f21e\Untitled.png" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\b5730a5a-da31-450c-a3fb-981d65a261f7\catnerd2.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Requests\e4021d09-03cd-4ecd-a5f8-3b0c5c46ad63\YesSoWhat.jpg" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
@@ -56,7 +76,10 @@
 	  <Folder Include="wwwroot\files\Organization\" />
 	  <Folder Include="wwwroot\images\Organization\" />
 	  <Folder Include="wwwroot\files\Project\" />
-	  <Folder Include="wwwroot\images\Project\Phase\" />
+	  <Folder Include="wwwroot\images\Project\" />
+	  <Folder Include="wwwroot\images\Requests\" />
+	  <Folder Include="wwwroot\images\Organization\" />
+	  <Folder Include="wwwroot\files\Project\" />
 	  <Folder Include="wwwroot\images\User\" />
 	</ItemGroup>
 	<ItemGroup>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,9 +21,10 @@ public class UserVM
     [DataType(DataType.EmailAddress)]
     [Display(Name = "Email Address")]
     public string Email { get; set; }
-    [DataType(DataType.PhoneNumber)]
     [Display(Name = "Phone Number")]
-    [MaxLength(11)]
+    [DataType(DataType.PhoneNumber)]
+    [StringLength(11, ErrorMessage = "The phone number must be at most 11 digits.")]
+    [RegularExpression(@"^\d{1,11}$", ErrorMessage = "The phone number must only contain digits")]
     public string? PhoneNumber { get; set; }
     [ValidateNever]
     public string? UserAddress { get; set; }

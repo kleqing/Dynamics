@@ -15,6 +15,30 @@
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1727530-2ED7-42AE-8692-BABA5ADC9C63}|Dynamics.Utility\\Dynamics.Utility.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.utility\\utils\\cloudinaryuploader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1727530-2ED7-42AE-8692-BABA5ADC9C63}|Dynamics.Utility\\Dynamics.Utility.csproj|solutionrelative:dynamics.utility\\utils\\cloudinaryuploader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\sendresourceorganizationtoproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\sendresourceorganizationtoproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\updateprojectprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\updateprojectprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -43,16 +67,8 @@
       "RelativeMoniker": "D:0:0:{C3C3663F-6303-41B0-BECA-4DABFEB8769C}|Dynamics.Models\\Dynamics.Models.csproj|solutionrelative:dynamics.models\\models\\project.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\repository\\projectrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\repository\\projectrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\areas\\identity\\pages\\account\\register.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -63,16 +79,8 @@
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\areas\\identity\\pages\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\dynamics.dataaccess.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\dynamics.dataaccess.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -101,6 +109,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\migrations\\20241029181848_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\migrations\\20241029181848_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -191,7 +203,7 @@
               "RelativeToolTip": "Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
               "ViewState": "AgIAAE4AAAAAAAAAAAAAALQAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T16:04:47.02Z",
+              "WhenOpened": "2024-11-04T07:30:46.12Z",
               "EditorCaption": ""
             },
             {
@@ -216,8 +228,7 @@
               "RelativeToolTip": "Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
               "ViewState": "AgIAAAwAAAAAAAAAAAAAABkAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-10-29T19:36:40.627Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-29T19:36:40.627Z"
             },
             {
               "$type": "Document",

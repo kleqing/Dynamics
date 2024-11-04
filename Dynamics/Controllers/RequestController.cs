@@ -19,10 +19,13 @@ namespace Dynamics.Controllers
         private readonly IRequestService _requestService;
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
+        private readonly IRoleService _roleService;
 
         public RequestController(IRequestRepository requestRepository, UserManager<User> userManager,
             ILogger<RequestController> logger,
-            IRequestService? requestService, CloudinaryUploader? cloudinaryUploader, IOrganizationMemberRepository organizationMemberRepository)
+            IRequestService? requestService, CloudinaryUploader? cloudinaryUploader, 
+            IOrganizationMemberRepository organizationMemberRepository, 
+            IRoleService roleService)
         {
             _requestRepo = requestRepository;
             _userManager = userManager;
@@ -30,6 +33,7 @@ namespace Dynamics.Controllers
             _requestService = requestService;
             _cloudinaryUploader = cloudinaryUploader;
             _organizationMemberRepository = organizationMemberRepository;
+            _roleService = roleService;
         }
 
         public async Task<IActionResult> Index(string searchQuery, string filterQuery,
@@ -332,8 +336,7 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            var orgMember = await _organizationMemberRepository.GetAsync(om => om.UserID == currentUser.Id);
-            if (orgMember != null && orgMember.Status != 2)
+            if (!await _roleService.IsInRoleAsync(currentUser, RoleConstants.HeadOfOrganization))
             {
                 TempData[MyConstants.Error] = "You need to create an organization first to accept this request.";
                 return RedirectToAction("Create", "Organization");

@@ -36,7 +36,7 @@
                 <span class="flex-1 text-end line-clamp-2 h-12">@Model.OrganizationAddress</span>
             </div>
         </div>
-        <p class="line-clamp-3 mb-4">
+        <p class="line-clamp-3 mb-4" style="min-height: 72px;">
             @Model.OrganizationDescription
         </p>
         <div class="card-actions justify-center flex-col items-center">
@@ -92,15 +92,25 @@
                             </a>
                             break;
                         case > 0:
-                            if (Model.OrganizationStatus == 1)
+                            if (Model.ShutdownDay != new DateOnly())
+                            {
+                                <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID" class="btn btn-neutral h-8 min-h-0 outline-none border-none">
+                                    Organization was shutdown
+                                </a>
+                            }
+                            else if (Model.OrganizationStatus == 1)
                             {
                                 <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID" class="btn btn-neutral h-8 min-h-0 outline-none border-none">
                                     View detail organization
                                 </a>
                             }
-                            else
+                            else if (Model.OrganizationStatus == 0)
                             {
                                 <button class="btn btn-secondary h-8 min-h-0 outline-none border-none">Processing Accept By Admin, please wait in 24h</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-error h-16 outline-none border-none">Because of violating community standards, your wish list will be locked.</button>
                             }
                             break;
                     }

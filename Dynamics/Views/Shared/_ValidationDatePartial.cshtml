@@ -1,0 +1,30 @@
+﻿<script>
+    let searchForm = document.getElementById('searchForm');
+    let dateFrom = null;
+    let dateTo = null;
+    if (searchForm == null) console.log('Cannot find search form');
+    else {
+        dateFrom = searchForm.querySelector('input[name="DateFrom"]');
+        dateTo = searchForm.querySelector('input[name="DateTo"]');
+    }
+    // Setting the dates dynamically
+
+    if (dateFrom != null && dateTo != null) {
+        dateFrom.addEventListener('change', (e) => {
+            let dateFromValue = dateFrom.value;
+            if (dateFromValue) {
+                dateTo.min = dateFromValue;
+            } else {
+                dateTo.removeAttribute('min'); // If date from is cleared, cleared the date to as well
+            }
+        })
+        dateTo.addEventListener('change', function() {
+            const dateToValue = dateTo.value;
+            if (dateToValue) {
+                dateFrom.max = dateToValue;
+            } else {
+                dateFrom.removeAttribute('max');
+            }
+        });
+    }
+</script>

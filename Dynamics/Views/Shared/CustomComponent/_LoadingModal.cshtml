@@ -1,11 +1,11 @@
 ﻿@model string
 @* How to use: *@
 @* Don't put this in another element with relative position (In short, put at the end of <body></body> *@
-@* Only pass an ID string into the partial, if you want to apply to multiple forms, declare the partial view multiple times with multiple ids *@
+@* Only pass an ID string of the form into the partial, if you want to apply to multiple forms, unfortunately, you have to copy the scripts and change the names again *@
 
 <link rel="stylesheet" href="~/css/original.css"/>
 @* backdrop *@
-<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50" style="display: none; top: 0; min-height: 100vh;">
+<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50 transition-all" style="display: none; top: 0; min-height: 100vh;">
     @* This one will always be centered in the backdrop *@
     <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="loader"></div>
@@ -19,26 +19,25 @@
     // Intercept the form submission
     abcForm.addEventListener('submit', function (event) {
         console.log("Triggering loading modal...")
-        let loadingModal = document.getElementById("loadingModal");
-        if (isLegit()) {
-            loadingModal.style.display = "flex";
-        } else {
-            loadingModal.style.display = "none";
-            event.preventDefault();
-        }
+        setTimeout(() => {
+            let loadingModal = document.getElementById("loadingModal");
+            if (isLegit()) {
+                loadingModal.style.display = "flex";
+                abcForm.submit(); // Submit the form after validation check
+            } else {
+                loadingModal.style.display = "none";
+            }
+        }, 0); // Executes after rendering validation messages
     });
 
     function isLegit() {
         const validateValidClass = "field-validation-valid";
         const validateErrorClass = "field-validation-error";
         // Get all validation spans
-        let validationSpans = abcForm.getElementsByClassName(validateValidClass);
-        // Get the loading element
-        for (let v of validationSpans) {
-            if (v.classList.contains(validateErrorClass)) {
-                return false;
-            }
-        }
-        return true;
+        let errorValidations = document.getElementsByClassName(validateErrorClass);
+        console.log('All invalid validations')
+        console.log(errorValidations)
+        console.log(errorValidations.length <= 0);
+        return errorValidations.length === 0;
     }
 </script>

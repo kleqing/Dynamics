@@ -366,7 +366,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1 ? allImagesOfPhase.Replace(img, "") : allImagesOfPhase.Replace(img + ",", "");
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1 ? allImagesOfPhase.Replace(img, "") : allImagesOfPhase.Replace(img, "");
                         }
                     }
 
@@ -392,7 +392,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img + ",", "");
+                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img, "");
                         }
                     }
 

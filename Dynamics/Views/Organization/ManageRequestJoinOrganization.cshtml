@@ -36,7 +36,7 @@
                                     <span class="absolute -top-2 -left-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
                                         @(i + 1)
                                     </span>
-                                    <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id"
+                                    <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName"
                                        class="block relative hover:opacity-75 transition-opacity">
                                         <img src="@(item.User.UserAvatar ?? "https://via.placeholder.com/64")"
                                              alt="@item.User.UserName"
@@ -44,7 +44,7 @@
                                     </a>
                                 </div>
                                 <div>
-                                    <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id"
+                                    <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName"
                                        class="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors">
                                         @item.User.UserName
                                     </a>

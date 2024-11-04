@@ -208,3 +208,27 @@
     animation: l3 1s infinite linear;
 }
 @keyframes l3 {to{transform: rotate(1turn)}}
+
+.glassEffect {
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(7.8px);
+    -webkit-backdrop-filter: blur(7.8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.custom__scrollbar::-webkit-scrollbar {
+    width: 12px !important;
+}
+
+.custom__scrollbar::-webkit-scrollbar-track {
+    background-color: transparent !important;
+    border-radius: 8px !important;
+}
+
+.custom__scrollbar::-webkit-scrollbar-thumb {
+    background-color: #696E78 !important;
+    border-radius: 8px !important;
+}

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.4.4",
+    "axios": "^1.7.7",
     "datatables.net-dt": "^2.1.7",
     "sweetalert2": "^11.14.1"
   }

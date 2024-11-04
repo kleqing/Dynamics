@@ -18,13 +18,13 @@ namespace Dynamics.Controllers
     public class OrganizationController : Controller
     {
 
-        IOrganizationRepository _organizationRepository;
-        IUserRepository _userRepository;
-        IProjectRepository _projectRepository;
-        IOrganizationVMService _organizationService;
-        IUserToOragnizationTransactionHistoryVMService _userToOragnizationTransactionHistoryVMService;
-        IProjectVMService _projectVMService;
-        IOrganizationToProjectHistoryVMService _organizationToProjectHistoryVMService;
+        private readonly IOrganizationRepository _organizationRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IOrganizationVMService _organizationService;
+        private readonly IUserToOragnizationTransactionHistoryVMService _userToOragnizationTransactionHistoryVMService;
+        private readonly IProjectVMService _projectVMService;
+        private readonly IOrganizationToProjectHistoryVMService _organizationToProjectHistoryVMService;
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly IOrganizationService _orgDisplayService;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
@@ -34,6 +34,8 @@ namespace Dynamics.Controllers
         private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepository;
         private readonly ITransactionViewService _transactionViewService;
         private readonly IPagination _pagination;
+        private readonly IRoleService _roleService;
+        private readonly IProjectMemberRepository _projectMemberRepository;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -46,7 +48,7 @@ namespace Dynamics.Controllers
             , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
             IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
-            ITransactionViewService transactionViewService, IPagination pagination)
+            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository)
         {
 
             _organizationRepository = organizationRepository;
@@ -65,6 +67,8 @@ namespace Dynamics.Controllers
             _organizationToProjectTransactionHistoryRepository = organizationToProjectTransactionHistoryRepository;
             _transactionViewService = transactionViewService;
             _pagination = pagination;
+            _roleService = roleService;
+            _projectMemberRepository = projectMemberRepository;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -87,6 +91,11 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
+            if (currentUser.UserAddress == null || currentUser.PhoneNumber == null)
+            {
+                TempData[MyConstants.Error] = "You need update Your profile before Create new organization";
+                return RedirectToAction("Edit", "User");    
+            }
 
             var organization = new Organization()
             {
@@ -103,6 +112,23 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Organization organization, List<IFormFile> images)
         {
+            // Check if user already has an organization
+            //get current user
+            var userString = HttpContext.Session.GetString("user");
+            User currentUser = null;
+            if (userString != null)
+            {
+                currentUser = JsonConvert.DeserializeObject<User>(userString);
+            }
+
+            var existOrg = await _organizationRepository.GetOrganizationUserLead(currentUser.Id);
+            if (existOrg != null)
+            {
+                TempData[MyConstants.Error] = "Create organization failed!";
+                TempData[MyConstants.Subtitle] = "You already a leader of an organization";
+                return View(organization);
+            }
+            
             //set picture for Organization
             if (images.Count != 0)
             {
@@ -120,10 +146,6 @@ namespace Dynamics.Controllers
                    : "Extension of some files is wrong!";
                 }
             }
-
-            //get current user
-            var userString = HttpContext.Session.GetString("user");
-            User currentUser = null;
             if (userString != null)
             {
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
@@ -155,6 +177,7 @@ namespace Dynamics.Controllers
                     Unit = "VND",
                 };
                 await _organizationRepository.AddOrganizationResourceSync(organizationResource);
+                await _roleService.AddUserToRoleAsync(currentUser.Id, RoleConstants.HeadOfOrganization);
                 TempData[MyConstants.Success] = "Create organization successfully!";
                 return RedirectToAction(nameof(JoinOrganization), new { organizationId = organization.OrganizationID, status = 2, userId = currentUser.Id });//status 2 : CEOID   0 : processing   1 : membert
             }
@@ -224,7 +247,7 @@ namespace Dynamics.Controllers
 
                 if (await _organizationRepository.UpdateOrganizationAsync(organization))
                 {
-                    var link = Url.Action(nameof(Detail), "Organization", new { id = organization.OrganizationID },
+                    var link = Url.Action(nameof(Detail), "Organization", new { organizationId = organization.OrganizationID },
                         Request.Scheme);
                     await _notificationService.UpdateOrganizationNotificationAsync(organization.OrganizationID, link);
                     TempData[MyConstants.Success] = "Update organization successfully!";
@@ -237,6 +260,58 @@ namespace Dynamics.Controllers
             return View(organization);
         }
 
+        public async Task<IActionResult> ShutDown(Guid organizationId)
+        {
+            var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
+
+            bool boolOrganizationResource = true;
+            foreach(var or in organizationVM.OrganizationResource)
+            {
+                if(or.Quantity > 0)
+                {
+                    boolOrganizationResource = false;
+                    break;
+                }
+            }
+
+            var boolProject = true;
+            foreach (var p in organizationVM.Project)
+            {
+                if(p.ProjectStatus != 2 && p.ProjectStatus != -1)
+                {
+                    boolProject = false;
+                    break;
+                }
+            }
+
+            var organization = await _organizationRepository.GetOrganizationAsync(o => o.OrganizationID.Equals(organizationId));
+            if(boolOrganizationResource && boolProject)
+            {
+                organization.ShutdownDay = DateOnly.FromDateTime(DateTime.UtcNow);
+                organization.OrganizationStatus = -2;
+                if (await _organizationRepository.UpdateOrganizationAsync(organization))
+                {
+                    TempData[MyConstants.Success] = "Shut Down organization successfully!";
+                    return RedirectToAction(nameof(MyOrganization), new { organizationId = organizationId });
+                }
+                else
+                {
+                    TempData[MyConstants.Error] = "Shut Down organization Faild!";
+                    return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+                }
+                    
+            }
+            else if(!boolOrganizationResource)
+            {
+                TempData[MyConstants.Error] = "Shut Down organization Faild beacause exist at least a organization resource available!";
+                return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+            }
+            else
+            {
+                TempData[MyConstants.Error] = "Shut Down organization Faild beacause exist at least a project available!";
+                return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
+            }
+        }
 
         //Organization Member
         public async Task<IActionResult> ManageOrganizationMember()
@@ -286,13 +361,17 @@ namespace Dynamics.Controllers
 
             try
             {
-                if (status == 2 || status == 0)
+                if (status == 0)
                 {
                     await _organizationRepository.AddOrganizationMemberSync(organizationMember);
                     TempData[MyConstants.Success] = "You have successfully joined the organization.";
                     var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                         Request.Scheme);
                     await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "send");
+                }
+                else if(status == 2)
+                {
+                    await _organizationRepository.AddOrganizationMemberSync(organizationMember);
                 }
                 else
                 {
@@ -311,7 +390,7 @@ namespace Dynamics.Controllers
                     return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
                 }
 
-                return RedirectToAction(nameof(Detail), new { organizationId = organizationId });
+                return RedirectToAction(nameof(MyOrganization), new { organizationId = organizationId });
             }
             catch (Exception ex)
             {
@@ -323,12 +402,12 @@ namespace Dynamics.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid userId)
+        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid Id)
         {
-            var organizationMember = await _organizationRepository.GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == userId);
+            var organizationMember = await _organizationRepository.GetOrganizationMemberAsync(om => om.OrganizationID == organizationId && om.UserID == Id);
             var statusUserOut = organizationMember.Status;
 
-            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, userId);
+            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, Id);
 
             var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
@@ -345,7 +424,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User request denied successfully.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "deny");
+                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(Id, organizationId, link, "deny");
                 return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
             }
             else if (statusUserOut == 0)
@@ -353,7 +432,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "You have successfully left the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "left");
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link, "left");
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -361,7 +440,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "remove");
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link, "remove");
                 return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
         }
@@ -378,8 +457,19 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
+            var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
+            var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
+
             if (!newCEOID.Equals(currentCEOID))
             {
+                //Get All Projects in Organization 
+                var projects = await _projectRepository.GetAllProjectsByOrganizationIDAsync(p => p.OrganizationID.Equals(organizationId));
+                if(await _roleService.IsInRoleAsync(newCEO, RoleConstants.ProjectLeader) && await _roleService.IsInRoleAsync(currentCEOID, RoleConstants.ProjectLeader))
+                {
+                    TempData[MyConstants.Error] = "both is being head of project so not transfer!.";
+                    return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
+                }
+
                 var organizationMemberCurrent = new OrganizationMember()
                 {
                     UserID = currentCEOID,
@@ -396,6 +486,53 @@ namespace Dynamics.Controllers
                 };
                 await _organizationRepository.UpdateOrganizationMemberAsync(organizationMemberNew);
 
+                await _roleService.AddUserToRoleAsync(newCEOID, RoleConstants.HeadOfOrganization);
+                await _roleService.DeleteRoleFromUserAsync(currentCEOID, RoleConstants.HeadOfOrganization);
+
+                foreach(var project in projects)
+                {
+                    var projectMember = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(newCEOID) && pm.ProjectID.Equals(project.ProjectID));
+                    //newCeo is membber of project
+                    if(projectMember != null && projectMember.Status == 1)
+                    {
+                        projectMember.Status = 2;
+                        await _projectMemberRepository.UpdateAsync(projectMember);
+                    }
+
+                    if (projectMember != null && projectMember.Status == 3)
+                    {
+                        projectMember.Status = 2;
+                        await _projectMemberRepository.UpdateAsync(projectMember);
+                    }
+
+                    if (projectMember == null) // new Ceo is outside Project
+                    {
+                        
+
+                        var newProjectMember = new ProjectMember()
+                        {
+                            UserID = newCEOID,
+                            ProjectID = project.ProjectID,
+                            Status = 2,
+                        };
+
+                        await _projectRepository.AddProjectMemberAsync(newProjectMember);
+                    }
+
+                    //Delete role Project Leader of leader organization current
+                    var leaderProject = await _projectMemberRepository.GetAsync(pm => pm.Status == 3 && pm.ProjectID.Equals(project.ProjectID));
+                    if (leaderProject == null)
+                    {
+                        await _roleService.AddUserToRoleAsync(newCEO, RoleConstants.ProjectLeader);
+                        await _roleService.DeleteRoleFromUserAsync(currentCEO, RoleConstants.ProjectLeader);
+                    }
+
+
+
+                    var projectMember1 = await _projectMemberRepository.GetAsync(pm => pm.UserID.Equals(currentCEOID) && pm.ProjectID.Equals(project.ProjectID));
+                    projectMember1.Status = 1;
+                    await _projectMemberRepository.UpdateAsync(projectMember1);
+                }
                 var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                     Request.Scheme);
                 await _notificationService.TransferOrganizationCeoNotificationAsync(newCEOID, currentCEOID, organizationId, link);
@@ -550,13 +687,9 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> SendResourceOrganizationToProject(OrganizationToProjectHistory transaction, Guid projectId, List<IFormFile> file)
         {
             var resourceSent = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.Equals(transaction.OrganizationResourceID));
-            var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(file);
-
-
-            if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity && !(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
+            
+            if (transaction != null && projectId != Guid.Empty && transaction.Amount > 0 && transaction.Amount <= resourceSent.Quantity)
             {
-                transaction.Attachments = resImages;
-
                 var project = await _projectVMService.GetProjectAsync(p => p.ProjectID.Equals(projectId));
                 bool duplicate = false;
                 var projectResource = new ProjectResource();
@@ -574,6 +707,21 @@ namespace Dynamics.Controllers
                 if (duplicate)
                 {
                     transaction.ProjectResourceID = projectResource.ResourceID;
+
+                    if(projectResource.ExpectedQuantity - projectResource.Quantity ==  0)
+                    {
+                        TempData[MyConstants.Error] = "Resource is full not recieves donate";
+                        return RedirectToAction(nameof(ManageOrganizationResource));
+                    }
+                    
+                    if(transaction.Amount > (projectResource.ExpectedQuantity - projectResource.Quantity))
+                    {
+                        ViewBag.MessageExcessQuantity = $"*Quantity more than 0 and less than equal {projectResource.ExpectedQuantity - projectResource.Quantity}";
+                        return View(transaction);
+                    }
+
+
+
                 }
                 else
                 {
@@ -607,6 +755,18 @@ namespace Dynamics.Controllers
                     }
                 }
 
+                var resImages = await _cloudinaryUploader.UploadMultiImagesAsync(file);
+                if (resImages.Equals("Wrong extension") || resImages.Equals("No file"))
+                {
+                    TempData[MyConstants.Error] = resImages.Equals("No file")
+                      ? "No file to upload!"
+                      : "Extension of some files is wrong!";
+
+                    ViewBag.Images = resImages.Equals("Wrong extension") ? "*Wrong extension" : "*Please upload at least one image proof";
+                    return View(transaction);
+                }
+                transaction.Attachments = resImages;
+
                 if (await _organizationRepository.AddOrganizationToProjectHistoryAsync(transaction))
                 {
                     resourceSent.Quantity -= transaction.Amount;
@@ -629,14 +789,6 @@ namespace Dynamics.Controllers
             if (projectId == Guid.Empty)
             {
                 ViewBag.MessageProject = "*Choose project to send";
-            }
-            if (resImages.Equals("Wrong extension") || resImages.Equals("No file"))
-            {
-                TempData[MyConstants.Error] = resImages.Equals("No file")
-                  ? "No file to upload!"
-                  : "Extension of some files is wrong!";
-
-                ViewBag.Images =  resImages.Equals("Wrong extension") ? "*Wrong extension" :  "*Please upload at least one image proof";
             }
            
             return View(transaction);
@@ -674,7 +826,7 @@ namespace Dynamics.Controllers
             // Setup for display
             ViewBag.donatorName = currentUser.UserName;
             ViewBag.returnUrl = Url.Action("Detail", "Organization", new { organizationId }, Request.Scheme) ?? "~/";
-            var vnPayRequestModel = new VnPayRequestDto
+            var vnPayRequestModel = new PayRequestDto
             {
                 FromID = currentUser.Id,
                 ResourceID = new Guid(resourceId),
@@ -699,7 +851,7 @@ namespace Dynamics.Controllers
             if (organizationMoneyResource == null) throw new Exception("WARNING: Organization MONEY resource not found");
             ViewData["limitAmount"] = organizationMoneyResource.Quantity;
             ViewBag.returnUrl = Url.Action("Detail", "Organization", new { organizationId }, Request.Scheme) ?? "~/";
-            var vnPayRequestModel = new VnPayRequestDto
+            var vnPayRequestModel = new PayRequestDto
             {
                 // Target project id will be rendered in a form of options
                 FromID = new Guid(organizationId),
@@ -785,6 +937,9 @@ namespace Dynamics.Controllers
         [Authorize]
         public async Task<IActionResult> MyDonors()
         {
+            var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+
+
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
             if (userString != null)
@@ -792,7 +947,7 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryByUserID(currentUser.Id);
+            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistory(uto => uto.UserID.Equals(currentUser.Id) && uto.OrganizationResource.Organization.OrganizationID.Equals(currentOrganization.OrganizationID));
             return View(userToOrganizationTransactionHistoryInAOrganizations);
         }
 

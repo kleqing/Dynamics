@@ -1,4 +1,6 @@
-﻿@using Microsoft.IdentityModel.Tokens
+﻿@using Dynamics.Utility
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.IdentityModel.Tokens
 @model Dynamics.Models.Models.ViewModel.UserRequestsStatusViewModel
 @{
     Layout = "CustomLayout/_LayoutWithNavbarOnly";
@@ -11,7 +13,7 @@
 
 <main class="flex md:p-6 pb-0 flex-1 min-h-screen">
 @* Left *@
-@Html.Partial("CustomComponent/_UserSidebar", "History")
+@await Html.PartialAsync("CustomComponent/_UserSidebar", "History")
 <div class="divider divider-horizontal"></div>
 @* Right *@
 <div class="w-full h-full py-4 rounded-sm">
@@ -28,7 +30,7 @@
     </div>
 </nav>
 
-<div class="px-16 py-8 flex flex-col gap-12">
+<div class="w-full max-w-screen-lg mx-auto py-8 flex flex-col gap-12">
 <!-- List of joining request to an organization -->
 <section class="w-full">
     <h1 class="text-3xl font-bold mb-2">Manage your join and donation requests</h1>
@@ -40,23 +42,19 @@
     {
         <h1 class="text-3xl font-bold mb-4 ">Your requests to join organizations:</h1>
         <!-- Right search bar -->
-        <div class="flex w-full justify-end items-center gap-2 mb-4">
+        <div class="flex w-full justify-end items-center gap-2 mb-4 overflow-x-visible">
             @* Search bar *@
             <div class="join">
-                <div>
-                    <div>
-                        <div class="input input-bordered flex items-center gap-2 rounded-r-none">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 viewBox="0 0 16 16"
-                                 fill="currentColor"
-                                 class="h-4 w-4 opacity-70">
-                                <path fill-rule="evenodd"
-                                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                                      clip-rule="evenodd"/>
-                            </svg>
-                            <input type="text" class="grow" placeholder="Search something..."/>
-                        </div>
-                    </div>
+                <div class="input input-bordered flex items-center gap-2 rounded-r-none">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 16 16"
+                         fill="currentColor"
+                         class="h-4 w-4 opacity-70">
+                        <path fill-rule="evenodd"
+                              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                    <input type="text" class="grow" placeholder="Search something..."/>
                 </div>
                 <select class="select select-bordered join-item">
                     <option disabled selected>Filter</option>
@@ -90,7 +88,7 @@
                             {
                                 case 0:
                                     <div class="relative grid items-center px-2 py-1 font-sans font-bold text-blue-900 uppercase rounded-md select-none whitespace-nowrap bg-blue-500/20">
-                                        <span class="">Pending</span>
+                                        <span class="text-center">Pending</span>
                                     </div>
                                     <dialog id="@("oModal" + orgCount)" class="modal">
                                         <div class="modal-box">
@@ -146,7 +144,7 @@
     {
         <h1 class="text-3xl font-bold mb-4 ">Your requests to join projects:</h1>
         <!-- right search bar -->
-        <div class="flex w-full justify-end items-center gap-2 mb-4">
+        <div class="flex w-full justify-end items-center gap-2 mb-4 overflow-x-visible">
             <div class="join">
                 <!-- TODO: Implement search -->
                 <div>
@@ -175,7 +173,7 @@
         </div>
         <!-- End right search bar -->
         <!-- List of activity -->
-        <ul class="flex flex-col gap-2 w-full h-full max-h-80 p-4" style="overflow: auto; overflow-x: hidden">
+        <ul class="flex flex-col gap-2 w-full h-full max-h-80 p-4 overflow-x-visible">
             @{
                 foreach (var modelProjectJoinRequest in Model.ProjectJoinRequests)
                 {
@@ -279,36 +277,41 @@
             </div>
             <select class="select select-bordered join-item bg-white" name="Filter">
                 @{
-                    // Default
-                    if (string.IsNullOrEmpty(Model.SearchRequestDto.Filter))
+                    // Check if user already has filter before
+                    bool isFilteredBefore = !string.IsNullOrEmpty(Model.SearchRequestDto.Filter);
+                    foreach (var filterOptions in Model.FilterOptions)
                     {
-                        <option selected value="Filter">Filter</option>
-                        <option>Organization</option>
-                        <option>Project</option>
-                        <option>Pending</option>
-                        <option>Denied</option>
-                    }
-                    else
-                    {
-                        // Keep the old filter back
-                        foreach (var modelFilterOption in Model.FilterOptions)
+                        if (filterOptions.Key.Equals(SearchOptionsConstants.Filter, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (modelFilterOption.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                            // If there is no selected filter before, we make the Filter option selected and disabled
+                            if (!isFilteredBefore)
                             {
-                                <option selected>@modelFilterOption</option>
+                                <option value="@filterOptions.Value" selected disabled>@filterOptions.Key</option>
                             }
                             else
                             {
-                                <option>@modelFilterOption</option>
+                                <option value="@filterOptions.Value" disabled>@filterOptions.Key</option>
+                            }
+                        }
+                        else
+                        {
+                            // If a filter exist, select that filter automatically
+                            if (isFilteredBefore && filterOptions.Value.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                            {
+                                <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
+                            }
+                            else
+                            {
+                                <option value="@filterOptions.Value"> @filterOptions.Key</option>
                             }
                         }
                     }
                 }
             </select>
             <input name="DateFrom" type="date" placeholder="From date" class="input input-bordered join-item bg-white"
-                   max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")" />
+                   max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
             <input name="DateTo" type="date" placeholder="To date" class="input input-bordered join-item bg-white rounded-md"
-                   max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")" />
+                   max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
         </div>
         <button class="btn btn-primary">Search</button>
     </form>
@@ -316,40 +319,40 @@
 
     <!-- Table of the resources -->
     <div class="w-full overflow-x-hidden p-4">
-        <table class="table table-md">
-            <thead class="bg-gray-300/20">
-            <tr class="text-xl text-gray-900">
-                <th >#</th >
-                <th > Date </th >
-                <th > Resource</th >
-                <th > Quantity </th >
-                <th > Unit </th >
-                <th > Sent to </th >
-                <th > Donation message </th >
-                <th> Status</th>
-                <th> Action </th>
-            </tr >
-            </thead >
-            <tbody >
-            @{
-                if (Model.ResourcesDonationRequests.IsNullOrEmpty())
-                {
-                    <h3 class="font-bold text-center text-2xl">No information available.</h3>
-                }
-                else
-                {
+        @if (Model.ResourcesDonationRequests.IsNullOrEmpty())
+        {
+            <h3 class="font-bold text-center text-2xl">No information available.</h3>
+        }
+        else
+        {
+            <table class="table table-md">
+                <thead class="bg-gray-300/20">
+                <tr class="text-xl text-gray-900">
+                    <th>#</th >
+                    <th> Date </th >
+                    <th> Resource</th >
+                    <th> Quantity </th >
+                    <th> Unit </th >
+                    <th> Sent to </th >
+                    <th> Donation message </th >
+                    <th> Status</th>
+                    <th> Action </th>
+                </tr >
+                </thead >
+                <tbody >
+                @{
                     foreach (var donationRequest in Model.ResourcesDonationRequests)
                     {
-                        <tr class="hover:bg-slate-50 border-b border-slate-200 text-xl">
+                        <tr class="hover:bg-slate-50 border-b border-slate-200">
                             <!-- Content - Resource name - Quantity - Unit - Date - Sent to - Status -->
-                            <th class="text-xl">@donCount</th>
-                            <td class="text-xl">@Html.DisplayFor(u => donationRequest.Time)</td>
-                            <td class="text-xl">@donationRequest.ResourceName</td>
-                            <td class="text-xl">@donationRequest.Amount</td>
-                            <td class="text-xl">@donationRequest.Unit</td>
-                            <td class="text-xl">@donationRequest.Name</td>
-                            <td class="text-xl">@donationRequest.Message</td>
-                            <td class="text-xl">
+                            <th>@donCount</th>
+                            <td>@Html.DisplayFor(u => donationRequest.Time)</td>
+                            <td>@donationRequest.ResourceName</td>
+                            <td>@donationRequest.Amount.ToString("N0")</td>
+                            <td>@donationRequest.Unit</td>
+                            <td>@donationRequest.Name</td>
+                            <td>@donationRequest.Message</td>
+                            <td class="text-center">
                                 @switch (donationRequest.Status)
                                 {
                                     case -1:
@@ -418,7 +421,7 @@
                                             }
                                         </div>
                                     </div>
-                                    <form method="dialog" class="modal-backdrop ">
+                                    <form method="dialog" class="modal-backdrop">
                                         <button>Close</button>
                                     </form>
                                 </dialog>
@@ -454,14 +457,15 @@
                         donCount += 1;
                     }
                 }
-            }
-            </tbody>
-        </table >
-        <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
+                </tbody>
+            </table>
+            <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
+        }
     </div>
 </section>
 </div>
 
+<partial name="_ValidationDatePartial"/>
 
 @* Script to display the images if clicked *@
 <script>

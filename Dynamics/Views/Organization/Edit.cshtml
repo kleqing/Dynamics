@@ -6,7 +6,7 @@
     ViewData["Title"] = "Edit";
 }
 
-<div class="container my-5 p-5 pt-12 flex justify-center items-center">
+<div class= "p-5 w-full flex justify-center items-center">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl" style="margin: 0 auto">
         <h1 class="text-2xl font-bold mb-6 text-center">Update Infomation Organization to continue:</h1>
 
@@ -19,6 +19,7 @@
                 <input asp-for="@Model.OrganizationID" value="@Model.OrganizationID" class="hidden">
                 <input type="date" asp-for="@Model.StartTime" class="hidden" name="StartTime"/>
                 <input asp-for="OrganizationPictures" name ="OrganizationPictures" class="hidden">
+                <input asp-for="@Model.OrganizationStatus" type="hidden"/>
             </div>
             <div class="mb-4">
                 <label asp-for="OrganizationName" class="block text-sm font-medium text-gray-700 mb-1">Enter organization name:</label>
@@ -74,9 +75,18 @@
 
             </div>
 
-            <div class="flex justify-center">
+            <div class="flex justify-center mb-4">
                 <button type="submit" class="px-6 py-2 bg-blue-900 text-white font-medium rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Save!
+                </button>
+            </div>
+        </form>
+
+        <form asp-action="ShutDown" asp-controller="Organization">
+            <input asp-for="@Model.OrganizationID" value="@Model.OrganizationID" name="organizationId" class="hidden">
+            <div class="flex justify-center mb-4">
+                <button type="submit" class="px-6 py-2 bg-red-700 text-white font-medium rounded-md hover:bg-red-500">
+                    Shutdown!
                 </button>
             </div>
         </form>

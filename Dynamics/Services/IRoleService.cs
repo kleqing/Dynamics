@@ -16,11 +16,6 @@ public interface IRoleService
      * Use expression to determine the user list, also this one does not include anything
      */
     Task<List<UserVM>> GetUsersIncludingRoles(Expression<Func<User, bool>>? filter = null);
-    /**
-     * Add a role to a user in BOTH Auth database and Main database <br/>
-     * Use AddToRolesAsync if a user has multiple roles <br />
-     * Be careful because this one will create a new role if the role does not exist!
-     */
     Task AddUserToRoleAsync(Guid userId, string roleName);
     Task AddUserToRoleAsync(User user, string roleName);
     /**

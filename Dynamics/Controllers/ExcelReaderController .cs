@@ -87,7 +87,7 @@ namespace Dynamics.Controllers
                                 }
 
                                 // get current resource
-                                var currentResource = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
+                                var currentResource = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit) && or.OrganizationID.Equals(currentOrganization.OrganizationID));
 
                                 var userToOrganizationTransactionHistory = new UserToOrganizationTransactionHistory()
                                 {

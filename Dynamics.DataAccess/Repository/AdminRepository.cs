@@ -1,5 +1,6 @@
 ﻿using Dynamics.Models.Models;
 using Dynamics.Utility;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -11,12 +12,13 @@ namespace Dynamics.DataAccess.Repository
         private readonly ApplicationDbContext _db;
         private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
+       
 
         public AdminRepository(ApplicationDbContext db, UserManager<User> userManager
         , IUserRepository userRepository)
         {
             _db = db;
-            this._userManager = userManager;
+            _userManager = userManager;
             _userRepository = userRepository;
         }
 

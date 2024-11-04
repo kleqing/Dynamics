@@ -27,11 +27,6 @@ namespace Dynamics.Controllers
             try
             {
                 var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-                if (currentOrganization.OrganizationResource.Count == 1)
-                {
-                    TempData[MyConstants.Error] = "This organization has no resource to donate";
-                    return RedirectToAction("ManageOrganizationResource", "Organization");
-                }
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Organization Resource");
@@ -52,7 +47,11 @@ namespace Dynamics.Controllers
 
                     // Add data
                     int row = 2;
-                 
+                    if (currentOrganization.OrganizationResource.Count == 1)
+                    {
+                        TempData[MyConstants.Error] = "This organization has no resource to donate";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
                     foreach (var item in currentOrganization.OrganizationResource)
                     {
                         if (item.ResourceName.ToUpper().Equals("Money".ToUpper()))

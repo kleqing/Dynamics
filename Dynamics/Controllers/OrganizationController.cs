@@ -103,6 +103,23 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Organization organization, List<IFormFile> images)
         {
+            // Check if user already has an organization
+            //get current user
+            var userString = HttpContext.Session.GetString("user");
+            User currentUser = null;
+            if (userString != null)
+            {
+                currentUser = JsonConvert.DeserializeObject<User>(userString);
+            }
+
+            var existOrg = await _organizationRepository.GetOrganizationUserLead(currentUser.Id);
+            if (existOrg != null)
+            {
+                TempData[MyConstants.Error] = "Create organization failed!";
+                TempData[MyConstants.Subtitle] = "You already a leader of an organization";
+                return View(organization);
+            }
+            
             //set picture for Organization
             if (images.Count != 0)
             {
@@ -119,14 +136,6 @@ namespace Dynamics.Controllers
                    ? "No file to upload!"
                    : "Extension of some files is wrong!";
                 }
-            }
-
-            //get current user
-            var userString = HttpContext.Session.GetString("user");
-            User currentUser = null;
-            if (userString != null)
-            {
-                currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
             //set contact for Organization

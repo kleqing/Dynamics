@@ -54,7 +54,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required] public string Name { get; set; }
+            [Required]
+            [RegularExpression(@"^[a-zA-Z0-9\-._@+àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ() ]+$", 
+                ErrorMessage = "Username must only contain numbers, letters, or the following special characters: \"-._@+()\"")]
+            public string Name { get; set; }
 
             [Required]
             [EmailAddress]

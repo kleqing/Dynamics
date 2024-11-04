@@ -109,7 +109,7 @@ Layout = null;
     </div>
 </section>
 
-@* @Html.Partial("CustomComponent/_LoadingModal", "registerForm") *@
+@await Html.PartialAsync("CustomComponent/_LoadingModal", "registerForm")
 <partial name="CustomComponent/_SweetAlert"/>
 <partial name="_ValidationScriptsPartial"/>
 </body>

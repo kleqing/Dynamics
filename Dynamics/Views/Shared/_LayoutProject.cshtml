@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Dynamics</title>
     @* This layout should not contains anybootstrap stuff at all *@
-    <link href="css/original.css" asp-append-version="true" />
+    <link href="~/css/original.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/output.css">
     <link rel="stylesheet" href="//cdn.datatables.net/2.1.7/css/dataTables.dataTables.min.css" />
     <!-- Toastr CSS -->
@@ -22,7 +22,6 @@
         </div>
         <div>
             @RenderBody()
-            
         </div>
     </div>
 <partial name="CustomComponent/_Footer" />

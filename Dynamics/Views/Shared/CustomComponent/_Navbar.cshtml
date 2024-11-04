@@ -1,8 +1,10 @@
+@using Dynamics.Utility
 @using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
 @inject INotificationRepository _notifRepo
-
+@inject IRoleService roleService
 
 <link rel="stylesheet" href="~/css/original.css">
 <link rel="stylesheet" href="~/css/output.css">
@@ -22,6 +24,11 @@
         Accessor.HttpContext.Session.SetString("currentUserID", currentUser?.Id.ToString());
         //get all notification of current user
         userNotifs = await _notifRepo.GetCurrentUserNotificationsAsync(currentUser.Id);
+    }
+    bool isAdmin = false;
+    if (currentUser != null)
+    {
+        isAdmin = await roleService.IsInRoleAsync(currentUser.Id, RoleConstants.Admin);
     }
 }
 @{

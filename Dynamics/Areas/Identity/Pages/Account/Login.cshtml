@@ -25,7 +25,7 @@
     <div class="row flex h-full">
         @* Left *@
         <div class="w-1/2 flex flex-col justify-center items-center relative h-full">
-            <div class="flex flex-col gap-4 absolute z-10">
+            <div class="flex flex-col gap-2 absolute z-10">
                 <h3 class="text-center text-3xl font-bold text-white">"Happiness doesn’t result from what we get, <br/> but from what we give."</h3>
                 <h4 class="text-center text-xl font-bold text-white">
                     <i>Ben Carson</i>
@@ -40,11 +40,11 @@
             <a class="text-3xl text-center font-bold text-primary mb-8" asp-action="Index" asp-controller="Home" asp-area="">
                 <i>Dynamics</i>
             </a>
-            <div class="flex flex-col px-8 py-4 bg-white shadow-md rounded-md w-full max-w-lg gap-4">
+            <div class="flex flex-col px-8 py-4 bg-white shadow-md rounded-md w-full max-w-lg gap-2">
                 <h2 class="mb-2 text-center text-xl">
                     <b>Login</b>
                 </h2>
-                <form id="loginForm" method="post" class="flex flex-col gap-4">
+                <form id="loginForm" method="post" class="flex flex-col gap-2">
                     <!-- Email input -->
                     <div>
                         <label asp-for="Input.Email" class="label" for="form1Example13">Email address</label>
@@ -68,11 +68,13 @@
                         </label>
                         <a id="forgot-password" asp-page="./ForgotPassword" class="link-primary">Forgot password?</a>
                     </div>
-                    <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
-                    @if (TempData["ConfirmationEmail"] != null)
-                    {
+                    <div>
+                        <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
+                        @if (TempData["ConfirmationEmail"] != null)
+                        {
                         <p>Not received confirmation email? <a href="@TempData["ConfirmationEmail"]" class="link-primary">Click here to resend</a></p>
-                    }
+                        }
+                    </div>
                     <!-- Submit button -->
                     <button type="submit" data-mdb-button-init data-mdb-ripple-init
                             class="btn btn-primary w-full loading-btn"

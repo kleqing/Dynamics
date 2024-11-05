@@ -1,11 +1,11 @@
 ﻿@model string
 @* How to use: *@
 @* Don't put this in another element with relative position (In short, put at the end of <body></body> *@
-@* Only pass an ID string of the form into the partial, if you want to apply to multiple forms, unfortunately, you have to copy the scripts and change the names again *@
+@* Only pass an ID string of the form into the partial, if you want to apply to multiple forms, just re-use the script multiple times *@
 
 <link rel="stylesheet" href="~/css/original.css"/>
 @* backdrop *@
-<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50 transition-all" style="display: none; top: 0; min-height: 100vh;">
+<div class="w-full h-full bg-black fixed z-50 opacity-50 transition-all loadingModal" style="display: none; top: 0; min-height: 100vh;">
     @* This one will always be centered in the backdrop *@
     <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="loader"></div>
@@ -13,26 +13,38 @@
 </div>
 
 <script>
-    let abcForm = document.getElementById('@Model'); // the form
-    console.log('Looking at form: ');
-    console.log(abcForm);
+    // let abcForm = document.getElementById('@Model'); // the form
+    // console.log('Looking at form: ');
+    // console.log(abcForm);
     // Intercept the form submission
-    abcForm.addEventListener('submit', function (event) {
-        console.log("Triggering loading modal...")
-        setTimeout(() => {
-            let loadingModal = document.getElementById("loadingModal");
-            if (isLegit()) {
-                loadingModal.style.display = "flex";
-                abcForm.submit(); // Submit the form after validation check
-            } else {
-                loadingModal.style.display = "none";
-            }
-        }, 0); // Executes after rendering validation messages
-    });
-
+    try {
+        document.getElementById('@Model').addEventListener('submit', function (event) {
+                const validateValidClass = "field-validation-valid";
+                const validateErrorClass = "field-validation-error";
+                console.log("Triggering loading modal...")
+                setTimeout(() => {
+                    let loadingModal = document.getElementsByClassName("loadingModal")[0];
+                    let errorValidations = document.getElementsByClassName(validateErrorClass);
+                    console.log('All invalid validations')
+                    console.log(errorValidations)
+                    console.log(errorValidations.length <= 0);
+                    let isLegit =  errorValidations.length === 0;
+                    if (isLegit) {
+                        loadingModal.style.display = "flex";
+                        // abcForm.submit(); // Submit the form after validation check
+                    } else {
+                        loadingModal.style.display = "none";
+                        event.preventDefault();
+                    }
+                }, 100); // Executes after rendering validation messages
+        });
+    } catch (e) {
+        console.log(e)
+    }
+    /*
     function isLegit() {
         const validateValidClass = "field-validation-valid";
-        const validateErrorClass = "field-validation-error";
+        // const validateErrorClass = "field-validation-error";
         // Get all validation spans
         let errorValidations = document.getElementsByClassName(validateErrorClass);
         console.log('All invalid validations')
@@ -40,4 +52,5 @@
         console.log(errorValidations.length <= 0);
         return errorValidations.length === 0;
     }
+    */
 </script>

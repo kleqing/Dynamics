@@ -1,5 +1,5 @@
 ﻿@using Dynamics.Utility
-@model Dynamics.Models.Models.User
+@model Dynamics.Models.Models.ViewModel.UserVM
 @inject IRoleService roleService
 
 @{
@@ -16,7 +16,12 @@ ViewData["Title"] = "Details";
                          alt="@Model.UserName" src="@Model.UserAvatar">
                 </div>
                 <h1 class="text-gray-900 font-bold text-xl leading-8 my-1">@Html.DisplayFor(model => model.UserName)</h1>
-                <h3 class="text-gray-600 font-lg text-semibold leading-6">Owner at Her Company Inc.</h3>
+                <h3 class="text-gray-600 font-lg text-semibold leading-6">
+                    @if (Model.OrganizationName != null)
+                    {
+                        <span>Leader of <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationId" class="link link-primary">@Model.OrganizationName</a></span>
+                    }
+                </h3>
                 @* <p class="text-sm text-gray-500 hover:text-gray-600 leading-6">@Html.DisplayFor(model => model.UserDescription)</p> *@
                 <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                     <li class="flex items-center py-3">

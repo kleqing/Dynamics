@@ -26,7 +26,9 @@ public class OrganizationMemberRepository : IOrganizationMemberRepository
 
     public async Task<OrganizationMember?> GetAsync(Expression<Func<OrganizationMember, bool>> predicate)
     {
-        return await _context.OrganizationMember.FirstOrDefaultAsync(predicate);
+        return await _context.OrganizationMember
+            .Include(om => om.Organization)
+            .FirstOrDefaultAsync(predicate);
     }
 
     public Task<bool> CreateAsync(OrganizationMember project)

@@ -364,7 +364,11 @@ namespace Dynamics.Controllers
                 if (status == 0)
                 {
                     await _organizationRepository.AddOrganizationMemberSync(organizationMember);
-                    TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                    // Prevent send join request to be replaced by this one
+                    if (TempData[MyConstants.Success] == null)
+                    {
+                        TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                    }
                     var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                         Request.Scheme);
                     await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "send");
@@ -633,9 +637,9 @@ namespace Dynamics.Controllers
                     HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
                     
                     TempData[MyConstants.Success] = "Organization resource added successfully.";
-                    var link = Url.Action(nameof(Detail), "Organization", new {organizationId = organizationResource.OrganizationID},
-                        Request.Scheme);
-                    await _notificationService.ProcessOrganizationResourceNotificationAsync(organizationResource.ResourceID, link, "add");
+                    // var link = Url.Action(nameof(Detail), "Organization", new {organizationId = organizationResource.OrganizationID},
+                    //     Request.Scheme);
+                    // await _notificationService.ProcessOrganizationResourceNotificationAsync(organizationResource.ResourceID, link, "add");
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
             }
@@ -654,9 +658,9 @@ namespace Dynamics.Controllers
                 HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
                 TempData[MyConstants.Success] = "Organization resource removed successfully.";
-                var link = Url.Action(nameof(Detail), "Organization", new {organizationId = currentOrganization.OrganizationID},
-                    Request.Scheme);
-                await _notificationService.ProcessOrganizationResourceNotificationAsync(resourceId, link, "remove");
+                // var link = Url.Action(nameof(Detail), "Organization", new {organizationId = currentOrganization.OrganizationID},
+                //     Request.Scheme);
+                // await _notificationService.ProcessOrganizationResourceNotificationAsync(resourceId, link, "remove");
                 await _organizationRepository.DeleteOrganizationResourceAsync(resourceId);
                 return RedirectToAction(nameof(ManageOrganizationResource));
             }
@@ -719,9 +723,6 @@ namespace Dynamics.Controllers
                         ViewBag.MessageExcessQuantity = $"*Quantity more than 0 and less than equal {projectResource.ExpectedQuantity - projectResource.Quantity}";
                         return View(transaction);
                     }
-
-
-
                 }
                 else
                 {

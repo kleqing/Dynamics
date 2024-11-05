@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,7 +51,7 @@ namespace Dynamics.Areas.Admin.Controllers
         {
             if (User.IsInRole(RoleConstants.Admin))
             {
-                var project = await _adminRepository.GetProjects(c => c.ProjectID == id);
+                var project = await _adminRepository.GetProjectInfo(c => c.ProjectID == id);
                 return View(project);
             }
             else

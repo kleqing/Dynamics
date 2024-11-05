@@ -1,4 +1,4 @@
-﻿using Dynamics.Models.Models;
+﻿﻿using Dynamics.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,11 +33,10 @@ namespace Dynamics.DataAccess.Repository
         Task<int> ChangeOrganizationStatus(Guid id);
         Task<List<Organization>> GetTop5Organization();
         Task<Organization?> GetOrganization(Expression<Func<Organization, bool>> filter);
-
+        
         // 2024-10-16
-        Task<Organization?> GetOrganizationInfomation(Expression<Func<Organization, bool>> filter);
+        Task<Organization?> GetOrganizationInformation(Expression<Func<Organization, bool>> filter);
         Task<int> MemberJoinedOrganization(Guid id);
-
 
         // 2024-9-30
         // Recent item
@@ -53,12 +52,33 @@ namespace Dynamics.DataAccess.Repository
         // 2024-10-2
         // Project
         Task<List<Project>> ViewProjects();
-        //public Task<List<Project>> ViewProjectsDetail(Guid id);
         Task<Project?> GetProjects(Expression<Func<Project, bool>> filter);
         Task<bool> BanProject(Guid id);
+
+        // 2024-28-10
+        Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter);
+
 
         // 2024-10-4
         // Report
         Task<List<Report>> ViewReport();
+
+        // 2024-10-27
+        Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
+
+        Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(
+            Expression<Func<OrganizationToProjectHistory, bool>> filter);
+        
+        Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
+            Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
+
+        Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter);
+
+        Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
+            Expression<Func<OrganizationResource, bool>> filter);
+
+        Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
+            Expression<Func<OrganizationResource, bool>> filter);
+
     }
 }

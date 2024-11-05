@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -126,7 +126,7 @@ namespace Dynamics.Areas.Admin.Controllers
 
         // Get request information using ajax
         [HttpGet]
-        public async Task<JsonResult> GetRequestInfomation(Guid id)
+        public async Task<JsonResult> GetRequestInformation(Guid id)
         {
             var request = await _adminRepository.GetRequestInfo(r => r.RequestID == id);
             if (request == null)
@@ -151,7 +151,8 @@ namespace Dynamics.Areas.Admin.Controllers
                     request.Location,
                     request.RequestEmail,
                     request.RequestPhoneNumber,
-                    request.CreationDate
+                    request.CreationDate,
+                    Attachment = request.Attachment
                 }
             });
         }

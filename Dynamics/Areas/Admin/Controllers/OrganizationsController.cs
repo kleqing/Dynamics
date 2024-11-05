@@ -44,7 +44,7 @@ namespace Dynamics.Areas.Admin.Controllers
         [HttpGet]
         public async Task<JsonResult> GetOrganizationInfo(Guid id)
         {
-            var organization = await _adminRepository.GetOrganizationInfomation(o => o.OrganizationID == id);
+            var organization = await _adminRepository.GetOrganizationInformation(o => o.OrganizationID == id);
             if (organization == null)
             {
                 return Json(new

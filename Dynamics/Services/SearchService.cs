@@ -1,4 +1,5 @@
-﻿using Dynamics.Models.Models;
+﻿using System.Globalization;
+using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
 using Dynamics.Utility;
 
@@ -61,8 +62,8 @@ public class SearchService : ISearchService
         // This means that if dateFrom is null, the whole statement return true, which means no filter applied
         // Else if dateFrom is not null, the statement return the right side, which is a filter (Basically it returns the value of the "correct statement")
         query = query.Where(uto => (dateFrom == null || uto.Time >= dateFrom) &&
-                           (dateTo == null || uto.Time <= dateTo))
-                    .OrderByDescending(uto => uto.Time); // Order by time as descending
+                                   (dateTo == null || uto.Time <= dateTo))
+            .OrderByDescending(uto => uto.Time); // Order by time as descending
         return query;
     }
 
@@ -117,7 +118,8 @@ public class SearchService : ISearchService
             .OrderByDescending(uto => uto.Time); // Order by time as descending
     }
 
-    public IQueryable<OrganizationToProjectHistory> GetOrgToPrjQueryWithSearchParams(SearchRequestDto searchRequestDto, IQueryable<OrganizationToProjectHistory> query)
+    public IQueryable<OrganizationToProjectHistory> GetOrgToPrjQueryWithSearchParams(SearchRequestDto searchRequestDto,
+        IQueryable<OrganizationToProjectHistory> query)
     {
         // Use enum for clarity, you can use other like constants
         TransactionSearchOptions options;
@@ -167,6 +169,30 @@ public class SearchService : ISearchService
             .OrderByDescending(uto => uto.Time); // Order by time as descending
     }
 
+    public IQueryable<UserWalletTransaction> GetUserWalletTransactionWithSearchParams(SearchRequestDto searchRequestDto,
+        IQueryable<UserWalletTransaction> query)
+    {
+        // Use enum for clarity, you can use other like constants
+        var options = searchRequestDto.Filter;
+        // First, build the base query
+        if (!string.IsNullOrEmpty(options))
+        {
+            query = query.Where(uwt => uwt.TransactionType.ToLower().Equals(options.ToLower()));
+        }
+        // Add the general search params here
+        query = AddGeneralDefaultSearchParamForUserWalletTransaction(query, searchRequestDto.Query);
+        // Check if date filter is also included
+        var dateFrom = searchRequestDto.DateFrom.HasValue
+            ? searchRequestDto.DateFrom.Value.ToDateTime(TimeOnly.MinValue)
+            : (DateTime?)null;
+        var dateTo = searchRequestDto.DateTo.HasValue
+            ? searchRequestDto.DateTo.Value.ToDateTime(TimeOnly.MinValue)
+            : (DateTime?)null;
+        return query.Where(uto => (dateFrom == null || uto.Time >= dateFrom) &&
+                                  (dateTo == null || uto.Time <= dateTo))
+            .OrderByDescending(uto => uto.Time); // Order by time as descending
+    }
+
     /**
      * Add a general search param for all kind of query based on user query
      * Should search for resource name, organization name, message of the transaction
@@ -197,7 +223,7 @@ public class SearchService : ISearchService
             || utp.ProjectResource.ResourceName.ToLower().Contains(userQuery)
             || utp.ProjectResource.Project.ProjectName.ToLower().Contains(userQuery));
     }
-    
+
     /**
      * Add a general search param for Organization To Project transaction
      */
@@ -210,5 +236,14 @@ public class SearchService : ISearchService
             utp.Message != null && utp.Message.ToLower().Contains(q)
             || utp.ProjectResource.ResourceName.ToLower().Contains(userQuery)
             || utp.OrganizationResource.Organization.OrganizationName.ToLower().Contains(userQuery));
+    }
+
+    private IQueryable<UserWalletTransaction> AddGeneralDefaultSearchParamForUserWalletTransaction(
+        IQueryable<UserWalletTransaction> query, string? userQuery)
+    {
+        if (userQuery == null) return query;
+        var q = userQuery.ToLower();
+        return query.Where(uwt =>
+            uwt.Message != null && uwt.Message.ToLower().Contains(q));
     }
 }

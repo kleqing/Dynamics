@@ -2,6 +2,7 @@
 @* TODO: Handle multiple search form ? *@
 @{
     var startRecords = ((Model.PageNumber - 1) * Model.PageSize) + 1; // page 2 , size 9 => Showing from 10 -> 18
+    if (Model.TotalRecords == 0) startRecords = 0;
     var endRecords = Model.PageNumber * Model.PageSize;
     if (endRecords > Model.TotalRecords) endRecords = Model.TotalRecords;
 }
@@ -17,13 +18,47 @@
                 Previous
             </button>
         }
-
-        @for (int i = 1; i <= Model.TotalPages; i++)
+        @if (Model.TotalPages >= 10)
         {
-            <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
-                @i
+            // 2 left pages
+            for (int i = 1; i <= 2; i++)
+            {
+                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                    @i
+                </button>
+            }
+            <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                ...
             </button>
+            // 3 middle pages
+            var nextThreePages = Model.PageNumber + 3;
+            for (int i = Model.PageNumber; i < nextThreePages; i++)
+            {
+                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                    @i
+                </button>
+            }
+            <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                ...
+            </button>
+            // 2 Right page
+            for (int i = Model.TotalPages; i >= Model.TotalPages - 2; i--)
+            {
+                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                    @i
+                </button>
+            }
         }
+        else
+        {
+            for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                    @i
+                </button>
+            }
+        }
+
 
         @if (Model.PageNumber < Model.TotalPages)
         {

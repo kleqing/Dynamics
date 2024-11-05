@@ -2,13 +2,14 @@
 @model Dynamics.Models.Models.ViewModel.OrganizationVM
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
+@inject IRoleService roleService
 
 @{
     ViewData["Title"] = "TransferCeoOrganization";
     Layout = "_LayoutOrganization";
 }
 
-<div class="container my-5 p-5 pt-12 flex justify-center items-center">
+<div class="p-5 w-full flex justify-center items-center">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
         <h1 class="text-2xl font-bold mb-6 text-center">Select a new organization leader:</h1>
 
@@ -34,12 +35,12 @@
                     <option value="@Model.CEO.Id">Select organization type</option>
                     @foreach (var item in Model.OrganizationMember)
                     {
-                        if (item.UserID.Equals(Model.CEO.Id))
+                        if (item.UserID.Equals(Model.CEO.Id) || await roleService.IsInRoleAsync(item.UserID, RoleConstants.HeadOfOrganization))
                         {
                             continue;
                         }
 
-                        <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email] - [@item.User.Id]</option>
+                        <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
                     }
                 </select>
             </div>

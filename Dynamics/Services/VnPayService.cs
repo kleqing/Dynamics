@@ -39,9 +39,8 @@ public class VnPayService : IVnPayService
         _orgToPrj = orgToPrj;
         _vnpay = new VnPayLibrary();
     }
-
-
-    public string CreatePaymentUrl(HttpContext context, VnPayRequestDto model)
+    
+    public string CreatePaymentUrl(HttpContext context, VnPayCreatePaymentDto model)
     {
         // Setup configuration
         string vnp_Url = _configuration["VnPay:VnPayUrl"];
@@ -80,7 +79,7 @@ public class VnPayService : IVnPayService
         _vnpay.AddRequestData("vnp_OrderInfo", model.Message); // Our message
         _vnpay.AddRequestData("vnp_OrderType", vnp_OrderType); // Indicate money for VNPay
         _vnpay.AddRequestData("vnp_ReturnUrl", returnUrl);
-        _vnpay.AddRequestData("vnp_TxnRef", model.TransactionID.ToString()); // Our transaction id
+        _vnpay.AddRequestData("vnp_TxnRef", model.TransactionId.ToString()); // Our transaction id
         var paymentUrl = _vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
         return paymentUrl;
     }
@@ -138,120 +137,5 @@ public class VnPayService : IVnPayService
         string vnp_HashSecret = _configuration["VnPay:vnp_HashSecret"];
         bool checkSignature = _vnpay.ValidateSignature(vnp_SecureHash, vnp_HashSecret);
         return checkSignature;
-    }
-
-    public VnPayRequestDto InitVnPayRequestDto(HttpContext context, VnPayRequestDto payRequestDto)
-    {
-        if (payRequestDto.ResourceID == null)
-            throw new Exception("PAYMENT: YOU FORGOT TO ASSIGN THE MONEY RESOURCE ID");
-        if (payRequestDto.TargetId == null) throw new Exception("PAYMENT: TARGET ID IS NULL, PLS CHECK AGAIN");
-        if (payRequestDto.TargetType == null)
-            throw new Exception("PAYMENT: TARGET TYPE IS NULL, PLEASE CHOOSE EITHER ORGANIZATION OR PROJECT");
-        // If not allocation, default id is user
-        if (!payRequestDto.TargetType.Equals(MyConstants.Allocation))
-        {
-            User u = JsonConvert.DeserializeObject<User>(context.Session.GetString("user"));
-            payRequestDto.FromID = u.Id;
-        }
-
-        // Set up our request Dto:
-        payRequestDto.TransactionID = Guid.NewGuid();
-        payRequestDto.Time = DateTime.Now;
-        payRequestDto.Message ??= $"Donated {payRequestDto.Amount} VND";
-        payRequestDto.Status = 1; // Always has the status of accepted (If error we caught it before)
-        return payRequestDto;
-    }
-
-    /**
-     * Things to do
-     * There are in total 3 types of donation, when an action is taken, add it to history and add it manually in its resource table
-     * Target type: project - user to prj, organization: user to organization, allocation: organization to project
-     * User to organization:
-     *
-     * User to project
-     * Organization to project
-     */
-    public async Task AddTransactionToDatabaseAsync(VnPayRequestDto payRequestDto)
-    {
-        // payRequestDto.Amount /= 100; // Because of VNPay
-        if (payRequestDto.TargetType.Equals(MyConstants.Project))
-        {
-            await UpdateUserToProject(payRequestDto);
-        }
-        else if (payRequestDto.TargetType.Equals(MyConstants.Organization))
-        {
-            await UpdateUserToOrganization(payRequestDto);
-        }
-        else
-        {
-            await UpdateOrganizationToProject(payRequestDto);
-        }
-    }
-
-    private async Task UpdateUserToProject(VnPayRequestDto payRequestDto)
-    {
-        // User to prj
-        var result = _mapper.Map<UserToProjectTransactionHistory>(payRequestDto);
-        // Things to map: FromID => UserID,  ResourceID => ProjectResourceId,
-        // We don't need targetId because the transaction is linked with resource id
-        result.UserID = payRequestDto.FromID;
-        result.ProjectResourceID = payRequestDto.ResourceID;
-        result.Time = DateOnly.FromDateTime(payRequestDto.Time); // Manual convert because of... Time
-        // Insert to the history table
-        await _userToPrj.AddUserDonateRequestAsync(result);
-        // Use Huyen's donate resource method to handle
-        await _userToPrj.AcceptUserDonateRequestAsync(result);
-    }
-
-    private async Task UpdateUserToOrganization(VnPayRequestDto payRequestDto)
-    {
-        var result = _mapper.Map<UserToOrganizationTransactionHistory>(payRequestDto);
-        // Map stuff
-        result.UserID = payRequestDto.FromID;
-        result.Time = DateOnly.FromDateTime(payRequestDto.Time); // Manual convert because of... Time
-        // Insert to history
-        await _userToOrg.AddAsync(result);
-        // Add the money to organization resource
-        var targetResource = await _organizationResourceRepo.GetAsync(or => or.ResourceID == payRequestDto.ResourceID);
-        if (targetResource == null) throw new Exception("THIS ORGANIZATION DON'T HAVE RESOURCE MONEY ?");
-        targetResource.Quantity += payRequestDto.Amount;
-        await _organizationResourceRepo.UpdateAsync(targetResource);
-        // Done
-    }
-
-    /**
-     * We get both Organization money resource and project as well to perform calculations on them
-     *
-     */
-    private async Task UpdateOrganizationToProject(VnPayRequestDto payRequestDto)
-    {
-        // org to prj
-        var result = _mapper.Map<OrganizationToProjectHistory>(payRequestDto);
-        result.Time = DateOnly.FromDateTime(payRequestDto.Time); // Manual convert because of... Time
-        // No need to set the fromId here
-        
-        var projectMoneyResource = await _projectResourceRepo.GetAsync(pr =>
-            pr.ProjectID == payRequestDto.TargetId &&
-            pr.ResourceName.ToLower().Equals("money"));
-        var organizationMoneyResource =
-            await _organizationResourceRepo.GetAsync(or => or.ResourceID == payRequestDto.ResourceID);
-        if (organizationMoneyResource == null)
-            throw new Exception("PAYMENT: Organization resource not found (Is this one lacking money?)");
-        if (projectMoneyResource == null)
-            throw new Exception("PAYMENT: Project resource not found (Is this one lacking money?)");
-        
-        result.OrganizationResourceID = payRequestDto.ResourceID; // Pay request holds the organizationResource ID
-        result.ProjectResourceID = projectMoneyResource.ResourceID; // The resourceId we searched for 
-        
-        // Insert to database:
-        await _orgToPrj.AddAsync(result);
-        
-        // Update in project resource and organization resource
-        // One gains, another one loss
-        projectMoneyResource.Quantity += payRequestDto.Amount;
-        organizationMoneyResource.Quantity -= payRequestDto.Amount;
-        await _projectResourceRepo.UpdateResourceTypeAsync(projectMoneyResource);
-        await _organizationResourceRepo.UpdateAsync(organizationMoneyResource);
-        // Done
     }
 }

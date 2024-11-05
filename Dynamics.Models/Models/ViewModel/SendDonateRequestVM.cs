@@ -18,6 +18,6 @@ namespace Dynamics.Models.Models.ViewModel
         public OrganizationToProjectHistory? OrgDonate { get; set; }
         public List<UserToProjectTransactionHistory>? UserTransactionHistory { get; set; }
         public List<OrganizationToProjectHistory>? OrgTransactionHistory { get; set; }
-        public VnPayRequestDto VnPayRequestDto { get; set; }
+        public PayRequestDto PayRequestDto { get; set; }
     }
 }

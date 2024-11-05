@@ -17,21 +17,22 @@ public class MyMapper : Profile
         CreateMap<Project, ProjectOverviewDto>().ReverseMap();
         CreateMap<Organization, OrganizationOverviewDto>().ReverseMap();
         CreateMap<Project, UpdateProjectProfileRequestDto>().ReverseMap();
-        CreateMap<VnPayRequestDto, UserToProjectTransactionHistory>()
+        CreateMap<PayRequestDto, UserToProjectTransactionHistory>()
             .ForMember(dest => dest.Time, opt => opt.Ignore())
             .ReverseMap()
             .ForMember(dest => dest.Time, opt => opt.Ignore());
 
-        CreateMap<VnPayRequestDto, UserToOrganizationTransactionHistory>()
+        CreateMap<PayRequestDto, UserToOrganizationTransactionHistory>()
             .ForMember(dest => dest.Time, opt => opt.Ignore())
             .ReverseMap()
             .ForMember(dest => dest.Time, opt => opt.Ignore());
 
-        CreateMap<VnPayRequestDto, OrganizationToProjectHistory>()
+        CreateMap<PayRequestDto, OrganizationToProjectHistory>()
             .ForMember(dest => dest.Time, opt => opt.Ignore())
             .ReverseMap()
             .ForMember(dest => dest.Time, opt => opt.Ignore());
 
         CreateMap<User, UserVM>().ReverseMap();
+        CreateMap<UserWalletTransaction, UserWalletTransactionVM>().ReverseMap();
     }
 }

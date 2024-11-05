@@ -2,6 +2,7 @@
 @using Dynamics.Utility
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
+@inject IRoleService roleService
 
 
 @{
@@ -19,7 +20,7 @@
     {
         currentUser = JsonConvert.DeserializeObject<User>(userString);
     }
-    
+
 }
 
 
@@ -36,10 +37,44 @@
         <!-- Project Grid -->
         <div class="grid grid-cols-3 gap-8">
             <!-- New Project Card (Only for CEO) -->
+            @{
+                bool haveAPersoneCantoProjectLeader = true;
+                int i = 0;
+            }
+            @foreach (var item in Model.OrganizationMember)
+            {
+                
+                if(await roleService.IsInRoleAsync(item.User, RoleConstants.ProjectLeader))
+                {
+                    i++;
+                }
+            }
+            @if (i == Model.OrganizationMember.Count())
+            {
+                haveAPersoneCantoProjectLeader = false;
+            }
+
             @if (currentUser!=null && currentUser.Id.Equals(Model.CEO.Id))
             {
-                <a href="/Project/CreateProject" class="transform transition duration-300 hover:scale-105">
-                    <div class="h-full rounded-2xl border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white overflow-hidden shadow-sm hover:shadow-md">
+                if (haveAPersoneCantoProjectLeader)
+                {
+                    <a href="/Project/CreateProject" class="transform transition duration-300 hover:scale-105">
+                        <div class="h-full rounded-2xl border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white overflow-hidden shadow-sm hover:shadow-md">
+                            <div class="flex flex-col items-center justify-center h-[500px] space-y-6 p-8">
+                                <div class="rounded-full bg-gray-100 p-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-semibold text-gray-700">Create New Project</h3>
+                                <p class="text-gray-500">Start a new initiative</p>
+                            </div>
+                        </div>
+                    </a>
+                }
+                else
+                {
+                    <div class="h-full rounded-2xl border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white overflow-hidden shadow-sm hover:shadow-md ">
                         <div class="flex flex-col items-center justify-center h-[500px] space-y-6 p-8">
                             <div class="rounded-full bg-gray-100 p-6">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -48,9 +83,10 @@
                             </div>
                             <h3 class="text-2xl font-semibold text-gray-700">Create New Project</h3>
                             <p class="text-gray-500">Start a new initiative</p>
+                            <p class="text-error">Not have a perseon available is Project leader</p>
                         </div>
                     </div>
-                </a>
+                }
             }
 
             <!-- Project Cards -->
@@ -71,7 +107,7 @@
                             <a href="/Project/ManageProject/@item.ProjectID">
                                 <img src="@(images[0] ?? "https://localhost:7276/images/Organization/0.jpg")"
                                      alt="Project Image"
-                                     class="w-full h-56 object-cover">
+                                     class="w-full h-full object-cover">
                             </a>
                             <!-- Status Badges -->
                             <div class="absolute top-4 left-4 flex gap-2">

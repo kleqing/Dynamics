@@ -11,11 +11,12 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "daisyui": "^4.12.11",
-    "tailwindcss": "^3.4.13"
+    "daisyui": "^4.12.14",
+    "tailwindcss": "^3.4.14"
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.4.4",
+    "axios": "^1.7.7",
     "datatables.net-dt": "^2.1.7",
     "sweetalert2": "^11.14.1"
   }

@@ -2,6 +2,7 @@
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
 @model Dynamics.Models.Models.ViewModel.OrganizationVM
+@inject IOrganizationRepository organizationRepository
 
 
 @{
@@ -101,16 +102,16 @@
                                             }
                                             else
                                             {
-                                                @if (item.Quantity == 0)
+                                                @if (item.Quantity == 0 && await organizationRepository.GetUserToOrganizationTransactionHistoryByTransactionIDAsync(uto => uto.ResourceID.Equals(item.ResourceID)) == null)
                                                 {
                                                     <a asp-action="RemoveOrganizationResource" asp-controller="Organization" asp-route-resourceId="@item.ResourceID"
-                                                       class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                                       class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 tooltip" >
                                                         Remove
                                                     </a>
                                                 }
                                                 else
                                                 {
-                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed" disabled>
+                                                    <button class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-400 rounded cursor-not-allowed tooltip" disabled data-tip="This resource is being doante by donator">
                                                         Remove
                                                     </button>
                                                 }

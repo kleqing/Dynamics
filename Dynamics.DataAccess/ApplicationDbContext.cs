@@ -1,4 +1,4 @@
-﻿
+
 using Dynamics.Models.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -17,7 +17,6 @@ namespace Dynamics.DataAccess
         }
 
         public virtual DbSet<Report> Reports { get; set; }
-        public virtual DbSet<Award> Awards { get; set; }
         public virtual DbSet<Organization> Organizations { get; set; }
         public virtual DbSet<OrganizationMember> OrganizationMember { get; set; }
         public virtual DbSet<OrganizationResource> OrganizationResources { get; set; }
@@ -31,7 +30,8 @@ namespace Dynamics.DataAccess
         public virtual DbSet<Request> Requests { get; set; }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
-
+        public virtual DbSet<Wallet> Wallets { get; set; }
+        public virtual DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Enable sensitive data logging
@@ -50,7 +50,6 @@ namespace Dynamics.DataAccess
 
             // Primary Keys
             modelBuilder.Entity<Report>().HasKey(r => r.ReportID);
-            modelBuilder.Entity<Award>().HasKey(a => a.AwardID);
             modelBuilder.Entity<OrganizationResource>().HasKey(or => or.ResourceID);
             modelBuilder.Entity<Organization>().HasKey(o => o.OrganizationID);
             modelBuilder.Entity<OrganizationToProjectHistory>().HasKey(o => o.TransactionID);
@@ -64,21 +63,28 @@ namespace Dynamics.DataAccess
             modelBuilder.Entity<History>().HasKey(r => r.HistoryID);
             modelBuilder.Entity<Notification>().HasKey(n => n.NotificationID);
             modelBuilder.Entity<User>().HasKey(u => u.Id);
-
+            modelBuilder.Entity<Wallet>().HasKey(w => w.WalletId);
+            modelBuilder.Entity<UserWalletTransaction>().HasKey(uwt => uwt.TransactionId);
             // Relationships (Foreign Keys)
 
+            // Wallet to user: Each wallet belong to a user
+            modelBuilder.Entity<Wallet>()
+                .HasOne(w => w.User)
+                .WithOne(u => u.Wallet)
+                .HasForeignKey<Wallet>(w => w.UserId);
+            
+            // Wallet to UserWalletTransaction: Each wallet has multiple transaction
+            modelBuilder.Entity<Wallet>()
+                .HasMany(w => w.WalletTransactions)
+                .WithOne(w => w.Wallet)
+                .HasForeignKey(uwt => uwt.WalletId);
+            
             // Report to User: one user can have many reports
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Reporter)
                 .WithMany(u => u.ReportsMade)
                 .HasForeignKey(r => r.ReporterID)
                 .OnDelete(DeleteBehavior.NoAction);
-
-            // Award to User
-            modelBuilder.Entity<Award>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.Award)
-                .HasForeignKey(a => a.UserID);
 
             // OrganizationResource to Organization
             modelBuilder.Entity<OrganizationResource>()

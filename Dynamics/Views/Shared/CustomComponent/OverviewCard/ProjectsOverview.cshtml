@@ -48,7 +48,7 @@
                 </span>
             </div>
         </div>
-        <p class="line-clamp-3 mb-4">
+        <p class="line-clamp-3 mb-4" style="min-height: 72px;">
             @Model.ProjectDescription
         </p>
         <div class="card-actions justify-center flex-col items-center">
@@ -62,7 +62,7 @@
                       value="@Model.ProjectProgress"
                       max="100">
             </progress>
-            <p class="w-full text-success">Raised @Model.ProjectRaisedMoney VND</p>
+            <p class="w-full text-success">Raised @Model.ProjectRaisedMoney.ToString("N0") VND</p>
             <a class="btn btn-primary h-8 min-h-0 outline-none border-none"
                asp-action="ManageProject" asp-route-id="@Model.ProjectID"
                asp-controller="Project">

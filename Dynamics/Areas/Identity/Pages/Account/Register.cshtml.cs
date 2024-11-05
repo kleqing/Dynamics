@@ -26,6 +26,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IUserRepository _userRepo;
         private readonly IRoleService _roleService;
+        private readonly IWalletService _walletService;
 
         public RegisterModel(
             UserManager<User> userManager,
@@ -33,7 +34,9 @@ namespace Dynamics.Areas.Identity.Pages.Account
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             RoleManager<IdentityRole<Guid>> roleManager,
-            IUserRepository repository, IRoleService roleService)
+            IUserRepository repository, 
+            IRoleService roleService, 
+            IWalletService walletService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -42,6 +45,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
             _roleManager = roleManager;
             _userRepo = repository;
             _roleService = roleService;
+            _walletService = walletService;
         }
 
         // Declares that incoming http request will be bind to this input
@@ -52,7 +56,10 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required] public string Name { get; set; }
+            [Required]
+            [RegularExpression(@"^[a-zA-Z0-9\-._@+àáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ() ]+$", 
+                ErrorMessage = "Username must only contain numbers, letters, or the following special characters: \"-._@+()\"")]
+            public string Name { get; set; }
 
             [Required]
             [EmailAddress]
@@ -130,7 +137,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 // If role not exist, create all of our possible role
                 // also, getAwaiter is the same as writing await keyword
                 _logger.LogWarning("REGISTER: CREATING ROLES");
-                if (!_roleManager.RoleExistsAsync(RoleConstants.User).GetAwaiter().GetResult())
+                if (!_roleManager.RoleExistsAsync(RoleConstants.Admin).GetAwaiter().GetResult())
                 {
                     _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.User)).GetAwaiter().GetResult();
                     _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.Admin)).GetAwaiter().GetResult();
@@ -147,13 +154,13 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 user.UserAvatar = MyConstants.DefaultAvatarUrl;
                 // TODO: remove these
                 user.isBanned = false;
-                user.UserRole = MyConstants.User;
                 _logger.LogWarning("REGISTER: CREATING IDENTITY USER");
                 // Create a user with email and input password
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, RoleConstants.User); // Default role
+                    await _walletService.CreateEmptyWalletAsync(user.Id); // Wallet
                     _logger.LogWarning("REGISTER: ADDING USER TO DATABASE");
                     // Add real user to database
                     //await _userRepo.AddAsync(new User

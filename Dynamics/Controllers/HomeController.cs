@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using Humanizer;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Dynamics.Controllers
 {
@@ -18,10 +20,12 @@ namespace Dynamics.Controllers
         private readonly IOrganizationRepository _organizationRepo;
         private readonly IOrganizationService _organizationService;
         private readonly IPagination _pagination;
+        private readonly IRoleService _roleService;
 
         public HomeController(IUserRepository userRepo, IRequestRepository requestRepo,
             IProjectRepository projectRepo, IProjectService projectService, IRequestService requestService,
-            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination)
+            IOrganizationRepository organizationRepo, IOrganizationService organizationService, IPagination pagination
+            ,IRoleService roleService)
         {
             _userRepo = userRepo;
             _requestRepo = requestRepo;
@@ -31,6 +35,7 @@ namespace Dynamics.Controllers
             _organizationRepo = organizationRepo;
             _organizationService = organizationService;
             _pagination = pagination;
+            _roleService = roleService;
         }
 
         // // Landing page

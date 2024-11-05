@@ -4,7 +4,7 @@ namespace Dynamics.Services;
 
 public interface IVnPayService
 {
-    string CreatePaymentUrl(HttpContext context, VnPayRequestDto model);
+    string CreatePaymentUrl(HttpContext context, VnPayCreatePaymentDto model);
     VnPayResponseDto ExtractPaymentResult(IQueryCollection collection);
     /**
      * Init the pay request with some information <br />
@@ -12,6 +12,4 @@ public interface IVnPayService
      * FromId, ResourceId, TargetId, target type <br />
      * Amount, message?
      */
-    VnPayRequestDto InitVnPayRequestDto(HttpContext context, VnPayRequestDto payRequestDto);
-    Task AddTransactionToDatabaseAsync(VnPayRequestDto payRequestDto);
 }

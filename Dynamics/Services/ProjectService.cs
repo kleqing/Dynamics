@@ -218,7 +218,7 @@ public class ProjectService : IProjectService
                 List<string> statistic = new List<string>()
                 {
                     projectResouceMoney?.Quantity.ToString(), projectResouceMoney?.ExpectedQuantity.ToString(),
-                    progressValue.ToString(), numberOfProjectContributor.ToString(), timeLeft.ToString()
+                    progressValue.ToString(), numberOfProjectContributor.ToString(), timeLeft.Days.ToString()
                 };
                 return statistic;
             }
@@ -316,7 +316,7 @@ public class ProjectService : IProjectService
                 ExpectedAmountOfMoneyDonate = Convert.ToInt32(statistic[1]),
                 ProgressDonate = Convert.ToDouble(statistic[2]),
                 NumberOfProjectContributor = Convert.ToInt32(statistic[3]),
-                TimeLeftEndDay = Convert.ToInt32(statistic[3]),
+                TimeLeftEndDay = Convert.ToInt32(statistic[4]),
                 Random5Donors = await GetRandom5DonorsAsync(projectObj.ProjectID)
             };
             if (detailProjectVM != null)
@@ -352,7 +352,7 @@ public class ProjectService : IProjectService
 
     public async Task<bool> DeleteImageAsync(string imgPath, Guid phaseID)
     {
-        if(string.IsNullOrEmpty(imgPath) || phaseID == Guid.Empty) return false;
+        if (string.IsNullOrEmpty(imgPath)) return false;
         if (phaseID != Guid.Empty)
         {
             var allImagesOfPhase = await GetAllImagesAsync(phaseID, "Phase");
@@ -366,7 +366,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1? allImagesOfPhase.Replace(img, ""): allImagesOfPhase.Replace(img + ",","");
+                            allImagesOfPhase = allImagesOfPhase.Split(',').Count() == 1 ? allImagesOfPhase.Replace(img, "") : allImagesOfPhase.Replace(img, "");
                         }
                     }
 
@@ -392,7 +392,7 @@ public class ProjectService : IProjectService
                     {
                         if (img.Equals(imgPath))
                         {
-                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img + ",", "");
+                            allImagesOfProject = allImagesOfProject.Split(',').Count() == 1 ? allImagesOfProject.Replace(img, "") : allImagesOfProject.Replace(img, "");
                         }
                     }
 
@@ -406,6 +406,7 @@ public class ProjectService : IProjectService
 
         return false;
     }
+
 
     public async Task<string> UploadImagesAsync(List<IFormFile> images, string folder)
     {

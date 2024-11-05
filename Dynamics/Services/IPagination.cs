@@ -6,7 +6,12 @@ namespace Dynamics.Services;
 public interface IPagination
 {
     IQueryable<T> ToQueryable<T>(List<T> list) where T : class;
+    /**
+     * This one paginate at DB level
+     */
     Task<List<T>> PaginateAsync<T>(IQueryable<T> query, int pageNumber, int pageSize) where T : class;
+    Task<List<T>> PaginateAsync<T>(IQueryable<T> query, HttpContext context, PaginationRequestDto? paginationRequestDto = null, SearchRequestDto? searchRequestDto = null) where T : class;
+
     /**
      * Return the queryable with paginated filter applied. <br/>
      * It is async because it needed to execute the query to get the rows

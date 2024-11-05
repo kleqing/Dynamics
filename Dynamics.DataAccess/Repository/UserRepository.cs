@@ -55,41 +55,6 @@ namespace Dynamics.DataAccess.Repository
         {
             return await _db.Users.Include(u => u.ProjectMember).AsNoTracking().SingleOrDefaultAsync(filter);
         }
-
-        public async Task<string> GetRoleFromUserAsync(Guid userId)
-        {
-            var authUser = await _userManager.FindByIdAsync(userId.ToString());
-            if (authUser == null) throw new Exception("GET ROLE FAILED: USER NOT FOUND");
-            return _userManager.GetRolesAsync(authUser).GetAwaiter().GetResult().FirstOrDefault();
-        }
-
-        // Add to both user side
-        public async Task AddToRoleAsync(Guid userId, string roleName)
-        {
-            var authUser = await _userManager.FindByIdAsync(userId.ToString());
-            var businessUser = await GetAsync(u => u.Id == userId);
-            if (authUser == null || businessUser == null) throw new Exception("ADD ROLE FAILED: USER NOT FOUND");
-            businessUser.UserRole = roleName;
-            // For identity, get the current role, delete it and add a new one
-            var currentRole = _userManager.GetRolesAsync(authUser).GetAwaiter().GetResult().FirstOrDefault();
-            if (currentRole != null)
-            {
-                await _userManager.RemoveFromRoleAsync(authUser, currentRole);
-                await _userManager.AddToRoleAsync(authUser, roleName);
-            }
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task DeleteRoleFromUserAsync(Guid userId, string roleName = RoleConstants.User)
-        {
-            var authUser = await _userManager.FindByIdAsync(userId.ToString());
-            var businessUser = await GetAsync(u => u.Id == userId);
-            if (authUser == null || businessUser == null) throw new Exception("DELETE ROLE FAILED: USER NOT FOUND");
-            var result = await _userManager.RemoveFromRoleAsync(authUser, roleName);
-            businessUser.UserRole = roleName;
-            await _db.SaveChangesAsync();
-        }
-
         public async Task<User?> GetAsync(Expression<Func<User, bool>> filter)
         {
             var user = await _db.Users.Where(filter).FirstOrDefaultAsync();
@@ -122,7 +87,7 @@ namespace Dynamics.DataAccess.Repository
             existingItem.UserAddress = user.UserAddress;
             existingItem.UserDOB = user.UserDOB;
             existingItem.UserDescription = user.UserDescription;
-
+            existingItem.UserAvatar = user.UserAvatar;
             // Only update the property that has the same name between 2 models
             //_db.Entry(existingItem).CurrentValues.SetValues(user);
             //await _userManager.UpdateAsync(existingItem);

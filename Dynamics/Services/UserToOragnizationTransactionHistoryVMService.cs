@@ -66,6 +66,35 @@ namespace Dynamics.Services
                                   .ToListAsync();
             return result;
         }
+        
+        
+        //for Donors
+        public async Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistory(Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
+        {
+            var result = await _db.UserToOrganizationTransactionHistories
+                .Where(filter)
+                .OrderByDescending(uto => uto.Time)
+                .ThenBy(uto => uto.Status)
+                .Include(uto => uto.User)
+                .Include(uto => uto.OrganizationResource)
+                .ThenInclude(uto => uto.Organization)
+
+                .Select(uto => new UserToOrganizationTransactionHistory
+                {
+                    TransactionID = uto.TransactionID,
+                    ResourceID = uto.ResourceID,
+                    UserID = uto.UserID,
+                    Status = uto.Status,
+                    Amount = uto.Amount,
+                    Attachments = uto.Attachments,
+                    Message = uto.Message,
+                    Time = uto.Time,
+                    User = uto.User,
+                    OrganizationResource = uto.OrganizationResource,
+                })
+                .ToListAsync();
+            return result;
+        }
 
         //for Donors
         public async Task<List<UserToOrganizationTransactionHistory>> GetTransactionHistoryByUserID(Guid userId)

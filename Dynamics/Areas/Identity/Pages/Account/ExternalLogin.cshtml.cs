@@ -25,7 +25,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly IUserRepository _userRepo;
-        private readonly IRoleService roleService;
+        private readonly IRoleService _roleService;
+        private readonly IWalletService _walletService;
 
         public ExternalLoginModel(
             SignInManager<User> signInManager,
@@ -34,7 +35,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender,
             IUserRepository userRepo,
-            IRoleService roleService)
+            IRoleService roleService, IWalletService walletService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -42,7 +43,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _userRepo = userRepo;
-            this.roleService = roleService;
+            _roleService = roleService;
+            _walletService = walletService;
         }
 
         [BindProperty] public InputModel Input { get; set; }
@@ -90,12 +92,15 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
             var userEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
             var businessUser = await _userRepo.GetAsync(u => u.Email == userEmail);
-            if (businessUser != null && businessUser.UserRole.Equals(RoleConstants.Banned))
+            if (businessUser != null)
             {
-                ModelState.AddModelError("", "User account is banned!");
-                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                var isBanned = await _roleService.IsInRoleAsync(businessUser.Id, RoleConstants.Banned);
+                if (isBanned || businessUser.isBanned == true)
+                {
+                    ModelState.AddModelError("", "User account is banned!");
+                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+                }
             }
-            
             // Checking if the user already have an account with the same email, we will use that account to log in instead
             var existingUser = await _userManager.FindByEmailAsync(userEmail ?? "No email");
             if (existingUser != null)
@@ -195,14 +200,14 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
                 // TODO: Remove these
                 user.isBanned = false;
-                user.UserRole = MyConstants.User;
                 var result = await _userManager.CreateAsync(user); // Create user with no password bc of Google login
 
                 if (result.Succeeded)
                 {
-                    if (!await roleService.IsInRoleAsync(user.Id, RoleConstants.User))
+                    await _walletService.CreateEmptyWalletAsync(user.Id); // Wallet
+                    if (!await _roleService.IsInRoleAsync(user.Id, RoleConstants.User))
                     {
-                        await roleService.AddUserToRoleAsync(user.Id, RoleConstants.User); // Init default role
+                        await _roleService.AddUserToRoleAsync(user.Id, RoleConstants.User); // Init default role
                     }
 
                     if (result.Succeeded)

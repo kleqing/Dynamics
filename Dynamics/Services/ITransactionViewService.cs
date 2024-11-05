@@ -24,7 +24,7 @@ public interface ITransactionViewService
     /**
      * Execute the query org to prj and map it to dtos
      */
-    Task<List<UserTransactionDto>> GetOrganizationToProjectTransactionDTOs(
+    Task<List<UserTransactionDto>> GetTransactionProjectReceivedFromOrganizationDtosAsync(
      IQueryable<OrganizationToProjectHistory> query);
     /**
      * Setup for user related display transaction
@@ -40,8 +40,10 @@ public interface ITransactionViewService
     Task<List<UserTransactionDto>> SetupProjectTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
      IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
      IQueryable<OrganizationToProjectHistory> orgToPrjQueryable);
-
-    Task<List<OrganizationTransactionDto>> GetUserToOrganizationTransactionDtosAsync(IQueryable<UserToOrganizationTransactionHistory> query);
-    Task<List<OrganizationTransactionDto>> GetOrganizationToProjectTransactionDtosAsync(IQueryable<OrganizationToProjectHistory> query);
     
+    Task<List<OrganizationTransactionDto>> GetTransactionOrganizationReceivedFromUserDtosAsync(IQueryable<UserToOrganizationTransactionHistory> query);
+    Task<List<OrganizationTransactionDto>> GetOrganizationToProjectTransactionDtosAsync(IQueryable<OrganizationToProjectHistory> query);
+    Task<List<UserTransactionDto>> GetTransactionProjectReceivedFromUserDtosAsync(
+     IQueryable<UserToProjectTransactionHistory> query);
+
 }

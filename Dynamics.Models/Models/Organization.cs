@@ -21,7 +21,7 @@ namespace Dynamics.Models.Models
         public string? OrganizationPhoneNumber { get; set; }
         public string? OrganizationAddress { get; set; }
 
-        [Required(ErrorMessage = "The Organization Name field is required *")]
+        [Required(ErrorMessage = "The Organization description field is required *")]
         public string OrganizationDescription { get; set; }
 		public string? OrganizationPictures { get; set; }
         [DataType(DataType.Date)]

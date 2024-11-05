@@ -6,11 +6,10 @@
     User currentUser = Accessor.HttpContext.Session.GetCurrentUser();
     if (currentUser != null) ViewBag.userID = currentUser.Id;
 }
-
 <body>
-<main class="w-full h-full flex flex-col gap-6 items-center p-16">
+<main class="w-full h-full flex flex-col gap-6 items-center p-16" style="min-height: calc(100vh - 144px - 72px)">
     <a asp-action="Create" asp-controller="Request" class="my-5">
-        <button id="createOrgBtn" class="btn btn-wide bg-red-500 text-white">
+        <button id="createOrgBtn" class="btn btn-wide btn-primary text-white">
             Create new request
         </button>
     </a>

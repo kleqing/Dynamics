@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Dynamics.DataAccess.Repository;
 using Dynamics.Models.Dto;
@@ -8,6 +9,7 @@ using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 
 namespace Dynamics.Controllers
@@ -83,6 +85,7 @@ namespace Dynamics.Controllers
             {
                 ViewBag.UserDOB = user.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
             }
+
             return View(mapper.Map<UserVM>(currentUser));
         }
 
@@ -93,14 +96,23 @@ namespace Dynamics.Controllers
         {
             try
             {
+                if (user.PhoneNumber != null)
+                {
+                    bool isPhone = Regex.IsMatch(user.PhoneNumber, @"^\d{11}$");
+                    if (!isPhone)
+                    {
+                        ModelState.AddModelError("PhoneNumber", "Phone number is not a valid phone number.");
+                        return View(user);
+                    }
+                }
                 var currentUser = JsonConvert.DeserializeObject<User>(HttpContext.Session.GetString("user"));
+                if (currentUser == null) return Unauthorized();
                 // Try to get existing user (If we might have) that is in the system
                 var existingUserFullName = await _userRepository.GetAsync(u =>
-                    u.UserName.Equals(user.UserName) && u.UserName != currentUser.UserName);
-                var existingUserEmail = await _userRepository.GetAsync(u =>
-                    u.Email.Equals(user.Email) && u.Email != currentUser.Email);
+                    (u.UserName.Equals(user.UserName) && u.UserName != currentUser.UserName) ||
+                    (u.Email.Equals(user.Email) && u.Email != currentUser.Email));
                 // If one of these 2 exists, it means that another user is already has the same name or email
-                if (existingUserEmail != null || existingUserFullName != null)
+                if (existingUserFullName != null)
                 {
                     TempData[MyConstants.Error] = "Username or email is already taken.";
                     return View(user);
@@ -174,16 +186,27 @@ namespace Dynamics.Controllers
                 return RedirectToAction("Account", "User");
             }
 
+            var currentUser = await _userManager.FindByIdAsync(changePassword.UserId.ToString());
+            if (currentUser == null) return Unauthorized();
+
             if (changePassword.NewPassword != changePassword.ConfirmPassword)
             {
                 TempData[MyConstants.Error] = "The password and confirmation password do not match.";
                 return RedirectToAction("Account", "User");
             }
 
-            var currentUser = await _userManager.FindByIdAsync(changePassword.UserId.ToString());
             if (currentUser.PasswordHash == null)
             {
                 TempData["Google"] = "Your account is bound with google account.";
+                return RedirectToAction("Account", "User");
+            }
+
+            // Check if user enter the old password and new password the same
+            var passwordHasher = _userManager.PasswordHasher.VerifyHashedPassword(currentUser, currentUser.PasswordHash,
+                changePassword.NewPassword);
+            if (passwordHasher == PasswordVerificationResult.Success)
+            {
+                TempData[MyConstants.Error] = "New password cannot be the same as old password.";
                 return RedirectToAction("Account", "User");
             }
 
@@ -222,22 +245,27 @@ namespace Dynamics.Controllers
             else return RedirectToAction("Logout", "Auth");
 
             // Get base query for both type of transactions
-            var userToOrgQueryable = _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status == 1);
-            var userToPrjQueryable = _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status == 1);
+            var userToOrgQueryable =
+                _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status == 1);
+            var userToPrjQueryable =
+                _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status == 1);
 
-            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchOptions, userToPrjQueryable, userToOrgQueryable);
+            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchOptions,
+                userToPrjQueryable, userToOrgQueryable);
             var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchOptions);
 
             var final = new UserHistoryViewModel
             {
-                UserTransactions = paginated, // Display descending by time (The ordering should already be default in search)
+                UserTransactions =
+                    paginated, // Display descending by time (The ordering should already be default in search)
                 PaginationRequestDto = paginationRequestDto,
                 SearchRequestDto = searchOptions,
             };
             return View(final);
         }
 
-        public async Task<IActionResult> RequestsStatus(SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
+        public async Task<IActionResult> RequestsStatus(SearchRequestDto searchRequestDto,
+            PaginationRequestDto paginationRequestDto)
         {
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
@@ -253,10 +281,13 @@ namespace Dynamics.Controllers
                     om.UserID.Equals(currentUser.Id) && om.Status < 2);
 
             // Donation requests only get the pending / denied ones (Money is automatically accepted so it should not be here.)
-            var userToOrgQueryable = _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status < 1);
-            var userToPrjQueryable = _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status < 1);
+            var userToOrgQueryable =
+                _userToOrgRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status < 1);
+            var userToPrjQueryable =
+                _userToPrjRepo.GetAllAsQueryable(ut => ut.UserID.Equals(currentUser.Id) && ut.Status < 1);
 
-            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, userToOrgQueryable);
+            var total = await _transactionViewService.SetupUserTransactionDtosWithSearchParams(searchRequestDto,
+                userToPrjQueryable, userToOrgQueryable);
             var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchRequestDto);
             ViewBag.totalPages = paginationRequestDto.TotalPages;
 
@@ -278,17 +309,17 @@ namespace Dynamics.Controllers
                 switch (type.ToLower())
                 {
                     case "project":
-                        {
-                            var result = await _userToPrjRepo.DeleteTransactionByIdAsync(transactionID);
-                            if (result == null) throw new Exception();
-                            break;
-                        }
+                    {
+                        var result = await _userToPrjRepo.DeleteTransactionByIdAsync(transactionID);
+                        if (result == null) throw new Exception();
+                        break;
+                    }
                     case "organization":
-                        {
-                            var result = await _userToOrgRepo.DeleteTransactionByIdAsync(transactionID);
-                            if (result == null) throw new Exception();
-                            break;
-                        }
+                    {
+                        var result = await _userToOrgRepo.DeleteTransactionByIdAsync(transactionID);
+                        if (result == null) throw new Exception();
+                        break;
+                    }
                     default:
                         throw new ArgumentException("Invalid type");
                 }
@@ -311,30 +342,30 @@ namespace Dynamics.Controllers
                 switch (type.ToLower())
                 {
                     case "project":
+                    {
+                        var result =
+                            await _projectMemberRepository.DeleteAsync(pm =>
+                                pm.UserID == userID && pm.ProjectID == targetID);
+                        if (result == null)
                         {
-                            var result =
-                                await _projectMemberRepository.DeleteAsync(pm =>
-                                    pm.UserID == userID && pm.ProjectID == targetID);
-                            if (result == null)
-                            {
-                                msg = "No request found for this transaction.";
-                                throw new Exception("Cancel failed.");
-                            }
-
-                            break;
+                            msg = "No request found for this transaction.";
+                            throw new Exception("Cancel failed.");
                         }
+
+                        break;
+                    }
                     case "organization":
+                    {
+                        var result = await _organizationMemberRepository.DeleteAsync(om =>
+                            om.UserID == userID && om.OrganizationID == targetID);
+                        if (result == null)
                         {
-                            var result = await _organizationMemberRepository.DeleteAsync(om =>
-                                om.UserID == userID && om.OrganizationID == targetID);
-                            if (result == null)
-                            {
-                                msg = "No request found for this transaction.";
-                                throw new Exception("Cancel failed.");
-                            }
-
-                            break;
+                            msg = "No request found for this transaction.";
+                            throw new Exception("Cancel failed.");
                         }
+
+                        break;
+                    }
                     default:
                         throw new ArgumentException("Invalid type");
                 }

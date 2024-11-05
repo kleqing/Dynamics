@@ -126,7 +126,7 @@ namespace Dynamics.Areas.Admin.Controllers
 
         // Get request information using ajax
         [HttpGet]
-        public async Task<JsonResult> GetRequestInformation(Guid id)
+        public async Task<JsonResult> GetRequestInfomation(Guid id)
         {
             var request = await _adminRepository.GetRequestInfo(r => r.RequestID == id);
             if (request == null)
@@ -151,8 +151,7 @@ namespace Dynamics.Areas.Admin.Controllers
                     request.Location,
                     request.RequestEmail,
                     request.RequestPhoneNumber,
-                    request.CreationDate,
-                    Attachment = request.Attachment
+                    request.CreationDate
                 }
             });
         }

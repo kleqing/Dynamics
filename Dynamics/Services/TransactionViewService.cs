@@ -31,7 +31,7 @@ public class TransactionViewService : ITransactionViewService
             Message = ut.Message,
             Status = ut.Status,
             ResourceName = ut.OrganizationResource.ResourceName,
-            Name = "Organization - " + ut.OrganizationResource.Organization.OrganizationName,
+            Name = "Organization - " + ut.OrganizationResource.Organization.OrganizationName, // Target organization name
             Time = ut.Time,
             Unit = ut.OrganizationResource.Unit,
             Attachments = ut.Attachments,
@@ -50,7 +50,7 @@ public class TransactionViewService : ITransactionViewService
             Message = ut.Message,
             Status = ut.Status,
             ResourceName = ut.ProjectResource.ResourceName,
-            Name = "Project - " + ut.ProjectResource.Project.ProjectName, // Project name
+            Name = "Project - " + ut.ProjectResource.Project.ProjectName, // Target project name
             Time = ut.Time,
             Unit = ut.ProjectResource.Unit,
             Attachments = ut.Attachments,
@@ -59,14 +59,14 @@ public class TransactionViewService : ITransactionViewService
         return await result.ToListAsync();
     }
 
-    public async Task<List<OrganizationTransactionDto>> GetUserToOrganizationTransactionDtosAsync(IQueryable<UserToOrganizationTransactionHistory> query)
+    public async Task<List<OrganizationTransactionDto>> GetTransactionOrganizationReceivedFromUserDtosAsync(IQueryable<UserToOrganizationTransactionHistory> query)
     {
         var organizationTransactionDtos = query
             .Include(x => x.User)
             .Select(uto => new OrganizationTransactionDto
         {
             TransactionID = uto.TransactionID,
-            Name = uto.User.UserName,
+            Name = uto.User.UserName, // The name of the user that org received
             Unit = uto.OrganizationResource.Unit,
             Amount = uto.Amount,
             Message = uto.Message,
@@ -88,7 +88,7 @@ public class TransactionViewService : ITransactionViewService
             .Select(uto => new OrganizationTransactionDto
         {
             TransactionID = uto.TransactionID,
-            Name = uto.ProjectResource.Project.ProjectName,
+            Name = uto.ProjectResource.Project.ProjectName, // The name of the project organization sent to
             Project = uto.ProjectResource.Project,
             Unit = uto.OrganizationResource.Unit,
             ResourceName = uto.OrganizationResource.ResourceName,
@@ -103,7 +103,7 @@ public class TransactionViewService : ITransactionViewService
         return await organizationTransactionDtos.ToListAsync();
     }
 
-    public async Task<List<UserTransactionDto>> GetOrganizationToProjectTransactionDTOs(
+    public async Task<List<UserTransactionDto>> GetTransactionProjectReceivedFromOrganizationDtosAsync(
         IQueryable<OrganizationToProjectHistory> query)
     {
         var result = query.Select(opt => new UserTransactionDto
@@ -113,11 +113,29 @@ public class TransactionViewService : ITransactionViewService
             Message = opt.Message,
             Status = opt.Status,
             ResourceName = opt.ProjectResource.ResourceName,
-            Name = opt.OrganizationResource.Organization.OrganizationName, // Organization name
+            Name = opt.OrganizationResource.Organization.OrganizationName, // Organization name who donated
             Time = opt.Time,
             Unit = opt.ProjectResource.Unit,
             Attachments = opt.Attachments,
             Type = "orgToPrj"
+        });
+        return await result.ToListAsync();
+    }
+
+    public async Task<List<UserTransactionDto>> GetTransactionProjectReceivedFromUserDtosAsync(IQueryable<UserToProjectTransactionHistory> query)
+    {
+        var result = query.Select(opt => new UserTransactionDto
+        {
+            TransactionID = opt.TransactionID,
+            Amount = opt.Amount,
+            Message = opt.Message,
+            Status = opt.Status,
+            ResourceName = opt.ProjectResource.ResourceName,
+            Name = opt.User.UserName, // Username who donated
+            Time = opt.Time,
+            Unit = opt.ProjectResource.Unit,
+            Attachments = opt.Attachments,
+            Type = "userToPrj"
         });
         return await result.ToListAsync();
     }
@@ -180,18 +198,18 @@ public class TransactionViewService : ITransactionViewService
             searchOptions.Filter.Equals(MyConstants.Organization, StringComparison.OrdinalIgnoreCase))
         {
             userToOrgTransactionDtos =
-                await GetOrganizationToProjectTransactionDTOs(orgToPrjQueryable);
+                await GetTransactionProjectReceivedFromOrganizationDtosAsync(orgToPrjQueryable);
         }
         else if (searchOptions.Filter != null &&
                  searchOptions.Filter.Equals(MyConstants.User, StringComparison.OrdinalIgnoreCase))
         {
-            userToPrjTransactionDtos = await GetUserToProjectTransactionDTOs(userToPrjQueryable);
+            userToPrjTransactionDtos = await GetTransactionProjectReceivedFromUserDtosAsync(userToPrjQueryable);
         }
         else
         {
             // Get both for display if no filter for organization / project selected
-            userToOrgTransactionDtos = await GetOrganizationToProjectTransactionDTOs(orgToPrjQueryable);
-            userToPrjTransactionDtos = await GetUserToProjectTransactionDTOs(userToPrjQueryable);
+            userToOrgTransactionDtos = await GetTransactionProjectReceivedFromOrganizationDtosAsync(orgToPrjQueryable);
+            userToPrjTransactionDtos = await GetTransactionProjectReceivedFromUserDtosAsync(userToPrjQueryable);
         }
 
         // Merge into a list and display
@@ -219,7 +237,7 @@ public class TransactionViewService : ITransactionViewService
             searchOptions.Filter.Equals(MyConstants.User, StringComparison.OrdinalIgnoreCase))
         {
             userToOrgTransactionDtos =
-                await GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
+                await GetTransactionOrganizationReceivedFromUserDtosAsync(userToOrgQueryable);
         }
         else if (searchOptions.Filter != null &&
                  searchOptions.Filter.Equals(MyConstants.Project, StringComparison.OrdinalIgnoreCase))
@@ -229,7 +247,7 @@ public class TransactionViewService : ITransactionViewService
         else
         {
             // Get both for display if no filter for organization / project selected
-            userToOrgTransactionDtos = await GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
+            userToOrgTransactionDtos = await GetTransactionOrganizationReceivedFromUserDtosAsync(userToOrgQueryable);
             userToPrjTransactionDtos = await GetOrganizationToProjectTransactionDtosAsync(organizationToProjectQueryable);
         }
 

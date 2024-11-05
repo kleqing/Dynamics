@@ -1,4 +1,4 @@
-﻿@model Dynamics.Models.Models.ViewModel.UserVM
+@model Dynamics.Models.Models.ViewModel.UserVM
 
 @{
     ViewData["Title"] = "Edit";
@@ -22,13 +22,16 @@
         <form asp-action="Edit" asp-controller="User" enctype="multipart/form-data" method="post" id="user-information"
               class="flex flex-col gap-4 justify-center items-center flex-1 rounded-md shadow-md p-12">
             <h1 class="font-bold text-center text-3xl">Change user profile</h1>
+            <div class="w-full max-w-screen-lg">
+                
+            </div>
             <div class="flex justify-around w-full h-full">
                 <div class="flex flex-col w-1/2">
                     <div asp-validation-summary="ModelOnly" class="text-error"></div>
                     <input type="hidden" asp-for="Id" />
                     <div class="form-control w-full">
                         <label class="label">
-                            <span class="label-text font-bold text-lg">Username</span>
+                            <span class="label-text  ">Username</span>
                         </label>
                         <input type="text" placeholder="Enter new name" asp-for="UserName"
                                class="input input-bordered w-full bg-white input-primary"
@@ -37,7 +40,7 @@
                     </div>
                     <div class="form-control w-full">
                         <label class="label">
-                            <span class="label-text font-bold text-lg">Email</span>
+                            <span class="label-text  ">Email</span>
                         </label>
                         <input type="email" disabled placeholder="Enter new email"
                                class="input input-bordered w-full bg-white input-primary" value="@Model.Email" />
@@ -46,7 +49,7 @@
                     </div>
                     <div class="form-control w-full">
                         <label class="label">
-                            <span class="label-text font-bold text-lg">Phone number</span>
+                            <span class="label-text  ">Phone number</span>
                         </label>
                         <input type="tel" placeholder="Enter new phone" asp-for="PhoneNumber"
                                class="input input-bordered w-full bg-white input-primary"
@@ -85,7 +88,7 @@
                         }
                     }
                     <label class="form-control w-full">
-                        <span class="label label-text font-bold text-lg">User address</span>
+                        <span class="label label-text  ">User address</span>
                         <div>
                             <select class="select select-bordered w-full mb-4 bg-white select-primary" id="city" aria-label=".form-select-sm">
                                 <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
@@ -111,16 +114,16 @@
                     <!-- Be careful as this one must strictly follow format YYYY-MM-DD -->
                     <label asp-for="UserDOB" class="form-control w-full">
                         <div class="label">
-                            <span class="label-text font-bold text-lg">Date of birth (Month/Day/Year)</span>
+                            <span class="label-text  ">Date of birth (Month/Day/Year)</span>
                         </div>
                         <input type="date" asp-for="UserDOB"
                                class="input input-bordered w-full bg-white input-primary" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
-                               name="UserDOB" />
+                               name="UserDOB" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
                     </label>
                     <br />
                     <label asp-for="UserDescription" class="form-control w-full">
                         <div class="label">
-                            <span class="label-text font-bold text-lg">User description</span>
+                            <span class="label-text  ">User description</span>
                         </div>
                         <textarea placeholder="Tell people more about you"
                                   class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"
@@ -133,11 +136,11 @@
                     </label>
                     @* <textarea placeholder="Tell people more about you" class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"></textarea> *@
                 </div>
-                <div class="flex flex-col gap-2 font-bold text-lg">
+                <div class="flex flex-col gap-2  ">
                     <h3>Profile picture</h3>
                     <label for="changeProfile" class="relative hover:scale-105 duration-150 transition-all hover:cursor-pointer">
                         <input type="hidden" name="UserAvatar" asp-for="UserAvatar" value="@Model.UserAvatar" />
-                        <input type="file" name="image" id="changeProfile" style="display: none" />
+                        <input type="file" name="image" id="changeProfile" style="display: none" accept=".jpg, .jpeg, .png, .gif, .bmp, .gif"/>
                         <!-- TODO: Subtitles the user avatar here -->
                         <img src="@Model.UserAvatar" alt="User's Name" id="avatar"
                              class="avatar w-40 h-40 object-cover rounded-full shadow-md" />

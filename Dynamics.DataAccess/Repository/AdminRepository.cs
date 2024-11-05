@@ -89,6 +89,30 @@ namespace Dynamics.DataAccess.Repository
             var organizations = await _db.Organizations.ToListAsync();
             return organizations;
         }
+        
+        public async Task<Organization?> GetOrganizationInformation(Expression<Func<Organization, bool>> filter)
+        {
+            // Get choosen organization information
+            return await _db.Organizations.Where(filter)
+                .Select(
+                    org => new Organization
+                    {
+                        OrganizationID = org.OrganizationID,
+                        OrganizationName = org.OrganizationName,
+                        OrganizationDescription = org.OrganizationDescription,
+                        OrganizationEmail = org.OrganizationEmail,
+                        OrganizationPhoneNumber = org.OrganizationPhoneNumber,
+                        OrganizationAddress = org.OrganizationAddress,
+                        StartTime = org.StartTime
+                    })
+                .FirstOrDefaultAsync();
+        }
+
+        // Count member joined organization
+        public async Task<int> MemberJoinedOrganization(Guid id)
+        {
+            return await _db.OrganizationMember.Where(o => o.OrganizationID == id).CountAsync();
+        }
 
         // ---------------------------------------
         // Request (View, Update)

@@ -1,4 +1,4 @@
-﻿using Dynamics.Models.Models;
+﻿﻿using Dynamics.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +33,10 @@ namespace Dynamics.DataAccess.Repository
         Task<int> ChangeOrganizationStatus(Guid id);
         Task<List<Organization>> GetTop5Organization();
         Task<Organization?> GetOrganization(Expression<Func<Organization, bool>> filter);
+        
+        // 2024-10-16
+        Task<Organization?> GetOrganizationInformation(Expression<Func<Organization, bool>> filter);
+        Task<int> MemberJoinedOrganization(Guid id);
 
         // 2024-9-30
         // Recent item

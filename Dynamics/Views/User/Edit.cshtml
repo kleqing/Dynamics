@@ -34,7 +34,7 @@
                             <span class="label-text  ">Username</span>
                         </label>
                         <input type="text" placeholder="Enter new name" asp-for="UserName"
-                               class="input input-bordered w-full bg-white input-primary"
+                               class="input input-bordered w-full bg-white focus:input-primary"
                                name="UserName" />
                         <span asp-validation-for="UserName" class="text-error"></span>
                     </div>
@@ -52,7 +52,7 @@
                             <span class="label-text  ">Phone number</span>
                         </label>
                         <input type="tel" placeholder="Enter new phone" asp-for="PhoneNumber"
-                               class="input input-bordered w-full bg-white input-primary"
+                               class="input input-bordered w-full bg-white focus:input-primary"
                                name="PhoneNumber" />
                         <span asp-validation-for="PhoneNumber" class="text-error"></span>
                     </div>
@@ -90,21 +90,21 @@
                     <label class="form-control w-full">
                         <span class="label label-text  ">User address</span>
                         <div>
-                            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="city" aria-label=".form-select-sm">
+                            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="city" aria-label=".form-select-sm">
                                 <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
                             </select>
 
-                            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="district" aria-label=".form-select-sm">
+                            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="district" aria-label=".form-select-sm">
                                 <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
                             </select>
 
-                            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="ward" aria-label=".form-select-sm">
+                            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="ward" aria-label=".form-select-sm">
                                 <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
                             </select>
                         </div>
                         <input type="text"
                                placeholder="Enter street and house number"
-                               class="input input-bordered w-full bg-white input-primary"
+                               class="input input-bordered w-full bg-white focus:input-primary"
                                value="@homeAddr"
                                id="HomeAddress" />
                         @* the original one should be located here: *@
@@ -117,7 +117,7 @@
                             <span class="label-text  ">Date of birth (Month/Day/Year)</span>
                         </div>
                         <input type="date" asp-for="UserDOB"
-                               class="input input-bordered w-full bg-white input-primary" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
+                               class="input input-bordered w-full bg-white focus:input-primary" value="@(ViewBag.UserDOB ?? Model.UserDOB)"
                                name="UserDOB" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
                     </label>
                     <br />
@@ -126,7 +126,7 @@
                             <span class="label-text  ">User description</span>
                         </div>
                         <textarea placeholder="Tell people more about you"
-                                  class="textarea textarea-bordered textarea-md textarea-primary w-full bg-white"
+                                  class="textarea textarea-bordered textarea-md focus:textarea-primary w-full bg-white"
                                   asp-for="UserDescription"
                                   rows="5"
                                   name="UserDescription">
@@ -162,6 +162,7 @@
     <partial name="CustomComponent/_SweetAlertToast" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
     @* Get all the address information before submit *@
+    @await Html.PartialAsync("CustomComponent/_LoadingModalSweet", "user-information")
     <script>
         let cities = document.getElementById("city");
         let districts = document.getElementById("district");

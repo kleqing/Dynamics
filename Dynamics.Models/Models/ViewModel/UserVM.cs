@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Dynamics.Models.Models.ViewModel;
 /**
  * This one is the same as user model but with role column for extract
+ * Oh and also the organization user lead if possible (along with the ID to be clickable)
  */
 public class UserVM
 {
@@ -35,6 +36,9 @@ public class UserVM
     public string? UserDescription { get; set; }
     [ValidateNever]
     public IEnumerable<string> UserRoles { get; set; }
+    // The organization user lead
+    public string? OrganizationName { get; set; }
+    public Guid? OrganizationId { get; set; }
     public bool isBanned { get; set; }
     [ValidateNever]
     [DataType(DataType.DateTime)]

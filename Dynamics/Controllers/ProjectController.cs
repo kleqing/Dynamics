@@ -1608,8 +1608,7 @@ namespace Dynamics.Controllers
                             StartTime = projectVM.StartTime,
                             EndTime = projectVM.EndTime,
                         };
-
-
+                        
                         if (await _projectRepo.AddProjectAsync(project))
                         {
                             var projectResource = new ProjectResource()

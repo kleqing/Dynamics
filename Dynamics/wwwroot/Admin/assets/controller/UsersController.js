@@ -36,9 +36,10 @@
             $.ajax({
                 url: "/Admin/Users/UserAsAdmin",
                 data: { id: id },
-                datatype: "json",
+                dataType: "json",
                 type: "POST",
                 success: function (response) {
+                    // Check the response to see if the user is now an admin
                     if (response.isAdmin) {
                         btn.text('Admin');
                         btn.removeClass('badge badge-primary-lighten').addClass('badge badge-warning-lighten');
@@ -50,6 +51,7 @@
             });
         });
     }
+
 
 
 }

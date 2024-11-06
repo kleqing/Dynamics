@@ -101,25 +101,30 @@
         @if (statusProjectMemberOfUser >= 2)
         {
             <a asp-action="ReviewUserDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                <div class="relative inline-flex">
+                <div class="relative indicator">
                     <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Review user donate request
                     </button>
                     @if (ViewData["hasUserDonateRequest"] != null && (bool)ViewData["hasUserDonateRequest"])
                     {
-                        <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white"></span>
+                        <div class="indicator-item">
+                            <div class="absolute rounded-full w-4 h-4 bg-red-500 animate-ping"></div>
+                            <div class="relative rounded-full w-4 h-4 bg-red-500"></div>
+                        </div>
                     }
                 </div>
             </a>
             <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                <div class="relative inline-flex">
+                <div class="relative indicator">
                     <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Review organization donate request
                     </button>
                     @if (ViewData["hasOrgDonateRequest"] != null && (bool)ViewData["hasOrgDonateRequest"])
                     {
-                        <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-white">
-                        </span>
+                        <div class="indicator-item">
+                            <div class="absolute rounded-full w-4 h-4 bg-red-500 animate-ping"></div>
+                            <div class="relative rounded-full w-4 h-4 bg-red-500"></div>
+                        </div>
                     }
                 </div>
             </a>
@@ -185,40 +190,44 @@
                         </div>
                     </td>
                     <td>
-                        <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
-                        <!-- You can open the modal using ID.showModal() method -->
-                        <dialog id="proofImagesModal_@item.TransactionID" class="modal">
-                            <div class="modal-box w-11/12 max-w-5xl">
-                                <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
-                                @{
-                                    string[] proofImages = new string[1] { "," };
-                                    if (item.Attachments != null)
-                                    {
-                                        proofImages = item.Attachments.TrimEnd(',', ' ').Split(",");
+                        @* Don't show if there is no attachments *@
+                        @if (!string.IsNullOrEmpty(item.Attachments))
+                        {
+                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                            <!-- You can open the modal using ID.showModal() method -->
+                            <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                <div class="modal-box w-11/12 max-w-5xl">
+                                    <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                    @{
+                                        string[] proofImages = new string[1] { "," };
+                                        if (item.Attachments != null)
+                                        {
+                                            proofImages = item.Attachments.TrimEnd(',', ' ').Split(",");
+                                        }
                                     }
-                                }
-                                <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
-                                    @foreach (var img in proofImages)
-                                    {
-                                        <button onclick="openModal('@img','proof_image')">
-                                            <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer"/>
-                                        </button>
-                                        <dialog id="proof_image" class="modal">
-                                            <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
-                                                <img id="modalImage" alt="current-proof-img" class=" h-[80vh] w-auto rounded-xl shadow-md cursor-pointer"/>
-                                            </div>
-                                            <form method="dialog" class="modal-backdrop ">
-                                                <button>close</button>
-                                            </form>
-                                        </dialog>
-                                    }
-                                </div>
+                                    <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
+                                        @foreach (var img in proofImages)
+                                        {
+                                            <button onclick="openModal('@img','proof_image')">
+                                                <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer"/>
+                                            </button>
+                                            <dialog id="proof_image" class="modal">
+                                                <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                    <img id="modalImage" alt="current-proof-img" class=" h-[80vh] w-auto rounded-xl shadow-md cursor-pointer"/>
+                                                </div>
+                                                <form method="dialog" class="modal-backdrop ">
+                                                    <button>close</button>
+                                                </form>
+                                            </dialog>
+                                        }
+                                    </div>
 
-                            </div>
-                            <form method="dialog" class="modal-backdrop">
-                                <button>close</button>
-                            </form>
-                        </dialog>
+                                </div>
+                                <form method="dialog" class="modal-backdrop">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
+                        }
                     </td>
                 </tr>
                 count += 1;

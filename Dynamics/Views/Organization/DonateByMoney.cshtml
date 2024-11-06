@@ -140,8 +140,8 @@
         else
         {
             <h1 class="text-2xl font-bold mb-6 text-center">Allocate money to project</h1>
-            <span class="text-neutral text-center max-w-md mx-auto block">The money allocate to project will be in digital form. To receive real money, please create a withdrawal request after project reach certain milestones</span>
-            <form asp-controller="Payment" asp-action="Pay" id="payForm" onsubmit="return validateForm()" class="flex justify-center items-center gap-6">
+            <span class="text-neutral text-center max-w-md mx-auto block">The money allocate to project will be in digital form. To receive real money, please create a withdrawal request after project reach on going milestone</span>
+            <form asp-controller="Organization" asp-action="AllocateMoney" id="payForm" method="post" onsubmit="return validateForm()" class="flex justify-center items-center gap-6">
                 <input type="hidden" name="TargetType" value="@Model.TargetType"/>
                 <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
                 <input type="hidden" name="FromID" value="@Model.FromID"/>
@@ -158,9 +158,9 @@
                                    max="@limitMoneyAmount"
                                    class="w-full input input-primary rounded-md border bg-white">
                             <div class="label">
-                                <span class="label-text-alt">Current organization budget: @limitMoneyAmount</span>
+                                <span class="label-text-alt">Current organization budget: @limitMoneyAmount.ToString("N0")</span>
                             </div>
-                            <span id="amountValidation" class="text-error h-6"></span>
+                            <span id="amountValidation" class="text-error"></span>
                         </label>
                     </div>
 
@@ -173,7 +173,7 @@
                     @* Make the organization chooses *@
                     <div class="mb-6 mx-5 flex-1">
                         <label for="TargetId" class="mb-1">
-                            <select class="select select-bordered w-full bg-white" name="TargetId" id="TargetId">
+                            <select class="select select-bordered select-primary w-full bg-white" name="TargetId" id="TargetId">
                                 <option disabled selected>Select a project</option>
                                 @foreach (var item in projects)
                                 {
@@ -188,22 +188,20 @@
                             }
                             <span id="projectOptionValidation" class="text-error h-6"></span>
                         </label>
-
                     </div>
                 </div>
 
                 <div class="flex flex-col space-y-4 mx-5">
                     <button type="submit"
-                            class="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
-                        Confirm Payment
-                        <div class="ml-5">
-                            <img src="https://assets.website-files.com/5d38b13ee324043c2fc59cdd/609af0e8068562ec31cde421_Custom-Colors-for-QR-Codes.png" alt="QR Code" class="ml-2 w-5 h-5">
-
-                        </div>
+                            class="btn btn-success">
+                        Confirm allocate
+                        @* <div class="ml-5"> *@
+                        @*     <img src="https://assets.website-files.com/5d38b13ee324043c2fc59cdd/609af0e8068562ec31cde421_Custom-Colors-for-QR-Codes.png" alt="QR Code" class="ml-2 w-5 h-5"> *@
+                        @* </div> *@
                     </button>
 
                     <button type="button"
-                            class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center">
+                            class="btn btn-neutral">
                         Back to project
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd"

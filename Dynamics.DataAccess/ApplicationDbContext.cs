@@ -32,6 +32,8 @@ namespace Dynamics.DataAccess
         public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<Wallet> Wallets { get; set; }
         public virtual DbSet<UserWalletTransaction> UserWalletTransactions { get; set; }
+        public virtual DbSet<Withdraw> Withdraws { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Enable sensitive data logging
@@ -65,8 +67,15 @@ namespace Dynamics.DataAccess
             modelBuilder.Entity<User>().HasKey(u => u.Id);
             modelBuilder.Entity<Wallet>().HasKey(w => w.WalletId);
             modelBuilder.Entity<UserWalletTransaction>().HasKey(uwt => uwt.TransactionId);
+            modelBuilder.Entity<Withdraw>().HasKey(w => w.WithdrawID);
             // Relationships (Foreign Keys)
 
+            // Withdraw of proejct
+            modelBuilder.Entity<Project>()
+                .HasOne(w => w.Withdraw)
+                .WithOne(p => p.Project)
+                .HasForeignKey<Project>(w => w.ProjectID);
+            
             // Wallet to user: Each wallet belong to a user
             modelBuilder.Entity<Wallet>()
                 .HasOne(w => w.User)

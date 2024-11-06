@@ -429,7 +429,7 @@
                                                 <h5>Team Members</h5>
                                                 @foreach (var members in Model.ProjectMember)
                                                 {
-                                                    <a href="/User?username=@members.User.UserName" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="top" title="@members.User.UserName" class="d-inline-block">
+                                                    <a href="/user/@members.User.UserName" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="top" title="@members.User.UserName" class="d-inline-block">
                                                         <img src="@members.User.UserAvatar" class="rounded-circle img-thumbnail avatar-sm" alt="friend">
                                                     </a>
                                                 }

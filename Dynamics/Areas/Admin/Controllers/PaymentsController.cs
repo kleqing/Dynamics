@@ -31,26 +31,28 @@ namespace Dynamics.Areas.Admin.Controllers
             if (User.IsInRole(RoleConstants.Admin))
             {
                 var userTransactionToProject = await _adminRepository.ViewUserToProjectTransactionInHistory(u => true);
-               
 
-                var allTransaction = new List<TransactionBase>();
+                var allTransaction = userTransactionToProject
+                    .Where(p => p.ProjectResource.ResourceName == "Money")
+                    .Select(p => new TransactionBase
+                    {
+                        TransactionID = p.TransactionID,
+                        ProjectResourceID = p.ProjectResourceID,
+                        Time = p.Time,
+                        Message = p.ProjectResource.Project.ProjectDescription,
+                        Received = p.ProjectResource.Project.ProjectName,
+                        Description = p.ProjectResource.Project.ProjectDescription
+                    })
+                    .GroupBy(t => t.ProjectResourceID)
+                    .Select(g => g.First())
+                    .OrderByDescending(t => t.Time)
+                    .ToList();
 
-                allTransaction.AddRange(userTransactionToProject.Select(p => new TransactionBase
-                {
-                    TransactionID = p.TransactionID,
-                    Time = p.Time,
-                    Message = p.ProjectResource.Project.ProjectDescription,
-                    Type = "UserToProject",
-                    Received = p.ProjectResource.Project.ProjectName
-                }));
-                
-                var sortedTransaction = allTransaction.OrderByDescending(t => t.Time).ToList();
-                
                 var model = new Payment
                 {
-                    listTransaction = sortedTransaction
+                    listTransaction = allTransaction
                 };
-                
+
                 return View(model);
             }
             else
@@ -59,47 +61,42 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
-        public async Task<IActionResult> Details(Guid? id, string Type)
+
+        public async Task<IActionResult> Details(Guid? id)
         {
             if (User.IsInRole(RoleConstants.Admin))
             {
-                if (Type == "UserToProject")
+                var userToProject =
+                    await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.TransactionID == id);
+                if (userToProject == null || !userToProject.Any())
                 {
-                    var userToProject = await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.TransactionID == id);
-                    if (userToProject == null || !userToProject.Any())
-                    {
-                        return NotFound();
-                    }
-
-                    var projectID = userToProject.FirstOrDefault().ProjectResource.Project.ProjectID;
-                    
-                    var listResource = await _adminRepository.ViewUserToProjectResource(p => p.ProjectID == projectID);
-
-                    var withDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
-
-                    var userToProjectdetail = userToProject.FirstOrDefault();
-                    var withdrawsDetail = withDraws.FirstOrDefault();
-                    
-                    // TODO: View total money in project resource
-                    
-                    var model = new Payment
-                    {
-                        listUserToProject = new List<UserToProjectTransactionHistory> { userToProjectdetail },
-                        listUserDonateToProjectTable = listResource,
-                        listWithdraws = withDraws
-                    };
-                    return View("Details", model);
+                    return NotFound();
                 }
-                
-                else
+
+                var projectID = userToProject.FirstOrDefault().ProjectResource.Project.ProjectID;
+
+                var listResource = await _adminRepository.ViewUserToProjectResource(p => p.ProjectID == projectID);
+
+                var withDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
+
+                var userToProjectdetail = userToProject.FirstOrDefault();
+
+                var countReport = await _adminRepository.CountProjectReport("Project", projectID);
+
+                ViewBag.CountReport = countReport;
+
+                var model = new Payment
                 {
-                    return RedirectToAction("Error", "Home");
-                }
+                    listUserToProject = new List<UserToProjectTransactionHistory> { userToProjectdetail },
+                    listUserDonateToProjectTable = listResource,
+                    listWithdraws = withDraws
+                };
+                return View("Details", model);
             }
             else
             {
-                return RedirectToAction("Error", "Home");
+                    return RedirectToAction("Error", "Home");
+                }
             }
-        }
     }
 }

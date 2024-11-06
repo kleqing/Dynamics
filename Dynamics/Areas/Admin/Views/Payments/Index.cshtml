@@ -348,10 +348,10 @@
                                     <div class="card-body">
                                         <h4 class="mt-0">
                                             <a href="/Admin/Payments/Details/@transaction.TransactionID?Type=@transaction.Type" class="text-title">
-                                                Sent by @transaction.Sender
+                                                @transaction.Received
                                             </a>
                                         </h4>
-                                        <div class="badge bg-@(transaction.Type == "UserToProject" ? "primary" : transaction.Type == "OrganizationToProject" ? "warning" :  transaction.Type == "UserToOrganization" ? "success" : "secondary")">
+                                        <div class="badge bg-@(transaction.Type == "UserToProject" ? "primary" : "danger")">
                                             @transaction.Type.Replace("To", " to ")
                                         </div>
                                         <p class="text-muted font-13 my-3 project-description">

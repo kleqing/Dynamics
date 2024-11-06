@@ -191,9 +191,7 @@ namespace Dynamics
 
                 if (ctx.Response.StatusCode == 404 && !ctx.Response.HasStarted)
                 {
-                    //Re-execute the request so the user gets the error page
-                    string originalPath = ctx.Request.Path.Value;
-                    ctx.Items["originalPath"] = originalPath;
+                    // Re-execute the request so the user gets the error page
                     ctx.Request.Path = "/error/PageNotFound";
                     await next();
                 }

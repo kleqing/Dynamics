@@ -428,7 +428,8 @@ namespace Dynamics.DataAccess.Repository
             return list;
         }
 
-        public async Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter)
+        public async Task<List<ProjectResource>> ViewUserToProjectResource(
+            Expression<Func<ProjectResource, bool>> filter)
         {
             return await _db.ProjectResources
                 .Where(filter)
@@ -436,6 +437,5 @@ namespace Dynamics.DataAccess.Repository
                 .Include(up => up.UserToProjectTransactionHistory)
                 .ToListAsync();
         }
-        
     }
 }

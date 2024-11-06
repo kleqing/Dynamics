@@ -394,8 +394,6 @@
 
 </div>
 <!-- Display the countdown timer in an element -->
-<p id="demo"></p>
-
 <script>
     let remainingTime = document.querySelector('#daysLeft');
     let days = (Number)(remainingTime.innerText);
@@ -425,7 +423,14 @@
             console.log(days)
             console.log(hours)
             console.log(minutes)
-            // Display the result in the element with id="demo"
+            
+            // Stop the countdown if the countdown is over
+            if (distance <= 0) {
+                clearInterval(x); // Stop the interval
+                let container = document.getElementsByClassName("timeLeftContainer")[0];
+                container.style.display = "none";
+            }
+            
             document.getElementsByClassName("timeLeftContainer__time")[0].innerHTML =
                 `<span class="font-bold" id="d">${days}</span> d <span class="font-bold" id="h">${hours}</span> h <span class="font-bold" id="m">${minutes}</span> m`
         }

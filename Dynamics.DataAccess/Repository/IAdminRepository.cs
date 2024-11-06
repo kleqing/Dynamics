@@ -1,10 +1,11 @@
-﻿using Dynamics.Models.Models;
+﻿﻿using Dynamics.Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -20,7 +21,7 @@ namespace Dynamics.DataAccess.Repository
         Task<Request> GetRequestInfo(Expression<Func<Request, bool>> expression);
 
         // User   
-        Task<List<User>> ViewUser();
+        Task<List<UserVM>> ViewUser();
         Task<bool> BanUserById(Guid id);
         Task<List<User>> GetTop5User();
         Task<User?> GetUser(Expression<Func<User, bool>> filter);
@@ -33,11 +34,10 @@ namespace Dynamics.DataAccess.Repository
         Task<int> ChangeOrganizationStatus(Guid id);
         Task<List<Organization>> GetTop5Organization();
         Task<Organization?> GetOrganization(Expression<Func<Organization, bool>> filter);
-
+        
         // 2024-10-16
-        Task<Organization?> GetOrganizationInfomation(Expression<Func<Organization, bool>> filter);
+        Task<Organization?> GetOrganizationInformation(Expression<Func<Organization, bool>> filter);
         Task<int> MemberJoinedOrganization(Guid id);
-
 
         // 2024-9-30
         // Recent item
@@ -53,12 +53,28 @@ namespace Dynamics.DataAccess.Repository
         // 2024-10-2
         // Project
         Task<List<Project>> ViewProjects();
-        //public Task<List<Project>> ViewProjectsDetail(Guid id);
         Task<Project?> GetProjects(Expression<Func<Project, bool>> filter);
         Task<bool> BanProject(Guid id);
+
+        // 2024-28-10
+        Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter);
+
 
         // 2024-10-4
         // Report
         Task<List<Report>> ViewReport();
+
+        // 2024-10-27
+        Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
+
+        Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter);
+
+        // !Withdraw
+        // *2024-6-11
+        Task<List<Withdraw>> ReviewWithdraw(Expression<Func<Withdraw, bool>> filer);
+
+        Task<int> CountProjectReport(string type, Guid id);
+
+
     }
 }

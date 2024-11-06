@@ -55,7 +55,7 @@
                     <span class="label label-text text-lg">Enter your donation</span>
                     <input Name="Amount" type="number"
                            placeholder="Enter money amount"
-                           class="input input-bordered w-full" min="6000" max="20000000" required/>
+                           class="input input-bordered w-full" min="10000" max="20000000" required/>
                 </label>
                 <!-- Message (maybe limit them ?) -->
                 <label Name="Message" class="form-control w-full">
@@ -78,7 +78,7 @@
                     <input Name="Amount" type="number"
                            placeholder="Enter money Amount"
                            class="input input-bordered w-full" min="10000" max="20000000" required/>
-                    <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 5000</span>
+                    <span class="text-gray-800 font-semibold">If the field is empty, the default amount is 10000</span>
                 </label>
                 <!-- Message (maybe limit them ?) -->
                 <label Name="Message" class="form-control w-full">
@@ -631,7 +631,6 @@
                             Swal.showLoading();
                         }
                     });
-
                     const formData = new FormData(form);
 
                     fetch(form.action, {

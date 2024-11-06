@@ -16,6 +16,7 @@
     projectResource.ProjectID = new Guid(currentProjectID);
     List<ProjectMember> ProjectMemberOfUser = null;
     int? statusProjectMemberOfUser = -1;
+    
     if (!string.IsNullOrEmpty(currentUserID))
     {
         ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(currentUserID)));
@@ -23,7 +24,6 @@
         {
             statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
         }
-
     }
 }
 <!-- container -->
@@ -267,7 +267,7 @@
 
     <!-- You can open the modal using ID.showModal() method -->
     <dialog id="add_form" class="modal ">
-        <div class="modal-box  w-[50vw] max-w-[800px] h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0,1);">
+        <div class="modal-box  w-[50vw] max-w-[800px] h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0.1);">
             <form method="dialog">
                 <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Edit Request";
 }
 <head>
-    <link rel="stylesheet" href="wwwroot/css/output.css" />
+    <link rel="stylesheet" href="wwwroot/css/output.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <meta charset="UTF-8">
 </head>
@@ -14,7 +14,7 @@
         Edit your request
     </h1>
     <div class="my-5 px-0 pt-12 w-full flex justify-center">
-        <form asp-action="Edit" asp-controller="Request" enctype="multipart/form-data" id="dmForm" 
+        <form asp-action="Edit" asp-controller="Request" enctype="multipart/form-data" id="dmForm"
               method="post" class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
             <div asp-validation-summary="ModelOnly" class="text-error"></div>
             <div>
@@ -30,7 +30,7 @@
                     Request Title
                 </span>
                 <input asp-for="@Model.RequestTitle"
-                       class="input input-bordered w-full"
+                       class="input input-bordered w-full focus:input-primary bg-white"
                        id="RequestTitle" type="text" placeholder="Enter your request title"/>
                 <span asp-validation-for="RequestTitle" class="text-error"></span>
             </label>
@@ -39,16 +39,16 @@
                     Request Description
                 </span>
                 <textarea asp-for="@Model.Content"
-                           class="textarea textarea-bordered textarea-lg w-full"
+                           class="textarea textarea-bordered textarea-lg w-full focus:textarea-primary bg-white"
                            id="Content" placeholder="Enter your request description" rows="7" style="resize: none"></textarea>
                 <span asp-validation-for="Content" class="text-error"></span>
             </label>
-            
-            <label  class="form-control">
+
+            <label class="form-control">
                 <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
                     <span>Choose images</span>
                 </label>
-                <input id="file-upload" type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
+                <input id="file-upload" type="file" name="images" multiple class="file-input file-input-bordered focus:file-input-primary bg-white w-full max-w-xs">
                 <span class="label label-text text-">Images will help you appeal to more people</span>
             </label>
             <span asp-validation-for="Attachment" class="text-error"></span>
@@ -60,10 +60,9 @@
                         <input
                             type="text"
                             placeholder="Enter request email"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full focus:input-primary bg-white"
                             asp-for="@Model.RequestEmail"
-                            id="RequestEmail"
-                        >
+                            id="RequestEmail">
                         <span asp-validation-for="RequestEmail" class="text-error"></span>
                     </label>
                     <!-- Phonenumber -->
@@ -72,47 +71,77 @@
                         <input
                             type="text"
                             placeholder="Enter request phone number"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full focus:input-primary bg-white"
                             asp-for="RequestPhoneNumber"
-                            id="RequestPhoneNumber"
-                        />
+                            id="RequestPhoneNumber"/>
                         <span asp-validation-for="RequestPhoneNumber" class="text-error"></span>
                     </label>
                     <!-- Address -->
+                    @{
+                        // This code is used to load user address in case they edit it
+                        var province = "";
+                        var district = "";
+                        var ward = "";
+                        var homeAddr = "";
+                        // If user has address, split them and put in order
+                        if (Model.Location != null)
+                        {
+                            // Example: 23 Phan Nhu, Thanh Khe Tay, Thanh Khe, Da Nang
+                            var splitAddr = Model.Location.Split(",").ToList();
+                            // In case some address is missing, we left it as empty
+                            for (int i = 0; i < splitAddr.Count; i++)
+                            {
+                                switch (i)
+                                {
+                                    case 0:
+                                        homeAddr = splitAddr[0];
+                                        break;
+                                    case 1:
+                                        ward = splitAddr[1];
+                                        break;
+                                    case 2:
+                                        district = splitAddr[2];
+                                        break;
+                                    case 3:
+                                        province = splitAddr[3];
+                                        break;
+                                }
+                            }
+                        }
+                    }
                     <label class="form-control w-full">
                         <span class="label label-text font-bold text-lg">Request address</span>
                         <div>
-                            <select class="select select-bordered w-full mb-4" id="city" aria-label=".form-select-sm">
-                                <option id="pOption" value="" selected>Choose province</option>
+                            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary bg-white" id="city" aria-label=".form-select-sm">
+                                <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
                             </select>
 
-                            <select class="select select-bordered w-full mb-4" id="district" aria-label=".form-select-sm">
-                                <option id="dOption" value="" selected>Choose district</option>
+                            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary bg-white" id="district" aria-label=".form-select-sm">
+                                <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
                             </select>
 
-                            <select class="select select-bordered w-full mb-4" id="ward" aria-label=".form-select-sm">
-                                <option id="wOption" value="" selected>Choose ward/commune</option>
+                            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary bg-white" id="ward" aria-label=".form-select-sm">
+                                <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
                             </select>
                         </div>
                         @{
-                        var address = Model.Location ?? "";
-                        var streetOnly = address.Split(',')[0];
+                            var address = Model.Location ?? "";
+                            var streetOnly = address.Split(',')[0];
                         }
                         <input
                             type="text"
                             placeholder="Enter street and house number"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full focus:input-primary bg-white"
                             asp-for="@Model.Location"
                             value="@streetOnly"
-                            id="RequestLocation"
-                        />
+                            id="RequestLocation"/>
                         <span asp-validation-for="Location" class="text-error"></span>
                     </label>
                     <span class="label label-text font-bold text-lg" for="isEmergency">
                         Is this an emergency request?
                     </span>
                     <select id="isEmergency" name="isEmergency"
-                            class="select select-bordered w-full"
+                            class="select select-bordered w-full focus:select-primary bg-white"
                             asp-for="isEmergency">
                         <option value="0">No</option>
                         <option value="1">Yes</option>
@@ -134,6 +163,7 @@
 </body>
 
 <partial name="_ValidationScriptsPartial"/>
+<partial name="CustomComponent/_LoadingModalSweet" model="@("dmForm")"/>
 @*Script for inputting request location*@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>

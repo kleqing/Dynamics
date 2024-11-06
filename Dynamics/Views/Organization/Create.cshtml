@@ -15,8 +15,6 @@
     }
 }
 
-
-
 <div class="container my-5 p-5 pt-12 flex justify-center items-center mx-auto">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-2xl">
         <h1 class="text-2xl font-bold mb-6 text-center">Create new organization to continue:</h1>
@@ -25,7 +23,7 @@
             If you are a member of an organization, tell your leader to accept this request instead!
         </p>
 
-        <form asp-action="Create" asp-controller="Organization" enctype="multipart/form-data" method="post">
+        <form asp-action="Create" asp-controller="Organization" enctype="multipart/form-data" method="post" id="createForm">
             <div>
                 <input type="hidden" value="@Guid.NewGuid()" asp-for="OrganizationID">
                 <input type="hidden" value="@DateOnly.FromDateTime(DateTime.UtcNow)" asp-for="StartTime">
@@ -86,9 +84,9 @@
             </div>
         </form>
     </div>
-
 </div>
 
+<partial name="CustomComponent/_LoadingModalSweet" model="@("createForm")"/>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

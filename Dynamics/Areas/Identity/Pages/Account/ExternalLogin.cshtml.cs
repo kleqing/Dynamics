@@ -205,7 +205,8 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     await _walletService.CreateEmptyWalletAsync(user.Id); // Wallet
-                    if (!await _roleService.IsInRoleAsync(user.Id, RoleConstants.User))
+                    var isInRoleUser = await _roleService.IsInRoleAsync(user.Id, RoleConstants.User);
+                    if (!isInRoleUser)
                     {
                         await _roleService.AddUserToRoleAsync(user.Id, RoleConstants.User); // Init default role
                     }

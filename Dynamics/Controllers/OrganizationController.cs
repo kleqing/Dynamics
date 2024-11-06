@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Web.Helpers;
+using AutoMapper;
 
 namespace Dynamics.Controllers
 {
@@ -36,6 +37,8 @@ namespace Dynamics.Controllers
         private readonly IPagination _pagination;
         private readonly IRoleService _roleService;
         private readonly IProjectMemberRepository _projectMemberRepository;
+        private readonly IMapper _mapper;
+        private readonly IProjectResourceRepository _projectResourceRepository;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -44,11 +47,12 @@ namespace Dynamics.Controllers
             IUserToOragnizationTransactionHistoryVMService userToOragnizationTransactionHistoryVMService,
             IProjectVMService projectVMService,
             IOrganizationToProjectHistoryVMService organizationToProjectHistoryVMService,
-            CloudinaryUploader cloudinaryUploader, IOrganizationService orgDisplayService, IOrganizationMemberRepository organizationMemberRepository
-            , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
+            CloudinaryUploader cloudinaryUploader, IOrganizationService orgDisplayService, IOrganizationMemberRepository organizationMemberRepository,
+            IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
             IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
-            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository)
+            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository,
+            IMapper mapper, IProjectResourceRepository projectResourceRepository)
         {
 
             _organizationRepository = organizationRepository;
@@ -69,6 +73,8 @@ namespace Dynamics.Controllers
             _pagination = pagination;
             _roleService = roleService;
             _projectMemberRepository = projectMemberRepository;
+            _mapper = mapper;
+            _projectResourceRepository = projectResourceRepository;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -211,7 +217,6 @@ namespace Dynamics.Controllers
             //Creat current organization
             var organizationVM = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
             HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
-
             return View(organizationVM);
         }
 
@@ -364,7 +369,11 @@ namespace Dynamics.Controllers
                 if (status == 0)
                 {
                     await _organizationRepository.AddOrganizationMemberSync(organizationMember);
-                    TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                    // Prevent send join request to be replaced by this one
+                    if (TempData[MyConstants.Success] == null)
+                    {
+                        TempData[MyConstants.Success] = "You have successfully joined the organization.";
+                    }
                     var link = Url.Action(nameof(Detail), "Organization", new {organizationId},
                         Request.Scheme);
                     await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link, "send");
@@ -633,9 +642,9 @@ namespace Dynamics.Controllers
                     HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
                     
                     TempData[MyConstants.Success] = "Organization resource added successfully.";
-                    var link = Url.Action(nameof(Detail), "Organization", new {organizationId = organizationResource.OrganizationID},
-                        Request.Scheme);
-                    await _notificationService.ProcessOrganizationResourceNotificationAsync(organizationResource.ResourceID, link, "add");
+                    // var link = Url.Action(nameof(Detail), "Organization", new {organizationId = organizationResource.OrganizationID},
+                    //     Request.Scheme);
+                    // await _notificationService.ProcessOrganizationResourceNotificationAsync(organizationResource.ResourceID, link, "add");
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
             }
@@ -654,9 +663,9 @@ namespace Dynamics.Controllers
                 HttpContext.Session.Set<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY, organizationVM);
 
                 TempData[MyConstants.Success] = "Organization resource removed successfully.";
-                var link = Url.Action(nameof(Detail), "Organization", new {organizationId = currentOrganization.OrganizationID},
-                    Request.Scheme);
-                await _notificationService.ProcessOrganizationResourceNotificationAsync(resourceId, link, "remove");
+                // var link = Url.Action(nameof(Detail), "Organization", new {organizationId = currentOrganization.OrganizationID},
+                //     Request.Scheme);
+                // await _notificationService.ProcessOrganizationResourceNotificationAsync(resourceId, link, "remove");
                 await _organizationRepository.DeleteOrganizationResourceAsync(resourceId);
                 return RedirectToAction(nameof(ManageOrganizationResource));
             }
@@ -719,9 +728,6 @@ namespace Dynamics.Controllers
                         ViewBag.MessageExcessQuantity = $"*Quantity more than 0 and less than equal {projectResource.ExpectedQuantity - projectResource.Quantity}";
                         return View(transaction);
                     }
-
-
-
                 }
                 else
                 {
@@ -835,8 +841,7 @@ namespace Dynamics.Controllers
             };
             return View(vnPayRequestModel);
         }
-
-        // TODO: Handle roles
+        
         // This action is only accessible by CEO
         [Authorize]
         public async Task<IActionResult> AllocateMoney(string organizationId, string resourceId)
@@ -851,7 +856,7 @@ namespace Dynamics.Controllers
             if (organizationMoneyResource == null) throw new Exception("WARNING: Organization MONEY resource not found");
             ViewData["limitAmount"] = organizationMoneyResource.Quantity;
             ViewBag.returnUrl = Url.Action("Detail", "Organization", new { organizationId }, Request.Scheme) ?? "~/";
-            var vnPayRequestModel = new PayRequestDto
+            var payRequestDto = new PayRequestDto
             {
                 // Target project id will be rendered in a form of options
                 FromID = new Guid(organizationId),
@@ -859,8 +864,50 @@ namespace Dynamics.Controllers
                 TargetType = MyConstants.Allocation,
             };
             // same view as user donate to organization but with more options
-            return View(nameof(DonateByMoney), vnPayRequestModel);
+            return View(nameof(DonateByMoney), payRequestDto);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AllocateMoney(PayRequestDto payRequestDto)
+        {
+            var returnUrl = ViewBag.returnUrl ?? Url.Action("Detail", "Organization", new {organizationId = payRequestDto.FromID}, Request.Scheme);
+            try
+            {
+                var result = _mapper.Map<OrganizationToProjectHistory>(payRequestDto);
+                result.Time = DateOnly.FromDateTime(DateTime.Now); // Manual convert because of... Time
+                result.Status = 1;
+                var projectMoneyResource = await _projectResourceRepository.GetAsync(pr =>
+                    pr.ProjectID == payRequestDto.TargetId &&
+                    pr.ResourceName.ToLower().Equals("money"));
+                var organizationMoneyResource =
+                    await _organizationResourceRepository.GetAsync(or => or.ResourceID == payRequestDto.ResourceID);
+                if (organizationMoneyResource == null)
+                    throw new Exception("PAYMENT: Organization resource not found (Is this one lacking money?)");
+                if (projectMoneyResource == null)
+                    throw new Exception("PAYMENT: Project resource not found (Is this one lacking money?)");
+
+                result.OrganizationResourceID = payRequestDto.ResourceID; // Pay request holds the organizationResource ID
+                result.ProjectResourceID = projectMoneyResource.ResourceID; // The resourceId we searched for 
+
+                // Insert to database:
+                await _organizationToProjectTransactionHistoryRepository.AddAsync(result);
+
+                // Update in project resource and organization resource
+                // One gains, another one loss
+                projectMoneyResource.Quantity += payRequestDto.Amount;
+                organizationMoneyResource.Quantity -= payRequestDto.Amount;
+                await _projectResourceRepository.UpdateResourceTypeAsync(projectMoneyResource);
+                await _organizationResourceRepository.UpdateAsync(organizationMoneyResource);
+                TempData[MyConstants.Success] = "Allocated money success!";
+            }
+            catch (Exception e)
+            {
+                TempData[MyConstants.Error] = "Something wrong happened. Please try again.";
+                TempData[MyConstants.Subtitle] = e.Message;
+            }
+            return Redirect(returnUrl);
+        }
+
         [HttpGet]
         public async Task<IActionResult> DonateByResource(Guid resourceId)
         {
@@ -899,7 +946,7 @@ namespace Dynamics.Controllers
                     if (await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(transactionHistory))
                     {
                         var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-                        var link = Url.Action(nameof(ReviewDonateRequest), "Organization", "",
+                        var link = Url.Action(nameof(Detail), "Organization", new {organizationId = currentOrganization.OrganizationID},
                             Request.Scheme);
                         await _notificationService.ProcessOrganizationDonationNotificationAsync(currentOrganization.OrganizationID, 
                             transactionHistory.TransactionID, link, "donate");
@@ -934,12 +981,16 @@ namespace Dynamics.Controllers
 
             return View(userToOrganizationTransactionHistoryInAOrganizations);
         }
+        
         [Authorize]
-        public async Task<IActionResult> MyDonors()
+        public async Task<IActionResult> MyDonors(Guid OrganizationID)
         {
             var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-
-
+            if (currentOrganization == null && !Guid.Empty.Equals(OrganizationID))
+            {
+                currentOrganization = await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(OrganizationID));
+            }
+            
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
             if (userString != null)
@@ -947,8 +998,9 @@ namespace Dynamics.Controllers
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
 
-            var userToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistory(uto => uto.UserID.Equals(currentUser.Id) && uto.OrganizationResource.Organization.OrganizationID.Equals(currentOrganization.OrganizationID));
-            return View(userToOrganizationTransactionHistoryInAOrganizations);
+            var listUserToOrg = await _userToOragnizationTransactionHistoryVMService
+                .GetTransactionHistory(uto => uto.UserID.Equals(currentUser.Id) && uto.OrganizationResource.Organization.OrganizationID.Equals(currentOrganization.OrganizationID));
+            return View(listUserToOrg);
         }
 
         public async Task<IActionResult> DenyRequestDonate(Guid transactionId, string reason)
@@ -995,16 +1047,14 @@ namespace Dynamics.Controllers
                 if (updateTransactionSuccess && updateResourceSuccess)
                 {
                     TempData[MyConstants.Success] = "Request accepted successfully.";
-                    var link = Url.Action(nameof(MyDonors), "Organization", "",
+                    var link = Url.Action(nameof(MyDonors), "Organization", new {userToOrganizationTransactionHistory.OrganizationResource.OrganizationID},
                         Request.Scheme);
                     await _notificationService.ProcessOrganizationDonationNotificationAsync(userToOrganizationTransactionHistory.OrganizationResource.OrganizationID, 
                         userToOrganizationTransactionHistory.TransactionID, link, "accept");
                     return RedirectToAction(nameof(ManageOrganizationResource));
                 }
-
                 else
                 {
-                    
                     TempData[MyConstants.Error] = "Failed to accept request.";
                     return RedirectToAction( nameof(ReviewDonateRequest));
                 }

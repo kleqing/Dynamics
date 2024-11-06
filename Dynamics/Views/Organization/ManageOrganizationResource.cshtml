@@ -78,7 +78,7 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@i</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@item.ResourceName</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Quantity</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Quantity.ToString("N0")</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Unit</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                             @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))
@@ -91,7 +91,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <form asp-action="AllocateMoney" asp-controller="Organization" class="inline">
+                                                    <form asp-action="AllocateMoney" asp-controller="Organization" class="inline" method="get">
                                                         <input type="hidden" name="organizationId" value="@item.OrganizationID" />
                                                         <input type="hidden" name="resourceId" value="@item.ResourceID" />
                                                         <button type="submit" class="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
@@ -425,7 +425,7 @@
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@i</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@item.ResourceName</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Quantity</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Quantity.ToString("N0")</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@item.Unit</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             @if (item.ResourceName.ToUpper().Contains("Money".ToUpper()))

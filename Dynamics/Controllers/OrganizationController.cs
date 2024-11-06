@@ -329,7 +329,7 @@ namespace Dynamics.Controllers
             return View(organizationVM);
         }
         [Authorize]
-        public IActionResult sendRequestJoinOrganization(Guid organizationId, Guid userId)
+        public IActionResult sendRequestJoinOrganization(Guid organizationId, Guid Id)
         {
             // Get the id from session here, no need to pass it from the view - Kiet
             var userString = HttpContext.Session.GetString("user");

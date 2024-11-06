@@ -75,7 +75,7 @@ namespace Dynamics.Areas.Admin.Controllers
                     
                     var listResource = await _adminRepository.ViewUserToProjectResource(p => p.ProjectID == projectID);
 
-                    var withDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectId == projectID);
+                    var withDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
 
                     var userToProjectdetail = userToProject.FirstOrDefault();
                     var withdrawsDetail = withDraws.FirstOrDefault();
@@ -86,7 +86,7 @@ namespace Dynamics.Areas.Admin.Controllers
                     {
                         listUserToProject = new List<UserToProjectTransactionHistory> { userToProjectdetail },
                         listUserDonateToProjectTable = listResource,
-                        listWithdraws = new List<Withdraw> { withdrawsDetail }
+                        listWithdraws = withDraws
                     };
                     return View("Details", model);
                 }

@@ -1,8 +1,8 @@
 ﻿using Dynamics.Models.Models;
 using Dynamics.Utility;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Dynamics.DataAccess.Repository
@@ -17,7 +17,7 @@ namespace Dynamics.DataAccess.Repository
         , IUserRepository userRepository)
         {
             _db = db;
-            _userManager = userManager;
+            this._userManager = userManager;
             _userRepository = userRepository;
         }
 
@@ -89,22 +89,22 @@ namespace Dynamics.DataAccess.Repository
             var organizations = await _db.Organizations.ToListAsync();
             return organizations;
         }
-
-        public async Task<Organization?> GetOrganizationInfomation(Expression<Func<Organization, bool>> filter)
+        
+        public async Task<Organization?> GetOrganizationInformation(Expression<Func<Organization, bool>> filter)
         {
             // Get choosen organization information
             return await _db.Organizations.Where(filter)
                 .Select(
-                org => new Organization
-                {
-                    OrganizationID = org.OrganizationID,
-                    OrganizationName = org.OrganizationName,
-                    OrganizationDescription = org.OrganizationDescription,
-                    OrganizationEmail = org.OrganizationEmail,
-                    OrganizationPhoneNumber = org.OrganizationPhoneNumber,
-                    OrganizationAddress = org.OrganizationAddress,
-                    StartTime = org.StartTime
-                })
+                    org => new Organization
+                    {
+                        OrganizationID = org.OrganizationID,
+                        OrganizationName = org.OrganizationName,
+                        OrganizationDescription = org.OrganizationDescription,
+                        OrganizationEmail = org.OrganizationEmail,
+                        OrganizationPhoneNumber = org.OrganizationPhoneNumber,
+                        OrganizationAddress = org.OrganizationAddress,
+                        StartTime = org.StartTime
+                    })
                 .FirstOrDefaultAsync();
         }
 
@@ -183,7 +183,8 @@ namespace Dynamics.DataAccess.Repository
                     Location = r.Location,
                     RequestEmail = r.RequestEmail,
                     RequestPhoneNumber = r.RequestPhoneNumber,
-                    CreationDate = r.CreationDate
+                    CreationDate = r.CreationDate,
+                    Attachment = r.Attachment
                 })
                 .FirstOrDefaultAsync();
         }
@@ -267,6 +268,7 @@ namespace Dynamics.DataAccess.Repository
         public async Task ChangeUserRole(Guid id)
         {
             var authUser = await _userManager.FindByIdAsync(id.ToString());
+            var businessUser = await GetUser(u => u.Id == id);
 
             var currentRoles = await _userManager.GetRolesAsync(authUser);
             string newRole = currentRoles.Contains(RoleConstants.Admin) ? RoleConstants.User : RoleConstants.Admin;
@@ -347,6 +349,16 @@ namespace Dynamics.DataAccess.Repository
             return project.isBanned;
         }
 
+        public async Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter)
+        {
+            var list = await _db.Projects.Where(filter).Include(p => p.ProjectMember).ThenInclude(u => u.User).FirstOrDefaultAsync();
+            if (list == null)
+            {
+                return null;
+            }
+            return list;
+        }
+
         // ---------------------------------------
         // Report
         public async Task<List<Report>> ViewReport()
@@ -355,5 +367,85 @@ namespace Dynamics.DataAccess.Repository
         }
 
         // ---------------------------------------
+        // Payment
+        
+        // User to project transaction history
+        public async Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter)
+        {
+            var list =  await _db.UserToProjectTransactionHistories.Where(filter).Include(u => u.User)
+                .Include(r => r.ProjectResource)
+                .ThenInclude(p => p.Project)
+                .ToListAsync();
+            if (list == null)
+            {
+                return null;
+            }
+
+            return list;
+        }
+        
+        // Organization to project transaction history
+        public async Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(Expression<Func<OrganizationToProjectHistory, bool>> filter)
+        {
+            var list = await _db.OrganizationToProjectTransactionHistory.Where(filter).Include(o => o.OrganizationResource)
+                .ThenInclude(or => or.Organization)
+                .Include(p => p.ProjectResource)
+                .ThenInclude(pr => pr.Project)
+                .ToListAsync();
+            if (list == null)
+            {
+                return null;
+            }
+            return list;
+        }
+
+        public async Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
+            Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
+        {
+            var list = await _db.UserToOrganizationTransactionHistories.Where(filter)
+                .Include(u => u.User)
+                .Include(or => or.OrganizationResource)
+                .ThenInclude(o => o.Organization)
+                .ToListAsync();
+            if (list == null)
+            {
+                return null;
+            }
+
+            return list;
+        }
+
+        public async Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter)
+        {
+            return await _db.ProjectResources
+                .Where(filter)
+                .Include(p => p.Project)
+                .Include(up => up.UserToProjectTransactionHistory)
+                .ToListAsync();
+        }
+
+        public async Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
+            Expression<Func<OrganizationResource, bool>> filter)
+        {
+            return await _db.OrganizationResources
+                .Where(filter)
+                .Include(o => o.Organization)
+                .Include(ot => ot.OrganizationToProjectHistory)
+                .ThenInclude(p => p.ProjectResource)
+                .ThenInclude(pr => pr.Project)
+                .ToListAsync();
+        }
+        
+        public async Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
+            Expression<Func<OrganizationResource, bool>> filter)
+        {
+            return await _db.OrganizationResources
+                .Where(filter)
+                .Include(o => o.Organization)
+                .ThenInclude(or => or.OrganizationMember)
+                .ThenInclude(u => u.User)
+                .ToListAsync();
+        }
+        
     }
 }

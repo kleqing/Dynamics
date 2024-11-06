@@ -24,7 +24,7 @@ public class UserVM
     public string Email { get; set; }
     [Display(Name = "Phone Number")]
     [DataType(DataType.PhoneNumber)]
-    [StringLength(11, ErrorMessage = "The phone number must be at most 11 digits.")]
+    [MaxLength(11, ErrorMessage = "The phone number must be at most 11 digits.")]
     [RegularExpression(@"^\d{1,11}$", ErrorMessage = "The phone number must only contain digits")]
     public string? PhoneNumber { get; set; }
     [ValidateNever]

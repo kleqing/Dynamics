@@ -47,7 +47,7 @@
 <div class="grid grid-cols-2 gap-6 mb-6">
     <div>
         <label asp-for="ProjectName" class="block text-base font-medium text-gray-700 mb-1">Enter project name</label>
-        <input asp-for="ProjectName" type="text" id="project-name" class="input w-full bg-white input-bordered input-primary"
+        <input asp-for="ProjectName" type="text" id="project-name" class="input w-full bg-white border-neutral focus:input-primary"
                placeholder="Enter your name">
         <span asp-validation-for="ProjectName" class="text-red-500"></span>
     </div>
@@ -79,7 +79,7 @@
     <label asp-for="ProjectEmail" class="block text-base font-medium text-gray-700 mb-1">
         Enter project contact Email!
     </label>
-    <input asp-for="ProjectEmail" name="ProjectEmail" type="email" id="project-contact" rows="4" class="input w-full bg-white input-bordered input-primary"
+    <input asp-for="ProjectEmail" name="ProjectEmail" type="email" id="project-contact" rows="4" class="input w-full bg-white border-neutral focus:input-primary"
            placeholder="Enter Email">
     <span asp-validation-for="ProjectEmail" class="text-red-500"></span>
 
@@ -89,7 +89,7 @@
     <label asp-for="ProjectPhoneNumber" class="block text-base font-medium text-gray-700 mb-1">
         Enter project contact Phone!
     </label>
-    <input asp-for="ProjectPhoneNumber" name="ProjectPhoneNumber" type="tel" id="project-contact" rows="4" class="input w-full bg-white input-bordered input-primary"
+    <input asp-for="ProjectPhoneNumber" name="ProjectPhoneNumber" type="tel" id="project-contact" rows="4" class="input w-full bg-white border-neutral focus:input-primary"
            placeholder="Enter tel">
     <span asp-validation-for="ProjectPhoneNumber" class="text-red-500"></span>
 
@@ -131,21 +131,21 @@
     <label class="form-control w-full">
         <span class="label text-base font-medium text-gray-700 mb-1">Project address</span>
         <div>
-            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="city">
+            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="city">
                 <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
             </select>
 
-            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="district">
+            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="district">
                 <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
             </select>
 
-            <select class="select select-bordered w-full mb-4 bg-white select-primary" id="ward">
+            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="ward">
                 <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
             </select>
         </div>
         <input type="text"
                placeholder="Enter street and house number"
-               class="input input-bordered w-full bg-white input-primary"
+               class="input border-neutral w-full bg-white focus:input-primary"
                value="@homeAddr"
                id="ProjectAddress"/>
         @* the original one should be located here: *@
@@ -162,7 +162,7 @@
             Select a project start
             time
         </label>
-        <input asp-for="StartTime" type="date" id="startDateInput" class="input w-full bg-white input-bordered input-primary">
+        <input asp-for="StartTime" type="date" id="startDateInput" class="input w-full bg-white border-neutral focus:input-primary">
         <p class="text-sm text-gray-500 mt-1">
             The date that your project starts. Before that, your project will
             continue to receive donations.
@@ -174,7 +174,7 @@
             Select a project end time
             (estimated)
         </label>
-        <input asp-for="EndTime" type="date" id="endDateInput" class="input w-full bg-white input-bordered input-primary">
+        <input asp-for="EndTime" type="date" id="endDateInput" class="input w-full bg-white border-neutral focus:input-primary">
 
         <p class="text-sm text-gray-500 mt-1">The estimated date that your project will end.</p>
         <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
@@ -187,7 +187,7 @@
             Assign a member to lead this
             project (Optional)
         </label>
-        <select asp-for="LeaderID" id="project-lead" class="select w-full bg-white select-bordered select-primary">
+        <select asp-for="LeaderID" id="project-lead" class="select w-full bg-white select-bordered focus:select-primary">
             <option>Options</option>
             @foreach (var item in Model.OrganizationVM.OrganizationMember.Where(om => om.Status > 0).ToList())
             {
@@ -211,7 +211,7 @@
             Invite members from your
             organization
         </label>
-        <select id="invite-members" class="select w-full bg-white select-bordered select-primary">
+        <select id="invite-members" class="select w-full bg-white select-bordered focus:select-primary">
             <option>Options</option>
         </select>
     </div>
@@ -228,14 +228,14 @@
             <label class="block text-base text-start font-medium text-gray-700 mb-1">
                 Enter resource name
             </label>
-            <input class="input input-bordered input-primary bg-white w-full" value="Money">
+            <input class="input border-neutral focus:input-primary bg-white w-full " value="Money">
         </div>
 
         <div class="w-full">
             <label class="block text-base text-start font-medium text-gray-700 mb-1">
                 Expected quantity
             </label>
-            <input name="expectedQuantity" type="number" value="@ViewBag.ExpectedQuantity" class="input w-full bg-white input-bordered input-primary" placeholder="Enter quantity"
+            <input name="expectedQuantity" type="number" value="@ViewBag.ExpectedQuantity" class="input w-full bg-white border-neutral focus:input-primary" placeholder="Enter quantity"
                    min="10000" required>
             @if (ViewBag.MessageExpectedQuantity != null)
             {
@@ -250,7 +250,7 @@
                 <label class="block text-base text-start font-medium text-gray-700 mb-1">
                     Choose currency unit
                 </label>
-                <select name="Unit" class="select select-bordered w-full bg-white select-primary">
+                <select name="Unit" class="select select-bordered w-full bg-white focus:select-primary">
                     <option value="VND">₫ VND - Viet Nam Đong</option>
                     <optgroup label="Phổ biến">
                         <option value="USD">$ USD - US Dollar</option>

@@ -15,6 +15,7 @@ using ILogger = Serilog.ILogger;
 using Util = Dynamics.Utility.Util;
 using Dynamics.Models.Dto;
 using Project = Dynamics.Models.Models.Project;
+using Microsoft.AspNetCore.Http;
 
 namespace Dynamics.Controllers
 {
@@ -216,6 +217,8 @@ namespace Dynamics.Controllers
             }
 
             finishProjectVM.ReportFile = resReportFile;
+            var leaderID = HttpContext.Session.GetString("currentProjectLeaderID");
+            await _roleService.DeleteRoleFromUserAsync(new Guid(leaderID), RoleConstants.ProjectLeader);
             var res = await _projectRepo.FinishProjectAsync(finishProjectVM);
             if (res)
             {
@@ -286,16 +289,6 @@ namespace Dynamics.Controllers
                 return NotFound();
             }
             //prevent user from updating project that is not in progress
-            if (projectObj?.ProjectStatus == -1)
-            {
-                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
-                return RedirectToAction(nameof(ManageProject), new { id = id });
-            }
-            else if (projectObj?.ProjectStatus == 2)
-            {
-                TempData[MyConstants.Warning] = "Action is not allowed once the project is finished!";
-                return RedirectToAction(nameof(ManageProject), new { id = id });
-            }
             var projectDto = _mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
             projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
             var currentProjectCEO = new Guid(HttpContext.Session.GetString("currentProjectCEOID"));
@@ -312,8 +305,8 @@ namespace Dynamics.Controllers
             {
                 if (member.Id != projectDto.NewLeaderID && member.Id != currentProjectCEO)
                 {
-                    var isOwnerSomewhere = _projectMemberRepo.FilterProjectMember(x => x.UserID == member.Id && x.Status >= 2 && (x.Project.ProjectStatus == 0 || x.Project.ProjectStatus == 1));
-                    if (isOwnerSomewhere.Count == 0) MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
+                   
+                    if (!await _roleService.IsInRoleAsync(member.Id, RoleConstants.ProjectLeader) && !await _roleService.IsInRoleAsync(member.Id, RoleConstants.HeadOfOrganization)) MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
                     continue;
                 }
 
@@ -367,6 +360,9 @@ namespace Dynamics.Controllers
             }
 
             var userIDString = HttpContext.Session.GetString("currentUserID");
+            var leaderID = HttpContext.Session.GetString("currentProjectLeaderID");
+            await _roleService.DeleteRoleFromUserAsync(new Guid(leaderID), RoleConstants.ProjectLeader);
+
             var res = await _projectRepo.ShutdownProjectAsync(shutdownProjectVM);
             if (res && !string.IsNullOrEmpty(userIDString))
             {
@@ -425,6 +421,14 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> ManageProjectMember([FromRoute] Guid projectID, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectMember get");
+            if(string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
+            {
+                HttpContext.Session.SetString("currentProjectID", projectID.ToString());
+                var leaderOfProject = await _projectService.GetProjectLeaderAsync(projectID);
+                HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.Id.ToString());
+                var ceoOfProject = _projectService.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectID);
+                HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
+            }
             var allProjectMember =
                 _projectMemberRepo.FilterProjectMember(p => p.ProjectID.Equals(projectID) && p.Status >= 1 && p.Status < 4);
             if (allProjectMember == null)
@@ -881,6 +885,14 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> ManageProjectDonor(Guid projectID, SearchRequestDto searchRequestDto, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectDonor get");
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
+            {
+                HttpContext.Session.SetString("currentProjectID", projectID.ToString());
+                var leaderOfProject = await _projectService.GetProjectLeaderAsync(projectID);
+                HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.Id.ToString());
+                var ceoOfProject = _projectService.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectID);
+                HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
+            }
             // Base query:
             var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
                 utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
@@ -1175,6 +1187,14 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> ManageProjectResource(Guid projectID)
         {
             _logger.LogWarning("ManageProjectResource get");
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
+            {
+                HttpContext.Session.SetString("currentProjectID", projectID.ToString());
+                var leaderOfProject = await _projectService.GetProjectLeaderAsync(projectID);
+                HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.Id.ToString());
+                var ceoOfProject = _projectService.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectID);
+                HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
+            }
             var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
             if (allResource.Count() ==0)
             {
@@ -1290,6 +1310,14 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> ManageProjectPhaseReport(Guid projectID)
         {
             _logger.LogWarning("ManageProjectPhaseReport get");
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
+            {
+                HttpContext.Session.SetString("currentProjectID", projectID.ToString());
+                var leaderOfProject = await _projectService.GetProjectLeaderAsync(projectID);
+                HttpContext.Session.SetString("currentProjectLeaderID", leaderOfProject.Id.ToString());
+                var ceoOfProject = _projectService.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectID);
+                HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
+            }
             var allUpdate =
                 await _projectHistoryRepo.GetAllPhaseReportsAsync(u => u.ProjectID.Equals(projectID));
             if (allUpdate.ToList().Count() == 0)
@@ -1542,7 +1570,6 @@ namespace Dynamics.Controllers
             if (!await _roleService.IsInRoleAsync(currentUser, RoleConstants.ProjectLeader) && projectVM.LeaderID == Guid.Empty)
             {
                 projectVM.LeaderID = currentUser.Id;
-
             }
             
             if (projectVM.LeaderID != Guid.Empty)

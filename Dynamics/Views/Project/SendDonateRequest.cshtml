@@ -267,7 +267,7 @@
                         <!-- Enter amount -->
                         <label asp-for="@Model.UserDonate.Amount" class="form-control w-full max-w-md">
                             <span class="label label-text">Enter amount</span>
-                            <input id="Amount" asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="5000" required/>
+                            <input id="Amount" asp-for="@Model.UserDonate.Amount" type="number" placeholder="Enter amount" class="input input-bordered" min="1" required/>
                             <span asp-validation-for="@Model.UserDonate.Amount" class="text-danger text-red-500 text-sm font-semibold"></span>
                         </label>
                         <label asp-for="@Model.UserDonate.Message" class="form-control w-full max-w-md">

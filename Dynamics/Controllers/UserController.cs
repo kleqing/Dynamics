@@ -56,8 +56,8 @@ namespace Dynamics.Controllers
         }
 
         // View a user profile (including user's own profile)
-        [Route("user/{username}")]
-        public async Task<IActionResult> Index([FromRoute]string username)
+        // [Route("User/{username}")]
+        public async Task<IActionResult> Index(string username)
         {
             var currentUser = await _userRepository.GetAsync(u => u.UserName.Equals(username));
             if (currentUser == null) return NotFound();

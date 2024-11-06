@@ -67,19 +67,9 @@ namespace Dynamics.DataAccess.Repository
         // 2024-10-27
         Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
 
-        Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(
-            Expression<Func<OrganizationToProjectHistory, bool>> filter);
-        
-        Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
-            Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
-
         Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter);
 
-        Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
-            Expression<Func<OrganizationResource, bool>> filter);
-
-        Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
-            Expression<Func<OrganizationResource, bool>> filter);
+        Task<List<Withdraw>> ReviewWithdraw(Expression<Func<Withdraw, bool>> filer);
 
     }
 }

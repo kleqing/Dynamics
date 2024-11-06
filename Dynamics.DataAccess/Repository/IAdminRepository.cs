@@ -69,7 +69,12 @@ namespace Dynamics.DataAccess.Repository
 
         Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter);
 
+        // !Withdraw
+        // *2024-6-11
         Task<List<Withdraw>> ReviewWithdraw(Expression<Func<Withdraw, bool>> filer);
+
+        Task<int> CountProjectReport(string type, Guid id);
+
 
     }
 }

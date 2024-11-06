@@ -437,5 +437,10 @@ namespace Dynamics.DataAccess.Repository
                 .Include(up => up.UserToProjectTransactionHistory)
                 .ToListAsync();
         }
+
+        public async Task<int> CountProjectReport(string type, Guid id)
+        {
+            return await _db.Reports.CountAsync(r => r.Type == type && r.ObjectID == id);
+        }
     }
 }

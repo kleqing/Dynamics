@@ -6,7 +6,7 @@ namespace Dynamics.Models.Models
 	public class Withdraw
 	{
 		public Guid WithdrawID { get; set; }
-		public Guid ProjectId { get; set; }
+		public Guid ProjectID { get; set; }
 		[MaxLength(500)]
 		public string? Message { get; set; }
 		[Required]

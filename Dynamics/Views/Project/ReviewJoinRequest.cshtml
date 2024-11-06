@@ -6,13 +6,13 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "Review Join Request";
-    Layout = "~/Views/Shared/_LayoutProject.cshtml";
-    // take current project
-    var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
+ViewData["Title"] = "Review Join Request";
+Layout = "~/Views/Shared/_LayoutProject.cshtml";
+// take current project
+var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
 }
-<!-- container -->
-<div class="m-w-screen-xl flex flex-col items-center justify-center relative" style="width:85%;">
+    <!-- container -->
+<div class="m-w-screen-xl flex flex-col items-center justify-center relative" >
     <!-- turn back button -->
     <a asp-action="ManageProjectMember" asp-route-id="@currentProjectID" title="Turn back to manage project members">
         <button class="flex  absolute top-2 right-0 items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
@@ -25,7 +25,7 @@
     </a>
 
     <!-- pagination -->
-    <div class="my-8 px-20 pb-20 flex flex-col items-center justify-center relative" >
+    <div class="my-8 px-20 pb-20 flex flex-col items-center justify-center relative" style="width:85%;">
 
         <!-- new table-->
         <div class="w-full flex justify-start items-center mb-3 pl-3">
@@ -36,58 +36,58 @@
             </div>
         </div>
 
-        <div style="width:85%;" class="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
+        <div class="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
             <div style="height:60vh">
                 <table class="w-full text-left table-auto min-w-max">
                     <thead>
-                        <tr class=" font-bold text-gray-900">
-                            <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                                <p class="block font-sans antialiased text-md leading-none text-blue-gray-900 opacity-70">
-                                    Member
-                                </p>
-                            </th>
-                            <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                                <p class="block font-sans  antialiased text-md leading-none text-blue-gray-900 opacity-70">
-                                    Action
-                                </p>
-                            </th>
-                        </tr>
+                    <tr class=" font-bold text-gray-900">
+                        <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased text-md leading-none text-blue-gray-900 opacity-70">
+                                Member
+                            </p>
+                        </th>
+                        <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans  antialiased text-md leading-none text-blue-gray-900 opacity-70">
+                                Action
+                            </p>
+                        </th>
+                    </tr>
                     </thead>
                     <tbody class="text-base text-gray-900">
-                        @foreach (var item in Model)
-                        {
-                            <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
-                                <td class="p-4 border-b border-blue-gray-50">
-                                    <div class="flex items-center gap-3">
-                                        <img src="@item.User.UserAvatar"
-                                             alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center" />
-                                        <div class="flex flex-col">
-                                            <p class="block font-sansantialiased font-normal leading-normal text-blue-gray-900">
-                                                <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id" class="text-black font-bold"> @item.User.UserName</a>
-                                            </p>
-                                            <p class="block font-sansantialiased text-sm leading-normal text-blue-gray-900 opacity-70">
-                                                @item.User.Email
-                                            </p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="p-4 border-b border-blue-gray-50">
-                                    <div class="dropdown dropdown-hover dropdown-end">
-                                        <div tabindex="0" role="button" class="text-sm py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Menu</div>
-                                        <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                            <li class="hover:bg-green-500/30 hover:font-bold rounded-xl"><a asp-action="AcceptJoinRequest" asp-route-id="@item.UserID">Accept</a></li>
-                                            <li class="hover:bg-red-500/30 hover:font-bold rounded-xl"><a asp-action="DenyJoinRequest" asp-route-id="@item.UserID">Deny</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
+                    @foreach (var item in Model)
+                    {
+                    <tr class="hover:bg-slate-50 border-b border-slate-200 text-md">
+                        <td class="p-4 border-b border-blue-gray-50">
+                            <div class="flex items-center gap-3">
+                                <img src="@item.User.UserAvatar"
+                                     alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center" />
+                                <div class="flex flex-col">
+                                    <p class="block font-sansantialiased font-normal leading-normal text-blue-gray-900">
+                                        <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id" class="text-black font-bold"> @item.User.UserName</a>
+                                    </p>
+                                    <p class="block font-sansantialiased text-sm leading-normal text-blue-gray-900 opacity-70">
+                                        @item.User.Email
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 border-b border-blue-gray-50">
+                            <div class="dropdown dropdown-hover dropdown-end">
+                                <div tabindex="0" role="button" class="text-sm py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Menu</div>
+                                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                    <li class="hover:bg-green-500/30 hover:font-bold rounded-xl"><a asp-action="AcceptJoinRequest" asp-route-id="@item.UserID">Accept</a></li>
+                                    <li class="hover:bg-red-500/30 hover:font-bold rounded-xl"><a asp-action="DenyJoinRequest" asp-route-id="@item.UserID">Deny</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    }
 
                     </tbody>
                 </table>
             </div>
         </div>
-        
+
     </div>
 
     <!-- pagination -->

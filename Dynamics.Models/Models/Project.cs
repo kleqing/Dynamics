@@ -39,6 +39,6 @@ namespace Dynamics.Models.Models
 		public virtual ICollection<ProjectMember> ProjectMember { get; set; }
 		public virtual ICollection<ProjectResource> ProjectResource { get; set; }
 		public virtual ICollection<History> History { get; set; }
-		public virtual Withdraw Withdraw { get; set; }
+		public virtual ICollection<Withdraw> Withdraw { get; set; }
 	}
 }

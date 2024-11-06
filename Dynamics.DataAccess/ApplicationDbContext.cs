@@ -72,9 +72,9 @@ namespace Dynamics.DataAccess
 
             // Withdraw of proejct
             modelBuilder.Entity<Project>()
-                .HasOne(w => w.Withdraw)
+                .HasMany(w => w.Withdraw)
                 .WithOne(p => p.Project)
-                .HasForeignKey<Project>(w => w.ProjectID);
+                .HasForeignKey(w => w.ProjectID);
             
             // Wallet to user: Each wallet belong to a user
             modelBuilder.Entity<Wallet>()

@@ -62,7 +62,6 @@ namespace Dynamics.Areas.Admin.Controllers
         {
             await _adminRepository.ChangeUserRole(id);
             var userRole = await _adminRepository.GetUserRole(id);
-
             return Json(new
             {
                 isAdmin = userRole == RoleConstants.Admin

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
+using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -192,9 +193,28 @@ namespace Dynamics.DataAccess.Repository
         // ---------------------------------------
         // User (View, Ban, Top 5, allow access as admin)
 
-        public async Task<List<User>> ViewUser()
+        public async Task<List<UserVM>> ViewUser()
         {
-            return await _db.Users.ToListAsync();
+            var users = await _db.Users.ToListAsync();  // This is a list of User
+            var userVMList = new List<UserVM>();
+
+            foreach (var user in users)  // Loop through each user in the list
+            {
+                // Fetch roles for the individual user
+                var roles = await _userManager.GetRolesAsync(user); 
+        
+                userVMList.Add(new UserVM
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    UserDOB = user.UserDOB,
+                    isBanned = user.isBanned,
+                    UserRoles = roles  // Assign roles directly as IEnumerable<string>
+                });
+            }
+            return userVMList;
         }
 
         public async Task<List<User>> GetTop5User()
@@ -235,11 +255,21 @@ namespace Dynamics.DataAccess.Repository
                 // If user is banned, remove admin role (change to user)
                 if (user.isBanned)
                 {
-                    await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
+                    var role = await _userManager.GetRolesAsync(user);
+                    if (role.Contains(RoleConstants.Admin) || role.Contains(RoleConstants.User))
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Admin);
+                        await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
+                    }
                 }
                 else
                 {
-                    await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                    var role = await _userManager.GetRolesAsync(user);
+                    if (role.Contains(RoleConstants.Banned))
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Banned);
+                        await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                    }
                 }
                 await _db.SaveChangesAsync();
                 return user.isBanned;  // Return ban value (true/false)
@@ -268,11 +298,9 @@ namespace Dynamics.DataAccess.Repository
         public async Task ChangeUserRole(Guid id)
         {
             var authUser = await _userManager.FindByIdAsync(id.ToString());
-            var businessUser = await GetUser(u => u.Id == id);
-
             var currentRoles = await _userManager.GetRolesAsync(authUser);
             string newRole = currentRoles.Contains(RoleConstants.Admin) ? RoleConstants.User : RoleConstants.Admin;
-
+            
             // Remove current role and add the new one
             if (newRole == RoleConstants.Admin)
             {

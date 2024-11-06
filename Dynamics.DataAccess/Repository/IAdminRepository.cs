@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -20,7 +21,7 @@ namespace Dynamics.DataAccess.Repository
         Task<Request> GetRequestInfo(Expression<Func<Request, bool>> expression);
 
         // User   
-        Task<List<User>> ViewUser();
+        Task<List<UserVM>> ViewUser();
         Task<bool> BanUserById(Guid id);
         Task<List<User>> GetTop5User();
         Task<User?> GetUser(Expression<Func<User, bool>> filter);

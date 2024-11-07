@@ -133,15 +133,16 @@
             <h2 class="font-semibold mb-2 text-black text-2xl">Organizer</h2>
             <div class="flex justify-start">
                 <div>
-                    <img class="rounded-full w-14 h-14 mx-4 mb-4"
+                    <img class="rounded-full w-14 h-14 mx-4 mb-4 object-cover"
                              src="@Model.CurrentLeaderProject.UserAvatar"
                          alt="avatar">
                 </div>
                 <div class="flex flex-col ">
                     <p class="text-gray-600 font-normal">
-                        Project leader: <span class="text-black font-bold  text-md">
+                        Project leader: 
+                        <a asp-controller="User" asp-action="Index" asp-route-username="@Model.CurrentLeaderProject.UserName" class="text-black font-bold text-md cursor-pointer hover:underline">
                            @Model.CurrentLeaderProject.UserName
-                        </span>
+                        </a>
                     </p>
                         <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentLeaderProject.UserAddress</p>
                 </div>

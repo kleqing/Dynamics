@@ -148,15 +148,15 @@
                         <li>
                             <a asp-action="MyOrganization" asp-controller="Organization" asp-route-userId="@currentUser.Id">My organization</a>
                         </li>
-                        <li>
-                            <a asp-action="Index" asp-controller="Organization">All organization</a>
-                        </li>
+                        @* <li> *@
+                        @*     <a asp-action="Index" asp-controller="Organization">All organization</a> *@
+                        @* </li> *@
                         <li>
                             <a asp-action="Index" asp-controller="Project" asp-route-id="@currentUser?.Id">My projects</a>
                         </li>
-                        <li>
-                            <a asp-action="ViewAllProjects" asp-controller="Project">All projects</a>
-                        </li>
+                        @* <li> *@
+                        @*     <a asp-action="ViewAllProjects" asp-controller="Project">All projects</a> *@
+                        @* </li> *@
                         <li class="text-rose-500">
                             <a class="flex justify-between" asp-action="Logout" asp-controller="Auth">
                                 Logout

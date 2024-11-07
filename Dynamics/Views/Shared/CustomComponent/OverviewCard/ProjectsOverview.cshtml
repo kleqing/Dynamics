@@ -1,9 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Dynamics.Models.Dto.ProjectOverviewDto
+@{
+    string firstImg = "images/defaultPrj.jpg";
+
+    if (Model.Attachment != null && Model.Attachment.Length > 0)
+    {
+        var listImg = Model.Attachment.Split(",");
+        if (listImg.Length > 0) firstImg = listImg[0];
+    }
+}
 <li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
     <a asp-action="ManageProject" asp-route-id="@Model.ProjectID" asp-controller="Project">
         <img class="w-full object-cover h-48 rounded-md"
-             src="@Model.Attachment"
+             src="@firstImg"
              alt="@Model.ProjectName"/>
     </a>
     <div class="card-body p-2 gap-2 w-full">
@@ -27,6 +36,11 @@
         {
             <div class="badge badge-secondary absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
                 Preparing
+            </div>
+        } else if (Model.ProjectStatus == 2)
+        {
+            <div class="badge badge-success absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                Finished
             </div>
         }
 

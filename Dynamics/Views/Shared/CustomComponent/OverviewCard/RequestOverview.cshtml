@@ -1,10 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Dynamics.Models.Dto.RequestOverviewDto
+@{
+    string firstImg = "images/defaultReq.jpg";
 
+    if (!string.IsNullOrEmpty(Model.FirstImageAttachment)) firstImg = Model.FirstImageAttachment;
+}
 <li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md @(Model.isEmergency == 1 ? "border-solid rounded-md border-2 border-rose-500" : "")">
     <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID">
         <img class="w-full object-cover h-48 rounded-md"
-             src="@Model.FirstImageAttachment"
+             src="@firstImg"
              alt="Shoes" />
     </a>
     <div class="card-body p-4 gap-2 w-full">

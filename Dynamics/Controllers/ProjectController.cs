@@ -1469,7 +1469,7 @@ namespace Dynamics.Controllers
                 StartTime = DateOnly.FromDateTime(DateTime.UtcNow),
                 OrganizationVM = currentOrganization,
                 RequestID = requestId,
-                Attachment = request.Attachment,
+                Attachment = request.Attachment ?? "images/defaultPrj.jpg",
                 ProjectName = request.RequestTitle,
                 ProjectDescription = request.Content,
                 ProjectEmail = request.RequestEmail,
@@ -1603,7 +1603,7 @@ namespace Dynamics.Controllers
                             ProjectPhoneNumber = projectVM.ProjectPhoneNumber,
                             ProjectAddress = projectVM.ProjectAddress,
                             ProjectStatus = projectVM.ProjectStatus,
-                            Attachment = projectVM.Attachment,
+                            Attachment = projectVM.Attachment ?? "images/defaultPrj.jpg",
                             ProjectDescription = projectVM.ProjectDescription,
                             StartTime = projectVM.StartTime,
                             EndTime = projectVM.EndTime,
@@ -1722,6 +1722,12 @@ namespace Dynamics.Controllers
                 Request.Scheme);
             await _notificationService.AddProjectResourceNotificationAsync(projectResource.ProjectID, link);
             return RedirectToAction(nameof(AddProjectResource));
+        }
+
+        public async Task<IActionResult> ViewAllSuccessProject()
+        {
+            var successfulProjecs = await _projectRepo.GetAllAsync(p => p.ProjectStatus == 2); // Get all finished project
+            return View(successfulProjecs);
         }
     }
 }

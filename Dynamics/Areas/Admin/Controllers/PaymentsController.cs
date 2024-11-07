@@ -20,10 +20,12 @@ namespace Dynamics.Areas.Admin.Controllers
     {
 
         private readonly IAdminRepository _adminRepository;
+        private readonly IWithdrawRepository _withdrawRepository;
 
-        public PaymentsController(IAdminRepository adminRepository)
+        public PaymentsController(IAdminRepository adminRepository, IWithdrawRepository withdrawRepository)
         {
             _adminRepository = adminRepository;
+            _withdrawRepository = withdrawRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -73,7 +75,8 @@ namespace Dynamics.Areas.Admin.Controllers
 
                 var listResource = await _adminRepository.ViewUserToProjectResource(p => p.ProjectID == projectID);
 
-                var withDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
+                var listWithDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
+                var withDraw = await _withdrawRepository.GetWithdraw(w => w.ProjectID == projectID);
 
                 var userToProjectdetail = userToProject.FirstOrDefault();
 
@@ -85,7 +88,8 @@ namespace Dynamics.Areas.Admin.Controllers
                 {
                     listUserToProject = new List<UserToProjectTransactionHistory> { userToProjectdetail },
                     listUserDonateToProjectTable = listResource,
-                    listWithdraws = withDraws
+                    listWithdraws = listWithDraws,
+                    Withdraw = withDraw
                 };
 
                 return View("Details", model);
@@ -95,5 +99,29 @@ namespace Dynamics.Areas.Admin.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
+        /*[HttpPost]
+        public async Task<JsonResult> CreateWithdraw(string projectid, string bankAccountNumber, string bankId, string message)
+        {
+            try
+            {
+                var newWithdraw = new Withdraw
+                {
+                    WithdrawID = new Guid(),
+                    ProjectID = new Guid(projectid),
+                    BankAccountNumber = bankAccountNumber,
+                    BankName = bankId,
+                    Message = message,
+                    Time = DateTime.Now
+                };
+
+                await _withdrawRepository.AddAsync(newWithdraw);
+
+                return Json(new { success = true, message = "Withdraw request created successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }*/
     }
 }

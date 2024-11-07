@@ -508,16 +508,33 @@ public class NotificationService : INotificationService
         {
             case "send":
                 var org = await _orgRepo.GetOrganizationAsync(o => o.OrganizationID.Equals(orgId));
-                var sendNotif = new Notification
+                var orgMember = await _orgMemberRepo.GetAsync(o => o.OrganizationID.Equals(orgId) && o.UserID.Equals(userId));
+                if (orgMember.Status == 2)
                 {
-                    NotificationID = Guid.NewGuid(),
-                    UserID = userId,
-                    Message = $"You have sent a join request to {org.OrganizationName} organization.",
-                    Date = DateTime.Now,
-                    Link = link,
-                    Status = 0 // Unread
-                };
+                    var sendNotif = new Notification
+                    {
+                        NotificationID = Guid.NewGuid(),
+                        UserID = userId,
+                        Message = "You have successfully created an organization.",
+                        Date = DateTime.Now,
+                        Link = link,
+                        Status = 0 // Unread
+                    };
+                    await _notifRepo.AddNotificationAsync(sendNotif);
+                }
+                else
+                {
+                    var sendNotif = new Notification
+                    {
+                        NotificationID = Guid.NewGuid(),
+                        UserID = userId,
+                        Message = $"You have sent a join request to {org.OrganizationName} organization.",
+                        Date = DateTime.Now,
+                        Link = link,
+                        Status = 0 // Unread
+                    };
                 await _notifRepo.AddNotificationAsync(sendNotif);
+                }
                 break;
             case "join":
                 var approveNotif = new Notification
@@ -536,7 +553,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = userId,
-                    Message = "Your organization joint request has been denied.",
+                    Message = "Your organization join request has been denied.",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread
@@ -662,7 +679,7 @@ public class NotificationService : INotificationService
                 {
                     NotificationID = Guid.NewGuid(),
                     UserID = orgLeader.UserID,
-                    Message = $"Your organization have successfully unsent {resource.ResourceName} from {project.ProjectName} project.",
+                    Message = $"Your organization have unsent {resource.ResourceName} from {project.ProjectName} project.",
                     Date = DateTime.Now,
                     Link = link,
                     Status = 0 // Unread

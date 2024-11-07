@@ -22,8 +22,15 @@
 <div class="mb-6 px-8">
     <div class="border-b border-gray-200">
         <nav class="flex justify-center -mb-px">
+            <a asp-action="Detail" asp-controller="Organization" asp-route-organizationId="@currentOrganization.OrganizationID">
+                <button class="@((currentPage.Equals("/Organization/Detail", StringComparison.OrdinalIgnoreCase) || currentPage.Equals("/Organization/Detail", StringComparison.OrdinalIgnoreCase) ) ? activeClass : inactiveClass)"
+                        onclick="switchTab('detail')">
+                    Details
+                </button>
+            </a>
+            
             <a asp-action="ManageOrganizationMember" asp-controller="Organization">
-                <button class="@((currentPage.Equals("/Organization/Detail", StringComparison.OrdinalIgnoreCase) || currentPage.Equals("/Organization/ManageOrganizationMember", StringComparison.OrdinalIgnoreCase) ) ? activeClass : inactiveClass)"
+                <button class="@((currentPage.Equals("/Organization/ManageOrganizationMember", StringComparison.OrdinalIgnoreCase) || currentPage.Equals("/Organization/ManageOrganizationMember", StringComparison.OrdinalIgnoreCase) ) ? activeClass : inactiveClass)"
                         onclick="switchTab('members')">
                     Members
                 </button>

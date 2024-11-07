@@ -176,7 +176,7 @@ namespace Dynamics.Controllers
             var user = await _userManager.FindByIdAsync(currentUser.Id.ToString());
             if (user.PasswordHash == null)
             {
-                TempData["Google"] = "Your account is bounded with google account.";
+                TempData["Google"] = "Your account is bounded with Google account.";
             }
 
             return View();

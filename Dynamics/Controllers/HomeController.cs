@@ -60,7 +60,7 @@ namespace Dynamics.Controllers
             var paginatedRequest = await _pagination.PaginateAsync(requestsQueryable, 1, 9);
             var requestOverview = _requestService.MapToListRequestOverviewDto(paginatedRequest);
 
-            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1 && p.ProjectStatus != 2); // Don't get banned project and finished project
+            var projectsQueryable = _projectRepo.GetAllQueryable(p => p.ProjectStatus != -1); // Don't get banned project
             var projectsPaginated = await _pagination.PaginateAsync(projectsQueryable, 1, 9); // Use the query and apply the pagination
             var projectDtos = _projectService.MapToListProjectOverviewDto(projectsPaginated);
 

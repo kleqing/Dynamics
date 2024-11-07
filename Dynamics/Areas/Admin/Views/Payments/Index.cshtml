@@ -319,26 +319,26 @@
                     <!-- end page title -->
                     
                     <div class="row">
-                        @foreach (var transaction in Model.listTransaction)
+                        @foreach (var withdraw in Model.viewwithdraw)
                         {
                         <div class="col-md-6 col-xxl-3">
                             <div class="card d-block">
                                 <div class="card-body">
                                     <h4 class="mt-0">
-                                        <a href="/Admin/Payments/Details/@transaction.TransactionID" class="text-title">
-                                            Withdraw request from: @transaction.Received
+                                        <a href="/Admin/Payments/Details/@withdraw.WithdrawID" class="text-title">
+                                            Withdraw request from: @withdraw.Received
                                         </a>
                                     </h4>
                                     <div class="badge bg-primary">
                                         Project
                                     </div>
                                     <p class="text-muted font-13 my-3 project-description">
-                                        <span class="description-content">Description: @transaction.Description</span>
+                                        <span class="description-content">Description: @withdraw.Description</span>
                                     </p>
                                     <p class="mb-1">
                                     <span class="pe-2 text-nowrap mb-2 d-inline-block">
                                         <i class="mdi mdi-calendar-clock text-muted"> Send Date:</i>
-                                        <b>@transaction.Time.ToString("yyyy-MM-dd")</b>
+                                        <b>@withdraw.Time.ToString("yyyy-MM-dd")</b>
                                     </span>
                                     </p>
                                 </div> <!-- end card-body -->

@@ -404,6 +404,7 @@ namespace Dynamics.DataAccess.Repository
             var list =  await _db.UserToProjectTransactionHistories.Where(filter).Include(u => u.User)
                 .Include(r => r.ProjectResource)
                 .ThenInclude(p => p.Project)
+                .ThenInclude(w => w.Withdraw)
                 .ToListAsync();
             if (list == null)
             {
@@ -418,6 +419,7 @@ namespace Dynamics.DataAccess.Repository
             var list = await _db.Withdraws.Where(filer)
                 .Include(u => u.Project)
                 .ThenInclude(pr => pr.ProjectResource)
+                .ThenInclude(p => p.UserToProjectTransactionHistory)
                 .ToListAsync();
 
             if (list == null)

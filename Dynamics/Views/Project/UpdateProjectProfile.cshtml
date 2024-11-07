@@ -33,197 +33,257 @@
     </a>
     <!-- container start -->
     <div class="flex flex-col relative" style="width: 70%;">
-        <div class="w-full flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
-            <h2 class="font-serif text-black font-bold text-3xl text-center ">Update @Model.ProjectName profile</h2>
-            <!-- form 1 -->
-            <form asp-action="UpdateProjectProfile" asp-controller="Project" enctype="multipart/form-data" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="@Model.ProjectID"/>
-                 <input type="hidden"  asp-for="@Model.OldLeaderID" value="@Model.NewLeaderID" />
-                <div class="grid grid-cols-2 gap-x-10 gap-y-3">
-                    <div>
-                        <label asp-for="@Model.ProjectName" class="block mb-2 text-md font-medium text-gray-900">Enter project Name</label>
-                        <input asp-for="ProjectName" type="text" id="first_name"
-                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                required />
-                        <span asp-validation-for="ProjectName" class="text-danger"></span>
-                    </div>
-                       <div class="flex flex-col mt-4">
-                        <div class="flex justify-start items-center">
-                            <label for="Attachment" class="block mb-2 text-md font-medium text-gray-900 pr-4">Upload project images</label>
-                            <input multiple asp-for="Attachment" type="file" name="images" id="Attachment" style="display:none;" />
-                            <input type="hidden" id="attachmentHidden" asp-for="Attachment" value="@Model.Attachment" />
+        @if(Model.ProjectStatus == 0 || Model.ProjectStatus == 1)
+        {
+    <div class="w-full flex-col shadow-md shadow-blue-500/30 p-6 rounded-xl my-10">
+        <h2 class=" text-black font-bold text-xl text-center mb-4">Update @Model.ProjectName profile</h2>
+        <!-- form 1 -->
+        <form id="updateProjectForm" asp-action="UpdateProjectProfile" asp-controller="Project" enctype="multipart/form-data" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="@Model.ProjectID"/>
+            <input type="hidden"  asp-for="@Model.OldLeaderID" value="@Model.NewLeaderID" />
+            <div class="grid grid-cols-2 gap-x-10 gap-y-3">
+                <div>
+                    <label asp-for="@Model.ProjectName" class="block mb-2 text-md font-medium text-gray-900">Enter project Name</label>
+                    <input asp-for="ProjectName" type="text" id="first_name"
+                           class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           required />
+                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+                </div>
+                <div class="flex flex-col mt-4">
+                    <div class="flex justify-start items-center">
+                        <label for="Attachment" class="block mb-2 text-md font-medium text-gray-900 pr-4">Upload project images</label>
+                        <input multiple asp-for="Attachment" type="file" name="images" id="Attachment" style="display:none;" />
+                        <input type="hidden" id="attachmentHidden" asp-for="Attachment" value="@Model.Attachment" />
 
-                            <button id="button" type="button" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
+                        <button id="button" type="button" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
                                 p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-white bg-blue-800" onclick="thisFileUpload();">
-                                Choose images
-                            </button>
-                        </div>
-                        <!-- Image file name will be shown here -->
-                        <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
-                         <span class="text-gray-400 text-sm">The images will appear in your project covers and description</span>
-                         <div id="notificationImgMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
+                            Choose images
+                        </button>
+                    </div>
+                    <!-- Image file name will be shown here -->
+                    <span id="fileName" class="text-gray-600 text-sm mt-2"></span>
+                    <span class="text-gray-400 text-sm">The images will appear in your project covers and description</span>
+                    <div id="notificationImgMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
 
-                    </div>
-                    <div>
-                        <label asp-for="ProjectDescription"
-                               class="block mb-2 text-md font-medium text-gray-900">Project Description</label>
-                        <textarea asp-for="ProjectDescription" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "></textarea>
-                        <span asp-validation-for="ProjectDescription" class="text-danger"></span>
-                    </div>
-                    <!-- list image -->
-                    <div class="flex justify-start gap-6 pt-10 flex-wrap">
-                        @foreach(var image in projectImages)
-                        {
-                            <div class="flex flex-col">
+                </div>
+                <div>
+                    <label asp-for="ProjectDescription"
+                           class="block mb-2 text-md font-medium text-gray-900">Project Description</label>
+                    <textarea asp-for="ProjectDescription" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "></textarea>
+                    <span asp-validation-for="ProjectDescription" class="text-danger"></span>
+                </div>
+                <!-- list image -->
+                <div class="flex justify-start gap-6 pt-10 flex-wrap">
+                    @foreach(var image in projectImages)
+                    {
+                        <div class="flex flex-col">
                             <img class="h-24 w-24 object-cover rounded-1/2"
                                  src="@image"
                                  alt="Current project photo" />
-                             <a asp-action="DeleteImage" asp-route-imgpath="@image" class="text-gray-900 text-sm font-semibold hover:text-red-500">Remove image</a>
-                             </div>
-                        }
-                    </div>
-                    <!-- start time -->
-                   <div>
-                        <label asp-for="@Model.StartTime" class="block mb-2 text-md font-medium text-gray-900">Select a project start time</label>
-                        <input type="date" asp-for="@Model.StartTime"
-                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                               id="startDateInput"
-                               required />
-                        <span class="text-gray-400 text-sm">The date that your project starts. Before that, your project will continue to receive donations.</span>
-                        <span asp-validation-for="@Model.StartTime" class="text-danger"></span>
-                        <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
-                    </div>
-                    <!-- end time -->
-                     <div>
-                        <label asp-for="@Model.EndTime" class="block mb-2 text-md font-medium text-gray-900">Select a project end time (estimated)</label>
-                        <input type="date" asp-for="@Model.EndTime"
-                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                               id="endDateInput"
-                               required />
-                        <span class="text-gray-400 text-sm">The estimates date that your project will end.</span>
-                        <span asp-validation-for="EndTime" class="text-danger"></span>
-                    </div>
+                            <a asp-action="DeleteImage" asp-route-imgpath="@image" class="text-gray-900 text-sm font-semibold hover:text-red-500">Remove image</a>
+                        </div>
+                    }
+                </div>
+                <!-- start time -->
+                <div>
+                    <label asp-for="@Model.StartTime" class="block mb-2 text-md font-medium text-gray-900">Select a project start time</label>
+                    <input type="date" asp-for="@Model.StartTime"
+                           class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           id="startDateInput"
+                           required />
+                    <span class="text-gray-400 text-sm">The date that your project starts. Before that, your project will continue to receive donations.</span>
+                    <span asp-validation-for="@Model.StartTime" class="text-danger"></span>
+                    <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
+                </div>
+                <!-- end time -->
+                <div>
+                    <label asp-for="@Model.EndTime" class="block mb-2 text-md font-medium text-gray-900">Select a project end time (estimated)</label>
+                    <input type="date" asp-for="@Model.EndTime"
+                           class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           id="endDateInput"
+                           required />
+                    <span class="text-gray-400 text-sm">The estimates date that your project will end.</span>
+                    <span asp-validation-for="EndTime" class="text-danger"></span>
+                </div>
                   
-                    <!-- leader -->
-                    <!-- @*NOTE: create member, assign leader to project, assign member to project, get memberProject list,
+                <!-- leader -->
+                <!-- @*NOTE: create member, assign leader to project, assign member to project, get memberProject list,
                     change it *@ -->
-                    <div>
-                        <label asp-for="@Model.NewLeaderID" class="block mb-2 text-md font-medium text-gray-900">Assign a member who will lead this project </label>
-                        <select asp-for="NewLeaderID"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                asp-items="@(ViewData["MemberList"] as ICollection<SelectListItem>)">
-                            <option disabled selected>---Select Leader---</option>
-                        </select>
-                        <span asp-validation-for="NewLeaderID" class="text-danger"></span>
-                    </div>
-                    <!-- status -->
-                    <div>
-                        <label asp-for="ProjectStatus" class="block mb-2 text-md font-medium text-gray-900">Set status for this project</label>
-                        <select asp-for="ProjectStatus"
-                                class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)">
-                            <option disabled selected>---Select Status---</option>
-                        </select>
-                        <span asp-validation-for="ProjectStatus" class="text-danger"></span>
-                    </div>
+                <div>
+                    <label asp-for="@Model.NewLeaderID" class="block mb-2 text-md font-medium text-gray-900">Assign a member who will lead this project </label>
+                    <select asp-for="NewLeaderID"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            asp-items="@(ViewData["MemberList"] as ICollection<SelectListItem>)">
+                        <option disabled selected>---Select Leader---</option>
+                    </select>
+                    <span asp-validation-for="NewLeaderID" class="text-danger"></span>
+                </div>
+                <!-- status -->
+                <div>
+                    <label asp-for="ProjectStatus" class="block mb-2 text-md font-medium text-gray-900">Set status for this project</label>
+                    <select asp-for="ProjectStatus"
+                            class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)">
+                        <option disabled selected>---Select Status---</option>
+                    </select>
+                    <span asp-validation-for="ProjectStatus" class="text-danger"></span>
+                </div>
+                <div>
+                    <label asp-for="@Model.ProjectEmail" class="block mb-2 text-md font-medium text-gray-900">Enter project email</label>
+                    <input asp-for="@Model.ProjectEmail" type="email" id="email"
+                           class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           required />
+                    <span asp-validation-for="@Model.ProjectEmail" class="text-danger"></span>
+                </div>
+                <div>
+                    <label asp-for="@Model.ProjectPhoneNumber" class="block mb-2 text-md font-medium text-gray-900">Enter project phone number</label>
+                    <input asp-for="@Model.ProjectPhoneNumber" id="phone"
+                           class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           required />
+                    <span asp-validation-for="@Model.ProjectPhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+             
+            <!-- address-->
+            <div class="flex flex-col mt-2">
+                @{
+                    var province = "";
+                    var district = "";
+                    var ward = "";
+                    var homeAddr = "";
+                    // If user has address, split them and put in order
+                    if (Model.ProjectAddress != null)
+                    {
+                        // Example: 23 Phan Nhu, Thanh Khe Tay, Thanh Khe, Da Nang
+                        var splitAddr = Model.ProjectAddress.Split(",").ToList();
+                        // In case some address is missing, we left it as empty
+                        for (int i = 0; i < splitAddr.Count; i++)
+                        {
+                            switch (i)
+                            {
+                                case 0:
+                                    homeAddr = splitAddr[0];
+                                    break;
+                                case 1:
+                                    ward = splitAddr[1];
+                                    break;
+                                case 2:
+                                    district = splitAddr[2];
+                                    break;
+                                case 3:
+                                    province = splitAddr[3];
+                                    break;
+                            }
+                        }
+                    }
+                }
+                <label asp-for="@Model.ProjectAddress" class="block mb-2 text-md font-medium text-gray-900">Choose address</label>
+                <div class="flex justify-between items-end gap-x-6">
+                    <select required class="bg-white border h-10 border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-2/3 p-2.5" id="city">
+                        <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
+                    </select>
 
+                    <select required class="bg-white border h-10 border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-2/3 p-2.5" id="district">
+                        <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
+                    </select>
+
+                    <select required class="bg-white border  h-10 border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-2/3 p-2.5" id="ward">
+                        <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
+                    </select>
+                    <input type="text"
+                           placeholder="Enter street and house number"
+                           class="bg-white border border-gray-300 h-10 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                           value="@homeAddr"
+                           id="ProjectAddress" />
                 </div>
-                <div class="grid grid-cols-3 gap-x-10 my-4">
-                      <!-- email,phone,address-->
-                    <div>
-                        <label asp-for="@Model.ProjectEmail" class="block mb-2 text-md font-medium text-gray-900">Enter project email</label>
-                        <input asp-for="@Model.ProjectEmail" type="email" id="email"
-                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                required />
-                        <span asp-validation-for="@Model.ProjectEmail" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="@Model.ProjectPhoneNumber" class="block mb-2 text-md font-medium text-gray-900">Enter project phone number</label>
-                        <input asp-for="@Model.ProjectPhoneNumber" id="phone"
-                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                required />
-                        <span asp-validation-for="@Model.ProjectPhoneNumber" class="text-danger"></span>
-                    </div>
-                    <div>
-                        <label asp-for="@Model.ProjectAddress" class="block mb-2 text-md font-medium text-gray-900">Enter project address</label>
-                        <input asp-for="@Model.ProjectAddress" type="text" id="address"
-                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                required />
-                        <span asp-validation-for="@Model.ProjectAddress" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="flex justify-center gap-x-6">
-                    <button type="submit"
-                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
-                        Update
-                    </button> 
-                    <button type="reset"
-                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
-                        Reset
-                    </button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <input asp-for="ProjectAddress" name="ProjectAddress" type="hidden" id="ProjectAddressStr" value="@Model.ProjectAddress">
+                    
+            <div class="flex justify-center gap-x-6">
+                <button type="submit" 
+                        class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                    Update
+                </button> 
+                <button type="reset"
+                        class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                    Reset
+                </button>
+            </div>
+        </form>
+    </div>
+    }
         @if(Model.ProjectStatus >= 1)
         {
+            @if (Model.ProjectStatus == 2)
+            {
+                <div class="h-40"></div>
+            }
             @* finish project *@
-            <div class="w-full mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
-                <h2 class="font-serif text-black font-bold text-3xl text-center ">Finish project</h2>
+            <div class="w-full mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-xl my-10">
+                <h2 class=" text-black font-bold text-xl text-center ">Finish project</h2>
                 <!-- form 2 -->
-                <form id="ImportFileProject" method="post" asp-action="ImportFileProject" asp-controller="Project"
-                      enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" name="ProjectID" value="@Model.ProjectID" />
-                    <div class="flex flex-col mt-4 justify-center items-center ">
-                        <h2 class="text-xl text-gray-900">Please submit a report file to your organization first before mark a project as finished.</h2>
-                        <div class="flex justify-center items-center gap-x-4">
-                            <label for="ReportFile" class="block my-2 text-md font-medium text-gray-900 ">Upload file (Can be excel, word, pdf, csv)</label>
-                            <input asp-for="@finishProjectVM.ReportFile" type="file" id="reportFile" name="reportFile" style="display:none;" />
-                            <div class="flex flex-col items-center justify-center">
-                                <button id="button" type="button" value="Choose file" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
+                @if (string.IsNullOrEmpty(Model.ReportFile))
+                {
+                    <form id="ImportFileProject" method="post" asp-action="ImportFileProject" asp-controller="Project"
+                          enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" name="ProjectID" value="@Model.ProjectID" />
+                 
+                        <div class="flex flex-col justify-center items-center ">
+                            <h2 class="text-sm text-gray-900">Please submit a report file to your organization first before mark a project as finished.</h2>
+                            <div class="flex justify-center items-center gap-x-4">
+                                <input asp-for="@finishProjectVM.ReportFile" type="file" id="reportFile" name="reportFile" style="display:none;" accept=".doc,.xls,.xlsx,.docx,.csv" />
+                                <div class="flex flex-col items-center justify-center">
+                                    <button id="button" type="button" value="Choose file" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
                           p-0.5 me-2 overflow-hidden text-sm font-bold text-gray-900
                           bg-gray-300
                               " onclick="thisFileReportUpload();">
-                                    Choose file
-                                </button>
-                                <div id="reportFileName" class="text-gray-500 text-sm font-medium"></div>
-                                <div id="notificationReportMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(Model.ReportFile))
-                            {
-                                <a asp-action="DownloadFile" asp-route-filewebpath="@Model.ReportFile" download>
-                                    <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
-                                p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-white bg-blue-700">
-                                        Download Report File
+                                        Choose file
                                     </button>
-                                </a>
-                            }
-                            else
-                            {
+                                    <div id="reportFileName" class="text-gray-500 text-sm font-medium"></div>
+                                    <div id="notificationReportMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+                                </div>
                                 <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
                             p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-gray-500 bg-gray-300 cursor-not-allowed" disabled>
                                     No Report File Available
                                 </button>
-                            }
+                            
+                            </div> 
+                     
                         </div>
-
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <button type="submit"
-                                class=" text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
-                            Confirm
+                        <div class="flex flex-col items-center mt-2">
+                            <button type="submit"
+                                    class=" text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
+                                Confirm
+                            </button>
+                        </div>
+                      
+                    </form>
+                }
+                else
+                {
+                    <div class="flex flex-col justify-center items-center my-4">
+                    <a asp-action="DownloadFile" asp-route-filewebpath="@Model.ReportFile" download>
+                        <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
+                                p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-white bg-blue-700">
+                            Download Report File
                         </button>
+                    </a>
                     </div>
-                </form>
+                }
                 <!-- end form 2 -->
             </div>
+            @if (Model.ProjectStatus == 2)
+            {
+                <div class="h-40"></div>
+            }
         }
         @if(Model.ProjectStatus == 0 || Model.ProjectStatus == 1)
         {
             @* shutdown project *@
-            <div class="w-1/2 mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-3xl my-10">
-                <h2 class="font-serif text-black font-bold text-3xl text-center ">Shutdown project</h2>
+            <div class="w-1/2 mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-xl my-10">
+                <h2 class=" text-black font-bold text-xl text-center ">Shutdown project</h2>
 
                 <!-- form 3 -->
                 <form id="shutdownProjectForm" method="post" asp-action="ShutdownProject" asp-controller="Project">
@@ -252,6 +312,7 @@
     <!-- container end -->
 </div>
 <!-- script upload image-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
     //--------require up finish file----------------------------
     document.querySelector('#ImportFileProject').addEventListener('submit', function (event) {
@@ -307,23 +368,42 @@
         console.log('File selected:', fileName);  // Log the file name
     }
     });
+
+        //------------validate date-------------
+  
+
+    
+
+@*      // Show loading alert
+     function showLoadingAlert() {
+         console.log('loading update project')
+         Swal.fire({
+             title: 'Updating Project...',
+             text: 'Please wait while we update the project details.',
+             allowOutsideClick: false,
+             didOpen: () => {
+                 Swal.showLoading(); // Show loading spinner
+             }
+         });
+     } *@
+</script>
+<script>
     //---------------sweetalert for shutdown---------------------
     document.querySelector('#shutdownProjectForm').addEventListener('submit', function (event) {
-        const attachmentInput = document.getElementById("Reason");
+        console.log('shutdown project');
+        const reasonInput = document.getElementById("Reason");
         const notificationMessage = document.getElementById("notificationShutdownMessage");
-        if (attachmentInput.value.length === 0) {
+        if (reasonInput.value.length === 0) {
             event.preventDefault();  // Prevent form submission if no file is selected
             notificationMessage.innerText = "Reason to shutdown project is required.";
             notificationMessage.style.display = "block";
         } else {
             notificationMessage.style.display = "none";
-              event.preventDefault();  
-            // Prevent the default form submission
-            var form = this;  // Reference to the form
+            event.preventDefault();
+            var form = this;
 
-            if ($(form).valid()) {  // Assuming jQuery validation is used
-                //
-                // Custom SweetAlert2 dialog using Tailwind CSS
+            if ($(form).valid()) {
+
                 const swalWithTailwind = Swal.mixin({
                     customClass: {
                         confirmButton: "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded",
@@ -389,62 +469,99 @@
             }
         }
     });
-        //------------validate date-------------
-         document.addEventListener('DOMContentLoaded', function () {
-        // Cache DOM elements
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
         const startDateInput = document.getElementById('startDateInput');
         const endDateInput = document.getElementById('endDateInput');
         const notificationMessage = document.getElementById('notificationMessage');
+        const updateProjectForm = document.getElementById('updateProjectForm');
 
-        let oldStartDate = startDateInput.value;
-        let oldEndDate = endDateInput.value;
-
-        // Show old date before changes
-        startDateInput.addEventListener('focus', function () {
-            oldStartDate = startDateInput.value;
-        });
-
-        endDateInput.addEventListener('focus', function () {
-            oldEndDate = endDateInput.value;
-        });
-
-        // Validate dates
         function validateDates() {
             const startDate = new Date(startDateInput.value);
             const endDate = new Date(endDateInput.value);
 
-            // Clear any previous messages
             notificationMessage.style.display = 'none';
             notificationMessage.innerText = '';
 
-            // Check if start date is greater than end date
             if (startDate > endDate) {
                 notificationMessage.style.display = 'block';
                 notificationMessage.innerText = `Start date (${startDateInput.value}) cannot be after the end date (${endDateInput.value})`;
                 return false;
             }
-
-            // Check if end date is smaller than start date
-            if (endDate < startDate) {
-                notificationMessage.style.display = 'block';
-                notificationMessage.innerText = `End date (${endDateInput.value}) cannot be before the start date (${startDateInput.value})`;
-                return false;
-            }
-
             return true;
         }
 
-        // Validate when user changes the start or end date
-        startDateInput.addEventListener('change', validateDates);
-        endDateInput.addEventListener('change', validateDates);
+        endDateInput.addEventListener('change', function (event) {
+            event.preventDefault();
+            console.log("validate end date");
+            validateDates();
+        });
 
-        // Form submit validation
-        document.querySelector('form').addEventListener('submit', function (event) {
-            if (!validateDates()) {
-                event.preventDefault(); // Prevent form submission if validation fails
+        updateProjectForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            console.log("Updating project");
+
+            if (validateDates()) {
+                const cityName = document.getElementById('city').selectedOptions[0].text;
+                const districtName = document.getElementById('district').selectedOptions[0].text;
+                const wardName = document.getElementById('ward').selectedOptions[0].text;
+                const homeAddr = document.querySelector('#ProjectAddress');
+                const projectAddr = document.querySelector("#ProjectAddressStr");
+
+                projectAddr.value = `${homeAddr.value}, ${wardName}, ${districtName}, ${cityName}`;
+
+                // Submit the form if validation passes
+                updateProjectForm.submit();
             }
         });
     });
-    //---------------------upload report file------------------------
+
+</script>
+<script>
+    let cities = document.getElementById("city");
+    let districts = document.getElementById("district");
+    let wards = document.getElementById("ward");
+    let Parameter = {
+        url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+        method: "GET",
+        responseType: "application/json",
+    };
+    let promise = axios(Parameter);
+    promise.then(function (result) {
+        renderCity(result.data);
+    });
+
+    function renderCity(data) {
+        debugger;
+        console.log("City:dsfsdf sd");
+        for (const x of data) {
+            cities.options[cities.options.length] = new Option(x.Name, x.Id);
+        }
+        cities.onchange = function () {
+            console.log("City:city ne");
+            district.length = 1;
+            ward.length = 1;
+            if (this.value !== "") {
+                const result = data.filter(n => n.Id === this.value);
+
+                for (const k of result[0].Districts) {
+                    district.options[district.options.length] = new Option(k.Name, k.Id);
+                }
+            }
+        };
+        district.onchange = function () {
+            console.log("City:district ne");
+            ward.length = 1;
+            const dataCity = data.filter((n) => n.Id === cities.value);
+            if (this.value !== "") {
+                const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+                for (const w of dataWards) {
+                    wards.options[wards.options.length] = new Option(w.Name, w.Id);
+                }
+            }
+        };
+    }
 
 </script>

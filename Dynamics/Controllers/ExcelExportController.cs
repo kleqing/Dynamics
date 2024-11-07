@@ -27,7 +27,6 @@ namespace Dynamics.Controllers
             try
             {
                 var currentOrganization = HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Organization Resource");
@@ -98,6 +97,11 @@ namespace Dynamics.Controllers
                 {
                     return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectID, donor = "User" });
                 }
+                if (currentProjectObj.ProjectResource.Count == 1)
+                {
+                    TempData[MyConstants.Error] = "This project has no resource to donate";
+                    return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectID, donor = "User" });
+                }
                 using (var package = new ExcelPackage())
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Project Resource");
@@ -120,11 +124,7 @@ namespace Dynamics.Controllers
 
                     // Add data
                     int row = 2;
-                    if(currentProjectObj.ProjectResource.Count == 0)
-                    {
-                        TempData[MyConstants.Error]= "This project has no resource to donate";
-                        return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectID, donor = "User" });
-                    }
+                 
                     foreach (var item in currentProjectObj.ProjectResource)
                     {
                         if (item.ResourceName.ToUpper().Equals("Money".ToUpper())||item.Quantity==item.ExpectedQuantity)

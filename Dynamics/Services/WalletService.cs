@@ -125,6 +125,71 @@ public class WalletService : IWalletService
         return userWallet;
     }
 
+    public async Task RefundProjectWalletAsync(Project project)
+    {
+        var resource = await _projectResourceRepo.GetAsync(pr => pr.ProjectID == project.ProjectID && pr.ResourceName.Equals("Money"));
+        var transList = await _userToPrj.GetAllAsyncWithExpression(utp => utp.ProjectResourceID == resource.ResourceID);
+        foreach (var trans in transList)
+        {
+            var userWallet = await FindUserWalletByIdAsync(trans.UserID);
+            if (userWallet == null) throw new Exception("User wallet not found");
+            userWallet.Amount += trans.Amount;
+            await UpdateWalletAsync(userWallet);
+            await _userWalletTransactionService.AddNewTransactionAsync(new UserWalletTransaction
+            {
+                TransactionId = Guid.NewGuid(),
+                WalletId = userWallet.WalletId,
+                Amount = trans.Amount,
+                Message = $"Refunded {trans.Amount:N0} VND to your Dynamics wallet because project {project.ProjectName} is shutting down",
+                TransactionType = TransactionConstants.Refund,
+                Time = DateTime.Now,
+            });
+        }
+    }
+
+    public async Task RefundOrganizationWalletAsync(Organization organization)
+    {
+        var resource =
+            await _organizationResourceRepo.GetAsync(or =>
+                or.OrganizationID == organization.OrganizationID && or.ResourceName.Equals("Money"));
+        var transList = await _userToOrg.GetAllAsyncWithExpression(uto => uto.ResourceID == resource.ResourceID);
+        var sortedTransList = transList.OrderByDescending(t => t.Time).ToList();
+        var cumulativeAmount = 0;
+        var resultList = new List<UserToOrganizationTransactionHistory>();
+        var overflowAmount = 0;
+        // only take the transactions that add up to the remaining amount in organization (sort from newest)
+        foreach (var trans in sortedTransList)
+        {
+            if (cumulativeAmount + trans.Amount >= resource.Quantity)
+            {
+                var remaining = resource.Quantity - cumulativeAmount;
+                trans.Amount = remaining;
+                resultList.Add(trans);
+                break;
+            }
+
+            cumulativeAmount += trans.Amount;
+            resultList.Add(trans);
+        }
+        // refund for those transactions
+        foreach (var trans in resultList)
+        {
+            var userWallet = await FindUserWalletByIdAsync(trans.UserID);
+            if (userWallet == null) throw new Exception("User wallet not found");
+            userWallet.Amount += trans.Amount;
+            await UpdateWalletAsync(userWallet);
+            await _userWalletTransactionService.AddNewTransactionAsync(new UserWalletTransaction
+            {
+                TransactionId = Guid.NewGuid(),
+                WalletId = userWallet.WalletId,
+                Amount = trans.Amount,
+                Message = $"Refunded {trans.Amount:N0} VND to your Dynamics wallet because organization {organization.OrganizationName} is shutting down",
+                TransactionType = TransactionConstants.Refund,
+                Time = DateTime.Now,
+            });
+        }
+    }
+
     public List<UserWalletTransactionVM> MapToListUserWalletTransactionVMs(
         List<UserWalletTransaction> userWalletTransactions)
     {
@@ -225,7 +290,7 @@ public class WalletService : IWalletService
         result.Time = DateOnly.FromDateTime(payRequestDto.Time); // Manual convert because of... Time
         result.Status = 1;
         // No need to set the fromId here because it already has the org resource ID which links to the organization
-        
+
         var projectMoneyResource = await _projectResourceRepo.GetAsync(pr =>
             pr.ProjectID == payRequestDto.TargetId &&
             pr.ResourceName.ToLower().Equals("money"));

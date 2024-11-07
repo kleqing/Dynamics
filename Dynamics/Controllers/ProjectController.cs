@@ -40,6 +40,7 @@ namespace Dynamics.Controllers
         private readonly IPagination _pagination;
         private readonly INotificationService _notificationService;
         private readonly IRoleService _roleService;
+        private readonly IWalletService _walletService;
 
         public ProjectController(IProjectRepository _projectRepo,
             IOrganizationRepository _organizationRepo,
@@ -57,7 +58,7 @@ namespace Dynamics.Controllers
             IUserRepository userRepository,
             IOrganizationVMService organizationService, INotificationService notificationService,
             ITransactionViewService transactionViewService, 
-            IRoleService roleService)
+            IRoleService roleService, IWalletService walletService)
         {
             this._projectRepo = _projectRepo;
             this._organizationRepo = _organizationRepo;
@@ -78,6 +79,7 @@ namespace Dynamics.Controllers
             this._organizationService = organizationService;
             _transactionViewService = transactionViewService;
             _roleService = roleService;
+            _walletService = walletService;
             _notificationService = notificationService;
         }
 
@@ -372,7 +374,9 @@ namespace Dynamics.Controllers
             {
                 var link = Url.Action(nameof(ManageProject), "Project", new { id = shutdownProjectVM.ProjectID.ToString() },
                     Request.Scheme);
-                await _notificationService.UpdateProjectNotificationAsync(shutdownProjectVM.ProjectID, link, "shutdown", shutdownProjectVM.Reason);
+                await _notificationService.UpdateProjectNotificationAsync(shutdownProjectVM.ProjectID, link, "shutdown",
+                    shutdownProjectVM.Reason);
+                await _walletService.RefundProjectWalletAsync(projectObj);
                 return Json(new
                 {
                     success = true, message = "Shutdown project successful!",

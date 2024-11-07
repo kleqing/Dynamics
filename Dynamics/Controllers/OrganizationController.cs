@@ -36,6 +36,7 @@ namespace Dynamics.Controllers
         private readonly IPagination _pagination;
         private readonly IRoleService _roleService;
         private readonly IProjectMemberRepository _projectMemberRepository;
+        private readonly IWalletService _walletService;
 
         public OrganizationController(IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -48,7 +49,7 @@ namespace Dynamics.Controllers
             , IOrganizationResourceRepository organizationResourceRepository, INotificationService notificationService,
             IUserToOrganizationTransactionHistoryRepository userToOrganizationTransactionHistoryRepository,
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
-            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository)
+            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository, IWalletService walletService)
         {
 
             _organizationRepository = organizationRepository;
@@ -69,6 +70,7 @@ namespace Dynamics.Controllers
             _pagination = pagination;
             _roleService = roleService;
             _projectMemberRepository = projectMemberRepository;
+            _walletService = walletService;
         }
 
         //The index use the cards at homepage to display instead - Kiet
@@ -287,28 +289,29 @@ namespace Dynamics.Controllers
             var organization = await _organizationRepository.GetOrganizationAsync(o => o.OrganizationID.Equals(organizationId));
             if(boolOrganizationResource && boolProject)
             {
-                organization.ShutdownDay = DateOnly.FromDateTime(DateTime.UtcNow);
+                organization.ShutdownDay = DateOnly.FromDateTime(DateTime.Now);
                 organization.OrganizationStatus = -2;
                 if (await _organizationRepository.UpdateOrganizationAsync(organization))
                 {
+                    await _walletService.RefundOrganizationWalletAsync(organization);
                     TempData[MyConstants.Success] = "Shut Down organization successfully!";
                     return RedirectToAction(nameof(MyOrganization), new { organizationId = organizationId });
                 }
                 else
                 {
-                    TempData[MyConstants.Error] = "Shut Down organization Faild!";
+                    TempData[MyConstants.Error] = "Shut Down organization Failed!";
                     return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
                 }
                     
             }
             else if(!boolOrganizationResource)
             {
-                TempData[MyConstants.Error] = "Shut Down organization Faild beacause exist at least a organization resource available!";
+                TempData[MyConstants.Error] = "Shut Down organization Failed because exist at least a organization resource available!";
                 return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
             }
             else
             {
-                TempData[MyConstants.Error] = "Shut Down organization Faild beacause exist at least a project available!";
+                TempData[MyConstants.Error] = "Shut Down organization Failed because exist at least a project available!";
                 return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
             }
         }

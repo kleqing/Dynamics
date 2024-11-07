@@ -29,8 +29,8 @@
                     } else {
                         btn.text('Active');
                         btn.removeClass('badge badge-danger-lighten').addClass('badge badge-success-lighten');
-                        badge.removeClass('bg-danger bg-warning').addClass('bg-primary').text('On-going');
-                        badge.attr('data-project-status', '1');
+                        badge.removeClass('bg-danger bg-primary').addClass('bg-warning').text('Preparing');
+                        badge.attr('data-project-status', '0');
 
                         endDate.text(response.endTime).removeClass('text-danger');
                     }

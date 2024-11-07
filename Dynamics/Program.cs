@@ -51,7 +51,7 @@ namespace Dynamics
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
                 // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
-            });
+            },ServiceLifetime.Transient);
 
             // Identity and roles
             builder.Services

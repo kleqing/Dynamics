@@ -291,6 +291,11 @@ namespace Dynamics.Controllers
             {
                 return NotFound();
             }
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectObj.ProjectID });
+            }
             //prevent user from updating project that is not in progress
             var projectDto = _mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
             projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
@@ -898,9 +903,9 @@ namespace Dynamics.Controllers
             }
             // Base query:
             var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
-                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+                utp.ProjectResource.ProjectID.Equals(projectID) && (utp.Status == 1 || utp.Status == -1));
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
-                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+                utp.ProjectResource.ProjectID.Equals(projectID) && (utp.Status == 1 || utp.Status == -1));
             
             // Setup search query and pagination
             var transactionDtos = await _transactionViewService.SetupProjectTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, orgToPrjQueryable);
@@ -1048,8 +1053,8 @@ namespace Dynamics.Controllers
                             res = await _organizationToProjectTransactionHistoryRepo.AcceptOrgDonateRequestAsync(
                                 transactionOrgObj);
                         }
-
-                        var link2 = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = transactionOrgObj.ProjectResource.ProjectID },
+                        
+                        var link2 = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = HttpContext.Session.GetString("currentProjectID") },
                             Request.Scheme);
                         await _notificationService.ProcessProjectDonationNotificationAsync
                             (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2, "AcceptOrgDonate");
@@ -1136,7 +1141,7 @@ namespace Dynamics.Controllers
                             transactionOrgObj);
                     }
 
-                    var link2 = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = transactionOrgObj.ProjectResource.ProjectID },
+                    var link2 = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = HttpContext.Session.GetString("currentProjectID") },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync
                         (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2, "DenyOrgDonate");

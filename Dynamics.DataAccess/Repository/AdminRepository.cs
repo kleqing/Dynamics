@@ -371,7 +371,7 @@ namespace Dynamics.DataAccess.Repository
             if (project != null)
             {
                 project.isBanned = !project.isBanned;
-                project.ProjectStatus = project.isBanned ? -1 : 1; // If project is banned, change status to -1 (cancel). Otherwise, change to 1 (active)
+                project.ProjectStatus = project.isBanned ? -1 : 0; // If project is banned, change status to -1 (cancel). Otherwise, change to 0 (preparing)
                 await _db.SaveChangesAsync();
                 return project.isBanned;
             }

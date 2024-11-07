@@ -96,7 +96,8 @@ public class RoleService : IRoleService
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) throw new Exception("ROLE: User not found");
-        return await IsInRoleAsync(user, roleName);
+        var result = await _userManager.IsInRoleAsync(user, roleName);
+        return result;
     }
 
     public async Task DeleteRoleFromUserAsync(Guid userId, string roleName)

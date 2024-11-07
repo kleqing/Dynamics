@@ -25,22 +25,22 @@
 }
 
 <!-- container -->
-
-<div class="w-full px-20 py-10 flex flex-col items-center justify-center relative">
+<div class="flex items-center justify-center ">
+    <div class="py-12 flex flex-col items-center justify-center relative" style="width:85%;">
 
     <!-- new table-->
-    <div class="w-full flex justify-between items-center mb-3 pl-3 ">
+    <div class=" flex justify-between items-center mb-3 pl-3 w-full">
         <div>
-            <h2 class=" text-black font-bold text-3xl text-center ">Project members</h2>
+            <h2 class=" text-black font-bold text-xl text-left ">Project members</h2>
 
             <p class="text-slate-500 text-md">Overview of the current members.</p>
         </div>
 
-        <div class="ml-3 flex justify-end gap-x-4">
+        <div class="ml-3 flex justify-end gap-x-2">
             @if (statusProjectMemberOfUser >= 2)
             {
                 <div class=" relative inline-flex ">
-                    <button onclick="getUsers()" class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                    <button onclick="getUsers()" class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Invite members
                     </button>
 
@@ -91,12 +91,12 @@
 
                 <a asp-action="ReviewJoinRequest" asp-route-id="@currentProjectID" asp-controller="Project">
                     <div class=" relative">
-                        <button class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                        <button class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                             Review join request
                         </button>
                         @if (ViewData["hasJoinRequest"] != null && (bool)ViewData["hasJoinRequest"])
                         {
-                            <span class="absolute top-0.5 right-6 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-xs text-white">
+                            <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-xs text-white">
                             </span>
                         }
                     </div>
@@ -105,9 +105,9 @@
             }
             <div class="w-full max-w-sm min-w-[200px] relative">
                 <form class="relative" id="searchForm">
-                    <input class="bg-white w-full pr-11 h-10 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                    <input class="bg-white w-full pr-11 h-8 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-xs border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
                            placeholder="Search for member..."/>
-                    <button class="absolute h-8 w-8 right-1 top-1 my-auto px-2 flex items-center bg-white rounded "
+                    <button class="absolute h-8 w-8 right-1 top-0 my-auto px-2 flex items-center bg-white rounded "
                             type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-slate-600">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
@@ -122,20 +122,20 @@
         <div style="height:60vh">
             <table class="w-full text-left table-auto min-w-max">
                 <thead class="bg-gray-300/20 ">
-                <tr class="text-xl font-bold text-gray-900">
-                    <th class="text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                <tr class="font-bold text-gray-900">
+                    <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
                         <p class="block font-sans antialiased leading-none  ">
                             Member
                         </p>
                     </th>
-                    <th class=" text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                    <th class=" text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
                         <p class="block font-sans antialiased leading-none  ">
                             Role
                         </p>
                     </th>
                     @if (statusProjectMemberOfUser >= 2)
                     {
-                        <th class=" text-xl font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
                             <p class="block font-sans antialiased leading-none  ">
                                 Action
                             </p>
@@ -155,7 +155,7 @@
                                     <p class="block font-sans antialiased font-normal leading-normal ">
                                         <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id" class="text-black font-bold"> @item.User.UserName</a>
                                     </p>
-                                    <p class="block font-sans antialiased font-normal leading-normal  ">
+                                    <p class="block font-sans antialiased text-sm leading-normal  ">
                                         @item.User.Email
                                     </p>
                                 </div>
@@ -164,19 +164,19 @@
                         <td class="p-4 border-b border-blue-gray-50">
                             @if (item.Status == 2)
                             {
-                                <p class="block font-sans antialiased font-normal leading-normal ">
+                                <p class="block font-sans antialiased text-sm leading-normal ">
                                     CEO
                                 </p>
                             }
                             else if (item.Status == 3)
                             {
-                                <p class="block font-sans  antialiased font-normal leading-normal ">
+                                <p class="block font-sans  antialiased text-sm leading-normal ">
                                     Leader
                                 </p>
                             }
                             else if (item.Status == 1)
                             {
-                                <p class="block font-sans antialiased font-normal leading-normal ">
+                                    <p class="block font-sans antialiased text-sm leading-normal ">
                                     Member
                                 </p>
                             }
@@ -199,29 +199,7 @@
         </div>
         <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
     </div>
-    @* <!-- pagination --> *@
-    @* <div class="pagination mt-4 flex justify-center space-x-1.5"> *@
-    @*     @if (ViewBag.currentPagePM > 1) *@
-    @*     { *@
-    @*         <a href="@Url.Action("Index", new { pageNumberPM = ViewBag.currentPagePM - 1, pageSize = 10 })"> *@
-    @*             <button class="btn bg-white text-black rounded-lg border-solid">Previous</button> *@
-    @*         </a> *@
-    @*     } *@
-    @* *@
-    @*     @for (int i = 1; i <= ViewBag.totalPagesPM; i++) *@
-    @*     { *@
-    @*         <a href="@Url.Action("Index", new { pageNumberPM = i, pageSize = 10 })" *@
-    @*            class="@(ViewBag.currentPagePM == i ? "btn-primary" : "")"> *@
-    @*             <button class="btn bg-white text-black rounded-lg border-solid">@i</button> *@
-    @*         </a> *@
-    @*     } *@
-    @*     @if (ViewBag.currentPagePM < ViewBag.totalPagesPM) *@
-    @*     { *@
-    @*         <a href="@Url.Action("Index", new { pageNumberPM = ViewBag.currentPagePM + 1, pageSize = 10 })"> *@
-    @*             <button class="btn bg-white text-black rounded-lg border-solid">Next</button> *@
-    @*         </a> *@
-    @*     } *@
-    @* </div> *@
+</div>
 </div>
 <script>
     document.getElementById('search-form').addEventListener('submit', function (event) {

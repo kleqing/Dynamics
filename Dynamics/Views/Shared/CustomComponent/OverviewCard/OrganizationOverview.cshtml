@@ -3,17 +3,24 @@
 
 
 @{
-    string[] images = new string[1] { "," };
-    if (@Model.OrganizationPictures != null)
+    // string[] images = new string[1] { "," };
+    // if (@Model.OrganizationPictures != null)
+    // {
+    //     images = Model.OrganizationPictures.TrimEnd(',', ' ').Split(",");
+    // }
+    string firstImg = "images/defaultOrg.jpg";
+    if (Model.OrganizationPictures != null && Model.OrganizationPictures.Length > 0)
     {
-        images = Model.OrganizationPictures.TrimEnd(',', ' ').Split(",");
+        var listImg = Model.OrganizationPictures.Split(",");
+        if (listImg.Length > 0) firstImg = listImg[0];
     }
+    
 }
 <li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
     <a asp-action="Detail" asp-controller="Organization"
        asp-route-organizationId="@Model.OrganizationID">
         <img class="w-full object-cover h-48 rounded-md"
-             src="@(images[0])"
+             src="@(firstImg)"
              alt="@Model.OrganizationName"/>
     </a>
     <div class="card-body p-2 gap-2 w-full">

@@ -57,8 +57,12 @@ public class WalletController : Controller
         try
         {
             // Create wallet if user does not have one
-            var userWallet = await _walletService.FindUserWalletByIdAsync(user.Id) ??
-                             await _walletService.CreateEmptyWalletAsync(user.Id);
+            var userWallet = await _walletService.FindUserWalletByIdAsync(user.Id);
+            if (userWallet == null)
+            {
+                userWallet = await _walletService.CreateEmptyWalletAsync(user.Id);
+            }
+            
             var transactionsQueryable =
                 _userWalletTransactionRepository.GetUserWalletTransactionsQueryable(uwt =>
                     uwt.WalletId == userWallet.WalletId);

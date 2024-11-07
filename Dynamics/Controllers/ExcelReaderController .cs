@@ -64,7 +64,7 @@ namespace Dynamics.Controllers
                     {
                         currentUser = JsonConvert.DeserializeObject<User>(userString);
                     }
-
+                    int isValidDonationFile = 0;
                     using (var package = new ExcelPackage(file.OpenReadStream()))
                     {
                         var worksheet = package.Workbook.Worksheets.FirstOrDefault();
@@ -101,10 +101,16 @@ namespace Dynamics.Controllers
                                 };
 
                                 await _organizationRepository.AddUserToOrganizationTransactionHistoryASync(userToOrganizationTransactionHistory);
+                                isValidDonationFile++;
                             }
                         }
                     }
-                     TempData[MyConstants.Success] = "Send donate requests successfully.";
+                    if (isValidDonationFile == 0)
+                    {
+                        TempData[MyConstants.Error] = "There is no valid donation. Fail to send your donation request!";
+                        return RedirectToAction("ManageOrganizationResource", "Organization");
+                    }
+                    TempData[MyConstants.Success] = "Send donate requests successfully.";
                     return RedirectToAction("ManageOrganizationResource", "Organization");
                 }
                 catch (Exception ex)
@@ -128,24 +134,24 @@ namespace Dynamics.Controllers
                 try
                 {
                     var resImage = await _cloudinaryUploader.UploadMultiImagesAsync(images);
-                    if (resImage.Equals("Wrong extension"))
+                    if (resImage.Equals("No file") || resImage.Equals("Wrong extension"))
                     {
-                        TempData[MyConstants.Error] = "Wrong extension of some proof images file.";
-                        return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
-                    }
-                    else if (resImage.Equals("No file"))
-                    {
-                        TempData[MyConstants.Error] = "Please select at least a proof image to upload.";
-                        return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
+                        return Json(new
+                        {
+                            success = false,
+                            message = resImage.Equals("No file")
+                                ? "Please upload at least one proof image!"
+                                : "Some files have the wrong extension!"
+                        });
                     }
 
                     //get current user
                     var currentUserID = HttpContext.Session.GetString("currentUserID");
                     string resourceCannotDonate = null;
+                    int isValidDonationFile = 0;
                     using (var package = new ExcelPackage(file.OpenReadStream()))
 
                     {
-                       
                         var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                         if (worksheet != null)
                         {
@@ -186,29 +192,30 @@ namespace Dynamics.Controllers
                                 {
                                     userToProjectTransactionHistory.Attachments = resImage;
                                     await _userToProjectTransactionHistoryRepo.AddUserDonateRequestAsync(userToProjectTransactionHistory);
+                                    isValidDonationFile ++;
                                 }
                             }
                         }
                     }
+                    if (isValidDonationFile == 0)
+                    {
+                        return Json(new { success = false, message = "There is no valid donation. Fail to send your donation request!" });
+                    }
                     if (!string.IsNullOrEmpty(resourceCannotDonate))
                     {
-                         //TempData[MyConstants.Success] = "Send donate requests successfully.";
-                        TempData[MyConstants.Info] = "Send donate requests successfully.\nBut donate request of  " + resourceCannotDonate.TrimEnd(',',' ') + " cannot send because of invalid quantity of donation.";
+                        return Json(new { success = true, message = "Send donate requests successfully.\nBut donate request of  " + resourceCannotDonate.TrimEnd(',', ' ') + " cannot send because of invalid quantity of donation." });
                     }
                     else
                     {
-                        TempData[MyConstants.Success] = "Send donate requests successfully.";
+                        return Json(new { success = true, message = "Your donation request was sent successfully!" });
                     }
-                    return RedirectToAction("ManageProject", "Project", new { id = currentProjectObj.ProjectID });
                 }
                 catch (Exception ex)
                 {
-                     TempData[MyConstants.Error] = "Error: " + ex.Message;
-                    return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
+                    return Json(new { success = false, message = "Fail to send your donation request!" });
                 }
             }
-             TempData[MyConstants.Error] = "Please select a file to upload.";
-            return RedirectToAction("SendDonateRequest", "Project", new { projectID = currentProjectObj.ProjectID, donor = "User" });
+            return Json(new { success = false, message = "Fail to send your donation request!" });
         }
     }
 }

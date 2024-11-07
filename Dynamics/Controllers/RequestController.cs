@@ -180,7 +180,7 @@ namespace Dynamics.Controllers
                 }
                 else
                 {
-                    obj.Attachment = "/images/Requests/Placeholder/xddFaker.png";
+                    obj.Attachment = "/images/defaultReq.jpg";
                 }
 
                 _logger.LogInformation("Request created");

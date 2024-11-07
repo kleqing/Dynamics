@@ -31,21 +31,21 @@
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
 <!--SECTION 1: USER DONATE-->
 <!-- title -->
-<h2 class=" text-black font-bold text-3xl text-center my-4">Transaction history</h2>
+<h2 class=" text-black font-bold text-xl text-center mt-8 mb-2">Transaction history</h2>
 <!-- PART 1 -->
-<div class="flex relative justify-between my-2 gap-4 items-center" style="width:92%">
+<div class="flex relative justify-between my-4 gap-4 items-center " style="width:85%;">
     <!-- search bar -->
-    <form class="flex justify-start items-center gap-2 my-4" id="searchForm" method="get" asp-action="ManageProjectDonor">
+    <form class="flex justify-start items-center gap-2 " id="searchForm" method="get" asp-action="ManageProjectDonor">
         @* Hidden pagination inputs *@
         <input type="hidden" value="@Model.PaginationRequestDto.PageNumber" name="PageNumber"/>
         <input type="hidden" value="@Model.PaginationRequestDto.PageSize" name="PageSize"/>
         <input type="hidden" value="@Model.PaginationRequestDto.TotalPages" name="TotalPage"/>
         <input type="hidden" value="@Model.PaginationRequestDto.TotalRecords" name="TotalRecords"/>
         @* Search bar *@
-        <div class="join">
+        <div class="join text-xs">
             <div>
                 <div>
-                    <div class="input input-bordered flex items-center gap-2 rounded-r-none bg-white">
+                    <div class="h-8 input input-bordered flex items-center gap-2 rounded-r-none bg-white">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 16 16"
                              fill="currentColor"
@@ -54,11 +54,11 @@
                                   d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
                                   clip-rule="evenodd"/>
                         </svg>
-                        <input type="text" class="grow" placeholder="Search something..." name="Query" value="@Model.SearchRequestDto.Query"/>
+                        <input type="text" class="grow text-xs" placeholder="Search something..." name="Query" value="@Model.SearchRequestDto.Query"/>
                     </div>
                 </div>
             </div>
-            <select class="select select-bordered join-item bg-white" name="Filter">
+                <select class="h-8 text-xs border border-gray-300 join-item bg-white" name="Filter">
                 @{
                     bool first = true;
                     // Keep the old filter back
@@ -87,12 +87,12 @@
                     }
                 }
             </select>
-            <input name="DateFrom" type="date" placeholder="From date" class="input input-bordered join-item bg-white"
+                <input name="DateFrom" type="date" placeholder="From date" class="h-8 text-xs input input-bordered join-item bg-white"
                    max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
-            <input name="DateTo" type="date" placeholder="To date" class="input input-bordered join-item bg-white rounded-md"
+            <input name="DateTo" type="date" placeholder="To date" class="h-8 text-xs input input-bordered join-item bg-white rounded-md"
                    max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
         </div>
-        <button class="btn btn-primary">Search</button>
+            <button class="bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
     </form>
     <!-- End right search bar -->
 
@@ -102,7 +102,7 @@
         {
             <a asp-action="ReviewUserDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
                 <div class="relative indicator">
-                    <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                    <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Review user donate request
                     </button>
                     @if (ViewData["hasUserDonateRequest"] != null && (bool)ViewData["hasUserDonateRequest"])
@@ -116,7 +116,7 @@
             </a>
             <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
                 <div class="relative indicator">
-                    <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+                    <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Review organization donate request
                     </button>
                     @if (ViewData["hasOrgDonateRequest"] != null && (bool)ViewData["hasOrgDonateRequest"])
@@ -134,46 +134,46 @@
 
 <!-- PART 2 -->
 <!-- list transaction -->
-<div class="flex flex-col relative  gap-y-6 mb-10" style="width:92%;">
+    <div class="flex flex-col relative  gap-y-2 mb-10" style="width:85%;">
     <div class="overflow-x-auto" style="height:70vh;">
-        <table class="table table-md">
-            <thead class="bg-gray-300/20 ">
-            <tr class="text-gray-900 ">
-                <th></th>
-                <th class="text-xl">Date</th>
-                <th class="text-xl" style="width: 20%">Name</th>
-                <th class="text-xl">Resource Name</th>
-                <th class="text-xl">Quantity</th>
-                <th class="text-xl">Unit</th>
-                <th class="text-xl">Message</th>
-                <th class="text-xl">Status</th>
-                <th class="text-xl" style="width: 15%">Action</th>
-            </tr>
-            </thead>
-            <tbody >
-            @foreach (var transaction in Model.Transactions)
+          <table class="table table-xs">
+                <thead class="bg-gray-300/20 ">
+                    <tr class="text-gray-900 ">
+                        <th></th>
+                        <th class="text-md">Date</th>
+                        <th class="text-md">Name</th>
+                        <th class="text-md">Resource</th>
+                        <th class="text-md">Quantity</th>
+                        <th class="text-md">Unit</th>
+                        <th class="text-md">Message</th>
+                        <th class="text-md">Status</th>
+                                <th class="text-md">Action</th>
+                    </tr>
+                </thead>
+                <tbody >
+                      @foreach (var item in Model.Transactions)
             {
-                var item = transaction;
+               
                 <tr class="hover:bg-slate-50">
-                    <td class="text-xl">@count</td>
-                    <td class="text-xl font-semibold">@item.Time</td>
+                    <td class="text-sm">@count</td>
+                    <td class="text-sm font-semibold">@item.Time</td>
                     @if (item.Type.Equals("orgToPrj", StringComparison.OrdinalIgnoreCase))
                     {
-                        <td class="text-xl font-semibold text-primary">
+                        <td class="text-sm font-semibold text-primary">
                             @item.Name
                         </td>
                     }
                     else
                     {
-                        <td class="text-xl font-semibold">
+                        <td class="text-sm font-semibold">
                             @item.Name
                         </td>
                     }
-                    <td class="text-xl font-semibold">@item.ResourceName</td>
-                    <td class="text-xl">@item.Amount.ToString("N0")</td>
-                    <td class="text-xl">@item.Unit</td>
-                    <td class="text-xl">@item.Message</td>
-                    <td class="text-xl">
+                    <td class="text-sm font-semibold">@item.ResourceName</td>
+                    <td class="text-sm">@item.Amount.ToString("N0")</td>
+                    <td class="text-sm">@item.Unit</td>
+                    <td class="text-sm">@item.Message</td>
+                    <td class="text-sm">
                         <div class="w-fit">
                             @if (item.Status == 1)
                             {
@@ -197,7 +197,7 @@
                             <!-- You can open the modal using ID.showModal() method -->
                             <dialog id="proofImagesModal_@item.TransactionID" class="modal">
                                 <div class="modal-box w-11/12 max-w-5xl">
-                                    <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                    <h2 class=" text-black font-bold text-xl text-center mb-4">Proof images</h2>
                                     @{
                                         string[] proofImages = new string[1] { "," };
                                         if (item.Attachments != null)

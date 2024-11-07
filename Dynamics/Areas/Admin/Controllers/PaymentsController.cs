@@ -30,27 +30,27 @@ namespace Dynamics.Areas.Admin.Controllers
         {
             if (User.IsInRole(RoleConstants.Admin))
             {
-                var userTransactionToProject = await _adminRepository.ViewUserToProjectTransactionInHistory(u => true);
-
-                var allTransaction = userTransactionToProject
-                    .Where(p => p.ProjectResource.ResourceName == "Money")
-                    .Select(p => new TransactionBase
+                
+                var viewWithdraw = await _adminRepository.ReviewWithdraw(w => true);
+                
+                var withdraw = viewWithdraw.Where(r => r.Project.ProjectResource.FirstOrDefault().ResourceName == "Money")
+                    .Select(r => new TransactionBase
                     {
-                        TransactionID = p.TransactionID,
-                        ProjectResourceID = p.ProjectResourceID,
-                        Time = p.Time,
-                        Message = p.ProjectResource.Project.ProjectDescription,
-                        Received = p.ProjectResource.Project.ProjectName,
-                        Description = p.ProjectResource.Project.ProjectDescription
+                        WithdrawID = r.WithdrawID,
+                        ProjectResourceID = r.Project.ProjectResource.FirstOrDefault().UserToProjectTransactionHistory.FirstOrDefault().ProjectResourceID,
+                        Message = r.Message,
+                        Time = r.Time,
+                        Received = r.Project.ProjectName,
+                        Description = r.Project.ProjectDescription
                     })
                     .GroupBy(t => t.ProjectResourceID)
                     .Select(g => g.First())
-                    .OrderByDescending(t => t.Time)
+                    .OrderByDescending(r => r.Time)
                     .ToList();
-
+                
                 var model = new Payment
                 {
-                    listTransaction = allTransaction
+                    viewwithdraw = withdraw
                 };
 
                 return View(model);
@@ -67,11 +67,7 @@ namespace Dynamics.Areas.Admin.Controllers
             if (User.IsInRole(RoleConstants.Admin))
             {
                 var userToProject =
-                    await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.TransactionID == id);
-                if (userToProject == null || !userToProject.Any())
-                {
-                    return NotFound();
-                }
+                    await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.ProjectResource.Project.Withdraw.FirstOrDefault().WithdrawID == id);
 
                 var projectID = userToProject.FirstOrDefault().ProjectResource.Project.ProjectID;
 
@@ -91,12 +87,13 @@ namespace Dynamics.Areas.Admin.Controllers
                     listUserDonateToProjectTable = listResource,
                     listWithdraws = withDraws
                 };
+
                 return View("Details", model);
             }
             else
             {
-                    return RedirectToAction("Error", "Home");
-                }
+                return RedirectToAction("Error", "Home");
             }
+        }
     }
 }

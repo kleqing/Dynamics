@@ -49,10 +49,8 @@ namespace Dynamics
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-                // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
-                // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
-            });
-
+            }, ServiceLifetime.Transient);
+            
             // Identity and roles
             builder.Services
                 .AddIdentity<User, IdentityRole<Guid>>(options =>

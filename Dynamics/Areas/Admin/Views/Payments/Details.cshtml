@@ -326,7 +326,7 @@
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="mt-3">
-                                                    <p><b>Sent by: @Model.listUserToProject.FirstOrDefault().User.UserName</b></p>
+                                                    <p><b>Request from project: @Model.listUserToProject.FirstOrDefault().User.UserName</b></p>
                                                     <p class="text-muted font-13">Description: @Model.listUserToProject.FirstOrDefault().ProjectResource.Project.ProjectDescription</p>
                                                     <a href="/Project/ManageProject/@Model.listUserToProject.FirstOrDefault().ProjectResource.Project.ProjectID" class="card-link text-custom">View project information</a>
                                                 </div>
@@ -423,7 +423,7 @@
                                                     <small>
                                                         All project have to be withdraw money within 7 days after create this request.
                                                         If project is not withdraw money within 7 days the project will be banned
-                                                        without admin confirmation.
+                                                        without admin confirmation. *
                                                     </small>
                                                 </div>
                                             </div> <!-- end col -->

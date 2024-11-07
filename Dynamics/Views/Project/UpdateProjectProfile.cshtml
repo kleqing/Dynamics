@@ -215,56 +215,69 @@
     }
         @if(Model.ProjectStatus >= 1)
         {
+            @if (Model.ProjectStatus == 2)
+            {
+                <div class="h-40"></div>
+            }
             @* finish project *@
             <div class="w-full mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-xl my-10">
                 <h2 class=" text-black font-bold text-xl text-center ">Finish project</h2>
                 <!-- form 2 -->
-                <form id="ImportFileProject" method="post" asp-action="ImportFileProject" asp-controller="Project"
-                      enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" name="ProjectID" value="@Model.ProjectID" />
-                    <div class="flex flex-col justify-center items-center ">
-                        <h2 class="text-sm text-gray-900">Please submit a report file to your organization first before mark a project as finished.</h2>
-                        <div class="flex justify-center items-center gap-x-4">
-                            <input asp-for="@finishProjectVM.ReportFile" type="file" id="reportFile" name="reportFile" style="display:none;" accept=".doc,.xls,.xlsx,.docx,.csv" />
-                            <div class="flex flex-col items-center justify-center">
-                                <button id="button" type="button" value="Choose file" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
+                @if (string.IsNullOrEmpty(Model.ReportFile))
+                {
+                    <form id="ImportFileProject" method="post" asp-action="ImportFileProject" asp-controller="Project"
+                          enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" name="ProjectID" value="@Model.ProjectID" />
+                 
+                        <div class="flex flex-col justify-center items-center ">
+                            <h2 class="text-sm text-gray-900">Please submit a report file to your organization first before mark a project as finished.</h2>
+                            <div class="flex justify-center items-center gap-x-4">
+                                <input asp-for="@finishProjectVM.ReportFile" type="file" id="reportFile" name="reportFile" style="display:none;" accept=".doc,.xls,.xlsx,.docx,.csv" />
+                                <div class="flex flex-col items-center justify-center">
+                                    <button id="button" type="button" value="Choose file" class="w-fit h-10 px-4 rounded-md  inline-flex items-center justify-center
                           p-0.5 me-2 overflow-hidden text-sm font-bold text-gray-900
                           bg-gray-300
                               " onclick="thisFileReportUpload();">
-                                    Choose file
-                                </button>
-                                <div id="reportFileName" class="text-gray-500 text-sm font-medium"></div>
-                                <div id="notificationReportMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
-                            </div>
-                            @if (!string.IsNullOrEmpty(Model.ReportFile))
-                            {
-                                <a asp-action="DownloadFile" asp-route-filewebpath="@Model.ReportFile" download>
-                                    <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
-                                p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-white bg-blue-700">
-                                        Download Report File
+                                        Choose file
                                     </button>
-                                </a>
-                            }
-                            else
-                            {
+                                    <div id="reportFileName" class="text-gray-500 text-sm font-medium"></div>
+                                    <div id="notificationReportMessage" class="text-red-500 text-sm font-semibold" style="display:none;"></div>
+                                </div>
                                 <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
                             p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-gray-500 bg-gray-300 cursor-not-allowed" disabled>
                                     No Report File Available
                                 </button>
-                            }
+                            
+                            </div> 
+                     
                         </div>
-
-                    </div>
-                    <div class="flex flex-col items-center mt-2">
-                        <button type="submit"
-                                class=" text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
-                            Confirm
+                        <div class="flex flex-col items-center mt-2">
+                            <button type="submit"
+                                    class=" text-md text-white bg-green-500 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-6 py-2.5 text-center">
+                                Confirm
+                            </button>
+                        </div>
+                      
+                    </form>
+                }
+                else
+                {
+                    <div class="flex flex-col justify-center items-center my-4">
+                    <a asp-action="DownloadFile" asp-route-filewebpath="@Model.ReportFile" download>
+                        <button type="button" class="w-fit h-10 px-4 rounded-md inline-flex items-center justify-center
+                                p-0.5 my-2 me-2 overflow-hidden text-sm font-bold text-white bg-blue-700">
+                            Download Report File
                         </button>
+                    </a>
                     </div>
-                </form>
+                }
                 <!-- end form 2 -->
             </div>
+            @if (Model.ProjectStatus == 2)
+            {
+                <div class="h-40"></div>
+            }
         }
         @if(Model.ProjectStatus == 0 || Model.ProjectStatus == 1)
         {

@@ -23,6 +23,7 @@ namespace Dynamics.Controllers
     {
         private readonly IProjectRepository _projectRepo;
         private readonly IOrganizationRepository _organizationRepo;
+        private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IRequestRepository _requestRepo;
         private readonly IProjectMemberRepository _projectMemberRepo;
         private readonly IProjectResourceRepository _projectResourceRepo;
@@ -44,6 +45,7 @@ namespace Dynamics.Controllers
 
         public ProjectController(IProjectRepository _projectRepo,
             IOrganizationRepository _organizationRepo,
+            IOrganizationMemberRepository _organizationMemberRepository,
             IRequestRepository _requestRepo,
             IProjectMemberRepository _projectMemberRepo,
             IProjectResourceRepository _projectResourceRepo,
@@ -69,6 +71,7 @@ namespace Dynamics.Controllers
             this._organizationToProjectTransactionHistoryRepo = _organizationToProjectTransactionHistoryRepo;
             this._projectHistoryRepo = projectHistoryRepository;
             this.hostEnvironment = hostEnvironment;
+            this._organizationMemberRepository = _organizationMemberRepository;
             _pagination = pagination;
             this._mapper = mapper;
             this._projectService = projectService;
@@ -1516,21 +1519,28 @@ namespace Dynamics.Controllers
         [Authorize]
         public async Task<IActionResult> CreateProject(Guid? requestId)
         {
-            
-            var currentOrganization =
-                HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
-
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;
             if (userString != null)
             {
                 currentUser = JsonConvert.DeserializeObject<User>(userString);
             }
-
+            
+            var currentOrganization =
+                HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
             if (requestId != null)
-            {
-                currentOrganization = await _organizationService.GetOrganizationVMByUserIDAsync(currentUser.Id);
+           {
+               currentOrganization = await _organizationService.GetOrganizationVMByUserIDAsync(currentUser.Id);
+           }
+           
+           if (currentOrganization.OrganizationStatus < 1)
+           {
+               TempData[MyConstants.Error] =
+                   "Your organization needs to be approved by an admin before accepting a request.";
+                return RedirectToAction("MyOrganization","Organization", new { userId = currentUser.Id });
             }
+
+           
 
             var projectVM = new ProjectVM()
             {

@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\vs_csharp-code\\NewSWP_2\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\reviewjoinrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\reviewjoinrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
@@ -17,10 +21,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\reviewjoinrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\reviewjoinrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -102,7 +102,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 19,
           "Children": [
             {
               "$type": "Document",
@@ -132,7 +132,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\appsettings.json",
               "RelativeDocumentMoniker": "Dynamics\\appsettings.json",
@@ -145,7 +145,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "20241106220416_initial.cs",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241106220416_initial.cs",
               "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241106220416_initial.cs",
@@ -218,7 +218,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
+              "Title": "ReviewJoinRequest.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAAwHcAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T19:02:51.655Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "ManageProjectMember.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
@@ -232,18 +245,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "ReviewJoinRequest.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAAAFkAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-04T19:02:51.655Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "ManageProjectResource.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectResource.cshtml",

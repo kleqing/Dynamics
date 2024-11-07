@@ -14,6 +14,7 @@ namespace Dynamics.Models.Models.ViewModel
 
         public string? OrganizationPhoneNumber { get; set; }
         public string? OrganizationAddress { get; set; }
+        public int OrganizationStatus { get; set; }
 
         public string OrganizationDescription { get; set; }
         public string? OrganizationPictures { get; set; }

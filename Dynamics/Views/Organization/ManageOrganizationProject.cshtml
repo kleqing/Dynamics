@@ -43,7 +43,6 @@
             }
             @foreach (var item in Model.OrganizationMember)
             {
-                
                 if(await roleService.IsInRoleAsync(item.User, RoleConstants.ProjectLeader))
                 {
                     i++;

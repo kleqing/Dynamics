@@ -17,6 +17,7 @@ public class UserTransactionDto
     // public string Target { get; set; }
     public string Attachments { get; set; }
     public string Name { get; set; }
+    public string? Avatar { get; set; }
     public string Type { get; set; }
     // public string DenyReason { get; set; }
 }

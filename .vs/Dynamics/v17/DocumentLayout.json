@@ -3,116 +3,96 @@
   "WorkspaceRootPath": "D:\\vs_csharp-code\\NewSWP_2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\nodata.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\nodata.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\organizationcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A1727530-2ED7-42AE-8692-BABA5ADC9C63}|Dynamics.Utility\\Dynamics.Utility.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.utility\\utils\\cloudinaryuploader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A1727530-2ED7-42AE-8692-BABA5ADC9C63}|Dynamics.Utility\\Dynamics.Utility.csproj|solutionrelative:dynamics.utility\\utils\\cloudinaryuploader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\sendresourceorganizationtoproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\sendresourceorganizationtoproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\updateprojectprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\updateprojectprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\reviewuserdonaterequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\reviewuserdonaterequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\editprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\editprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\addprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\addprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C3C3663F-6303-41B0-BECA-4DABFEB8769C}|Dynamics.Models\\Dynamics.Models.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.models\\models\\project.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C3C3663F-6303-41B0-BECA-4DABFEB8769C}|Dynamics.Models\\Dynamics.Models.csproj|solutionrelative:dynamics.models\\models\\project.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\repository\\projectrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\repository\\projectrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\areas\\identity\\pages\\account\\register.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\areas\\identity\\pages\\account\\register.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\areas\\identity\\pages\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\areas\\identity\\pages\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\dynamics.dataaccess.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\dynamics.dataaccess.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\reviewjoinrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\reviewjoinrequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\migrations\\20241106220416_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\migrations\\20241106220416_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectmember.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectphasereport.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\revieworgdonaterequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\revieworgdonaterequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\migrations\\20241029181848_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\migrations\\20241029181848_initial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageprojectdonor.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageprojectdonor.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.dataaccess\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DDE4F9A-583D-4C45-8FE6-22D2760B1223}|Dynamics.DataAccess\\Dynamics.DataAccess.csproj|solutionrelative:dynamics.dataaccess\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\reviewuserdonaterequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\reviewuserdonaterequest.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\transactionviewservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\transactionviewservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\pagination.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\pagination.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\manageproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\manageproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\shared\\customcomponent\\_navbarproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\shared\\customcomponent\\_navbarproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\manageorganizationresource.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\projectservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\updateprojectprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\updateprojectprofile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1727530-2ED7-42AE-8692-BABA5ADC9C63}|Dynamics.Utility\\Dynamics.Utility.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics.utility\\utils\\util.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1727530-2ED7-42AE-8692-BABA5ADC9C63}|Dynamics.Utility\\Dynamics.Utility.csproj|solutionrelative:dynamics.utility\\utils\\util.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\services\\roleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\services\\roleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\project\\createproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\project\\createproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\organization\\manageorganizationproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\organization\\manageorganizationproject.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|d:\\vs_csharp-code\\newswp_2\\dynamics\\views\\request\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{72FFF11D-A316-4C09-BA47-A109734EB187}|Dynamics\\Dynamics.csproj|solutionrelative:dynamics\\views\\request\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -122,8 +102,64 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 14,
+          "SelectedChildIndex": 19,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ProjectController.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\ProjectController.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Controllers\\ProjectController.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\ProjectController.cs",
+              "RelativeToolTip": "Dynamics\\Controllers\\ProjectController.cs",
+              "ViewState": "AgIAAIMDAAAAAAAAAAAAwJ8DAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T15:17:38.527Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "CreateProject.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\CreateProject.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\CreateProject.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\CreateProject.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\CreateProject.cshtml",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAcwJYAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T15:15:34.815Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\appsettings.json",
+              "RelativeDocumentMoniker": "Dynamics\\appsettings.json",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\appsettings.json",
+              "RelativeToolTip": "Dynamics\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2024-11-06T22:06:28.805Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "20241106220416_initial.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241106220416_initial.cs",
+              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241106220416_initial.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241106220416_initial.cs",
+              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\20241106220416_initial.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-06T22:04:17.409Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{ca8cc5c7-0231-406a-95cd-aa5ed6ac0190}"
@@ -183,346 +219,232 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "NoData.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\NoData.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\NoData.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\NoData.cshtml*",
-              "RelativeToolTip": "Dynamics\\Views\\Project\\NoData.cshtml*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAbAAAAAAAAAA==",
+              "Title": "ReviewJoinRequest.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\ReviewJoinRequest.cshtml",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAAwHcAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-04T07:30:46.12Z",
+              "WhenOpened": "2024-11-04T19:02:51.655Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "OrganizationController.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\OrganizationController.cs",
-              "RelativeDocumentMoniker": "Dynamics\\Controllers\\OrganizationController.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\OrganizationController.cs",
-              "RelativeToolTip": "Dynamics\\Controllers\\OrganizationController.cs",
-              "ViewState": "AgIAADIAAAAAAAAAAIAwwE4AAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-04T07:22:53.428Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "CloudinaryUploader.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Utility\\Utils\\CloudinaryUploader.cs",
-              "RelativeDocumentMoniker": "Dynamics.Utility\\Utils\\CloudinaryUploader.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Utility\\Utils\\CloudinaryUploader.cs",
-              "RelativeToolTip": "Dynamics.Utility\\Utils\\CloudinaryUploader.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAAYwDIAAABaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-04T07:15:27.426Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-18T08:50:42.803Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ProjectService.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\ProjectService.cs",
-              "RelativeDocumentMoniker": "Dynamics\\Services\\ProjectService.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\ProjectService.cs",
-              "RelativeToolTip": "Dynamics\\Services\\ProjectService.cs",
-              "ViewState": "AgIAAHABAAAAAAAAAAAkwIoBAACiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T19:08:31.537Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProjectController.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\ProjectController.cs",
-              "RelativeDocumentMoniker": "Dynamics\\Controllers\\ProjectController.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\ProjectController.cs",
-              "RelativeToolTip": "Dynamics\\Controllers\\ProjectController.cs",
-              "ViewState": "AgIAAPIEAAAAAAAAAAAgwA8FAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T19:07:04.634Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "ManageProjectMember.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
               "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
               "RelativeToolTip": "Dynamics\\Views\\Project\\ManageProjectMember.cshtml",
-              "ViewState": "AgIAAPkAAAAAAAAAAAAgwBcBAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAACYAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T08:47:45.073Z",
+              "WhenOpened": "2024-11-04T19:03:29.82Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "SendResourceOrganizationToProject.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Organization\\SendResourceOrganizationToProject.cshtml",
-              "ViewState": "AgIAADAAAAAAAAAAAAAAAFYAAAAyAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T16:16:54.368Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ReviewUserDonateRequest.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
-              "ViewState": "AgIAADIAAAAAAAAAAAAAAEMAAABDAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T08:50:17.752Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ManageOrganizationResource.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
-              "ViewState": "AgIAAE4AAAAAAAAAAAAAALQAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T16:04:47.02Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "UpdateProjectProfile.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABkAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-10-29T19:36:40.627Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 4,
               "Title": "ManageProjectResource.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
               "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
               "RelativeToolTip": "Dynamics\\Views\\Project\\ManageProjectResource.cshtml",
-              "ViewState": "AgIAAEEAAAAAAAAAAAAgwE0AAAADAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAADQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T09:53:09.275Z"
+              "WhenOpened": "2024-11-04T18:47:56.381Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "EditProjectPhaseReport.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\EditProjectPhaseReport.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\EditProjectPhaseReport.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\EditProjectPhaseReport.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Project\\EditProjectPhaseReport.cshtml",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAAEEAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T09:39:14.653Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 5,
               "Title": "ManageProjectPhaseReport.cshtml",
               "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectPhaseReport.cshtml",
               "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectPhaseReport.cshtml",
               "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectPhaseReport.cshtml",
               "RelativeToolTip": "Dynamics\\Views\\Project\\ManageProjectPhaseReport.cshtml",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAHQAAAAAAAAAAAAAAD0AAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T09:19:14.009Z"
+              "WhenOpened": "2024-11-05T09:31:11.382Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ReviewOrgDonateRequest.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewOrgDonateRequest.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewOrgDonateRequest.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewOrgDonateRequest.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\ReviewOrgDonateRequest.cshtml",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAAFQAAABpAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-05T08:22:03.357Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ManageProjectDonor.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectDonor.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProjectDonor.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProjectDonor.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\ManageProjectDonor.cshtml",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAACEAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T17:54:38.041Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ReviewUserDonateRequest.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\ReviewUserDonateRequest.cshtml",
+              "ViewState": "AgIAAMAAAAAAAAAAAAAAAG8AAABSAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-05T08:16:09.169Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "TransactionViewService.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\TransactionViewService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\TransactionViewService.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\TransactionViewService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\TransactionViewService.cs",
+              "ViewState": "AgIAAHMAAAAAAAAAAAAAwIkAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-05T07:55:12.587Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Pagination.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\Pagination.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\Pagination.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\Pagination.cs",
+              "RelativeToolTip": "Dynamics\\Services\\Pagination.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAApwD4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-05T07:54:11.77Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ManageProject.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProject.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\ManageProject.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\ManageProject.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\ManageProject.cshtml",
+              "ViewState": "AgIAAIkAAAAAAAAAAAAowIQAAABjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T19:05:12.267Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "_NavbarProject.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Shared\\CustomComponent\\_NavbarProject.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Shared\\CustomComponent\\_NavbarProject.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Shared\\CustomComponent\\_NavbarProject.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Shared\\CustomComponent\\_NavbarProject.cshtml",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAACsAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T19:20:15.797Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 14,
-              "Title": "AddProjectPhaseReport.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\AddProjectPhaseReport.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\AddProjectPhaseReport.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\AddProjectPhaseReport.cshtml",
-              "RelativeToolTip": "Dynamics\\Views\\Project\\AddProjectPhaseReport.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Title": "ManageOrganizationResource.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Organization\\ManageOrganizationResource.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-11-03T09:02:53.266Z"
+              "WhenOpened": "2024-11-04T18:47:52.432Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 15,
-              "Title": "Project.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Models\\Models\\Project.cs",
-              "RelativeDocumentMoniker": "Dynamics.Models\\Models\\Project.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Models\\Models\\Project.cs",
-              "RelativeToolTip": "Dynamics.Models\\Models\\Project.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAswCAAAAAhAAAAAAAAAA==",
+              "Title": "NotificationService.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\NotificationService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\NotificationService.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\NotificationService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\NotificationService.cs",
+              "ViewState": "AgIAABQBAAAAAAAAAAAIwBsBAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T19:36:12.717Z"
+              "WhenOpened": "2024-11-04T18:44:44.276Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 16,
-              "Title": "ProjectRepository.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Repository\\ProjectRepository.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Repository\\ProjectRepository.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Repository\\ProjectRepository.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Repository\\ProjectRepository.cs",
-              "ViewState": "AgIAAD8AAAAAAAAAAIAwwFoAAABAAAAAAAAAAA==",
+              "Title": "ProjectService.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\ProjectService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\ProjectService.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\ProjectService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\ProjectService.cs",
+              "ViewState": "AgIAAAwBAAAAAAAAAAAkwDMBAABcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T19:13:20.537Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Register.cshtml.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
-              "RelativeDocumentMoniker": "Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
-              "RelativeToolTip": "Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
-              "ViewState": "AgIAAHwAAAAAAAAAAAAcwI0AAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T18:37:47.39Z"
+              "WhenOpened": "2024-11-04T17:55:55.126Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 18,
-              "Title": "Register.cshtml",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
-              "RelativeDocumentMoniker": "Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
-              "RelativeToolTip": "Dynamics\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-10-29T18:37:33.482Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 27,
-              "Title": "ApplicationDbContextModelSnapshot.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAUwDAAAAA7AAAAAAAAAA==",
+              "Title": "Util.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Utility\\Utils\\Util.cs",
+              "RelativeDocumentMoniker": "Dynamics.Utility\\Utils\\Util.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.Utility\\Utils\\Util.cs",
+              "RelativeToolTip": "Dynamics.Utility\\Utils\\Util.cs",
+              "ViewState": "AgIAAHsAAAAAAAAAAAAYwJYAAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T18:23:22.124Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 26,
-              "Title": "20241029181848_initial.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029181848_initial.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029181848_initial.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029181848_initial.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\20241029181848_initial.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAABgAAABCAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T18:18:49.187Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 23,
-              "Title": "20241029180005_initial_1db.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\20241029180005_initial_1db.cs",
-              "ViewState": "AgIAAE4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T18:00:05.455Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\appsettings.json",
-              "RelativeDocumentMoniker": "Dynamics\\appsettings.json",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\appsettings.json",
-              "RelativeToolTip": "Dynamics\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-10-29T17:53:40.647Z"
+              "WhenOpened": "2024-11-04T17:51:00.508Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 19,
-              "Title": "Dynamics.DataAccess.csproj",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Dynamics.DataAccess.csproj",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Dynamics.DataAccess.csproj",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Dynamics.DataAccess.csproj",
-              "RelativeToolTip": "Dynamics.DataAccess\\Dynamics.DataAccess.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2024-10-29T17:43:39.67Z"
+              "Title": "RoleService.cs",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\RoleService.cs",
+              "RelativeDocumentMoniker": "Dynamics\\Services\\RoleService.cs",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Services\\RoleService.cs",
+              "RelativeToolTip": "Dynamics\\Services\\RoleService.cs",
+              "ViewState": "AgIAAFIAAAAAAAAAAAAwwF4AAABHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-04T17:30:03.89Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 21,
-              "Title": "20241029180825_initial_2.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\20241029180825_initial_2.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T18:08:25.664Z"
+              "Title": "ManageOrganizationProject.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Organization\\ManageOrganizationProject.cshtml",
+              "ViewState": "AgIAAAUBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T15:15:20.242Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 22,
-              "Title": "20241029180252_initial_1db.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\20241029180252_initial_1db.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T18:02:52.6Z"
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Request\\Create.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Request\\Create.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Request\\Create.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Request\\Create.cshtml",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAAAF0AAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T14:52:19.565Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
-              "Title": "HomeController.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\HomeController.cs",
-              "RelativeDocumentMoniker": "Dynamics\\Controllers\\HomeController.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Controllers\\HomeController.cs",
-              "RelativeToolTip": "Dynamics\\Controllers\\HomeController.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAYwDYAAABcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T17:50:37.982Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
-              "Title": "20241029174848_initial_1db.cs",
-              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs",
-              "RelativeDocumentMoniker": "Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs",
-              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs",
-              "RelativeToolTip": "Dynamics.DataAccess\\Migrations\\20241029174848_initial_1db.cs",
-              "ViewState": "AgIAAO8AAAAAAAAAAAAAwAYBAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-29T17:48:49.202Z"
+              "DocumentIndex": 17,
+              "Title": "UpdateProjectProfile.cshtml",
+              "DocumentMoniker": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
+              "RelativeDocumentMoniker": "Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
+              "ToolTip": "D:\\vs_csharp-code\\NewSWP_2\\Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
+              "RelativeToolTip": "Dynamics\\Views\\Project\\UpdateProjectProfile.cshtml",
+              "ViewState": "AgIAAL4AAAAAAAAAAAAowNIAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-11-04T14:00:10.467Z"
             }
           ]
         }

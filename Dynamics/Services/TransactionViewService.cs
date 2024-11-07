@@ -34,6 +34,7 @@ public class TransactionViewService : ITransactionViewService
             Name = "Organization - " + ut.OrganizationResource.Organization.OrganizationName, // Target organization name
             Time = ut.Time,
             Unit = ut.OrganizationResource.Unit,
+            Avatar = ut.User.UserAvatar,
             Attachments = ut.Attachments,
             Type = "userToOrg",
         });
@@ -54,6 +55,7 @@ public class TransactionViewService : ITransactionViewService
             Time = ut.Time,
             Unit = ut.ProjectResource.Unit,
             Attachments = ut.Attachments,
+            Avatar = ut.User.UserAvatar,
             Type = "userToPrj"
         });
         return await result.ToListAsync();
@@ -135,6 +137,7 @@ public class TransactionViewService : ITransactionViewService
             Time = opt.Time,
             Unit = opt.ProjectResource.Unit,
             Attachments = opt.Attachments,
+            Avatar = opt.User.UserAvatar,
             Type = "userToPrj"
         });
         return await result.ToListAsync();

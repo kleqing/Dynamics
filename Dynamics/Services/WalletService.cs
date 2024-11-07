@@ -213,7 +213,6 @@ public class WalletService : IWalletService
         return payRequestDto;
     }
 
-    // TODO: Recycle them for later
     // /**
     //  * Things to do
     //  * There are in total 3 types of donation, when an action is taken, add it to history and add it manually in its resource table

@@ -28,7 +28,9 @@ namespace Dynamics.Controllers
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly ISearchService _searchService;
         private readonly IPagination _pagination;
-        private readonly IMapper mapper;
+        private readonly IMapper _mapper;
+        private readonly IOrganizationRepository _organizationRepository;
+        private readonly IOrganizationService _organizationService;
 
         public UserController(IUserRepository userRepo, UserManager<User> userManager,
             SignInManager<User> signInManager, ITransactionViewService transactionViewService,
@@ -36,7 +38,7 @@ namespace Dynamics.Controllers
             IOrganizationMemberRepository organizationMemberRepository,
             IUserToOrganizationTransactionHistoryRepository userToOrgRepo,
             IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader,
-            ISearchService searchService, IPagination pagination, IMapper mapper)
+            ISearchService searchService, IPagination pagination, IMapper mapper, IOrganizationRepository organizationRepository)
         {
             _userRepository = userRepo;
             _userManager = userManager;
@@ -49,15 +51,24 @@ namespace Dynamics.Controllers
             _cloudinaryUploader = cloudinaryUploader;
             _searchService = searchService;
             _pagination = pagination;
-            this.mapper = mapper;
+            _mapper = mapper;
+            _organizationRepository = organizationRepository;
         }
 
         // View a user profile (including user's own profile)
+        // [Route("User/{username}")]
         public async Task<IActionResult> Index(string username)
         {
             var currentUser = await _userRepository.GetAsync(u => u.UserName.Equals(username));
             if (currentUser == null) return NotFound();
-            return View(currentUser);
+            var userVM = _mapper.Map<UserVM>(currentUser);
+            var orgMember = await _organizationMemberRepository.GetAsync(om => om.Status == 2);
+            if (orgMember != null)
+            {
+                userVM.OrganizationName = orgMember.Organization.OrganizationName;
+                userVM.OrganizationId = orgMember.Organization.OrganizationID;
+            }
+            return View(userVM);
         }
 
         [HttpGet]
@@ -86,7 +97,7 @@ namespace Dynamics.Controllers
                 ViewBag.UserDOB = user.UserDOB.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd");
             }
 
-            return View(mapper.Map<UserVM>(currentUser));
+            return View(_mapper.Map<UserVM>(currentUser));
         }
 
         // POST: Client/Users/Edit/5
@@ -96,15 +107,6 @@ namespace Dynamics.Controllers
         {
             try
             {
-                if (user.PhoneNumber != null)
-                {
-                    bool isPhone = Regex.IsMatch(user.PhoneNumber, @"^\d{11}$");
-                    if (!isPhone)
-                    {
-                        ModelState.AddModelError("PhoneNumber", "Phone number is not a valid phone number.");
-                        return View(user);
-                    }
-                }
                 var currentUser = JsonConvert.DeserializeObject<User>(HttpContext.Session.GetString("user"));
                 if (currentUser == null) return Unauthorized();
                 // Try to get existing user (If we might have) that is in the system
@@ -137,7 +139,7 @@ namespace Dynamics.Controllers
                     if (imgUrl != null) user.UserAvatar = imgUrl;
                 }
 
-                await _userRepository.UpdateAsync(mapper.Map<User>(user));
+                await _userRepository.UpdateAsync(_mapper.Map<User>(user));
 
                 // Update the session as well
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(user));

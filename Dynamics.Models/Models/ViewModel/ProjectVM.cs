@@ -33,7 +33,6 @@ namespace Dynamics.Models.Models.ViewModel
         [DataType(DataType.Date)]
         public DateOnly? EndTime { get; set; }
         public string shutdownReanson { get; set; }
-
         public Guid LeaderID { get; set; }
         public OrganizationVM OrganizationVM { get; set; }
     }

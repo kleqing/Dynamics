@@ -188,20 +188,20 @@
             <br />
             <a href="/Admin/" class="logo logo-light">
                 <span class="logo-lg">
-                    <img src="assets/images/logo.png" alt="logo">
+                    <img src="~/Admin/assets/images/logo.png" alt="logo">
                 </span>
                 <span class="logo-sm">
-                    <img src="assets/images/logo-sm.png" alt="small logo">
+                    <img src="~/Admin/assets/images/logo-sm.png" alt="small logo">
                 </span>
             </a>
 
             <!-- Brand Logo Dark -->
             <a href="/Admin/" class="logo logo-dark">
                 <span class="logo-lg">
-                    <img src="assets/images/logo-dark.png" alt="dark logo">
+                    <img src="~/Admin/assets/images/logo-dark.png" alt="dark logo">
                 </span>
                 <span class="logo-sm">
-                    <img src="assets/images/logo-dark-sm.png" alt="small logo">
+                    <img src="~/Admin/assets/images/logo-dark-sm.png" alt="small logo">
                 </span>
             </a>
             <br />
@@ -429,7 +429,7 @@
                                                 <h5>Team Members</h5>
                                                 @foreach (var members in Model.ProjectMember)
                                                 {
-                                                    <a href="/User?username=@members.User.UserName" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="top" title="@members.User.UserName" class="d-inline-block">
+                                                    <a href="/user/@members.User.UserName" data-bs-container="#tooltip-container" data-bs-toggle="tooltip" data-bs-placement="top" title="@members.User.UserName" class="d-inline-block">
                                                         <img src="@members.User.UserAvatar" class="rounded-circle img-thumbnail avatar-sm" alt="friend">
                                                     </a>
                                                 }
@@ -448,10 +448,10 @@
 
                                                             foreach (var image in images)
                                                             {
-                                                            <div class="carousel-item @(isActive ? "active" : "")">
-                                                                <img src="@image.Trim()" class="d-block w-100" alt="Project Image">
-                                                            </div>
-                                                            isActive = false;
+                                                                <div class="carousel-item @(isActive ? "active" : "")">
+                                                                    <img src="@image.Trim()" class="d-block w-100" alt="Project Image">
+                                                                </div>
+                                                                isActive = false;
                                                             }
                                                         }
                                                     </div>
@@ -470,25 +470,28 @@
                                         <div class="col-md-4">
                                             <div class="mb-4">
                                                 <h5>Status</h5>
-                                                @if (Model.ProjectStatus == -1 && !Model.isBanned)
-                                                {
-                                                    <span class="badge badge-danger-lighten">Canceled</span>
-                                                }
-                                                else if (Model.ProjectStatus == 0 && !Model.isBanned)
-                                                {
-                                                    <span class="badge badge-warning-lighten">Preparing</span>
-                                                }
-                                                else if (Model.ProjectStatus != 2)
-                                                {
-                                                    <a href="#" class="btn @(Model.isBanned ? "badge badge-danger-lighten" : "badge badge-success-lighten") btn-ban" data-id="@Model.ProjectID">
-                                                        @(Model.isBanned ? "Banned" : "Active")
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge badge-success-lighten">Finished</span>
-                                                }
+                                                    @if (Model.ProjectStatus == -1 && Model.isBanned)
+                                                    {
+                                                        <a href="#" class="btn @(Model.isBanned ? "badge badge-danger-lighten" : "badge badge-success-lighten") btn-ban" data-id="@Model.ProjectID">
+                                                            @(Model.isBanned ? "Banned" : "Active")
+                                                        </a>
+                                                    }
+                                                    else if (Model.ProjectStatus == 1 && !Model.isBanned)
+                                                    {
+                                                        <span class="badge badge-primary-lighten">On-going</span>
+                                                    }
+                                                    else if (Model.ProjectStatus == 0)
+                                                    {
+                                                        <a href="#" class="btn @(Model.isBanned ? "badge badge-danger-lighten" : "badge badge-success-lighten") btn-ban" data-id="@Model.ProjectID">
+                                                            @(Model.isBanned ? "Banned" : "Active")
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-success-lighten">Finished</span>
+                                                    }
                                             </div>
+
                                         </div>
                                     </div>
                                 </div> <!-- end card-body-->

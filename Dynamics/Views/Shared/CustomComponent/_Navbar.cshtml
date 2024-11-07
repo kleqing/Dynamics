@@ -61,7 +61,6 @@
                     <i>Dynamics</i>
                 </a>
             </div>
-
             <div class="flex gap-4" style="width: 100%; max-width: 300px; justify-content: end; align-items: center">
                 <span class="line-clamp-1">@(currentUser != null ? currentUser.UserName : "Invalid user")</span>
 
@@ -89,7 +88,10 @@
                                         @if (notif.Status == 0)
                                         {
                                         // Not read
-                                        <span class="indicator-item rounded-full w-4 h-4 bg-red-500"></span>
+                                        <div class="indicator-item">
+                                            <div class="absolute rounded-full w-4 h-4 bg-red-500 animate-ping"></div>
+                                            <div class="relative rounded-full w-4 h-4 bg-red-500"></div>
+                                        </div>
                                         }
 
                                         <div class="w-full">

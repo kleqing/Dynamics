@@ -19,19 +19,19 @@
             </div>
             <div class="form-control w-full">
                 <label class="label label-text font-bold text-lg" for="RequestTitle">
-                    Request Title *
+                    Request Title
                 </label>
                 <input asp-for="RequestTitle"
-                       class="input input-bordered w-full"
+                       class="input input-bordered w-full focus:input-primary bg-white"
                        id="RequestTitle" type="text" placeholder="Enter your request title"/>
                 <span asp-validation-for="RequestTitle" class="text-error"></span>
             </div>
             <div class="form-control">
                 <label class="label label-text font-bold text-lg" for="Content">
-                    Request Description *
+                    Request Description
                 </label>
                 <textarea asp-for="Content"
-                           class="textarea textarea-bordered textarea-lg w-full"
+                           class="textarea textarea-bordered textarea-lg w-full focus:textarea-primary bg-white"
                            id="Content" placeholder="Enter your request description" rows="7" style="resize: none"></textarea>
                 <span asp-validation-for="Content" class="text-error"></span>
             </div>
@@ -40,7 +40,7 @@
                 <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
                     <span>Choose images</span>
                 </label>
-                <input type="file" name="images" multiple class="file-input file-input-bordered w-full max-w-xs">
+                <input type="file" name="images" multiple class="file-input file-input-bordered focus:file-input-primary bg-white w-full max-w-xs">
                 <span class="label label-text text-">Images will help you appeal to more people</span>
             </label>
             <span asp-validation-for="Attachment" class="text-error"></span>
@@ -52,7 +52,7 @@
                         <input
                             type="text"
                             placeholder="Enter request email"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full focus:input-primary bg-white"
                             asp-for="@Model.RequestEmail"
                             id="RequestEmail"
                         />
@@ -60,11 +60,11 @@
                     </div>
                     <!-- Phonenumber -->
                     <div class="form-control w-full">
-                        <label class="label label-text font-bold text-lg">Request phone number *</label>
+                        <label class="label label-text font-bold text-lg">Request phone number </label>
                         <input
                             type="text"
                             placeholder="Enter request phone number"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full focus:input-primary bg-white"
                             asp-for="RequestPhoneNumber"
                             id="RequestPhoneNumber"
                         />
@@ -72,24 +72,24 @@
                     </div>
                     <!-- Address -->
                     <label class="form-control w-full">
-                        <span class="label label-text font-bold text-lg">Request address *</span>
+                        <span class="label label-text font-bold text-lg">Request address </span>
                         <div>
-                            <select class="select select-bordered w-full mb-4" id="city" aria-label=".form-select-sm">
+                            <select class="select select-bordered w-full mb-4 focus:select-primary bg-white" id="city" aria-label=".form-select-sm">
                                 <option id="pOption" value="" selected>Choose province</option>
                             </select>
 
-                            <select class="select select-bordered w-full mb-4" id="district" aria-label=".form-select-sm">
+                            <select class="select select-bordered w-full mb-4 focus:select-primary bg-white" id="district" aria-label=".form-select-sm">
                                 <option id="dOption" value="" selected>Choose district</option>
                             </select>
 
-                            <select class="select select-bordered w-full mb-4" id="ward" aria-label=".form-select-sm">
+                            <select class="select select-bordered w-full mb-4 focus:select-primary bg-white" id="ward" aria-label=".form-select-sm">
                                 <option id="wOption" value="" selected>Choose ward/commune</option>
                             </select>
                         </div>
                         <input
                             type="text"
                             placeholder="Enter street and house number"
-                            class="input input-bordered w-full"
+                            class="input input-bordered w-full focus:input-primary bg-white"
                             asp-for="@Model.Location"
                             id="RequestLocation"
                         />
@@ -99,7 +99,7 @@
                         Is this an emergency request?
                     </span>
                     <select id="isEmergency" name="isEmergency"
-                            class="select select-bordered w-full"
+                            class="select select-bordered w-full focus:select-primary bg-white"
                             asp-for="isEmergency">
                         <option value="0">No</option>
                         <option value="1">Yes</option>
@@ -118,13 +118,6 @@
         </form>
     </div>
 </main>
-@* Loading screen *@
-<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50" style="display: none; top: 0; min-height: 100vh;">
-    @* This one will always be centered in the backdrop *@
-    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-        <div class="loader"></div>
-    </div>
-</div>
 
 </body>
 
@@ -133,7 +126,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
 }
-
+<partial name="CustomComponent/_LoadingModalSweet" model="@("dmForm")"/>
 <script>
 let cities = document.getElementById("city");
 let districts = document.getElementById("district");

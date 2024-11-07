@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Linq.Expressions;
+using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -192,9 +193,29 @@ namespace Dynamics.DataAccess.Repository
         // ---------------------------------------
         // User (View, Ban, Top 5, allow access as admin)
 
-        public async Task<List<User>> ViewUser()
+        public async Task<List<UserVM>> ViewUser()
         {
-            return await _db.Users.ToListAsync();
+            var users = await _db.Users.ToListAsync();  // This is a list of User
+            var userVMList = new List<UserVM>();
+
+            foreach (var user in users)  // Loop through each user in the list
+            {
+                // Fetch roles for the individual user
+                var roles = await _userManager.GetRolesAsync(user); 
+        
+                userVMList.Add(new UserVM
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    UserDOB = user.UserDOB,
+                    UserAddress = user.UserAddress,
+                    isBanned = user.isBanned,
+                    UserRoles = roles  // Assign roles directly as IEnumerable<string>
+                });
+            }
+            return userVMList;
         }
 
         public async Task<List<User>> GetTop5User()
@@ -235,11 +256,21 @@ namespace Dynamics.DataAccess.Repository
                 // If user is banned, remove admin role (change to user)
                 if (user.isBanned)
                 {
-                    await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
+                    var role = await _userManager.GetRolesAsync(user);
+                    if (role.Contains(RoleConstants.Admin) || role.Contains(RoleConstants.User))
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Admin);
+                        await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
+                    }
                 }
                 else
                 {
-                    await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                    var role = await _userManager.GetRolesAsync(user);
+                    if (role.Contains(RoleConstants.Banned))
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Banned);
+                        await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                    }
                 }
                 await _db.SaveChangesAsync();
                 return user.isBanned;  // Return ban value (true/false)
@@ -268,11 +299,9 @@ namespace Dynamics.DataAccess.Repository
         public async Task ChangeUserRole(Guid id)
         {
             var authUser = await _userManager.FindByIdAsync(id.ToString());
-            var businessUser = await GetUser(u => u.Id == id);
-
             var currentRoles = await _userManager.GetRolesAsync(authUser);
             string newRole = currentRoles.Contains(RoleConstants.Admin) ? RoleConstants.User : RoleConstants.Admin;
-
+            
             // Remove current role and add the new one
             if (newRole == RoleConstants.Admin)
             {
@@ -342,7 +371,7 @@ namespace Dynamics.DataAccess.Repository
             if (project != null)
             {
                 project.isBanned = !project.isBanned;
-                project.ProjectStatus = project.isBanned ? -1 : 1; // If project is banned, change status to -1 (cancel). Otherwise, change to 1 (active)
+                project.ProjectStatus = project.isBanned ? -1 : 0; // If project is banned, change status to -1 (cancel). Otherwise, change to 0 (preparing)
                 await _db.SaveChangesAsync();
                 return project.isBanned;
             }
@@ -375,6 +404,7 @@ namespace Dynamics.DataAccess.Repository
             var list =  await _db.UserToProjectTransactionHistories.Where(filter).Include(u => u.User)
                 .Include(r => r.ProjectResource)
                 .ThenInclude(p => p.Project)
+                .ThenInclude(w => w.Withdraw)
                 .ToListAsync();
             if (list == null)
             {
@@ -383,30 +413,15 @@ namespace Dynamics.DataAccess.Repository
 
             return list;
         }
-        
-        // Organization to project transaction history
-        public async Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(Expression<Func<OrganizationToProjectHistory, bool>> filter)
+
+        public async Task<List<Withdraw>> ReviewWithdraw(Expression<Func<Withdraw, bool>> filer)
         {
-            var list = await _db.OrganizationToProjectTransactionHistory.Where(filter).Include(o => o.OrganizationResource)
-                .ThenInclude(or => or.Organization)
-                .Include(p => p.ProjectResource)
-                .ThenInclude(pr => pr.Project)
+            var list = await _db.Withdraws.Where(filer)
+                .Include(u => u.Project)
+                .ThenInclude(pr => pr.ProjectResource)
+                .ThenInclude(p => p.UserToProjectTransactionHistory)
                 .ToListAsync();
-            if (list == null)
-            {
-                return null;
-            }
-            return list;
-        }
 
-        public async Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
-            Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
-        {
-            var list = await _db.UserToOrganizationTransactionHistories.Where(filter)
-                .Include(u => u.User)
-                .Include(or => or.OrganizationResource)
-                .ThenInclude(o => o.Organization)
-                .ToListAsync();
             if (list == null)
             {
                 return null;
@@ -415,7 +430,8 @@ namespace Dynamics.DataAccess.Repository
             return list;
         }
 
-        public async Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter)
+        public async Task<List<ProjectResource>> ViewUserToProjectResource(
+            Expression<Func<ProjectResource, bool>> filter)
         {
             return await _db.ProjectResources
                 .Where(filter)
@@ -424,28 +440,9 @@ namespace Dynamics.DataAccess.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
-            Expression<Func<OrganizationResource, bool>> filter)
+        public async Task<int> CountProjectReport(string type, Guid id)
         {
-            return await _db.OrganizationResources
-                .Where(filter)
-                .Include(o => o.Organization)
-                .Include(ot => ot.OrganizationToProjectHistory)
-                .ThenInclude(p => p.ProjectResource)
-                .ThenInclude(pr => pr.Project)
-                .ToListAsync();
+            return await _db.Reports.CountAsync(r => r.Type == type && r.ObjectID == id);
         }
-        
-        public async Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
-            Expression<Func<OrganizationResource, bool>> filter)
-        {
-            return await _db.OrganizationResources
-                .Where(filter)
-                .Include(o => o.Organization)
-                .ThenInclude(or => or.OrganizationMember)
-                .ThenInclude(u => u.User)
-                .ToListAsync();
-        }
-        
     }
 }

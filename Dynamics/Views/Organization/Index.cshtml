@@ -31,7 +31,7 @@
     <div class="flex justify-center my-5">
         @if(await roleService.IsInRoleAsync(currentUser, RoleConstants.HeadOfOrganization))
         {
-            <button id="createOrgBtn" class="btn btn-wide btn-neutral text-white tooltip" data-tip="You are being a head of a organization">
+            <button id="createOrgBtn" class="btn btn-wide btn-neutral text-white tooltip cursor-not-allowed" data-tip="You are already a leader of another organization">
                 Create new organization now!
             </button>
         }

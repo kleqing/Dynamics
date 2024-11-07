@@ -871,7 +871,7 @@ namespace Dynamics.Controllers
                 }
                 else if (res.Equals(MyConstants.Success))
                 {
-                    var link = Url.Action(nameof(ManageProjectDonor), "Project", new { projectID = sendDonateRequestVM.ProjectID },
+                    var link = Url.Action(nameof(ManageProject), "Project", new { id = sendDonateRequestVM.ProjectID },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync(sendDonateRequestVM.ProjectID, Guid.Empty, link, "donate");
                     return Json(new { success = true, message = "Your donation request was sent successfully!" });
@@ -1612,8 +1612,7 @@ namespace Dynamics.Controllers
                             StartTime = projectVM.StartTime,
                             EndTime = projectVM.EndTime,
                         };
-
-
+                        
                         if (await _projectRepo.AddProjectAsync(project))
                         {
                             var projectResource = new ProjectResource()
@@ -1641,7 +1640,10 @@ namespace Dynamics.Controllers
                     }
                 }
             }
-
+            else
+            {
+                ModelState.AddModelError("", "You have no leader to lead this project!");
+            }
 
             if (expectedQuantity <= 0)
                 ViewBag.MessageExpectedQuantity = "*ExpectedQuantity more than > 0";

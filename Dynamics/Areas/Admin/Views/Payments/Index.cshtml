@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="assets/images/favicon.ico">
+    <link rel="shortcut icon" href="~/Admin/assets/images/favicon.ico">
 
     <!-- Theme Config Js -->
     <script src="~/Admin/assets/js/hyper-config.js"></script>
@@ -37,20 +37,20 @@
                         <!-- Logo light -->
                         <a href="index.html" class="logo-light">
                             <span class="logo-lg">
-                                <img src="assets/images/logo.png" alt="logo">
+                                <img src="~/Admin/assets/images/logo.png" alt="logo">
                             </span>
                             <span class="logo-sm">
-                                <img src="assets/images/logo-sm.png" alt="small logo">
+                                <img src="~/Admin/assets/images/logo-sm.png" alt="small logo">
                             </span>
                         </a>
 
                         <!-- Logo Dark -->
                         <a href="index.html" class="logo-dark">
                             <span class="logo-lg">
-                                <img src="assets/images/logo-dark.png" alt="dark logo">
+                                <img src="~/Admin/assets/images/logo-dark.png" alt="dark logo">
                             </span>
                             <span class="logo-sm">
-                                <img src="assets/images/logo-dark-sm.png" alt="small logo">
+                                <img src="~/Admin/assets/images/logo-dark-sm.png" alt="small logo">
                             </span>
                         </a>
                     </div>
@@ -314,62 +314,36 @@
                                 </div>
                                 <h4 class="page-title">Payments</h4>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-sm-5">
-                                    <a href="#" class="btn btn-danger mb-2"><i class="mdi mdi-export-variant me-2"></i> Export</a>
-                                </div>
-                                <div class="col-sm-7">
-                                    <div class="text-sm-end">
-                                        <span class="me-2" style="margin-top: 7px;">Filter by:</span>
-                                        <div class="dropdown btn-group" id="filterBy" style="height: 110%;">
-                                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">All</button>
-                                            <div class="dropdown-menu dropdown-menu-animated">
-                                                <a class="dropdown-item" href="#">All</a>
-                                                <a class="dropdown-item" href="#">User to project</a>
-                                                <a class="dropdown-item" href="#">Organization to project</a>
-                                                <a class="dropdown-item" href="#">User to organization</a>
-                                            </div>
-
-                                            <input type="text" id="searchBox" class="form-control" placeholder="Search something...">
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end col--> 
-                            </div>
                         </div>
                     </div>
                     <!-- end page title -->
-
+                    
                     <div class="row">
-                        @foreach (var transaction in Model.listTransaction)
+                        @foreach (var withdraw in Model.viewwithdraw)
                         {
-                            <div class="col-md-6 col-xxl-3" data-type="@transaction.Type">
-                                <div class="card d-block">
-                                    <div class="card-body">
-                                        <h4 class="mt-0">
-                                            <a href="/Admin/Payments/Details/@transaction.TransactionID?Type=@transaction.Type" class="text-title">
-                                                Sent by @transaction.Sender
-                                            </a>
-                                        </h4>
-                                        <div class="badge bg-@(transaction.Type == "UserToProject" ? "primary" : transaction.Type == "OrganizationToProject" ? "warning" :  transaction.Type == "UserToOrganization" ? "success" : "secondary")">
-                                            @transaction.Type.Replace("To", " to ")
-                                        </div>
-                                        <p class="text-muted font-13 my-3 project-description">
-                                            <span class="description-content">Message: @transaction.Message</span>
-                                        </p>
-                                        <p class="mb-1">
-                                            <span class="pe-2 text-nowrap mb-2 d-inline-block">
-                                                <i class="mdi mdi-calendar-clock text-muted"> Send Date:</i>
-                                                <b>@transaction.Time.ToString("yyyy-MM-dd")</b>
-                                            </span>
-                                        </p>
-                                    </div> <!-- end card-body -->
-                                </div> <!-- end card -->
-                            </div>
-                            <!-- end col -->
-                            <div id="noResults" class="col-12 text-center mt-3" style="display: none;">
-                                <p>No matching records found</p>
-                            </div>
+                        <div class="col-md-6 col-xxl-3">
+                            <div class="card d-block">
+                                <div class="card-body">
+                                    <h4 class="mt-0">
+                                        <a href="/Admin/Payments/Details/@withdraw.WithdrawID" class="text-title">
+                                            Withdraw request from: @withdraw.Received
+                                        </a>
+                                    </h4>
+                                    <div class="badge bg-primary">
+                                        Project
+                                    </div>
+                                    <p class="text-muted font-13 my-3 project-description">
+                                        <span class="description-content">Description: @withdraw.Description</span>
+                                    </p>
+                                    <p class="mb-1">
+                                    <span class="pe-2 text-nowrap mb-2 d-inline-block">
+                                        <i class="mdi mdi-calendar-clock text-muted"> Send Date:</i>
+                                        <b>@withdraw.Time.ToString("yyyy-MM-dd")</b>
+                                    </span>
+                                    </p>
+                                </div> <!-- end card-body -->
+                            </div> <!-- end card -->
+                        </div> <!-- end col -->
                         }
                     </div>
                     <!-- end row -->

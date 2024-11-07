@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamics.Models.Models.ViewModel;
 
 namespace Dynamics.DataAccess.Repository
 {
@@ -20,7 +21,7 @@ namespace Dynamics.DataAccess.Repository
         Task<Request> GetRequestInfo(Expression<Func<Request, bool>> expression);
 
         // User   
-        Task<List<User>> ViewUser();
+        Task<List<UserVM>> ViewUser();
         Task<bool> BanUserById(Guid id);
         Task<List<User>> GetTop5User();
         Task<User?> GetUser(Expression<Func<User, bool>> filter);
@@ -66,19 +67,14 @@ namespace Dynamics.DataAccess.Repository
         // 2024-10-27
         Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter);
 
-        Task<List<OrganizationToProjectHistory>> ViewOrganizationToProjectTransactionHistory(
-            Expression<Func<OrganizationToProjectHistory, bool>> filter);
-        
-        Task<List<UserToOrganizationTransactionHistory>> ViewUserToOrganizationTransactionHistory(
-            Expression<Func<UserToOrganizationTransactionHistory, bool>> filter);
-
         Task<List<ProjectResource>> ViewUserToProjectResource(Expression<Func<ProjectResource, bool>> filter);
 
-        Task<List<OrganizationResource>> ViewOrganizationToProjectResource(
-            Expression<Func<OrganizationResource, bool>> filter);
+        // !Withdraw
+        // *2024-6-11
+        Task<List<Withdraw>> ReviewWithdraw(Expression<Func<Withdraw, bool>> filer);
 
-        Task<List<OrganizationResource>> ViewUserDonateOrganizationResource(
-            Expression<Func<OrganizationResource, bool>> filter);
+        Task<int> CountProjectReport(string type, Guid id);
+
 
     }
 }

@@ -326,10 +326,9 @@
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="mt-3">
-                                                    <p><b>Sent by: @Model.listUserToProject.FirstOrDefault().User.UserName</b></p>
-                                                    <p class="text-muted font-13">Message: @Model.listUserToProject.FirstOrDefault().Message</p>
-                                                    <a href="#" class="card-link text-custom">View user detail</a>
-                                                    <a href="#" class="card-link text-custom">View project information</a>
+                                                    <p><b>Request from project: @Model.listUserToProject.FirstOrDefault().User.UserName</b></p>
+                                                    <p class="text-muted font-13">Description: @Model.listUserToProject.FirstOrDefault().ProjectResource.Project.ProjectDescription</p>
+                                                    <a href="/Project/ManageProject/@Model.listUserToProject.FirstOrDefault().ProjectResource.Project.ProjectID" class="card-link text-custom">View project information</a>
                                                 </div>
 
                                             </div><!-- end col -->
@@ -345,25 +344,17 @@
 
                                         <div class="row mt-4">
                                             <div class="col-sm-4">
-                                                <h6>User Address</h6>
-                                                <address>
-                                                    @Model.listUserToProject?.FirstOrDefault()?.User?.UserAddress
-                                                    <br/>
-                                                    <abbr title="Phone">Phone number:</abbr> @Model.listUserToProject?.FirstOrDefault()?.User?.PhoneNumber
-                                                </address>
-                                            </div> <!-- end col -->
-
-                                            <div class="col-sm-4">
                                                 <h6>Project Address</h6>
                                                 <address>
                                                     @Model.listUserToProject?.FirstOrDefault()?.ProjectResource?.Project?.ProjectAddress
                                                     <br/>
-                                                    <abbr title="Phone">Phone number:</abbr> @Model.listUserToProject?.FirstOrDefault()?.ProjectResource?.Project?.ProjectPhoneNumber
+                                                    <abbr title="Phone">Phone:</abbr> @Model.listUserToProject?.FirstOrDefault()?.ProjectResource?.Project?.ProjectPhoneNumber
                                                 </address>
-                                            </div> <!-- end col-->
+                                            </div> <!-- end col--><!-- end col-->
 
-                                            <div class="col-sm-4">
+                                            <div class="col-sm-8">
                                                 <div class="text-sm-end">
+                                                    <!--Replace qr here-->
                                                     <img src="~/Admin/assets/images/barcode.png" alt="barcode-image" class="img-fluid me-2"/>
                                                 </div>
                                             </div> <!-- end col-->
@@ -376,158 +367,20 @@
                                                     <table class="table mt-4">
                                                         <thead>
                                                         <tr>
-                                                            <th>#</th>
-                                                            <th>Name</th>
-                                                            <th>Quantity</th>
-                                                            <th>Unit</th>
-                                                            <th>Expected Quantity</th>
-                                                            <th class="text-end">Remain</th>
+                                                            <th>Type</th>
+                                                            <th>Total</th>
+                                                            <th class="text-end">Unit</th>
                                                         </tr>
                                                         </thead>
+                                                        
                                                         <tbody>
-                                                        @{
-                                                            int count = 1;
-                                                        }
-                                                        @foreach (var item in Model.listUserDonateToProjectTable)
+                                                        @foreach (var item in Model.listUserDonateToProjectTable.Where(p => p.ResourceName.Contains("Money")))
                                                         {
                                                             <tr>
-                                                                <td>@count</td>
-                                                                <td>
-                                                                    <b>@item.ResourceName</b>
-                                                                </td>
-                                                                <td>@item.Quantity</td>
-                                                                <td>@item.Unit</td>
-                                                                <td>@item.ExpectedQuantity</td>
-                                                                <td class="text-end">@(item.ExpectedQuantity - item.Quantity)</td>
-                                                            </tr>
-                                                            
-                                                            count++;
-                                                            
-                                                        }
-                                                        </tbody>
-                                                    </table>
-                                                </div> <!-- end table-responsive-->
-                                            </div> <!-- end col -->
-                                        </div>
-                                        <!-- end row -->
-
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="clearfix pt-3">
-                                                    <h6 class="text-muted">Notes:</h6>
-                                                    <small>
-                                                        All accounts are to be paid within 7 days from receipt of
-                                                        invoice. To be paid by cheque or credit card or direct payment
-                                                        online. If account is not paid within 7 days the credits details
-                                                        supplied as confirmation of work undertaken will be charged the
-                                                        agreed quoted fee noted above.
-                                                    </small>
-                                                </div>
-                                            </div> <!-- end col -->
-                                            <div class="col-sm-6">
-                                                <div class="float-end mt-3 mt-sm-0">
-                                                    <p><b>Sub-total:</b> <span class="float-end">$4120.00</span></p>
-                                                    <p><b>VAT:</b> <span class="float-end">$515.00</span></p>
-                                                    <h3>$4635.00 USD</h3>
-                                                </div>
-                                                <div class="clearfix"></div>
-                                            </div> <!-- end col -->
-                                        </div>
-                                        <!-- end row-->
-
-                                        <div class="d-print-none mt-4">
-                                            <div class="text-end">
-
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-danger"><i class="mdi mdi-bank-remove"></i> Cancel</button>
-                                                    <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                                    </button>
-                                                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated">
-                                                        <a class="dropdown-item" href="#">Cancel with ban</a>
-                                                    </div>
-                                                </div><!-- /btn-group -->
-                                                <a href="javascript: void(0);" class="btn btn-info">Confirm</a>
-                                            </div>
-                                        </div>
-                                        <!-- end buttons -->
-                                    }
-                                    @if (Model.listUserToOrganization?.Any() == true)
-                                    {
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="mt-3">
-                                                    <p><b>Sent by: @Model.listUserToOrganization.FirstOrDefault().User.UserName</b></p>
-                                                    <p class="text-muted font-13">Message: @Model.listUserToOrganization.FirstOrDefault().Message</p>
-                                                    <a href="#" class="card-link text-custom">View user detail</a>
-                                                    <a href="#" class="card-link text-custom">View organization information</a>
-                                                </div>
-
-                                            </div><!-- end col -->
-                                            <div class="col-sm-4 offset-sm-2">
-                                                <div class="mt-3 float-sm-end">
-                                                    <p class="font-13"><strong>Transaction Date: </strong> @Model.listUserToOrganization.FirstOrDefault().Time.ToString("MM/dd/yyyy")</p>
-                                                    @* <p class="font-13"><strong>Order Status: </strong> <span class="badge bg-success float-end">Paid</span></p> *@
-                                                    <p class="font-13"><strong>Transaction ID: </strong> <span> @Model.listUserToOrganization.FirstOrDefault().TransactionID</span></p>
-                                                </div>
-                                            </div><!-- end col -->
-                                        </div>
-                                        <!-- end row -->
-
-                                        <div class="row mt-4">
-                                            <div class="col-sm-4">
-                                                <h6>User Address</h6>
-                                                <address>
-                                                    @Model.listUserToOrganization?.FirstOrDefault()?.User?.UserAddress
-                                                    <br/>
-                                                    <abbr title="Phone">Phone number:</abbr> @Model.listUserToOrganization?.FirstOrDefault()?.User?.PhoneNumber
-                                                </address>
-                                            </div> <!-- end col -->
-
-                                            <div class="col-sm-4">
-                                                <h6>Organization Address</h6>
-                                                <address>
-                                                    @Model.listUserToOrganization?.FirstOrDefault()?.OrganizationResource?.Organization?.OrganizationAddress
-                                                    <br/>
-                                                    <abbr title="Phone">Phone number:</abbr> @Model.listUserToOrganization?.FirstOrDefault()?.OrganizationResource?.Organization?.OrganizationPhoneNumber
-                                                </address>
-                                            </div> <!-- end col-->
-
-                                            <div class="col-sm-4">
-                                                <div class="text-sm-end">
-                                                    <img src="~/Admin/assets/images/barcode.png" alt="barcode-image" class="img-fluid me-2"/>
-                                                </div>
-                                            </div> <!-- end col-->
-                                        </div>
-                                        <!-- end row -->
-
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="table-responsive">
-                                                    <table class="table mt-4">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>#</th>
-                                                                <th>Name</th>
-                                                                <th>Quantity</th>
-                                                                <th class="text-end">Unit</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        @{
-                                                            int count = 1;
-                                                        }
-                                                        @foreach (var item in Model.listUserDonateToOrganizationTable)
-                                                        {
-                                                            <tr>
-                                                                <td>@count</td>
-                                                                <td>
-                                                                    <b>@item.ResourceName</b>
-                                                                </td>
+                                                                <td><b>Money</b></td>
                                                                 <td>@item.Quantity</td>
                                                                 <td class="text-end">@item.Unit</td>
                                                             </tr>
-                                                            count++;
                                                         }
                                                         </tbody>
                                                     </table>
@@ -535,201 +388,54 @@
                                             </div> <!-- end col -->
                                         </div>
                                         <!-- end row -->
+                                        
+                                         <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="card border-secondary border">
+                                                    <div class="card-body">
+                                                        
+                                                        <h5 class="card-title">Withdraw message:</h5>
+                                                        @if (Model.listWithdraws?.Any() == true)
+                                                        {
+                                                            <p class="card-text">@Model.listWithdraws.FirstOrDefault().Message</p>
+                                                        }
+                                                    </div> <!-- end card-body-->
+                                                </div> <!-- end card-->
+                                            </div> <!-- end col-->
+
+                                             <div class="col-md-6">
+                                                 <div class="card border-secondary border">
+                                                     <div class="card-body">
+
+                                                         <h5 class="card-title">Total report of this project:</h5>
+                                                         <p class="card-text">@ViewBag.countReport</p>
+                                                         
+                                                     </div> <!-- end card-body-->
+                                                 </div> <!-- end card-->
+                                             </div> <!-- end col-->
+                                         </div>
+                                         <!-- end row -->
 
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="clearfix pt-3">
                                                     <h6 class="text-muted">Notes:</h6>
                                                     <small>
-                                                        All accounts are to be paid within 7 days from receipt of
-                                                        invoice. To be paid by cheque or credit card or direct payment
-                                                        online. If account is not paid within 7 days the credits details
-                                                        supplied as confirmation of work undertaken will be charged the
-                                                        agreed quoted fee noted above.
+                                                        All project have to be withdraw money within 7 days after create this request.
+                                                        If project is not withdraw money within 7 days the project will be banned
+                                                        without admin confirmation. *
                                                     </small>
                                                 </div>
-                                            </div> <!-- end col -->
-                                            <div class="col-sm-6">
-                                                <div class="float-end mt-3 mt-sm-0">
-                                                    <p><b>Sub-total:</b> <span class="float-end">$4120.00</span></p>
-                                                    <p><b>VAT:</b> <span class="float-end">$515.00</span></p>
-                                                    <h3>$4635.00 USD</h3>
-                                                </div>
-                                                <div class="clearfix"></div>
                                             </div> <!-- end col -->
                                         </div>
                                         <!-- end row-->
 
                                         <div class="d-print-none mt-4">
                                             <div class="text-end">
-
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-danger"><i class="mdi mdi-bank-remove"></i> Cancel</button>
-                                                    <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                                    </button>
-                                                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated">
-                                                        <a class="dropdown-item" href="#">Cancel with ban</a>
-                                                    </div>
-                                                </div><!-- /btn-group -->
-                                                <a href="javascript: void(0);" class="btn btn-info">Confirm</a>
+                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#standard-modal">Confirm withdraw</button>
                                             </div>
                                         </div>
                                         <!-- end buttons -->
-                                    }
-                                    @if (Model.listOrganizationToProject?.Any() == true)
-                                    {
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="mt-3">
-                                                <p><b>Sent by: @Model.listOrganizationToProject.FirstOrDefault().OrganizationResource.Organization.OrganizationName</b></p>
-                                                <p class="text-muted font-13">Message: @Model.listOrganizationToProject.FirstOrDefault().Message</p>
-                                                <a href="#" class="card-link text-custom">View organization information</a>
-                                                <a href="#" class="card-link text-custom">View project information</a>
-                                            </div>
-
-                                        </div><!-- end col -->
-                                        <div class="col-sm-4 offset-sm-2">
-                                            <div class="mt-3 float-sm-end">
-                                                <p class="font-13"><strong>Transaction Date: </strong> @Model.listOrganizationToProject.FirstOrDefault().Time.ToString("MM/dd/yyyy")</p>
-                                                @* <p class="font-13"><strong>Order Status: </strong> <span class="badge bg-success float-end">Paid</span></p> *@
-                                                <p class="font-13"><strong>Transaction ID: </strong> <span> @Model.listOrganizationToProject.FirstOrDefault().TransactionID</span></p>
-                                            </div>
-                                        </div><!-- end col -->
-                                    </div>
-                                    <!-- end row -->
-
-                                    <div class="row mt-4">
-                                        <div class="col-sm-4">
-                                            <h6>Organization Address</h6>
-                                            <address>
-                                                @Model.listOrganizationToProject?.FirstOrDefault()?.OrganizationResource.Organization.OrganizationAddress
-                                                <br/>
-                                                <abbr title="Phone">Phone number:</abbr> @Model.listOrganizationToProject?.FirstOrDefault()?.OrganizationResource.Organization.OrganizationPhoneNumber
-                                            </address>
-                                        </div> <!-- end col -->
-
-                                        <div class="col-sm-4">
-                                            <h6>Project Address</h6>
-                                            <address>
-                                                @Model.listOrganizationToProject?.FirstOrDefault()?.ProjectResource.Project.ProjectAddress
-                                                <br/>
-                                                <abbr title="Phone">Phone number:</abbr> @Model.listOrganizationToProject?.FirstOrDefault()?.ProjectResource.Project.ProjectPhoneNumber
-                                            </address>
-                                        </div> <!-- end col-->
-
-                                        <div class="col-sm-4">
-                                            <div class="text-sm-end">
-                                                <img src="~/Admin/assets/images/barcode.png" alt="barcode-image" class="img-fluid me-2"/>
-                                            </div>
-                                        </div> <!-- end col-->
-                                    </div>
-                                    <!-- end row -->
-                                    <br/>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <strong>Organization Resource</strong>
-                                            <div class="table-responsive">
-                                                <table class="table mt-4">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Name</th>
-                                                            <th>Quantity</th>
-                                                            <th class="text-end">Unit</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    @{
-                                                    int counter = 1;
-                                                    }
-                                                    @foreach (var item in Model.listOrganizationDonateToProjectTable)
-                                                    {
-                                                    <tr>
-                                                        <td>@counter</td>
-                                                        <td>
-                                                            <b>@item.ResourceName</b>
-                                                        </td>
-                                                        <td>@item.Quantity</td>
-                                                        <td class="text-end">@item.Unit</td>
-                                                    </tr>
-                                                    counter++;
-                                                    }
-                                                    </tbody>
-                                                </table>
-                                            </div> <!-- end table-responsive-->
-                                        </div> <!-- end col -->
-                                        <div class="col-6">
-                                            <strong>Project Resource</strong>
-                                            <div class="table-responsive">
-                                                <table class="table mt-4">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Name</th>
-                                                        <th>Quantity</th>
-                                                        <th>Unit</th>
-                                                        <th>Expected Quantity</th>
-                                                        <th class="text-end">Total</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    @{
-                                                        int count = 1;
-                                                    }
-                                                    @foreach (var item in Model.listOrganizationDonateToProjectTable)
-                                                    {
-                                                        <tr>
-                                                            <td>@count</td>
-                                                            <td>
-                                                                <b>@item.OrganizationToProjectHistory?.FirstOrDefault()?.ProjectResource.ResourceName</b>
-                                                            </td>
-                                                            <td>@item.OrganizationToProjectHistory?.FirstOrDefault()?.ProjectResource.Quantity</td>
-                                                            <td>@item.OrganizationToProjectHistory?.FirstOrDefault()?.ProjectResource.Unit</td>
-                                                            <td>@item.OrganizationToProjectHistory?.FirstOrDefault()?.ProjectResource.ExpectedQuantity</td>
-                                                            <td class="text-end">@(item.OrganizationToProjectHistory?.FirstOrDefault()?.ProjectResource.ExpectedQuantity - item.OrganizationToProjectHistory?.FirstOrDefault()?.ProjectResource.Quantity)</td>
-                                                        </tr>
-                                                        count++;
-                                                    }
-                                                    </tbody>
-                                                </table>
-                                            </div> <!-- end table-responsive-->
-                                        </div> <!-- end col -->
-                                    </div>
-                                    <!-- end row -->
-
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="clearfix pt-3">
-                                                <h6 class="text-muted">Notes:</h6>
-                                                <small>
-                                                    All accounts are to be paid within 7 days from receipt of
-                                                    invoice. To be paid by cheque or credit card or direct payment
-                                                    online. If account is not paid within 7 days the credits details
-                                                    supplied as confirmation of work undertaken will be charged the
-                                                    agreed quoted fee noted above.
-                                                </small>
-                                            </div>
-                                        </div> <!-- end col -->
-                                    </div>
-                                    <!-- end row-->
-
-                                    <div class="d-print-none mt-4">
-                                        <div class="text-end">
-
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-danger"><i class="mdi mdi-bank-remove"></i> Cancel</button>
-                                                <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                                </button>
-                                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated">
-                                                    <a class="dropdown-item" href="#">Cancel with ban</a>
-                                                </div>
-                                            </div><!-- /btn-group -->
-                                            <a href="javascript: void(0);" class="btn btn-info">Confirm</a>
-                                        </div>
-                                    </div>
-                                    <!-- end buttons -->
                                     }
                                 </div> <!-- end card-body-->
                             </div> <!-- end card -->
@@ -740,6 +446,31 @@
                 </div> <!-- container -->
 
             </div> <!-- content -->
+
+            <!-- Primary Header Modal -->
+            <div id="standard-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="standard-modalLabel">Confirmation</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                        </div>
+                        <div class="modal-body">
+                            <strong>ATTENTION:</strong>
+                            <br/><br/>
+                            <p>If withdraw accepted, all money resource from this project will become zero.
+                                Organization manage this project will <strong>NOT</strong> shut down in anyway.
+                                Are you sure you want to accept this withdraw?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary">Confirm</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+            <!-- End Primary Header Modal -->
+            
             <!-- Footer Start -->
             <footer class="footer">
                 <div class="container-fluid">

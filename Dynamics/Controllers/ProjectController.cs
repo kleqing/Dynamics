@@ -908,6 +908,7 @@ namespace Dynamics.Controllers
                 utp.ProjectResource.ProjectID.Equals(projectID) && (utp.Status == 1 || utp.Status == -1));
             
             // Setup search query and pagination
+            searchRequestDto.Filter = string.IsNullOrEmpty(searchRequestDto.Filter) ?"Accepted":searchRequestDto.Filter;
             var transactionDtos = await _transactionViewService.SetupProjectTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, orgToPrjQueryable);
             var paginated = _pagination.Paginate(transactionDtos,HttpContext, paginationRequestDto, searchRequestDto);
 

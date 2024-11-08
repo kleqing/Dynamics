@@ -163,7 +163,18 @@ namespace Dynamics.Controllers
 
         public async Task<IActionResult> ViewAllProjects()
         {
-            return View(await _projectService.ReturnAllProjectsVMsAsync());
+            var projects = await _projectService.ReturnAllProjectsVMsAsync();
+            var ongoingProject = projects.allActiveProjects.Where(p => p.ProjectStatus >= 0 && p.ProjectStatus < 2);
+            projects.allActiveProjects = ongoingProject.ToList();
+            return View(projects);
+        }
+        
+        public async Task<IActionResult> ViewAllSuccessfulProjects()
+        {
+            var projects = await _projectService.ReturnAllProjectsVMsAsync();
+            var finished = projects.allActiveProjects.Where(p => p.ProjectStatus == 2).ToList();
+            projects.allActiveProjects = finished.ToList();
+            return View(projects);
         }
 
         //update project profile
@@ -1247,7 +1258,7 @@ namespace Dynamics.Controllers
         //---------------------------manage ProjectResource--------------------------
 
         [Route("Project/ManageProjectResource/{projectID}")]
-        public async Task<IActionResult> ManageProjectResource(Guid projectID)
+        public async Task<IActionResult> ManageProjectResource(Guid projectID, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectResource get");
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
@@ -1265,8 +1276,10 @@ namespace Dynamics.Controllers
             {
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });
             }
-
-            return View(allResource);
+            // Pagination
+            var paginated = _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
+            ViewBag.pagination = paginationRequestDto;
+            return View(paginated);
         }
 
         [HttpPost]
@@ -1562,8 +1575,19 @@ namespace Dynamics.Controllers
             var memberToAssignToProject = new List<OrganizationMember>();
             foreach (var mem in currentOrganization.OrganizationMember)
             {
+                var isPrjLeader = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.ProjectLeader);
                 var isCEO = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.HeadOfOrganization);
-                if (!isCEO) memberToAssignToProject.Add(mem);
+                // To become a project leader, the member must: Not leading other organization && not a project leader of a project
+                // If the user is CEO of the CURRENT organization, then the CEO must currently not leading any project 
+                if (mem.Status == 2 && !isPrjLeader)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
+                // If user is not a project leader, but is other organization CEO, don't allow them
+                else if (!isPrjLeader && !isCEO)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
             }
             currentOrganization.OrganizationMember = memberToAssignToProject;
             var projectVM = new ProjectVM()
@@ -1574,7 +1598,7 @@ namespace Dynamics.Controllers
                 StartTime = DateOnly.FromDateTime(DateTime.UtcNow),
                 OrganizationVM = currentOrganization,
                 RequestID = requestId,
-                Attachment = request.Attachment ?? "images/defaultPrj.jpg",
+                Attachment = request.Attachment ?? "/images/defaultPrj.jpg",
                 ProjectName = request.RequestTitle,
                 ProjectDescription = request.Content,
                 ProjectEmail = request.RequestEmail,
@@ -1614,13 +1638,24 @@ namespace Dynamics.Controllers
                 return RedirectToAction("MyOrganization", "Organization", new { userId = currentUser.Id });
             }
             
-            // Only get the person that is not the CEO of other organization
+            // Only get the person that is not the CEO of OTHER organization
             // Because a CEO can only lead the project of that CEO
             var memberToAssignToProject = new List<OrganizationMember>();
             foreach (var mem in currentOrganization.OrganizationMember)
             {
+                var isPrjLeader = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.ProjectLeader);
                 var isCEO = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.HeadOfOrganization);
-                if (!isCEO) memberToAssignToProject.Add(mem);
+                // To become a project leader, the member must: Not leading other organization && not a project leader of a project
+                // If the user is CEO of the CURRENT organization, then the CEO must currently not leading any project 
+                if (mem.Status == 2 && !isPrjLeader)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
+                // If user is not a project leader, but is other organization CEO, don't allow them
+                else if (!isPrjLeader && !isCEO)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
             }
             currentOrganization.OrganizationMember = memberToAssignToProject;
             var projectVM = new ProjectVM()
@@ -1722,7 +1757,7 @@ namespace Dynamics.Controllers
                             ProjectPhoneNumber = projectVM.ProjectPhoneNumber,
                             ProjectAddress = projectVM.ProjectAddress,
                             ProjectStatus = projectVM.ProjectStatus,
-                            Attachment = projectVM.Attachment ?? "images/defaultPrj.jpg",
+                            Attachment = projectVM.Attachment ?? "/images/defaultPrj.jpg",
                             ProjectDescription = projectVM.ProjectDescription,
                             StartTime = projectVM.StartTime,
                             EndTime = projectVM.EndTime,

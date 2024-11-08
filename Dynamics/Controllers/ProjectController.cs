@@ -327,12 +327,11 @@ namespace Dynamics.Controllers
             {
                 if (member.Id != projectDto.NewLeaderID && member.Id != currentProjectCEO)
                 {
-                    if (!await _roleService.IsInRoleAsync(member.Id, RoleConstants.ProjectLeader)
-                        && !await _roleService.IsInRoleAsync(member.Id, RoleConstants.HeadOfOrganization))
+                    if (await _roleService.IsInRoleAsync(member.Id, RoleConstants.ProjectLeader) 
+                          || await _roleService.IsInRoleAsync(member.Id, RoleConstants.HeadOfOrganization))
                     {
-                        MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
+                        continue;
                     }
-                    continue;
                 }
 
                 MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });

@@ -18,8 +18,9 @@
         {
             statusProjectMemberOfUser = ProjectMemberOfUser?.FirstOrDefault()?.Status;
         }
-
     }
+
+    var reOrdered = Model.OrderByDescending(h => h.Date);
 }
 
 <div class="m-w-screen-2xl items-start justify-center relative px-20 py-10" >
@@ -37,9 +38,9 @@
         }
     </div>
     <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical" style="min-height:130vh;">
-     @for(int i = 0;i<Model.Count();i++)
+     @for(int i = 0;i<reOrdered.Count();i++)
         {
-            var item = Model.ElementAt(i);
+            var item = reOrdered.ElementAt(i);
             string[] imagesPhase = new string[1] { "," };
             if (item.Attachment != null)
             {
@@ -65,6 +66,7 @@
                     <div class="flex justify-end gap-x-6 pt-4">
                         @foreach (var img in imagesPhase)
                         {
+                            if (string.IsNullOrEmpty(img.Trim()) || img.Trim().Equals(",")) continue;
                             <button onclick="openModal('@img')">
                                 <img src="@img" alt="current-phase-img" class="h-48 w-48 rounded-xl shadow-md cursor-pointer" />
                             </button>
@@ -76,7 +78,6 @@
                                     <button>close</button>
                                 </form>
                             </dialog>
-
                         }
                         
                     </div>
@@ -85,12 +86,12 @@
                             <!-- edit button -->
                             <a asp-action="EditProjectPhaseReport" asp-route-projectid="@item.ProjectID" asp-route-historyid="@item.HistoryID" title="Edit project phase report">
                                 <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:45px;">
-                                    <i class="fa-solid fa-pen-to-square text-2xl text-gray-900"></i>
+                                    <i class="fa-solid fa-pen-to-square text-2xl text-gray-900 hover:text-primary transition-all"></i>
                                 </button>
                             </a>
                             <a asp-action="DeleteProjectPhaseReport" asp-route-id="@item.HistoryID" title="Delete project phase report">
                                 <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:-5px;">
-                                    <i class="fa-solid fa-trash text-2xl text-gray-900"></i>
+                                    <i class="fa-solid fa-trash text-2xl text-gray-900 hover:text-error transition-all"></i>
                                 </button>
                             </a>
                         }

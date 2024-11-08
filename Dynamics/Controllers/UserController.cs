@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
+using ILogger = Serilog.ILogger;
 
 namespace Dynamics.Controllers
 {
@@ -29,6 +30,8 @@ namespace Dynamics.Controllers
         private readonly ISearchService _searchService;
         private readonly IPagination _pagination;
         private readonly IMapper _mapper;
+        private readonly ILogger<UserController> _logger;
+        private readonly IRoleService _roleService;
         private readonly IOrganizationRepository _organizationRepository;
         private readonly IOrganizationService _organizationService;
 
@@ -38,7 +41,8 @@ namespace Dynamics.Controllers
             IOrganizationMemberRepository organizationMemberRepository,
             IUserToOrganizationTransactionHistoryRepository userToOrgRepo,
             IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader,
-            ISearchService searchService, IPagination pagination, IMapper mapper, IOrganizationRepository organizationRepository)
+            ISearchService searchService, IPagination pagination, IMapper mapper, IOrganizationRepository organizationRepository,
+            ILogger<UserController> logger, IRoleService roleService)
         {
             _userRepository = userRepo;
             _userManager = userManager;
@@ -52,6 +56,8 @@ namespace Dynamics.Controllers
             _searchService = searchService;
             _pagination = pagination;
             _mapper = mapper;
+            _logger = logger;
+            _roleService = roleService;
             _organizationRepository = organizationRepository;
         }
 
@@ -62,11 +68,14 @@ namespace Dynamics.Controllers
             var currentUser = await _userRepository.GetAsync(u => u.UserName.Equals(username));
             if (currentUser == null) return NotFound();
             var userVM = _mapper.Map<UserVM>(currentUser);
-            var orgMember = await _organizationMemberRepository.GetAsync(om => om.Status == 2);
-            if (orgMember != null)
+            var isCEO = await _roleService.IsInRoleAsync(currentUser.Id, RoleConstants.HeadOfOrganization);
             {
-                userVM.OrganizationName = orgMember.Organization.OrganizationName;
-                userVM.OrganizationId = orgMember.Organization.OrganizationID;
+                var orgMember = await _organizationMemberRepository.GetAsync(om => om.Status == 2 && om.UserID == currentUser.Id);
+                if (orgMember != null)
+                {
+                    userVM.OrganizationName = orgMember.Organization.OrganizationName;
+                    userVM.OrganizationId = orgMember.Organization.OrganizationID;
+                }
             }
             return View(userVM);
         }
@@ -173,7 +182,7 @@ namespace Dynamics.Controllers
             var user = await _userManager.FindByIdAsync(currentUser.Id.ToString());
             if (user.PasswordHash == null)
             {
-                TempData["Google"] = "Your account is bounded with google account.";
+                TempData["Google"] = "Your account is bounded with Google account.";
             }
 
             return View();
@@ -239,6 +248,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> History(SearchRequestDto searchOptions,
             PaginationRequestDto paginationRequestDto)
         {
+            _logger.LogWarning("STARTING HISTORY VIEW");
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
             User currentUser;
@@ -269,6 +279,7 @@ namespace Dynamics.Controllers
         public async Task<IActionResult> RequestsStatus(SearchRequestDto searchRequestDto,
             PaginationRequestDto paginationRequestDto)
         {
+            _logger.LogWarning("STARTING REQUEST STATUS");
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;

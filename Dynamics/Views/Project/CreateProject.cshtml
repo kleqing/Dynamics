@@ -35,7 +35,7 @@
 <div class="w-full">
 <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
 <form class="py-5 px-5" asp-action="CreateProject" asp-controller="Project" enctype="multipart/form-data" method="post" id="project-information">
-    <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
+<div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
 <div>
     <input asp-for="ProjectID" name="ProjectID" class="hidden">
     <input asp-for="OrganizationID" name="OrganizationID" class="hidden">
@@ -70,7 +70,7 @@
     <label asp-for="ProjectDescription" class="block text-base font-medium text-gray-700 mb-1">
         Enter project description
     </label>
-    <textarea asp-for="ProjectDescription" id="project-description" rows="4" class="w-full textarea textarea-primary textarea-bordered bg-white"
+    <textarea asp-for="ProjectDescription" id="project-description" rows="4" class="w-full textarea focus:textarea-primary border-neutral bg-white"
                                   placeholder="Enter your text" maxlength="1000"></textarea>
     <span asp-validation-for="ProjectDescription" class="text-red-500"></span>
 
@@ -131,15 +131,15 @@
     <label class="form-control w-full">
         <span class="label text-base font-medium text-gray-700 mb-1">Project address</span>
         <div>
-            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="city">
+            <select class="select border-neutral w-full mb-4 bg-white focus:select-primary" id="city">
                 <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
             </select>
 
-            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="district">
+            <select class="select border-neutral w-full mb-4 bg-white focus:select-primary" id="district">
                 <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
             </select>
 
-            <select class="select select-bordered w-full mb-4 bg-white focus:select-primary" id="ward">
+            <select class="select border-neutral w-full mb-4 bg-white focus:select-primary" id="ward">
                 <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
             </select>
         </div>
@@ -187,7 +187,7 @@
             Assign a member to lead this
             project (Optional)
         </label>
-        <select asp-for="LeaderID" id="project-lead" class="select w-full bg-white select-bordered focus:select-primary">
+        <select asp-for="LeaderID" id="project-lead" class="select w-full bg-white border-neutral focus:select-primary">
             <option>Options</option>
             @foreach (var item in Model.OrganizationVM.OrganizationMember.Where(om => om.Status > 0).ToList())
             {
@@ -198,11 +198,11 @@
 
                 if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
                 {
-                    <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email]</option>
+                    <option class="" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email]</option>
                     continue;
                 }
 
-                <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
+                <option class="" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
             }
         </select>
     </div>
@@ -211,7 +211,7 @@
             Invite members from your
             organization
         </label>
-        <select id="invite-members" class="select w-full bg-white select-bordered focus:select-primary">
+        <select id="invite-members" class="select w-full bg-white border-neutral focus:select-primary">
             <option>Options</option>
         </select>
     </div>
@@ -236,13 +236,14 @@
                 Expected quantity
             </label>
             <input name="expectedQuantity" type="number" value="@ViewBag.ExpectedQuantity" class="input w-full bg-white border-neutral focus:input-primary" placeholder="Enter quantity"
-                   min="10000" required>
+                   min="10000" required id="qInput">
             @if (ViewBag.MessageExpectedQuantity != null)
             {
                 <span class="text-red-500 d-inline-flex">
                     @ViewBag.MessageExpectedQuantity
                 </span>
             }
+            <span class="text-error" id="qValidation"></span>
         </div>
 
         <div class="w-full">
@@ -250,7 +251,7 @@
                 <label class="block text-base text-start font-medium text-gray-700 mb-1">
                     Choose currency unit
                 </label>
-                <select name="Unit" class="select select-bordered w-full bg-white focus:select-primary">
+                <select name="Unit" class="select border-neutral w-full bg-white focus:select-primary">
                     <option value="VND">₫ VND - Viet Nam Đong</option>
                     <optgroup label="Phổ biến">
                         <option value="USD">$ USD - US Dollar</option>
@@ -292,6 +293,18 @@
 <partial name="_ValidationScriptsPartial"/>
 <partial name="CustomComponent/_SweetAlertToast"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    let qInput = document.querySelector('#qInput');
+    let qVal = document.querySelector('#qValidation');
+    qInput.addEventListener('input', e => {
+        let value = Number(qInput.value);
+        if (value < 10000) {
+        qVal.innerText = "Expected money quantity cannot be less than 10,000"
+        } else {
+        qVal.innerText = "";
+        }
+    })
+</script>
 <script>
  //------------validate date-------------
          document.addEventListener('DOMContentLoaded', function () {

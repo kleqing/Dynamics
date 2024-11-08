@@ -74,13 +74,8 @@
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 	  <Folder Include="wwwroot\files\Organization\" />
-	  <Folder Include="wwwroot\images\Organization\" />
 	  <Folder Include="wwwroot\files\Project\" />
-	  <Folder Include="wwwroot\images\Project\" />
-	  <Folder Include="wwwroot\images\Requests\" />
-	  <Folder Include="wwwroot\images\Organization\" />
 	  <Folder Include="wwwroot\files\Project\" />
-	  <Folder Include="wwwroot\images\User\" />
 	</ItemGroup>
 	<ItemGroup>
 		<UpToDateCheckBuilt Include="tailwind.config.js" Set="Css" />

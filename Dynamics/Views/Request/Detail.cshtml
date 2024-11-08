@@ -22,7 +22,7 @@
             <div class="w-full justify-end items-center relative">
                 <div class=" items-center relative">
                     <!-- Main image container -->
-                    <div id="carousel" class=" bg-gray-300 rounded-lg overflow-hidden relative" style="height:32rem; margin: 0 auto">
+                    <div id="carousel" class=" bg-gray-300 rounded-lg overflow-hidden relative" style="height:25rem; margin: 0 auto">
                         <!-- Images will be inserted here by JavaScript -->
                     </div>
                 </div>
@@ -100,31 +100,36 @@
         </div>
 
         @* Show edit button and no accept button if it is user *@
-        @if (!string.IsNullOrEmpty(userIDString) && Model.UserID.Equals(new Guid(userIDString)))
-        {
-            <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
-                <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
-                    <button type="button" class="flex items-center gap-8">
-                        Edit request detail <i class="fa-solid fa-pen-to-square text-xl"></i>
-                    </button>
-                </a>
-                <form id="deleteForm" class="btn btn-error btn-md" asp-action="Delete" asp-controller="Request" method="post">
-                    <input type="hidden" name="id" value="@Model.RequestID"/>
-                    <button type="button" class="flex items-center gap-8">
-                        Delete request <i class="fa-regular fa-circle-xmark text-xl"></i>
-                    </button>
-                </form>
-            </div>
-        }
-        else
-        {
-            <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
-                <a asp-action="AcceptRequest" asp-route-requestid="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
-                    <button type="button" class="flex items-center gap-8">
-                        Accept this request!
-                    </button>
-                </a>
-                </div>
+        @{
+            if (!string.IsNullOrEmpty(userIDString))
+            {
+                if (Model.UserID.Equals(new Guid(userIDString)))
+                {
+                    <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
+                        <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
+                            <button type="button" class="flex items-center gap-8">
+                                Edit request detail <i class="fa-solid fa-pen-to-square text-xl"></i>
+                            </button>
+                        </a>
+                        <form id="deleteForm" class="btn btn-error btn-md" asp-action="Delete" asp-controller="Request" method="post">
+                            <input type="hidden" name="id" value="@Model.RequestID"/>
+                            <button type="button" class="flex items-center gap-8">
+                                Delete request <i class="fa-regular fa-circle-xmark text-xl"></i>
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
+                        <a asp-action="AcceptRequest" asp-route-requestId="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
+                            <button type="button" class="flex items-center gap-8">
+                                Accept this request!
+                            </button>
+                        </a>
+                    </div>
+                }
+            }
         }
     </div>
 </main>
@@ -186,7 +191,7 @@
 
     function updateCarouselAsUserWant(src) {
         // Update the carousel with the selected image
-        carousel.innerHTML = `<img src="${src}" class="w-full object-cover items-center cursor-pointer" alt="Project image" style="height: 40rem;">`;
+        carousel.innerHTML = `<img src="${src}" class="w-full object-cover items-center cursor-pointer" alt="Project image" style="height: 25rem;">`;
 
         const srcFilename = src.split('/').pop(); // Get the file name from the src
         const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-2 > div > img');
@@ -206,7 +211,7 @@
         });
     }
     function updateCarousel() {
-        carousel.innerHTML = `<img src="${images[currentIndex]}" class="w-full object-cover items-center" alt="Project image" style="height: 40rem;">`;
+        carousel.innerHTML = `<img src="${images[currentIndex]}" class="w-full object-contain items-center" alt="Project image" style="height: 100%;">`;
         updateIndicators();
     }
 

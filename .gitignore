@@ -98,6 +98,8 @@ ipch/
 *.vsp
 *.vspx
 *.sap
+.vs
+*.vs
 
 # TFS 2012 Local Workspace
 $tf/
@@ -258,3 +260,4 @@ _Pvt_Extensions
 .idea/
 *.sln.iml
 /Dynamics.DataAccess/Migrations
+Dynamics/wwwroot/css/output.css

@@ -29,6 +29,7 @@ public class ProjectService : IProjectService
     private readonly IRequestRepository _requestRepo;
     private readonly ILogger<ProjectService> _logger;
     private readonly INotificationService _notificationService;
+    private readonly IRoleService _roleService;
 
     public ProjectService(IMapper mapper, IProjectRepository projectRepo,
         IProjectResourceRepository projectResourceRepo,
@@ -40,10 +41,11 @@ public class ProjectService : IProjectService
         IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
         IProjectHistoryRepository projectHistoryRepository,
         CloudinaryUploader cloudinaryUploader,
-        ILogger<ProjectService> logger, INotificationService notificationService)
+        ILogger<ProjectService> logger, INotificationService notificationService, IRoleService roleService)
     {
         _logger = logger;
         _notificationService = notificationService;
+        _roleService = roleService;
         _mapper = mapper;
         _projectRepo = projectRepo;
         _projectResourceRepo = projectResourceRepo;
@@ -434,7 +436,6 @@ public class ProjectService : IProjectService
             if (!res) return MyConstants.Error;
             return MyConstants.Success;
         }
-
         return MyConstants.Error;
     }
     public async Task<bool> UpdateProjectAlongWithUpdateLeaderAsync(Project entity, Guid newProjectLeaderID)
@@ -460,6 +461,7 @@ public class ProjectService : IProjectService
             else
             {
                 oldProjectLeader.Status = 1;
+                var result = await _roleService.DeleteRoleFromUserAsync(oldProjectLeader.UserID, RoleConstants.ProjectLeader);
             }
 
             _logger.LogWarning("update old leader is here");
@@ -471,6 +473,7 @@ public class ProjectService : IProjectService
             else
             {
                 newProjectLeader.Status = 3;
+                await _roleService.AddUserToRoleAsync(oldProjectLeader.UserID, RoleConstants.ProjectLeader);
             }
             _logger.LogWarning("update new leader is here");
             await _projectMemberRepo.UpdateAsync(newProjectLeader);

@@ -11,6 +11,8 @@ using Dynamics.DataAccess.Repository;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Dynamics.Areas.Admin.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Dynamics.Areas.Admin.Controllers
 {
@@ -20,37 +22,42 @@ namespace Dynamics.Areas.Admin.Controllers
     {
 
         private readonly IAdminRepository _adminRepository;
+        private readonly IWithdrawRepository _withdrawRepository;
+        private readonly IEmailSender _emailSender;
 
-        public PaymentsController(IAdminRepository adminRepository)
+        public PaymentsController(IAdminRepository adminRepository, IWithdrawRepository withdrawRepository, IEmailSender emailSender)
         {
             _adminRepository = adminRepository;
+            _withdrawRepository = withdrawRepository;
+            _emailSender = emailSender;
         }
 
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole(RoleConstants.Admin))
             {
-                var userTransactionToProject = await _adminRepository.ViewUserToProjectTransactionInHistory(u => true);
-
-                var allTransaction = userTransactionToProject
-                    .Where(p => p.ProjectResource.ResourceName == "Money")
-                    .Select(p => new TransactionBase
+                
+                var viewWithdraw = await _adminRepository.ReviewWithdraw(w => true);
+                
+                var withdraw = viewWithdraw.Where(r => r.Project.ProjectResource.FirstOrDefault().ResourceName == "Money")
+                    .Select(r => new TransactionBase
                     {
-                        TransactionID = p.TransactionID,
-                        ProjectResourceID = p.ProjectResourceID,
-                        Time = p.Time,
-                        Message = p.ProjectResource.Project.ProjectDescription,
-                        Received = p.ProjectResource.Project.ProjectName,
-                        Description = p.ProjectResource.Project.ProjectDescription
+                        WithdrawID = r.WithdrawID,
+                        ProjectResourceID = r.Project.ProjectResource.FirstOrDefault().UserToProjectTransactionHistory.FirstOrDefault().ProjectResourceID,
+                        Message = r.Message,
+                        Time = r.Time,
+                        Received = r.Project.ProjectName,
+                        Description = r.Project.ProjectDescription,
+                        Status = r.Status
                     })
                     .GroupBy(t => t.ProjectResourceID)
                     .Select(g => g.First())
-                    .OrderByDescending(t => t.Time)
+                    .OrderByDescending(r => r.Time)
                     .ToList();
-
+                
                 var model = new Payment
                 {
-                    listTransaction = allTransaction
+                    viewwithdraw = withdraw
                 };
 
                 return View(model);
@@ -67,17 +74,14 @@ namespace Dynamics.Areas.Admin.Controllers
             if (User.IsInRole(RoleConstants.Admin))
             {
                 var userToProject =
-                    await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.TransactionID == id);
-                if (userToProject == null || !userToProject.Any())
-                {
-                    return NotFound();
-                }
+                    await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.ProjectResource.Project.Withdraw.FirstOrDefault().WithdrawID == id);
 
                 var projectID = userToProject.FirstOrDefault().ProjectResource.Project.ProjectID;
 
                 var listResource = await _adminRepository.ViewUserToProjectResource(p => p.ProjectID == projectID);
 
-                var withDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
+                var listWithDraws = await _adminRepository.ReviewWithdraw(p => p.ProjectID == projectID);
+                var withDraw = await _withdrawRepository.GetWithdraw(w => w.ProjectID == projectID);
 
                 var userToProjectdetail = userToProject.FirstOrDefault();
 
@@ -89,14 +93,53 @@ namespace Dynamics.Areas.Admin.Controllers
                 {
                     listUserToProject = new List<UserToProjectTransactionHistory> { userToProjectdetail },
                     listUserDonateToProjectTable = listResource,
-                    listWithdraws = withDraws
+                    listWithdraws = listWithDraws,
+                    Withdraw = withDraw
                 };
+
                 return View("Details", model);
             }
             else
             {
-                    return RedirectToAction("Error", "Home");
-                }
+                return RedirectToAction("Error", "Home");
             }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ConfirmWithdraw(Guid id)
+        {
+            if (User.IsInRole(RoleConstants.Admin))
+            {
+                var withdraw = await _withdrawRepository.GetWithdraw(w => w.WithdrawID == id);
+                await _adminRepository.ChangeWithdrawStatus(id);
+                await _emailSender.SendEmailAsync(withdraw.Project.ProjectEmail, "Withdraw success.",
+                    $"Please check your bank account, the withdraw request has been approved. Thank you!");
+            }
+            return Json(new { success = true });
+        }
+        /*[HttpPost]
+        public async Task<JsonResult> CreateWithdraw(string projectid, string bankAccountNumber, string bankId, string message)
+        {
+            try
+            {
+                var newWithdraw = new Withdraw
+                {
+                    WithdrawID = new Guid(),
+                    ProjectID = new Guid(projectid),
+                    BankAccountNumber = bankAccountNumber,
+                    BankName = bankId,
+                    Message = message,
+                    Time = DateTime.Now
+                };
+
+                await _withdrawRepository.AddAsync(newWithdraw);
+
+                return Json(new { success = true, message = "Withdraw request created successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
+        }*/
     }
 }

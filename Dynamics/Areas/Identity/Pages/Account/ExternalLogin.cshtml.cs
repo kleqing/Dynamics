@@ -204,7 +204,7 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    await _walletService.CreateEmptyWalletAsync(user.Id); // Wallet
+                    var w = await _walletService.CreateEmptyWalletAsync(user.Id); // Wallet
                     var isInRoleUser = await _roleService.IsInRoleAsync(user.Id, RoleConstants.User);
                     if (!isInRoleUser)
                     {
@@ -213,16 +213,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
 
                     if (result.Succeeded)
                     {
-                        // No need for this anymore because create async already do that
-                        // Add user to the database after creating the user with external login
-                        //await _userRepo.AddAsync(new User
-                        //{
-                        //    Id = user.Id, // This and email is the only thing that connects between 2 tables, the username IS NOT the same
-                        //    UserName = Input.Email,
-                        //    Email = info.Principal.FindFirstValue(ClaimTypes.Email), // Get user's email from Google
-                        //    UserAvatar = info.Principal.FindFirstValue("picture"),
-                        //    UserRole = RoleConstants.User
-                        //});
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                         // We don't need to confirm the email if the user use Google auth

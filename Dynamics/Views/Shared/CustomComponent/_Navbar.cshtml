@@ -133,6 +133,12 @@
                     </div>
                     <ul tabindex="0"
                         class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                        @if(isAdmin)
+                        {
+                            <li>
+                                <a href="/Admin">Admin dashboard</a>
+                            </li>
+                        }
                         <li>
                             <!--This one stays because the username is dynamic so that we can view different user-->
                             <a asp-action="Index" asp-controller="User" asp-route-username="@currentUser.UserName">Profile</a>
@@ -148,15 +154,15 @@
                         <li>
                             <a asp-action="MyOrganization" asp-controller="Organization" asp-route-userId="@currentUser.Id">My organization</a>
                         </li>
-                        <li>
-                            <a asp-action="Index" asp-controller="Organization">All organization</a>
-                        </li>
+                        @* <li> *@
+                        @*     <a asp-action="Index" asp-controller="Organization">All organization</a> *@
+                        @* </li> *@
                         <li>
                             <a asp-action="Index" asp-controller="Project" asp-route-id="@currentUser?.Id">My projects</a>
                         </li>
-                        <li>
-                            <a asp-action="ViewAllProjects" asp-controller="Project">All projects</a>
-                        </li>
+                        @* <li> *@
+                        @*     <a asp-action="ViewAllProjects" asp-controller="Project">All projects</a> *@
+                        @* </li> *@
                         <li class="text-rose-500">
                             <a class="flex justify-between" asp-action="Logout" asp-controller="Auth">
                                 Logout

@@ -49,10 +49,8 @@ namespace Dynamics
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-                // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
-                // options.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning));
-            });
-
+            }, ServiceLifetime.Transient);
+            
             // Identity and roles
             builder.Services
                 .AddIdentity<User, IdentityRole<Guid>>(options =>
@@ -133,6 +131,8 @@ namespace Dynamics
             // Wallet repos
             builder.Services.AddScoped<IWalletRepository, WalletRepository>();
             builder.Services.AddScoped<IUserWalletTransactionRepository, UserWalletTransactionRepository>();
+            //Withdraw repo
+            builder.Services.AddScoped<IWithdrawRepository, WithdrawRepository>();
             // Automapper
             builder.Services.AddAutoMapper(typeof(MyMapper));
             // Add custom services

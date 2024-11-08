@@ -2,6 +2,7 @@
 @using Newtonsoft.Json
 @inject IHttpContextAccessor Accessor
 @inject IProjectRepository ProjectRepository
+@inject IConfiguration Configuration
 @model Dynamics.Models.Dto.UpdateProjectProfileRequestDto
 
 @{
@@ -21,10 +22,10 @@
 
 <!-- include container + button -->
 <div class="m-w-screen-2xl flex items-center justify-center relative">
-    <!-- edit button -->
-    <a asp-action="ManageProject" asp-route-id="@Model.ProjectID" title="Turn back to project detail">
-        <button class="flex absolute top-2 right-0  items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
-            Previous page
+<!-- edit button -->
+<a asp-action="ManageProject" asp-route-id="@Model.ProjectID" title="Turn back to project detail">
+    <button class="flex absolute top-2 right-0  items-center rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+        Previous page
 
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
                 <path fill-rule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clip-rule="evenodd" />
@@ -124,11 +125,45 @@
                     <label asp-for="ProjectStatus" class="block mb-2 text-md font-medium text-gray-900">Set status for this project</label>
                     <select asp-for="ProjectStatus"
                             class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)">
+                            asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)"
+                            onchange="checkStatus(this)"
+                            id="statusSelect">
                         <option disabled selected>---Select Status---</option>
                     </select>
+                    <label class="text-sm text-neutral">If your project has gathered enough donations, set the status to <b>in progress</b></label>
                     <span asp-validation-for="ProjectStatus" class="text-danger"></span>
                 </div>
+                <div id="bankDetailsPopup" style="display: none;" class="popup fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                        <h3 class="text-xl font-bold text-gray-800 text-center mb-4">Create a withdraw request</h3>
+                        <h2 class="text-md text-center font-semibold">Tell us about your bank details</h2>
+                        <h3 class="text-sm text-neutral text-center mb-4 w-full">Your bank account is essential for us to send the donation money amount your project has gathered before</h3>
+                        <!-- Bank Account Number -->
+                        <label for="bankAccountNumber" class="block text-md font-medium text-gray-900 mb-2">Bank Account Number</label>
+                        <input type="text" id="bankAccountNumber" class="input input-bordered focus:input-primary mb-4 w-full" required/>
+
+                        <!-- Bank Name -->
+                        <label for="bankName" class="block text-md font-medium text-gray-900 mb-2">Bank Name</label>
+                        <select id="bankName" class="select select-bordered focus:select-primary mb-4 w-full" required>
+                            <option disabled selected>---Select Bank---</option>
+                        </select>
+
+                        <!-- Message -->
+                        <label for="bankMessage" class="block text-md font-medium text-gray-900 mb-2">Reason why you are creating a withdraw request</label>
+                        <textarea id="bankMessage" class="textarea textarea-bordered focus:textarea-primary mb-4 w-full"></textarea>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end gap-4 mt-4">
+                            <button type="button" onclick="submitBankDetails()" class="btn btn-primary">
+                                Submit
+                            </button>
+                            <button type="button" onclick="closePopup(true)" class="btn btn-neutral">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label asp-for="@Model.ProjectEmail" class="block mb-2 text-md font-medium text-gray-900">Enter project email</label>
                     <input asp-for="@Model.ProjectEmail" type="email" id="email"
@@ -285,32 +320,142 @@
             <div class="w-1/2 mx-auto flex-col shadow-md shadow-blue-500/30 p-6 rounded-xl my-10">
                 <h2 class=" text-black font-bold text-xl text-center ">Shutdown project</h2>
 
-                <!-- form 3 -->
-                <form id="shutdownProjectForm" method="post" asp-action="ShutdownProject" asp-controller="Project">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="@shutdownProjectVM.ProjectID" value="@currentProjectID" />
-                    <div class="grid grid-cols-1 gap-y-3">
-                        <div>
-                            <label asp-for="@shutdownProjectVM.Reason" class="block mb-2 text-md font-medium text-gray-900">Enter reason to shut down project</label>
-                            <textarea asp-for="@shutdownProjectVM.Reason" id="Reason" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write reason here..."></textarea>
-                            <span id="notificationShutdownMessage" class="text-red-500 text-sm font-semibold"></span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <button type="submit"
-                                class="mt-4 text-md text-white bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
-                            Shutdown
-                        </button>
-                        <span class="text-gray-400 text-sm">This action is permanent.</span>
-                    </div>
-
-                </form>
-                <!-- end form 3 -->
+        <!-- form 3 -->
+        <form id="shutdownProjectForm" method="post" asp-action="ShutdownProject" asp-controller="Project">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="@shutdownProjectVM.ProjectID" value="@currentProjectID" />
+            <div class="grid grid-cols-1 gap-y-3">
+                <div>
+                    <label asp-for="@shutdownProjectVM.Reason" class="block mb-2 text-md font-medium text-gray-900">Enter reason to shut down project</label>
+                    <textarea asp-for="@shutdownProjectVM.Reason" id="Reason" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write reason here..."></textarea>
+                    <span id="notificationShutdownMessage" class="text-red-500 text-sm font-semibold"></span>
+                </div>
             </div>
-        }
+            <div class="flex flex-col items-center">
+                <button type="submit"
+                        class="mt-4 text-md text-white bg-red-500 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                    Shutdown
+                </button>
+                <span class="text-gray-400 text-sm">This action is permanent.</span>
+            </div>
+        </form>
+        <!-- end form 3 -->
     </div>
-    <!-- container end -->
+}
 </div>
+<!-- container end -->
+</div>
+
+@*Bank script*@
+<script>
+    document.addEventListener("DOMContentLoaded", getBanks);
+
+    // Fetch Banks data and populate the bank dropdown
+    async function getBanks() {
+        try {
+            const response = await fetch('https://api.vietqr.io/v2/banks');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.code === "00") {
+                const banks = data.data;
+                console.log(banks);
+                loadBanks(banks);
+            } else {
+                console.error("Failed to retrieve banks:", data.desc);
+            }
+        } catch (error) {
+            console.error("Error fetching banks:", error);
+        }
+    }
+
+    // Populate the bank dropdown with options
+    function loadBanks(banks) {
+        const bankSelect = document.getElementById("bankName");
+        bankSelect.innerHTML = '<option disabled selected>---Select Bank---</option>'; // Reset dropdown
+        banks.forEach(bank => {
+            const option = document.createElement("option");
+            option.value = bank.bin;
+            option.text = `(${bank.shortName})  ${bank.name}`;
+            bankSelect.appendChild(option);
+        });
+    }
+
+    // Show or hide the bank details form based on project status
+    function checkStatus(selectElement) {
+        const bankDetailsPopup = document.getElementById("bankDetailsPopup");
+        console.log(selectElement.value);
+        let u = bankDetailsPopup.style.display;
+        console.log(u);
+
+        if (selectElement.value == 1) {
+            bankDetailsPopup.style.display = "flex";
+        } else {
+            bankDetailsPopup.style.display = "none";
+        }
+    }
+
+    // Close the bank details popup
+    function closePopup(isCanceled) {
+        document.getElementById("bankDetailsPopup").style.display = "none";
+        var selectElement = document.getElementById("statusSelect");
+        console.log(selectElement)
+        if (selectElement != null) {
+            let optionToSelect;
+            if (isCanceled) {
+                optionToSelect = selectElement.querySelector('option[value="0"]');
+            } else {
+                optionToSelect = selectElement.querySelector('option[value="1"]');
+            }
+            selectElement.value = optionToSelect.value;
+            
+        }
+    }
+
+    // Submit bank details (example with AJAX)
+    function submitBankDetails() {
+        const bankAccountNumber = document.getElementById("bankAccountNumber").value;
+        const bankName = document.getElementById("bankName").value;
+        const message = document.getElementById("bankMessage").value;
+        const projectID = "@Model.ProjectID";
+        console.log(bankAccountNumber)
+        console.log(bankName)
+        console.log(message)
+        console.log(projectID)
+
+        $.ajax({
+            url: '@Url.Action("CreateWithdraw", "Withdraw")',
+            type: 'POST',
+            data: {
+                projectid: projectID,
+                bankAccountNumber: bankAccountNumber,
+                bankId: bankName,
+                message: message
+            },
+            success: function(response) {
+                const swalWithTailwind = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-md btn-success min-w-xs"
+                    },
+                    buttonsStyling: false // Disable default styling to use custom classes
+                });
+                swalWithTailwind.fire({
+                    title: "Withdraw request sent",
+                    icon: "success",
+                    text: 'Please wait and check your email regularly in the meantime.'
+                }).then(() => {
+                    closePopup(false);
+                })
+            },
+            error: function(xhr) {
+                alert("Error: " + xhr.responseText);
+            }
+        });
+    }
+
+</script>
 <!-- script upload image-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script>
@@ -368,24 +513,6 @@
         console.log('File selected:', fileName);  // Log the file name
     }
     });
-
-        //------------validate date-------------
-  
-
-    
-
-@*      // Show loading alert
-     function showLoadingAlert() {
-         console.log('loading update project')
-         Swal.fire({
-             title: 'Updating Project...',
-             text: 'Please wait while we update the project details.',
-             allowOutsideClick: false,
-             didOpen: () => {
-                 Swal.showLoading(); // Show loading spinner
-             }
-         });
-     } *@
 </script>
 <script>
     //---------------sweetalert for shutdown---------------------
@@ -533,7 +660,6 @@
     });
 
     function renderCity(data) {
-        debugger;
         console.log("City:dsfsdf sd");
         for (const x of data) {
             cities.options[cities.options.length] = new Option(x.Name, x.Id);

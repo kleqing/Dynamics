@@ -28,10 +28,7 @@ namespace Dynamics.Controllers
         private readonly IProjectMemberRepository _projectMemberRepo;
         private readonly IProjectResourceRepository _projectResourceRepo;
         private readonly IUserToProjectTransactionHistoryRepository _userToProjectTransactionHistoryRepo;
-
-        private readonly IOrganizationToProjectTransactionHistoryRepository
-            _organizationToProjectTransactionHistoryRepo;
-
+        private readonly IOrganizationToProjectTransactionHistoryRepository _organizationToProjectTransactionHistoryRepo;
         private readonly IProjectHistoryRepository _projectHistoryRepo;
         private readonly IReportRepository _reportRepo;
         private readonly IWebHostEnvironment hostEnvironment;
@@ -316,7 +313,11 @@ namespace Dynamics.Controllers
             {
                 return NotFound();
             }
-
+            if (projectObj?.ProjectStatus == -1)
+            {
+                TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
+                return RedirectToAction(nameof(ManageProject), new { id = projectObj.ProjectID });
+            }
             //prevent user from updating project that is not in progress
             var projectDto = _mapper.Map<UpdateProjectProfileRequestDto>(projectObj);
             projectDto.NewLeaderID = new Guid(HttpContext.Session.GetString("currentProjectLeaderID"));
@@ -334,13 +335,11 @@ namespace Dynamics.Controllers
             {
                 if (member.Id != projectDto.NewLeaderID && member.Id != currentProjectCEO)
                 {
-                    if (!await _roleService.IsInRoleAsync(member.Id, RoleConstants.ProjectLeader)
-                        && !await _roleService.IsInRoleAsync(member.Id, RoleConstants.HeadOfOrganization))
+                    if (await _roleService.IsInRoleAsync(member.Id, RoleConstants.ProjectLeader) 
+                          || await _roleService.IsInRoleAsync(member.Id, RoleConstants.HeadOfOrganization))
                     {
-                        MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
+                        continue;
                     }
-
-                    continue;
                 }
 
                 MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
@@ -443,13 +442,11 @@ namespace Dynamics.Controllers
             {
                 return NotFound("id is empty!");
             }
-
             var detailProject = await _projectService.ReturnDetailProjectVMAsync(new Guid(id), HttpContext);
             if (detailProject != null)
             {
                 return View(detailProject);
             }
-
             TempData[MyConstants.Error] = "Fail to get project!";
             return RedirectToAction(nameof(Index), new { id = HttpContext.Session.GetString("currentUserID") });
         }
@@ -522,7 +519,6 @@ namespace Dynamics.Controllers
                 avatarUrl = u.UserAvatar
             }));
         }
-
         public async Task<IActionResult> InviteMembers(string userIds)
         {
             var currentProjectID = HttpContext.Session.GetString("currentProjectID");
@@ -599,7 +595,6 @@ namespace Dynamics.Controllers
                 $"Apologies! You have not succeeded in joining the {projectObj.ProjectName} project.";
             return RedirectToAction(nameof(ManageProject), "Project", new { id = projectId.ToString() });
         }
-
         public async Task<IActionResult> CancelJoinInvitation(Guid projectId, Guid memberId)
         {
             var res = await _projectMemberRepo.DeleteAsync(x =>
@@ -974,11 +969,12 @@ namespace Dynamics.Controllers
                 utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status != 0);
 
             // Setup search query and pagination
+            searchRequestDto.Filter = string.IsNullOrEmpty(searchRequestDto.Filter) ?"Accepted":searchRequestDto.Filter;
             var transactionDtos =
                 await _transactionViewService.SetupProjectTransactionDtosWithSearchParams(searchRequestDto,
                     userToPrjQueryable, orgToPrjQueryable);
             var paginated = _pagination.Paginate(transactionDtos, HttpContext, paginationRequestDto, searchRequestDto);
-
+           
             var projectTransactionHistoryVM = new ProjectTransactionHistoryVM
             {
                 Transactions = paginated,
@@ -1216,7 +1212,7 @@ namespace Dynamics.Controllers
                     }
 
                     var link2 = Url.Action(nameof(ManageProjectDonor), "Project",
-                        new { projectID = HttpContext.Session.GetString("currentProjectID") },
+                        new { projectID = transactionOrgObj.ProjectResource.ProjectID },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync
                     (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2,
@@ -1268,8 +1264,7 @@ namespace Dynamics.Controllers
         //---------------------------manage ProjectResource--------------------------
 
         [Route("Project/ManageProjectResource/{projectID}")]
-        public async Task<IActionResult> ManageProjectResource(Guid projectID,
-            PaginationRequestDto paginationRequestDto)
+        public async Task<IActionResult> ManageProjectResource(Guid projectID, PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectResource get");
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
@@ -1287,10 +1282,8 @@ namespace Dynamics.Controllers
             {
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });
             }
-
             // Pagination
-            var paginated =
-                _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
+            var paginated = _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
             ViewBag.pagination = paginationRequestDto;
             return View(paginated);
         }
@@ -1735,6 +1728,7 @@ namespace Dynamics.Controllers
                         if (!(resImages.Equals("Wrong extension") || resImages.Equals("No file")))
                         {
                             projectVM.Attachment = resImages;
+
                         }
                         else
                         {

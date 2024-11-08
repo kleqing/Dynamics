@@ -193,7 +193,7 @@
                         @* Don't show if there is no attachments *@
                         @if (!string.IsNullOrEmpty(item.Attachments))
                         {
-                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="text-xs py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
                             <!-- You can open the modal using ID.showModal() method -->
                             <dialog id="proofImagesModal_@item.TransactionID" class="modal">
                                 <div class="modal-box w-11/12 max-w-5xl">

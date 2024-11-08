@@ -11,6 +11,8 @@ using Dynamics.DataAccess.Repository;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Dynamics.Areas.Admin.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Dynamics.Areas.Admin.Controllers
 {
@@ -21,11 +23,13 @@ namespace Dynamics.Areas.Admin.Controllers
 
         private readonly IAdminRepository _adminRepository;
         private readonly IWithdrawRepository _withdrawRepository;
+        private readonly IEmailSender _emailSender;
 
-        public PaymentsController(IAdminRepository adminRepository, IWithdrawRepository withdrawRepository)
+        public PaymentsController(IAdminRepository adminRepository, IWithdrawRepository withdrawRepository, IEmailSender emailSender)
         {
             _adminRepository = adminRepository;
             _withdrawRepository = withdrawRepository;
+            _emailSender = emailSender;
         }
 
         public async Task<IActionResult> Index()
@@ -106,7 +110,10 @@ namespace Dynamics.Areas.Admin.Controllers
         {
             if (User.IsInRole(RoleConstants.Admin))
             {
+                var withdraw = await _withdrawRepository.GetWithdraw(w => w.WithdrawID == id);
                 await _adminRepository.ChangeWithdrawStatus(id);
+                await _emailSender.SendEmailAsync(withdraw.Project.ProjectEmail, "Withdraw success.",
+                    $"Please check your bank account, the withdraw request has been approved. Thank you!");
             }
             return Json(new { success = true });
         }

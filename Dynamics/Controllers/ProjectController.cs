@@ -1296,7 +1296,7 @@ namespace Dynamics.Controllers
             // Pagination
             var paginated =
                 _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
-            ViewBag.pagination = paginationRequestDto;
+            ViewBag.PaginationRequestDto = paginationRequestDto;
             return View(paginated);
         }
 

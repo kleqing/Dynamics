@@ -236,7 +236,7 @@
             </tbody>
         </table>
         </div>
-        <partial name="CustomComponent/_PaginationFooter" model="@(ViewBag.pagination ?? new PaginationRequestDto())"/>
+        <partial name="CustomComponent/_PaginationFooter" model="@(new HTMLPaginationVM { FormId = "searchForm", PaginationDivId = "pDiv1", PaginationRequestDto = ViewBag.PaginationRequestDto ?? new PaginationRequestDto() })"/>
     </div>
     </div>
     <!-- end new table-->

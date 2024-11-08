@@ -427,12 +427,24 @@
                                             </div> <!-- end col -->
                                         </div>
                                         <!-- end row-->
-
-                                        <div class="d-print-none mt-4">
-                                            <div class="text-end">
-                                                <button type="button" class="btn btn-danger" data-id="@Model.listWithdraws.FirstOrDefault()?.WithdrawID" data-bs-toggle="modal" data-bs-target="#standard-modal">Confirm withdraw</button>
+                                        if (@Model.listWithdraws.FirstOrDefault().Status == 0)
+                                        {
+                                            <div class="d-print-none mt-4">
+                                                <div class="text-end">
+                                                    <button type="button" class="btn btn-danger" data-id="@Model.listWithdraws.FirstOrDefault()?.WithdrawID" data-bs-toggle="modal" data-bs-target="#standard-modal">Confirm withdraw</button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-print-none mt-4">
+                                                <div class="text-end">
+                                                    <button type="button" class="btn btn-success" disabled>Request accepted</button>
+                                                </div>
+                                            </div>
+
+                                        }
+                                        
                                         <!-- end buttons -->
                                     }
                                 </div> <!-- end card-body-->
@@ -456,12 +468,13 @@
                         <div class="modal-body">
                             <strong>ATTENTION:</strong>
                             <br/><br/>
-                            <p>If withdraw accepted, organization manage this project will <strong>NOT</strong> shut down anyway.
+                            <p>If withdraw accepted, all money resource from this project will become zero.
+                                Organization manage this project will <strong>NOT</strong> shut down in anyway.
                                 Are you sure you want to accept this withdraw?</p>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" id="confirmWithdrawBtn">Confirm</button>
+                            <button type="button" class="btn btn-primary">Confirm</button>
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
@@ -970,43 +983,6 @@
 
     <!-- App js -->
     <script src="~/Admin/assets/js/app.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            let withdrawId;
-
-            // Lấy ID của lần rút tiền khi modal được mở
-            $('#standard-modal').on('show.bs.modal', function (event) {
-                let button = $(event.relatedTarget); // Button đã mở modal
-                withdrawId = button.data('id'); // Lấy giá trị WithdrawID từ thuộc tính data-id của button
-            });
-
-            // Khi nhấn nút "Confirm" trong modal
-            $('#confirmWithdrawBtn').click(function () {
-                if (withdrawId) {
-                    $.ajax({
-                        url: '/Admin/Payments/ConfirmWithdraw', // URL đến action ConfirmWithdraw trong controller
-                        type: 'POST',
-                        data: { id: withdrawId },
-                        success: function (response) {
-                            $('#standard-modal').modal('hide');
-                            if (response.success) {
-                                window.location.href = '/Admin/Payments'; // Chuyển hướng nếu thành công
-                            } else {
-                                alert(response.message); // Thông báo lỗi nếu có
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            alert("An error occurred: " + error); // Thông báo lỗi nếu request thất bại
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-
-
-
 
 </body>
 

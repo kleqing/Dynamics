@@ -131,6 +131,8 @@ namespace Dynamics
             // Wallet repos
             builder.Services.AddScoped<IWalletRepository, WalletRepository>();
             builder.Services.AddScoped<IUserWalletTransactionRepository, UserWalletTransactionRepository>();
+            //Withdraw repo
+            builder.Services.AddScoped<IWithdrawRepository, WithdrawRepository>();
             // Automapper
             builder.Services.AddAutoMapper(typeof(MyMapper));
             // Add custom services

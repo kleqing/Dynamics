@@ -31,6 +31,7 @@ namespace Dynamics.Controllers
         private readonly IPagination _pagination;
         private readonly IMapper _mapper;
         private readonly ILogger<UserController> _logger;
+        private readonly IRoleService _roleService;
         private readonly IOrganizationRepository _organizationRepository;
         private readonly IOrganizationService _organizationService;
 
@@ -40,7 +41,8 @@ namespace Dynamics.Controllers
             IOrganizationMemberRepository organizationMemberRepository,
             IUserToOrganizationTransactionHistoryRepository userToOrgRepo,
             IUserToProjectTransactionHistoryRepository userToPrjRepo, CloudinaryUploader cloudinaryUploader,
-            ISearchService searchService, IPagination pagination, IMapper mapper, IOrganizationRepository organizationRepository, ILogger<UserController> logger)
+            ISearchService searchService, IPagination pagination, IMapper mapper, IOrganizationRepository organizationRepository,
+            ILogger<UserController> logger, IRoleService roleService)
         {
             _userRepository = userRepo;
             _userManager = userManager;
@@ -55,6 +57,7 @@ namespace Dynamics.Controllers
             _pagination = pagination;
             _mapper = mapper;
             _logger = logger;
+            _roleService = roleService;
             _organizationRepository = organizationRepository;
         }
 
@@ -65,11 +68,14 @@ namespace Dynamics.Controllers
             var currentUser = await _userRepository.GetAsync(u => u.UserName.Equals(username));
             if (currentUser == null) return NotFound();
             var userVM = _mapper.Map<UserVM>(currentUser);
-            var orgMember = await _organizationMemberRepository.GetAsync(om => om.Status == 2);
-            if (orgMember != null)
+            var isCEO = await _roleService.IsInRoleAsync(currentUser.Id, RoleConstants.HeadOfOrganization);
             {
-                userVM.OrganizationName = orgMember.Organization.OrganizationName;
-                userVM.OrganizationId = orgMember.Organization.OrganizationID;
+                var orgMember = await _organizationMemberRepository.GetAsync(om => om.Status == 2 && om.UserID == currentUser.Id);
+                if (orgMember != null)
+                {
+                    userVM.OrganizationName = orgMember.Organization.OrganizationName;
+                    userVM.OrganizationId = orgMember.Organization.OrganizationID;
+                }
             }
             return View(userVM);
         }

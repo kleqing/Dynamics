@@ -427,12 +427,24 @@
                                             </div> <!-- end col -->
                                         </div>
                                         <!-- end row-->
-
-                                        <div class="d-print-none mt-4">
-                                            <div class="text-end">
-                                                <button type="button" class="btn btn-danger" data-id="@Model.listWithdraws.FirstOrDefault()?.WithdrawID" data-bs-toggle="modal" data-bs-target="#standard-modal">Confirm withdraw</button>
+                                        if (@Model.listWithdraws.FirstOrDefault().Status == 0)
+                                        {
+                                            <div class="d-print-none mt-4">
+                                                <div class="text-end">
+                                                    <button type="button" class="btn btn-danger" data-id="@Model.listWithdraws.FirstOrDefault()?.WithdrawID" data-bs-toggle="modal" data-bs-target="#standard-modal">Confirm withdraw</button>
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-print-none mt-4">
+                                                <div class="text-end">
+                                                    <button type="button" class="btn btn-success" disabled>Request accepted</button>
+                                                </div>
+                                            </div>
+
+                                        }
+                                        
                                         <!-- end buttons -->
                                     }
                                 </div> <!-- end card-body-->

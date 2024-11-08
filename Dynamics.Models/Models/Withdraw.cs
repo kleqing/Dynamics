@@ -7,7 +7,7 @@ namespace Dynamics.Models.Models
 	{
 		public Guid WithdrawID { get; set; }
 		public Guid ProjectID { get; set; }
-		public int Status { get; set; }
+		public int Status { get; set; } // 0 Pending, 1 Approved
 		[MaxLength(500)]
 		public string BankAccountNumber { get; set; }
 		public string BankName { get; set; }

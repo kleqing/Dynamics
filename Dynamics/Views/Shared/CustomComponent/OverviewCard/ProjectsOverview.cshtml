@@ -21,27 +21,33 @@
             Project
         </div>
         <!-- badge right -->
-  @*        <div
+        @*        <div
              class="badge  absolute top-2 right-2 bg-green-500/30 font-bold px-4 py-3 outline-none border-none">
              Project
          </div> *@
-        @if (Model.ProjectStatus == 1)
+        @switch (Model.ProjectStatus)
         {
-            <div
-                class="badge badge-error absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
-                On-going
-            </div>
-        }
-        else if (Model.ProjectStatus == 0)
-        {
-            <div class="badge badge-secondary absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
-                Preparing
-            </div>
-        } else if (Model.ProjectStatus == 2)
-        {
-            <div class="badge badge-success absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
-                Finished
-            </div>
+            case 1:
+                <div
+                    class="badge badge-error absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    On-going
+                </div>
+                break;
+            case 0:
+                <div class="badge badge-secondary absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    Preparing
+                </div>
+                break;
+            case 2:
+                <div class="badge badge-success absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    Finished
+                </div>
+                break;
+            case -1:
+                <div class="badge badge-error absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    Shutdowned
+                </div>
+                break;
         }
 
         <div class="flex flex-col">
@@ -51,7 +57,7 @@
                 @Model.ProjectName
             </a>
             <div class="flex justify-between gap-2">
-                <a class="text-neutral hover:text-primary flex-1 line-clamp-2 text-start" 
+                <a class="text-neutral hover:text-primary flex-1 line-clamp-2 text-start"
                    asp-controller="Organization"
                    asp-action="Detail"
                    asp-route-organizationId="@Model.Organization.OrganizationID">
@@ -63,7 +69,14 @@
             </div>
         </div>
         <p class="line-clamp-3 mb-4" style="min-height: 72px;">
-            @Model.ProjectDescription
+            @if (Model.ProjectStatus == -1)
+            {
+                <span class="text-error font-medium">Shutdown reason: @Model.ShutdownReason</span>
+            }
+            else
+            {
+                @Model.ProjectDescription
+            }
         </p>
         <div class="card-actions justify-center flex-col items-center">
             <div class="flex w-full flex-start items-center gap-2 text-base">

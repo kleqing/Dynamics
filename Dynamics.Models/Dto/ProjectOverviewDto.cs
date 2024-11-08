@@ -20,4 +20,5 @@ public class ProjectOverviewDto
     public DateOnly? StartTime { get; set; }
     [DataType(DataType.Date)]
     public DateOnly? EndTime { get; set; }
+    public string? ShutdownReason { get; set; }
 }

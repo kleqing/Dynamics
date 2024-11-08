@@ -16,11 +16,19 @@ public class OrganizationMemberRepository : IOrganizationMemberRepository
     {
         if (predicate is null)
         {
-            return await _context.OrganizationMember.Include(om => om.Organization).ToListAsync();
+            return await _context.OrganizationMember
+                .Include(om => om.Organization)
+                .ThenInclude(o => o.OrganizationMember)
+                .ThenInclude(om => om.User)
+                .ToListAsync();
         }
         else
         {
-            return await _context.OrganizationMember.Where(predicate).Include(om => om.Organization).ToListAsync();
+            return await _context.OrganizationMember.Where(predicate)
+                .Include(om => om.Organization)
+                .ThenInclude(o => o.OrganizationMember)
+                .ThenInclude(om => om.User)
+                .ToListAsync();
         }
     }
 

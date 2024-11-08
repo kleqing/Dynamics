@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Dynamics.Models.Models;
 using Dynamics.Models.Models.ViewModel;
+using Microsoft.AspNetCore.Identity;
 
 namespace Dynamics.Services;
 public interface IRoleService
@@ -33,8 +34,8 @@ public interface IRoleService
     /**
      * Delete role(s) from user
      */
-    Task DeleteRoleFromUserAsync(Guid userId, string roleName);
-    Task DeleteRoleFromUserAsync(User user, string roleName);
+    Task<IdentityResult> DeleteRoleFromUserAsync(Guid userId, string roleName);
+    Task<IdentityResult> DeleteRoleFromUserAsync(User user, string roleName);
     Task DeleteRolesFromUserAsync(Guid userId, IEnumerable<string> roleName);
     Task DeleteRolesFromUserAsync(User user, IEnumerable<string> roleName);
 

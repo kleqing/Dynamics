@@ -218,21 +218,26 @@ namespace Dynamics.Controllers
 
         public async Task<IActionResult> MyOrganization(Guid userId)
         {
-            // All organizations
-            var orgs = await _organizationRepository.GetAll().ToListAsync();
-            var organizationVMs = _orgDisplayService.MapToOrganizationOverviewDtoList(orgs);
-            // My organizations where the user joined but not the CEO of
+            // Get all organization that user joined / leader of
             var myOrganizationMembers = await _organizationMemberRepository.GetAllAsync(om => om.UserID == userId);
             if (myOrganizationMembers.IsNullOrEmpty()) return RedirectToAction("Index", "Organization");
             var myOrgs = new List<Organization>();
+            var otherOrgs = new List<Organization>();
+            // Find organization where the user is not the CEO 
             foreach (var organizationMember in myOrganizationMembers)
             {
-                if (organizationMember.Status != 2) myOrgs.Add(organizationMember.Organization);
+                if (organizationMember.Status == 2) myOrgs.Add(organizationMember.Organization);
+                else otherOrgs.Add(organizationMember.Organization);
             }
-
+            // Get real organizations based on the project members
+            
             var MyOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(myOrgs);
-            ViewBag.MyOrgs = MyOrgDtos;
-            return View(organizationVMs);
+            var OtherOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(otherOrgs);
+            return View(new MyOrganizationVM
+            {
+                JoinedOrgs = OtherOrgDtos,
+                MyOrg = MyOrgDtos,
+            });
         } //fix session done
 
         public async Task<IActionResult> Detail(Guid organizationId)
@@ -642,7 +647,7 @@ namespace Dynamics.Controllers
             //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
 
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto =>
-                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0);
+                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0); // Dont get the pending ones
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto =>
                 uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
 

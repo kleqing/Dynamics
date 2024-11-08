@@ -46,7 +46,7 @@
             </button>
         </a>
     }
-    <div class="relative my-12 flex flex-col text-xl" style="width: 66%">
+    <div class="relative my-12 flex flex-col " style="width: 66%">
         <!-- part 1-image -->
         <div class="ml-0  w-full justify-center items-center">
             <div class="relative items-center">
@@ -67,7 +67,7 @@
                         </div>
                 }
                 <button id="prevBtn"
-                        class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:14rem;">
+                        class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:11rem;">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
@@ -75,7 +75,7 @@
                     </svg>
                 </button>
                 <button id="nextBtn"
-                        class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:14rem;">
+                        class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:11rem;">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -86,40 +86,54 @@
         </div>
         <!-- end part 1-image -->
         <div class="border-t p-6 ">
-            <h2 class="font-semibold mb-2 text-black text-2xl">Contact Information:</h2>
-            <p class="text-gray-600  text-md">✉ @Model.CurrentProject.ProjectEmail</p>
-            <p class="text-gray-600  text-md">📞 @Model.CurrentProject.ProjectPhoneNumber</p>
-            <p class="text-gray-600  text-md">🏠 @Model.CurrentProject.ProjectAddress</p>
+            <h2 class="font-semibold mb-2 text-black text-md">Contact Information:</h2>
+            <p class="text-gray-600  text-sm flex gap-x-2 items-end">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+                </svg>
+                @Model.CurrentProject.ProjectEmail
+            </p>
+            <p class="text-gray-600  text-sm flex gap-x-2 items-end">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                </svg> @Model.CurrentProject.ProjectPhoneNumber
+            </p>
+            <p class="text-gray-600  text-sm flex gap-x-2 items-end ">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                @Model.CurrentProject.ProjectAddress
+            </p>
         </div>
             <div class="border-t p-4 mt-0">
-                <h2 class="font-semibold mb-2 text-black text-2xl">Timeline</h2>
-                <p class="text-gray-600  text-md">Start Date: @Model.CurrentProject.StartTime</p>
-                <p class="text-gray-600  text-md">End Date: @Model.CurrentProject.EndTime</p>
+                <h2 class="font-semibold mb-2 text-black text-md">Timeline</h2>
+                <p class="text-gray-600  text-sm">Start Date: @Model.CurrentProject.StartTime</p>
+                <p class="text-gray-600  text-sm">End Date: @Model.CurrentProject.EndTime</p>
             @if (Model.CurrentProject.ProjectStatus == -1)
                     {
-                    <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">Inactive</span></p>
+                    <p class="text-gray-600  text-sm">Status: <span class="text-red-700 font-semibold">Inactive</span></p>
                     }else if
                 
                 (Model.CurrentProject.ProjectStatus== 0)
                 {
-                <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">Preparing</span></p>
+                <p class="text-gray-600  text-sm">Status: <span class="text-red-700 font-semibold">Preparing</span></p>
             }
             else if(Model.CurrentProject.ProjectStatus==1)
             {
-                <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">In progress</span></p>
+                <p class="text-gray-600  text-sm">Status: <span class="text-red-700 font-semibold">In progress</span></p>
             }
             else if (Model.CurrentProject.ProjectStatus == 2)
             {
-                <p class="text-gray-600  text-md">Status: <span class="text-red-700 font-semibold">Completed</span></p>
+                <p class="text-gray-600  text-sm">Status: <span class="text-red-700 font-semibold">Completed</span></p>
                 }
             </div>
         <div class="border-t p-4 mt-0">
-            <h2 class="font-semibold mb-2 text-black text-2xl">Description</h2>
+            <h2 class="font-semibold mb-2 text-black text-md">Description</h2>
 
-            <details id="descriptionDetails" class="collapse bg-base-200">
-            <summary  class="collapse-title text-md font-medium cursor-pointer">
+            <details id="descriptionDetails" class="collapse bg-gray-200" style="border-radius:5px;">
+            <summary  class="collapse-title text-sm font-medium cursor-pointer">
                 <div id="description-container" class="cursor-pointer" onclick="toggleDescription()">
-                <p class="text-gray-600 text-md line-clamp-3" id="summaryText">
+                <p class="text-gray-600 text-sm line-clamp-3" id="summaryText">
                     @Model.CurrentProject.ProjectDescription
                 </p>
                 <p class="hidden" id="fullText">
@@ -130,7 +144,7 @@
         </details>
         </div>
         <div class="border-t p-4 mt-0">
-            <h2 class="font-semibold mb-2 text-black text-2xl">Organizer</h2>
+            <h2 class="font-semibold mb-2 text-black text-md">Organizer</h2>
             <div class="flex justify-start">
                 <div>
                     <img class="rounded-full w-14 h-14 mx-4 mb-4 object-cover"
@@ -144,7 +158,7 @@
                            @Model.CurrentLeaderProject.UserName
                         </a>
                     </p>
-                        <p class="text-gray-400 font-normal  text-md ">Address: @Model.CurrentLeaderProject.UserAddress</p>
+                        <p class="text-gray-400 font-normal  text-sm ">Address: @Model.CurrentLeaderProject.UserAddress</p>
                 </div>
             </div>
             @if (Model.CurrentProject.Request != null)
@@ -157,7 +171,7 @@
                     </div>
                     <div class="flex flex-col ">
                         <p class="text-gray-600 font-normal">
-                            Requester: <span class="text-black font-bold  text-md">
+                            Requester: <span class="text-black font-bold  text-sm">
                                 @Model.CurrentProject.Request?.User.UserName
                             </span>
                         </p>
@@ -169,20 +183,20 @@
         @if (Model.Random5Donors.Count > 0)
         {
             <div class="border-t p-4 mt-0">
-                <h2 class="font-semibold mb-2 text-black text-2xl">Donors</h2>
+                <h2 class="font-semibold mb-2 text-black text-md">Donors</h2>
         <div class="overflow-x-auto">
-            <table class="table table-md">
+            <table class="table table-sm">
                 <thead class="bg-gray-300/20 ">
                     <tr class="text-gray-900 ">
                         <th></th>
-                        <th class="text-xl">Date</th>
-                        <th class="text-xl">Name</th>
-                        <th class="text-xl">Resource</th>
-                        <th class="text-xl">Quantity</th>
-                        <th class="text-xl">Unit</th>
-                        <th class="text-xl">Message</th>
-                        <th class="text-xl">Status</th>
-                        <th class="text-xl">Action</th>
+                        <th class="text-md">Date</th>
+                        <th class="text-md">Name</th>
+                        <th class="text-md">Resource</th>
+                        <th class="text-md">Quantity</th>
+                        <th class="text-md">Unit</th>
+                        <th class="text-md">Message</th>
+                        <th class="text-md">Status</th>
+                                <th class="text-md">Action</th>
                     </tr>
                 </thead>
                 <tbody >
@@ -190,36 +204,36 @@
                     {
                         var item =  Model.Random5Donors.ElementAt(i);
                         <tr class="hover:bg-slate-50">
-                            <td class=" text-lg">@(i + 1)</td>
-                            <td class=" text-lg">@item.Time</td>
-                            <td class=" text-lg">@item.User.UserName</td>
-                            <td class=" text-lg">@item.ProjectResource.ResourceName</td>
-                            <td class=" text-lg">@item.Amount.ToString("N0")</td>
-                            <td class=" text-lg">@item.ProjectResource.Unit</td>
-                            <td class=" text-lg">@item.Message</td>
+                            <td class=" text-sm">@(i + 1)</td>
+                            <td class=" text-sm">@item.Time</td>
+                            <td class=" text-sm">@item.User.UserName</td>
+                            <td class=" text-sm">@item.ProjectResource.ResourceName</td>
+                            <td class=" text-sm">@item.Amount.ToString("N0")</td>
+                            <td class=" text-sm">@item.ProjectResource.Unit</td>
+                            <td class=" text-sm">@item.Message</td>
                             <td class=" ">
                                 <div class="w-fit">
                                         @if (item.Status == 1)
                                         {
-                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
+                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-green-900 text-xs uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
 
                                                 <span class="">Accepted</span>
                                         </div>
 
                                         }else if(item.Status == -1)
                                         {
-                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                                        <div class="relative grid items-center px-2 py-1 font-sans font-bold text-red-900 text-xs uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
                                             <span class="">Denied</span>
                                         </div>
                                         }
                                 </div>
                             </td>
                             <td>
-                                <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                                <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Images</button>
                                 <!-- You can open the modal using ID.showModal() method -->
                                 <dialog id="proofImagesModal_@item.TransactionID" class="modal">
                                     <div class="modal-box w-11/12 max-w-5xl">
-                                        <h2 class=" text-black font-bold text-3xl text-center mb-4">Proof images</h2>
+                                        <h2 class=" text-black font-bold text-sm text-center mb-4">Proof images</h2>
                                         @{
                                             string[] proofImages = new string[1] { "," };
                                             if (item.Attachments != null)
@@ -287,7 +301,7 @@
             </div>
             <div>
                 <p>Time left</p>
-                <p class="timeLeftContainer__time"><span class="font-bold" id="d">111</span> d <span class="font-bold" id="h">111</span> h <span class="font-bold" id="m">111</span> m</p>
+                <p class="timeLeftContainer__time"><span class="font-bold" id="d"></span> d <span class="font-bold" id="h"></span> h <span class="font-bold" id="m"></span> m</p>
             </div>
         </div>
         <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
@@ -352,13 +366,13 @@
     <dialog id="ReportModal" class="modal modal-bottom sm:modal-middle">
         <div class="modal-box">
             <div class="modal-action  flex flex-col">
-                <h2 class="font-serif text-black font-bold text-3xl text-center mb-4">Report project</h2>
+                <h2 class="font-serif text-black font-bold text-md text-center mb-4">Report project</h2>
                 <form method="post" asp-action="SendReportProjectRequest" asp-controller="Project">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="@report.ObjectID" value="@currentProjectID" />
                     <div class="grid grid-cols-1 gap-y-3">
                         <div>
-                            <label asp-for="@report.Reason" class="block mb-2 text-md font-medium text-gray-900">Enter reason to report project</label>
+                            <label asp-for="@report.Reason" class="block mb-2 text-sm font-medium text-gray-900">Enter reason to report project</label>
                             <textarea asp-for="@report.Reason" id="Reason" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-white bg-opacity-70 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write reason here..."></textarea>
                             <span asp-validation-for="@report.Reason" class="text-danger"></span>
                         </div>
@@ -366,7 +380,7 @@
 
                     <div class="flex justify-center items-center gap-x-6">
                         <button type="submit"
-                                class="mt-4 text-md text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                class="mt-4 text-sm text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
                             Report
                         </button>
                     </div>
@@ -385,7 +399,7 @@
     let remainingTime = document.querySelector('#daysLeft');
     let days = (Number)(remainingTime.innerText);
     console.log('Days: '  + days);
-    if (days === 0 || isNaN(days)) {
+    if (days === 0 || isNaN(days) || days <= 0) {
         let container = document.getElementsByClassName("timeLeftContainer")[0];
         container.style.display = "none";
     } else {

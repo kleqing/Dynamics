@@ -28,6 +28,7 @@ namespace Dynamics.Services
                                     .Select(o => new OrganizationVM
                                     {
                                         OrganizationID = o.OrganizationID,
+                                        OrganizationStatus = o.OrganizationStatus,
                                         OrganizationName = o.OrganizationName,
                                         OrganizationEmail = o.OrganizationEmail,
                                         OrganizationPhoneNumber = o.OrganizationPhoneNumber,
@@ -104,6 +105,7 @@ namespace Dynamics.Services
                                     {
                                         OrganizationID = o.OrganizationID,
                                         OrganizationName = o.OrganizationName,
+                                        OrganizationStatus = o.OrganizationStatus,
                                         OrganizationEmail = o.OrganizationEmail,
                                         OrganizationPhoneNumber = o.OrganizationPhoneNumber,
                                         OrganizationAddress = o.OrganizationAddress,

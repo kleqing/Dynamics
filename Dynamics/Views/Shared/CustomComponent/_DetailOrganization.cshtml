@@ -91,7 +91,7 @@
                                         </button>
 
                                         <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
-                                            <input value="@currentUser.Id" name="Id" type="hidden">
+                                            <input value="@currentUser.Id" name="userId" type="hidden">
                                             <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2" type="submit">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <line x1="18" y1="6" x2="6" y2="18"></line>

@@ -25,5 +25,6 @@ public interface IWalletService
      * Use this to spend money in wallet
      */
     Task<Wallet> SpendWalletAsync(Guid userId, int amount, string? msg = null, Guid? transactionId = null);
-
+    Task RefundProjectWalletAsync(Project project);
+    Task RefundOrganizationWalletAsync(Organization organization);
 }

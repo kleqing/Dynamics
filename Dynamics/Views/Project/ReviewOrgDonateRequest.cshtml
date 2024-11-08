@@ -28,7 +28,7 @@
     @* <input type="checkbox" value="dark" class="toggle theme-controller" /> *@
     <!-- title -->
     <div class="my-12">
-        <h2 class="text-black font-bold text-3xl text-center ">Review donate request</h2>
+        <h2 class="text-black font-bold text-2xl text-center ">Review donate request</h2>
         <span class="text-gray-400 text-lg font-normal">Make sure you <span class="font-bold">contacted and received</span> the resources before marking as accepted!</span>
     </div> <!-- PART 1 -->
     <!-- list resource -->
@@ -36,40 +36,30 @@
         <div class="overflow-x-hidden " style="height:90vh;">
             <table class="table table-sm">
                 <thead>
-                    <tr class="bg-gray-300/2 text-gray-900 text-xl rounded-md">
-                        <th>
-                            <label>
-                                <input type="checkbox" class="checkbox" />
-                            </label>
-                        </th>
+                    <tr class="bg-gray-300/2 text-gray-900 rounded-md">
                         <th></th>
-                        <th class="text-xl">Date</th>
-                        <th class="text-xl">Name</th>
-                        <th class="text-xl">Resource Name</th>
-                        <th class="text-xl">Quantity</th>
-                        <th class="text-xl">Unit</th>
-                        <th class="text-xl">Message</th>
-                        <th class="text-xl">Status</th>
-                        <th class="text-xl">Action</th>
+                        <th class="text-md">Date</th>
+                        <th class="text-md">Name</th>
+                        <th class="text-md">Resource Name</th>
+                        <th class="text-md">Quantity</th>
+                        <th class="text-md">Unit</th>
+                        <th class="text-md">Message</th>
+                        <th class="text-md">Status</th>
+                        <th class="text-md">Action</th>
                     </tr>
                 </thead>
-                <tbody class="text-lg">
+                <tbody>
                     @for (int i = 0; i < Model.Count(); i++)
                     {
                         var item = Model.ElementAt(i);
                         <tr>
-                            <th>
-                                <label>
-                                    <input readonly type="checkbox" class="checkbox" />
-                                </label>
-                            </th>
-                            <td class="p-2 text-lg">@(i + 1)</td>
-                            <td class="p-2 text-lg">@item.Time</td>
-                            <td class="p-2 text-lg">@item.OrganizationResource.Organization.OrganizationName</td>
-                            <td class="p-2 text-lg">@item.ProjectResource.ResourceName</td>
-                            <td class="p-2 text-lg">@item.Amount</td>
-                            <td class="p-2 text-lg">@item.ProjectResource.Unit</td>
-                            <td class="p-2 text-lg ">@item.Message</td>
+                            <td class="p-2 text-sm">@(i + 1)</td>
+                            <td class="p-2 text-sm">@item.Time</td>
+                            <td class="p-2 text-sm">@item.OrganizationResource.Organization.OrganizationName</td>
+                            <td class="p-2 text-sm">@item.ProjectResource.ResourceName</td>
+                            <td class="p-2 text-sm">@item.Amount</td>
+                            <td class="p-2 text-sm">@item.ProjectResource.Unit</td>
+                            <td class="p-2 text-sm ">@item.Message</td>
                             <td class="p-2 ">
                                 <div class="w-fit">
                                     @if(item.Status == 0){
@@ -81,7 +71,7 @@
                             </td>
                             <td class="p-2">
                                 <div class="dropdown dropdown-hover dropdown-end">
-                                    <div tabindex="0" role="button" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Menu</div>
+                                    <div tabindex="0" role="button" class="py-2 text-sm px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Menu</div>
                                     <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                                         <li class="hover:bg-gray-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()">View proof image</a></li>
                                         <li class="hover:bg-green-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('AcceptModal').showModal()">Accept</a></li>

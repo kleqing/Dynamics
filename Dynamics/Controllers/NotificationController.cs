@@ -13,7 +13,7 @@ public class NotificationController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> MarkNotificationAsRead(Guid notificationId)
+    public async Task<JsonResult> MarkNotificationAsRead(Guid notificationId)
     {
         var notif = await _notifRepo.GetNotificationByIdAsync(notificationId);
         if (notif != null && notif.Status == 0)
@@ -25,7 +25,7 @@ public class NotificationController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> MarkAllNotificationAsRead()
+    public async Task<JsonResult> MarkAllNotificationAsRead()
     {
         var userId = new Guid(HttpContext.Session.GetString("currentUserID"));
         if (userId != Guid.Empty)
@@ -37,7 +37,7 @@ public class NotificationController : Controller
 
     [HttpPost]
     [Route("Notification/DeleteNotification")]
-    public async Task<IActionResult> DeleteNotification(Guid notificationId)
+    public async Task<JsonResult> DeleteNotification(Guid notificationId)
     {
         var notif = await _notifRepo.GetNotificationByIdAsync(notificationId);
         if (notif != null)

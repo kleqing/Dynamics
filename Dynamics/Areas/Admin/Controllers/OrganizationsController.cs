@@ -12,6 +12,7 @@ using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
 using Aspose.Cells;
+using Dynamics.Services;
 
 namespace Dynamics.Areas.Admin.Controllers
 {
@@ -20,10 +21,12 @@ namespace Dynamics.Areas.Admin.Controllers
     public class OrganizationsController : Controller
     {
         private readonly IAdminRepository _adminRepository;
+        private readonly IWalletService _walletService;
 
-        public OrganizationsController(IAdminRepository adminRepository)
+        public OrganizationsController(IAdminRepository adminRepository, IWalletService walletService)
         {
             _adminRepository = adminRepository;
+            _walletService = walletService;
         }
 
         // GET: Admin/Organizations
@@ -79,6 +82,8 @@ namespace Dynamics.Areas.Admin.Controllers
         public async Task<JsonResult> ChangeStatus(Guid id)
         {
             var result = await _adminRepository.ChangeOrganizationStatus(id);
+            var org = await _adminRepository.GetOrganization(o => o.OrganizationID == id);
+            if (result == -1) await _walletService.RefundOrganizationWalletAsync(org);
             return Json(new
             {
                 Status = result

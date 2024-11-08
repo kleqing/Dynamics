@@ -162,7 +162,7 @@
             Select a project start
             time
         </label>
-        <input asp-for="StartTime" type="date" id="startDateInput" class="input w-full bg-white border-neutral focus:input-primary">
+        <input asp-for="StartTime" type="date" id="startDateInput" class="dateFrom input w-full bg-white border-neutral focus:input-primary" min="@DateTime.Now.ToString("yyyy-MM-dd")">
         <p class="text-sm text-gray-500 mt-1">
             The date that your project starts. Before that, your project will
             continue to receive donations.
@@ -174,8 +174,7 @@
             Select a project end time
             (estimated)
         </label>
-        <input asp-for="EndTime" type="date" id="endDateInput" class="input w-full bg-white border-neutral focus:input-primary">
-
+        <input asp-for="EndTime" type="date" id="endDateInput" class="dateTo input w-full bg-white border-neutral focus:input-primary" min="@DateTime.Now.ToString("yyyy-MM-dd")">
         <p class="text-sm text-gray-500 mt-1">The estimated date that your project will end.</p>
         <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
     </div>
@@ -198,7 +197,7 @@
 
                 if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
                 {
-                    <option class="" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email]</option>
+                    <option class="" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
                     continue;
                 }
 
@@ -290,6 +289,7 @@
 
 </div>
 </div>
+<partial name="_ValidationDatePartial"/>
 <partial name="_ValidationScriptsPartial"/>
 <partial name="CustomComponent/_SweetAlertToast"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>

@@ -164,7 +164,7 @@ namespace Dynamics.Controllers
                 }
                 else
                 {
-                    organization.OrganizationPictures = "images/defaultOrg.jpg";
+                    organization.OrganizationPictures = "/images/defaultOrg.jpg";
                 }
 
                 if (userString != null)

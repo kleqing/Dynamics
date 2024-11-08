@@ -30,22 +30,28 @@
         <p class="text-3xl text-center font-bold">Discover</p>
         <div class="w-full flex justify-center gap-4">
             <a asp-action="Index" asp-controller="Request"
-               class="w-full max-w-32 h-20 bg-error transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
+               class="w-full max-w-40 h-20 bg-error transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
                 @* <i class="fa-solid fa-hand-holding-hand text-3xl text-white"></i> *@
                 <i class="fa-regular fa-handshake text-3xl"></i>
                 <span>All requests</span>
             </a>
             <a asp-action="ViewAllProjects" asp-controller="Project"
-               class="w-full max-w-32 h-20 bg-success transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
+               class="w-full max-w-40 h-20 bg-success transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
                 @* <i class="fa-solid fa-hand-holding-hand text-3xl text-white"></i> *@
                 <i class="fa-solid fa-users-line text-3xl"></i>
                 <span>All projects</span>
             </a>
             <a asp-action="Index" asp-controller="Organization"
-               class="w-full max-w-32 h-20 bg-primary transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
+               class="w-full max-w-40 h-20 bg-primary transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
                 @* <i class="fa-solid fa-hand-holding-hand text-3xl text-white"></i> *@
                 <i class="fa-solid fa-city text-3xl"></i>
                 <span>All organization</span>
+            </a>
+            <a asp-action="ViewAllSuccessfulProjects" asp-controller="Project"
+               class="w-full max-w-40 h-20 bg-neutral transition-all opacity-75 hover:opacity-100 flex flex-col justify-center items-center text-white rounded-md px-2">
+                @* <i class="fa-solid fa-hand-holding-hand text-3xl text-white"></i> *@
+                <i class="fa-regular fa-thumbs-up text-3xl"></i>
+                <span>Successful projects</span>
             </a>
         </div>
     </section>

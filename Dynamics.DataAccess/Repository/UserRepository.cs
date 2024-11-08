@@ -95,6 +95,7 @@ namespace Dynamics.DataAccess.Repository
             await _db.SaveChangesAsync();
             return true;
         }
+        
         public async Task<List<User?>> GetAllUsersAsync()
         {
             var users = await _db.Users.ToListAsync();

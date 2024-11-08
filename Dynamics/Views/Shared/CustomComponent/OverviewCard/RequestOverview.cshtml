@@ -9,35 +9,35 @@
     <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID">
         <img class="w-full object-cover h-48 rounded-md"
              src="@firstImg"
-             alt="Shoes" />
+             alt="Shoes"/>
     </a>
     <div class="card-body p-4 gap-2 w-full">
         <!-- Badge left -->
         <div class="badge badge-error outline-none border-none absolute top-2 left-2 bg-error font-bold text-white px-4 py-3">
             @if (Model.isEmergency == 1)
             {
-            <span>Emergency Request</span>
+                <span>Emergency Request</span>
             }
             else
             {
-            <span>Request</span>
+                <span>Request</span>
             }
         </div>
         <div class="flex flex-col">
-            <a class="card-title text-primary font-bold mb-2 line-clamp-2 flex flex-col justify-center h-14" asp-action="Detail"
+            <a class="card-title text-primary font-bold mb-2 line-clamp-2 flex flex-col justify-center h-14 searchTarget" asp-action="Detail"
                asp-controller="Request" asp-route-id="@Model.RequestID">
                 @Model.RequestTitle
             </a>
             <div class="flex justify-between items-start gap-2">
-                <a class="text-neutral hover:text-primary flex-1 line-clamp-2" asp-action="Index"
+                <a class="text-neutral hover:text-primary flex-1 line-clamp-2 searchTarget" asp-action="Index"
                    asp-controller="User" asp-route-username="@Model.Username">
                     By @Model.Username
                 </a>
-                <span class="flex-1 text-end line-clamp-2 h-12">@Model.Location</span>
+                <span class="flex-1 text-end line-clamp-2 h-12 searchTarget">@Model.Location</span>
             </div>
         </div>
 
-        <p class="text-base line-clamp-3 mb-4" style="min-height: 72px;">
+        <p class="text-base line-clamp-3 mb-4 searchTarget" style="min-height: 72px;">
             @Model.Content
         </p>
 
@@ -46,19 +46,25 @@
             {
                 @if (ViewBag.userID == Model.UserID)
                 {
-                    if (Model.Status == 0)
+                    switch (Model.Status)
                     {
-                        <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
-                           class="btn btn-secondary h-8 min-h-0 outline-none border-none ">
-                            Waiting for approval
-                        </a>
-                    }
-                    else
-                    {
-                        <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
-                           class="btn btn-neutral btn-sm h-8 outline-none border-none ">
-                            View your request
-                        </a>
+                        case 0:
+                            <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
+                               class="btn btn-secondary h-8 min-h-0 outline-none border-none ">
+                                Waiting for approval
+                            </a>
+                            break;
+                        case 1:
+                            <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
+                               class="btn btn-neutral btn-sm h-8 outline-none border-none ">
+                                View your request
+                            </a>
+                            break;
+                        case -1:
+                            <button class="btn btn-warning btn-sm h-8 outline-none border-none btn-disabled">
+                                Your request has been canceled
+                            </button>
+                            break;
                     }
                 }
                 else

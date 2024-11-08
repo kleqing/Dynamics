@@ -163,7 +163,18 @@ namespace Dynamics.Controllers
 
         public async Task<IActionResult> ViewAllProjects()
         {
-            return View(await _projectService.ReturnAllProjectsVMsAsync());
+            var projects = await _projectService.ReturnAllProjectsVMsAsync();
+            var ongoingProject = projects.allActiveProjects.Where(p => p.ProjectStatus >= 0 && p.ProjectStatus < 2);
+            projects.allActiveProjects = ongoingProject.ToList();
+            return View(projects);
+        }
+
+        public async Task<IActionResult> ViewAllSuccessfulProjects()
+        {
+            var projects = await _projectService.ReturnAllProjectsVMsAsync();
+            var finished = projects.allActiveProjects.Where(p => p.ProjectStatus == 2).ToList();
+            projects.allActiveProjects = finished.ToList();
+            return View(projects);
         }
 
         //update project profile
@@ -201,45 +212,53 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> ImportFileProject(FinishProjectVM finishProjectVM, IFormFile reportFile)
         {
-            _logger.LogWarning("ImportFileProject");
-            var projectObj =
-                await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(finishProjectVM.ProjectID));
-            if (projectObj?.ProjectStatus == -1)
+            try
             {
-                TempData[MyConstants.Warning] = "You cannot finish project while this project is already shutdown!";
-                return RedirectToAction(nameof(ManageProject), new { id = finishProjectVM.ProjectID });
-            }
+                _logger.LogWarning("ImportFileProject");
+                var projectObj =
+                    await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(finishProjectVM.ProjectID));
+                if (projectObj?.ProjectStatus == -1)
+                {
+                    TempData[MyConstants.Warning] = "You cannot finish project while this project is already shutdown!";
+                    return RedirectToAction(nameof(ManageProject), new { id = finishProjectVM.ProjectID });
+                }
 
-            var projectID = finishProjectVM.ProjectID;
-            var resReportFile = await Util.UploadFiles(new List<IFormFile> { reportFile }, @"files\Project");
-            if (resReportFile.Equals("No file"))
-            {
-                TempData[MyConstants.Error] = "No file to upload!";
+                var projectID = finishProjectVM.ProjectID;
+                var resReportFile = await Util.UploadFiles(new List<IFormFile> { reportFile }, @"files\Project");
+                if (resReportFile.Equals("No file"))
+                {
+                    TempData[MyConstants.Error] = "No file to upload!";
+                    return RedirectToAction(nameof(ManageProject), new { id = projectID });
+                }
+
+                if (resReportFile.Equals("Wrong extension"))
+                {
+                    TempData[MyConstants.Error] = "Extension of some files is wrong!";
+                    return RedirectToAction(nameof(ManageProject), new { id = projectID });
+                }
+
+                finishProjectVM.ReportFile = resReportFile;
+                var leaderID = HttpContext.Session.GetString("currentProjectLeaderID");
+                await _roleService.DeleteRoleFromUserAsync(new Guid(leaderID), RoleConstants.ProjectLeader);
+                var res = await _projectRepo.FinishProjectAsync(finishProjectVM);
+                if (res)
+                {
+                    var link = Url.Action(nameof(ManageProject), "Project", new { id = projectID.ToString() },
+                        Request.Scheme);
+                    await _notificationService.UpdateProjectNotificationAsync(projectID, link, "finish", "");
+                    TempData[MyConstants.Success] = "Finish project successfully!";
+                    return RedirectToAction(nameof(ManageProject), new { id = projectID });
+                }
+
+                TempData[MyConstants.Error] =
+                    "Failed to finish the project.\nRemember that a project must have at least one phase report before it can be finished!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
-
-            if (resReportFile.Equals("Wrong extension"))
+            catch (Exception e)
             {
-                TempData[MyConstants.Error] = "Extension of some files is wrong!";
-                return RedirectToAction(nameof(ManageProject), new { id = projectID });
+                Console.WriteLine(e);
+                throw;
             }
-
-            finishProjectVM.ReportFile = resReportFile;
-            var leaderID = HttpContext.Session.GetString("currentProjectLeaderID");
-            await _roleService.DeleteRoleFromUserAsync(new Guid(leaderID), RoleConstants.ProjectLeader);
-            var res = await _projectRepo.FinishProjectAsync(finishProjectVM);
-            if (res)
-            {
-                var link = Url.Action(nameof(ManageProject), "Project", new { id = projectID.ToString() },
-                    Request.Scheme);
-                await _notificationService.UpdateProjectNotificationAsync(projectID, link, "finish", "");
-                TempData[MyConstants.Success] = "Finish project successfully!";
-                return RedirectToAction(nameof(ManageProject), new { id = projectID });
-            }
-
-            TempData[MyConstants.Error] =
-                "Failed to finish the project.\nRemember that a project must have at least one phase report before it can be finished!";
-            return RedirectToAction(nameof(ManageProject), new { id = projectID });
         }
 
         public IActionResult DownloadFile(string fileWebPath)
@@ -320,8 +339,10 @@ namespace Dynamics.Controllers
                     {
                         MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
                     }
+
                     continue;
                 }
+
                 MemberList.Add(new SelectListItem { Text = member.UserName, Value = member.Id.ToString() });
             }
 
@@ -1195,7 +1216,7 @@ namespace Dynamics.Controllers
                     }
 
                     var link2 = Url.Action(nameof(ManageProjectDonor), "Project",
-                        new { projectID = transactionOrgObj.ProjectResource.ProjectID },
+                        new { projectID = HttpContext.Session.GetString("currentProjectID") },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync
                     (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2,
@@ -1247,7 +1268,8 @@ namespace Dynamics.Controllers
         //---------------------------manage ProjectResource--------------------------
 
         [Route("Project/ManageProjectResource/{projectID}")]
-        public async Task<IActionResult> ManageProjectResource(Guid projectID)
+        public async Task<IActionResult> ManageProjectResource(Guid projectID,
+            PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("ManageProjectResource get");
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("currentProjectID")))
@@ -1266,7 +1288,11 @@ namespace Dynamics.Controllers
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });
             }
 
-            return View(allResource);
+            // Pagination
+            var paginated =
+                _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
+            ViewBag.pagination = paginationRequestDto;
+            return View(paginated);
         }
 
         [HttpPost]
@@ -1562,9 +1588,21 @@ namespace Dynamics.Controllers
             var memberToAssignToProject = new List<OrganizationMember>();
             foreach (var mem in currentOrganization.OrganizationMember)
             {
+                var isPrjLeader = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.ProjectLeader);
                 var isCEO = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.HeadOfOrganization);
-                if (!isCEO) memberToAssignToProject.Add(mem);
+                // To become a project leader, the member must: Not leading other organization && not a project leader of a project
+                // If the user is CEO of the CURRENT organization, then the CEO must currently not leading any project 
+                if (mem.Status == 2 && !isPrjLeader)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
+                // If user is not a project leader, but is other organization CEO, don't allow them
+                else if (!isPrjLeader && !isCEO)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
             }
+
             currentOrganization.OrganizationMember = memberToAssignToProject;
             var projectVM = new ProjectVM()
             {
@@ -1574,7 +1612,7 @@ namespace Dynamics.Controllers
                 StartTime = DateOnly.FromDateTime(DateTime.UtcNow),
                 OrganizationVM = currentOrganization,
                 RequestID = requestId,
-                Attachment = request.Attachment ?? "images/defaultPrj.jpg",
+                Attachment = request.Attachment ?? "/images/defaultPrj.jpg",
                 ProjectName = request.RequestTitle,
                 ProjectDescription = request.Content,
                 ProjectEmail = request.RequestEmail,
@@ -1613,15 +1651,27 @@ namespace Dynamics.Controllers
                     "Your organization needs to be approved by an admin before accepting a request.";
                 return RedirectToAction("MyOrganization", "Organization", new { userId = currentUser.Id });
             }
-            
-            // Only get the person that is not the CEO of other organization
+
+            // Only get the person that is not the CEO of OTHER organization
             // Because a CEO can only lead the project of that CEO
             var memberToAssignToProject = new List<OrganizationMember>();
             foreach (var mem in currentOrganization.OrganizationMember)
             {
+                var isPrjLeader = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.ProjectLeader);
                 var isCEO = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.HeadOfOrganization);
-                if (!isCEO) memberToAssignToProject.Add(mem);
+                // To become a project leader, the member must: Not leading other organization && not a project leader of a project
+                // If the user is CEO of the CURRENT organization, then the CEO must currently not leading any project 
+                if (mem.Status == 2 && !isPrjLeader)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
+                // If user is not a project leader, but is other organization CEO, don't allow them
+                else if (!isPrjLeader && !isCEO)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
             }
+
             currentOrganization.OrganizationMember = memberToAssignToProject;
             var projectVM = new ProjectVM()
             {
@@ -1722,7 +1772,7 @@ namespace Dynamics.Controllers
                             ProjectPhoneNumber = projectVM.ProjectPhoneNumber,
                             ProjectAddress = projectVM.ProjectAddress,
                             ProjectStatus = projectVM.ProjectStatus,
-                            Attachment = projectVM.Attachment ?? "images/defaultPrj.jpg",
+                            Attachment = projectVM.Attachment ?? "/images/defaultPrj.jpg",
                             ProjectDescription = projectVM.ProjectDescription,
                             StartTime = projectVM.StartTime,
                             EndTime = projectVM.EndTime,

@@ -454,5 +454,22 @@ namespace Dynamics.DataAccess.Repository
         {
             return await _db.Reports.CountAsync(r => r.Type == type && r.ObjectID == id);
         }
+
+        public async Task<int> ChangeWithdrawStatus(Guid id)
+        {
+            var withdraw = await ReviewWithdraw(W => W.WithdrawID == id);
+            if (withdraw != null)
+            {
+                var withdrawStatus = withdraw.FirstOrDefault();
+                if (withdrawStatus.Status == 0)
+                {
+                    withdrawStatus.Status = 1;
+                    _db.Withdraws.Update(withdraw.FirstOrDefault());
+                    await _db.SaveChangesAsync();
+                    return withdrawStatus.Status;
+                }
+            }
+            return withdraw.FirstOrDefault().Status;
+        }
     }
 }

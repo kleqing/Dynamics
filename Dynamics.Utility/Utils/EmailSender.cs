@@ -77,7 +77,7 @@ namespace Dynamics.Utility
                     <tr>
                         <td style=""background-color: #f8f8f8; padding: 20px; text-align: center; font-size: 14px; color: #888888;"">
                             <p style=""margin: 0;"">This is an automated message, please do not reply to this email.</p>
-                            <p style=""margin: 10px 0 0;"">© <script>document.write(new Date().getFullYear())</script> Dynamics. All rights reserved.</p>
+                            <p style=""margin: 10px 0 0;"">© {DateTime.Now.Year} Dynamics. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>

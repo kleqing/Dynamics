@@ -75,6 +75,7 @@ namespace Dynamics.DataAccess.Repository
         //
         public async Task<bool> UpdateAsync(User user)
         {
+            _db.Entry(user).State = EntityState.Detached;
             var existingItem = await GetAsync(u => user.Id == u.Id);
             if (existingItem == null)
             {

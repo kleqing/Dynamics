@@ -75,6 +75,7 @@ namespace Dynamics.DataAccess.Repository
 
         Task<int> CountProjectReport(string type, Guid id);
 
+        Task<int> ChangeWithdrawStatus(Guid id);
 
     }
 }

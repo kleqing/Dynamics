@@ -24,20 +24,20 @@
             }
         </div>
         <div class="flex flex-col">
-            <a class="card-title text-primary font-bold mb-2 line-clamp-2 flex flex-col justify-center h-14" asp-action="Detail"
+            <a class="card-title text-primary font-bold mb-2 line-clamp-2 flex flex-col justify-center h-14 searchTarget" asp-action="Detail"
                asp-controller="Request" asp-route-id="@Model.RequestID">
                 @Model.RequestTitle
             </a>
             <div class="flex justify-between items-start gap-2">
-                <a class="text-neutral hover:text-primary flex-1 line-clamp-2" asp-action="Index"
+                <a class="text-neutral hover:text-primary flex-1 line-clamp-2 searchTarget" asp-action="Index"
                    asp-controller="User" asp-route-username="@Model.Username">
                     By @Model.Username
                 </a>
-                <span class="flex-1 text-end line-clamp-2 h-12">@Model.Location</span>
+                <span class="flex-1 text-end line-clamp-2 h-12 searchTarget">@Model.Location</span>
             </div>
         </div>
 
-        <p class="text-base line-clamp-3 mb-4" style="min-height: 72px;">
+        <p class="text-base line-clamp-3 mb-4 searchTarget" style="min-height: 72px;">
             @Model.Content
         </p>
 

@@ -126,35 +126,38 @@
                     <select asp-for="ProjectStatus"
                             class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)"
-                            onchange="checkStatus(this)">
+                            onchange="checkStatus(this)"
+                            id="statusSelect">
                         <option disabled selected>---Select Status---</option>
                     </select>
+                    <label class="text-sm text-neutral">If your project has gathered enough donations, set the status to <b>in progress</b></label>
                     <span asp-validation-for="ProjectStatus" class="text-danger"></span>
                 </div>
                 <div id="bankDetailsPopup" style="display: none;" class="popup fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
                     <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Enter Bank Details</h3>
-
+                        <h3 class="text-xl font-bold text-gray-800 text-center mb-4">Create a withdraw request</h3>
+                        <h2 class="text-md text-center font-semibold">Tell us about your bank details</h2>
+                        <h3 class="text-sm text-neutral text-center mb-4 w-full">Your bank account is essential for us to send the donation money amount your project has gathered before</h3>
                         <!-- Bank Account Number -->
                         <label for="bankAccountNumber" class="block text-md font-medium text-gray-900 mb-2">Bank Account Number</label>
-                        <input type="text" id="bankAccountNumber" class="input-field bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 mb-4" />
+                        <input type="text" id="bankAccountNumber" class="input input-bordered focus:input-primary mb-4 w-full" required/>
 
                         <!-- Bank Name -->
                         <label for="bankName" class="block text-md font-medium text-gray-900 mb-2">Bank Name</label>
-                        <select id="bankName" class="input-field bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 mb-4">
+                        <select id="bankName" class="select select-bordered focus:select-primary mb-4 w-full" required>
                             <option disabled selected>---Select Bank---</option>
                         </select>
 
                         <!-- Message -->
-                        <label for="bankMessage" class="block text-md font-medium text-gray-900 mb-2">Message</label>
-                        <textarea id="bankMessage" class="input-field bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 mb-4"></textarea>
+                        <label for="bankMessage" class="block text-md font-medium text-gray-900 mb-2">Reason why you are creating a withdraw request</label>
+                        <textarea id="bankMessage" class="textarea textarea-bordered focus:textarea-primary mb-4 w-full"></textarea>
 
                         <!-- Buttons -->
                         <div class="flex justify-end gap-4 mt-4">
-                            <button type="button" onclick="submitBankDetails()" class="bg-blue-800 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 font-semibold">
+                            <button type="button" onclick="submitBankDetails()" class="btn btn-primary">
                                 Submit
                             </button>
-                            <button type="button" onclick="closePopup()" class="bg-gray-500 text-black py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 font-semibold">
+                            <button type="button" onclick="closePopup(true)" class="btn btn-neutral">
                                 Close
                             </button>
                         </div>
@@ -335,7 +338,6 @@
                 </button>
                 <span class="text-gray-400 text-sm">This action is permanent.</span>
             </div>
-
         </form>
         <!-- end form 3 -->
     </div>
@@ -389,15 +391,27 @@
         console.log(u);
 
         if (selectElement.value == 1) {
-            bankDetailsPopup.style.display = "block";
+            bankDetailsPopup.style.display = "flex";
         } else {
             bankDetailsPopup.style.display = "none";
         }
     }
 
     // Close the bank details popup
-    function closePopup() {
+    function closePopup(isCanceled) {
         document.getElementById("bankDetailsPopup").style.display = "none";
+        var selectElement = document.getElementById("statusSelect");
+        console.log(selectElement)
+        if (selectElement != null) {
+            let optionToSelect;
+            if (isCanceled) {
+                optionToSelect = selectElement.querySelector('option[value="0"]');
+            } else {
+                optionToSelect = selectElement.querySelector('option[value="1"]');
+            }
+            selectElement.value = optionToSelect.value;
+            
+        }
     }
 
     // Submit bank details (example with AJAX)
@@ -421,8 +435,19 @@
                 message: message
             },
             success: function(response) {
-                alert("Withdraw request created successfully!");
-                closePopup();
+                const swalWithTailwind = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-md btn-success min-w-xs"
+                    },
+                    buttonsStyling: false // Disable default styling to use custom classes
+                });
+                swalWithTailwind.fire({
+                    title: "Withdraw request sent",
+                    icon: "success",
+                    text: 'Please wait and check your email regularly in the meantime.'
+                }).then(() => {
+                    closePopup(false);
+                })
             },
             error: function(xhr) {
                 alert("Error: " + xhr.responseText);
@@ -488,24 +513,6 @@
         console.log('File selected:', fileName);  // Log the file name
     }
     });
-
-        //------------validate date-------------
-  
-
-    
-
-@*      // Show loading alert
-     function showLoadingAlert() {
-         console.log('loading update project')
-         Swal.fire({
-             title: 'Updating Project...',
-             text: 'Please wait while we update the project details.',
-             allowOutsideClick: false,
-             didOpen: () => {
-                 Swal.showLoading(); // Show loading spinner
-             }
-         });
-     } *@
 </script>
 <script>
     //---------------sweetalert for shutdown---------------------
@@ -653,7 +660,6 @@
     });
 
     function renderCity(data) {
-        debugger;
         console.log("City:dsfsdf sd");
         for (const x of data) {
             cities.options[cities.options.length] = new Option(x.Name, x.Id);

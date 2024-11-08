@@ -155,25 +155,25 @@
             {
                
                 <tr class="hover:bg-slate-50">
-                    <td class="text-sm">@count</td>
-                    <td class="text-sm font-semibold">@item.Time</td>
+                    <td class="text-base">@count</td>
+                    <td class="text-base font-semibold">@item.Time</td>
                     @if (item.Type.Equals("orgToPrj", StringComparison.OrdinalIgnoreCase))
                     {
-                        <td class="text-sm font-semibold text-primary">
+                        <td class="text-base font-semibold text-primary">
                             @item.Name
                         </td>
                     }
                     else
                     {
-                        <td class="text-sm font-semibold">
+                        <td class="text-base font-semibold">
                             @item.Name
                         </td>
                     }
-                    <td class="text-sm font-semibold">@item.ResourceName</td>
-                    <td class="text-sm">@item.Amount.ToString("N0")</td>
-                    <td class="text-sm">@item.Unit</td>
-                    <td class="text-sm">@item.Message</td>
-                    <td class="text-sm">
+                    <td class="text-base font-semibold">@item.ResourceName</td>
+                    <td class="text-base">@item.Amount.ToString("N0")</td>
+                    <td class="text-base">@item.Unit</td>
+                    <td class="text-base">@item.Message</td>
+                    <td class="text-base">
                         <div class="w-fit">
                             @if (item.Status == 1)
                             {

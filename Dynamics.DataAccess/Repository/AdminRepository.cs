@@ -80,7 +80,9 @@ namespace Dynamics.DataAccess.Repository
 
             foreach (var org in organization)
             {
-                org.ProjectCount = TopOrganizations.FirstOrDefault(x => x.OrganizationID == org.OrganizationID)?.ProjectCount ?? 0; // Based on ID, get the project count
+                org.ProjectCount = TopOrganizations
+                    .FirstOrDefault(x => x.OrganizationID == org.OrganizationID)?.ProjectCount ?? 0; 
+                // Based on ID, get the project count
             }
             return organization;
         }
@@ -321,7 +323,10 @@ namespace Dynamics.DataAccess.Repository
         // View Recent request (Recent item in dashoard page)
         public async Task<List<Request>> ViewRecentItem()
         {
-            return await _db.Requests.Include(r => r.User).OrderByDescending(x => x.CreationDate).Take(7).ToListAsync();
+            return await _db.Requests.Include(r => r.User)
+                .OrderByDescending(x => x.CreationDate)
+                .Take(7)
+                .ToListAsync();
         }
 
         // ---------------------------------------
@@ -371,7 +376,8 @@ namespace Dynamics.DataAccess.Repository
             if (project != null)
             {
                 project.isBanned = !project.isBanned;
-                project.ProjectStatus = project.isBanned ? -1 : 0; // If project is banned, change status to -1 (cancel). Otherwise, change to 0 (preparing)
+                project.ProjectStatus = project.isBanned ? -1 : 0; // If project is banned, change status to -1 (cancel).
+                                                                   // Otherwise, change to 0 (preparing)
                 await _db.SaveChangesAsync();
                 return project.isBanned;
             }
@@ -380,7 +386,9 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<Project?> GetProjectInfo(Expression<Func<Project, bool>> filter)
         {
-            var list = await _db.Projects.Where(filter).Include(p => p.ProjectMember).ThenInclude(u => u.User).FirstOrDefaultAsync();
+            var list = await _db.Projects.Where(filter)
+                .Include(p => p.ProjectMember)
+                .ThenInclude(u => u.User).FirstOrDefaultAsync();
             if (list == null)
             {
                 return null;
@@ -399,9 +407,11 @@ namespace Dynamics.DataAccess.Repository
         // Payment
         
         // User to project transaction history
-        public async Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory(Expression<Func<UserToProjectTransactionHistory, bool>> filter)
+        public async Task<List<UserToProjectTransactionHistory>> ViewUserToProjectTransactionInHistory
+            (Expression<Func<UserToProjectTransactionHistory, bool>> filter)
         {
-            var list =  await _db.UserToProjectTransactionHistories.Where(filter).Include(u => u.User)
+            var list =  await _db.UserToProjectTransactionHistories.Where(filter)
+                .Include(u => u.User)
                 .Include(r => r.ProjectResource)
                 .ThenInclude(p => p.Project)
                 .ThenInclude(w => w.Withdraw)

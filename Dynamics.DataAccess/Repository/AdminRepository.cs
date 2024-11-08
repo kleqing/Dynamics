@@ -251,34 +251,42 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> BanUserById(Guid id)
         {
-            var user = await GetUser(u => id == u.Id);
-            if (user != null)
+            try
             {
-                user.isBanned = !user.isBanned;
-                // If user is banned, remove admin role (change to user)
-                if (user.isBanned)
+                var user = await _userManager.FindByIdAsync(id.ToString());
+                if (user != null)
                 {
-                    var role = await _userManager.GetRolesAsync(user);
-                    if (role.Contains(RoleConstants.Admin) || role.Contains(RoleConstants.User))
+                    user.isBanned = !user.isBanned;
+                    // If user is banned, remove admin role (change to user)
+                    if (user.isBanned)
                     {
-                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Admin);
-                        await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
+                        var role = await _userManager.GetRolesAsync(user);
+                        if (role.Contains(RoleConstants.Admin) || role.Contains(RoleConstants.User))
+                        {
+                            await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
+                        }
                     }
-                }
-                else
-                {
-                    var role = await _userManager.GetRolesAsync(user);
-                    if (role.Contains(RoleConstants.Banned))
+                    else
                     {
-                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Banned);
-                        await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                        var role = await _userManager.GetRolesAsync(user);
+                        if (role.Contains(RoleConstants.Banned))
+                        {
+                            await _userManager.RemoveFromRoleAsync(user, RoleConstants.Banned);
+                            await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                            
+                        }
                     }
                 }
                 await _db.SaveChangesAsync();
-                return user.isBanned;  // Return ban value (true/false)
+                return user.isBanned;
             }
-            return user.isBanned;
+            catch (Exception e)
+            {
+               throw new Exception("BAN USER FAILED: " + e.Message);
+            }
+            
         }
+        
 
         public async Task<User?> GetUser(Expression<Func<User, bool>> filter)
         {

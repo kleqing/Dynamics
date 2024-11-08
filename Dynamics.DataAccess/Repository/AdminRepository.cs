@@ -278,7 +278,6 @@ namespace Dynamics.DataAccess.Repository
             await _db.SaveChangesAsync();
             return user.isBanned;
         }
-        
 
         public async Task<User?> GetUser(Expression<Func<User, bool>> filter)
         {

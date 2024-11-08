@@ -1,0 +1,431 @@
+﻿@using Dynamics.Utility
+@using Newtonsoft.Json
+@model Dynamics.Models.Models.ViewModel.ProjectVM
+@inject IHttpContextAccessor Accessor
+@inject IRoleService roleService
+
+
+@{
+    ViewData["Title"] = "CreateProject";
+}
+
+
+<div class="container  my-5 pt-12 flex justify-center items-center" style="margin: auto">
+<div class=" bg-white p-8 rounded-lg shadow-lg">
+<div class="flex justify-center items-center py-5 my-5">
+    <h1 class="text-3xl font-semibold mx-5">Create a new project</h1>
+    <div class="flex items-center mx-5">
+        <span class="text-3xl mr-2 font-semibold">or:</span>
+        @if (Model.RequestID != null)
+        {
+            <a asp-action="CreateProjectByImportData" asp-controller="Project" asp-route-requestId="@Model.RequestID" class="btn btn-neutral">
+                Import data from request
+            </a>
+        }
+        else
+        {
+            <buttom disabled class="btn btn-neutral">
+                Import data from request
+            </buttom>
+        }
+
+    </div>
+</div>
+
+<div class="w-full">
+<div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
+<form class="py-5 px-5" asp-action="CreateProject" asp-controller="Project" enctype="multipart/form-data" method="post" id="project-information">
+<div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
+<div>
+    <input asp-for="ProjectID" name="ProjectID" class="hidden">
+    <input asp-for="OrganizationID" name="OrganizationID" class="hidden">
+    <input asp-for="RequestID" name="RequestID" class="hidden">
+    <input asp-for="ProjectStatus" name="ProjectStatus" class="hidden">
+    <input asp-for="Attachment" name="Attachment" class="hidden">
+</div>
+
+<div class="grid grid-cols-2 gap-6 mb-6">
+    <div>
+        <label asp-for="ProjectName" class="block text-base font-medium text-gray-700 mb-1">Enter project name</label>
+        <input asp-for="ProjectName" type="text" id="project-name" class="input w-full bg-white border-neutral focus:input-primary"
+               placeholder="Enter your name">
+        <span asp-validation-for="ProjectName" class="text-red-500"></span>
+    </div>
+
+    <div class="flex flex-col justify-center">
+        <div class="flex items-center gap-2">
+            <label class="block text-base font-medium text-gray-700">Upload project images</label>
+            <div class="flex items-center">
+                <label for="file-upload" class="btn btn-primary">
+                    <span>Choose images</span>
+                </label>
+                <input multiple asp-for="Attachment" id="file-upload" type="file" name="images" class="hidden" accept=".jpg, .jpeg, .png, .gif, .bmp, .gif">
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-3">The images will appear in your project covers and description</p>
+    </div>
+</div>
+
+<div class="mb-6">
+    <label asp-for="ProjectDescription" class="block text-base font-medium text-gray-700 mb-1">
+        Enter project description
+    </label>
+    <textarea asp-for="ProjectDescription" id="project-description" rows="4" class="w-full textarea focus:textarea-primary border-neutral bg-white"
+                                  placeholder="Enter your text" maxlength="1000"></textarea>
+    <span asp-validation-for="ProjectDescription" class="text-red-500"></span>
+
+</div>
+<div class="mb-6">
+    <label asp-for="ProjectEmail" class="block text-base font-medium text-gray-700 mb-1">
+        Enter project contact Email!
+    </label>
+    <input asp-for="ProjectEmail" name="ProjectEmail" type="email" id="project-contact" rows="4" class="input w-full bg-white border-neutral focus:input-primary"
+           placeholder="Enter Email">
+    <span asp-validation-for="ProjectEmail" class="text-red-500"></span>
+
+</div>
+
+<div class="mb-6">
+    <label asp-for="ProjectPhoneNumber" class="block text-base font-medium text-gray-700 mb-1">
+        Enter project contact Phone!
+    </label>
+    <input asp-for="ProjectPhoneNumber" name="ProjectPhoneNumber" type="tel" id="project-contact" rows="4" class="input w-full bg-white border-neutral focus:input-primary"
+           placeholder="Enter tel">
+    <span asp-validation-for="ProjectPhoneNumber" class="text-red-500"></span>
+
+</div>
+
+<div class="mb-6">
+
+    @{
+        var province = "";
+        var district = "";
+        var ward = "";
+        var homeAddr = "";
+        // If user has address, split them and put in order
+        if (Model.ProjectAddress != null)
+        {
+            // Example: 23 Phan Nhu, Thanh Khe Tay, Thanh Khe, Da Nang
+            var splitAddr = Model.ProjectAddress.Split(",").ToList();
+            // In case some address is missing, we left it as empty
+            for (int i = 0; i < splitAddr.Count; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        homeAddr = splitAddr[0];
+                        break;
+                    case 1:
+                        ward = splitAddr[1];
+                        break;
+                    case 2:
+                        district = splitAddr[2];
+                        break;
+                    case 3:
+                        province = splitAddr[3];
+                        break;
+                }
+            }
+        }
+    }
+    <label class="form-control w-full">
+        <span class="label text-base font-medium text-gray-700 mb-1">Project address</span>
+        <div>
+            <select class="select border-neutral w-full mb-4 bg-white focus:select-primary" id="city">
+                <option id="pOption" value="@province" selected>@(province == "" ? "Choose province" : province)</option>
+            </select>
+
+            <select class="select border-neutral w-full mb-4 bg-white focus:select-primary" id="district">
+                <option id="dOption" value="@district" selected>@(district == "" ? "Choose district" : district)</option>
+            </select>
+
+            <select class="select border-neutral w-full mb-4 bg-white focus:select-primary" id="ward">
+                <option id="wOption" value="@ward" selected>@(ward == "" ? "Choose ward/commune" : ward)</option>
+            </select>
+        </div>
+        <input type="text"
+               placeholder="Enter street and house number"
+               class="input border-neutral w-full bg-white focus:input-primary"
+               value="@homeAddr"
+               id="ProjectAddress"/>
+        @* the original one should be located here: *@
+        <input asp-for="ProjectAddress" name="ProjectAddress" type="hidden" id="ProjectAddressStr" value="@Model.ProjectAddress">
+    </label>
+    <span asp-validation-for="ProjectAddress" class="text-red-500"></span>
+
+
+</div>
+
+<div class="grid grid-cols-2 gap-6 mb-6">
+    <div class="w-full">
+        <label asp-for="StartTime" class="block text-base font-medium text-gray-700 mb-1">
+            Select a project start
+            time
+        </label>
+        <input asp-for="StartTime" type="date" id="startDateInput" class="dateFrom input w-full bg-white border-neutral focus:input-primary" min="@DateTime.Now.ToString("yyyy-MM-dd")">
+        <p class="text-sm text-gray-500 mt-1">
+            The date that your project starts. Before that, your project will
+            continue to receive donations.
+        </p>
+        <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
+    </div>
+    <div class="w-full ">
+        <label asp-for="EndTime" class="block text-base font-medium text-gray-700 mb-1">
+            Select a project end time
+            (estimated)
+        </label>
+        <input asp-for="EndTime" type="date" id="endDateInput" class="dateTo input w-full bg-white border-neutral focus:input-primary" min="@DateTime.Now.ToString("yyyy-MM-dd")">
+        <p class="text-sm text-gray-500 mt-1">The estimated date that your project will end.</p>
+        <span id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></span>
+    </div>
+</div>
+
+<div class="grid grid-cols-2 gap-6 mb-6">
+    <div>
+        <label asp-for="LeaderID" class="block text-base font-medium text-gray-700 mb-1">
+            Assign a member to lead this
+            project (Optional)
+        </label>
+        <select asp-for="LeaderID" id="project-lead" class="select w-full bg-white border-neutral focus:select-primary">
+            <option>Options</option>
+            @foreach (var item in Model.OrganizationVM.OrganizationMember.Where(om => om.Status > 0).ToList())
+            {
+                if (await roleService.IsInRoleAsync(item.User, RoleConstants.ProjectLeader))
+                {
+                    continue;
+                }
+
+                if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
+                {
+                    <option class="" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
+                    continue;
+                }
+
+                <option class="" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label for="invite-members" class="block text-base font-medium text-gray-700 mb-1">
+            Invite members from your
+            organization
+        </label>
+        <select id="invite-members" class="select w-full bg-white border-neutral focus:select-primary">
+            <option>Options</option>
+        </select>
+    </div>
+</div>
+
+
+<div>
+    <div class="py-5">
+        <h1 class="text-2xl text-center font-medium mb-2">Add expected resources to your project</h1>
+    </div>
+
+    <div class="flex mb-4 justify-between gap-6">
+        <div class="w-full">
+            <label class="block text-base text-start font-medium text-gray-700 mb-1">
+                Enter resource name
+            </label>
+            <input class="input border-neutral focus:input-primary bg-white w-full " value="Money">
+        </div>
+
+        <div class="w-full">
+            <label class="block text-base text-start font-medium text-gray-700 mb-1">
+                Expected quantity
+            </label>
+            <input name="expectedQuantity" type="number" value="@ViewBag.ExpectedQuantity" class="input w-full bg-white border-neutral focus:input-primary" placeholder="Enter quantity"
+                   min="10000" required id="qInput">
+            @if (ViewBag.MessageExpectedQuantity != null)
+            {
+                <span class="text-red-500 d-inline-flex">
+                    @ViewBag.MessageExpectedQuantity
+                </span>
+            }
+            <span class="text-error" id="qValidation"></span>
+        </div>
+
+        <div class="w-full">
+            <div>
+                <label class="block text-base text-start font-medium text-gray-700 mb-1">
+                    Choose currency unit
+                </label>
+                <select name="Unit" class="select border-neutral w-full bg-white focus:select-primary">
+                    <option value="VND">₫ VND - Viet Nam Đong</option>
+                    <optgroup label="Phổ biến">
+                        <option value="USD">$ USD - US Dollar</option>
+                        <option value="EUR">€ EUR - Euro</option>
+                    </optgroup>
+                    <optgroup label="Châu Á">
+                        <option value="JPY">¥ JPY - Japanese Yen</option>
+                        <option value="CNY">¥ CNY - Chinese Yuan</option>
+                        <option value="KRW">₩ KRW - Korean Won</option>
+                        <option value="SGD">S$ SGD - Singapore Dollar</option>
+                        <option value="HKD">HK$ HKD - Hong Kong Dollar</option>
+                        <option value="THB">฿ THB - Thai Baht</option>
+                    </optgroup>
+                    <optgroup label="Khác">
+                        <option value="GBP">£ GBP - British Pound</option>
+                        <option value="AUD">A$ AUD - Australian Dollar</option>
+                        <option value="CAD">C$ CAD - Canadian Dollar</option>
+                        <option value="CHF">Fr CHF - Swiss Franc</option>
+                    </optgroup>
+                </select>
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<div class="flex justify-center py-5">
+    <button class="btn btn-success" type="submit" id="create__btn">Create new project</button>
+</div>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+<partial name="_ValidationDatePartial"/>
+<partial name="_ValidationScriptsPartial"/>
+<partial name="CustomComponent/_SweetAlertToast"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    let qInput = document.querySelector('#qInput');
+    let qVal = document.querySelector('#qValidation');
+    qInput.addEventListener('input', e => {
+        let value = Number(qInput.value);
+        if (value < 10000) {
+        qVal.innerText = "Expected money quantity cannot be less than 10,000"
+        } else {
+        qVal.innerText = "";
+        }
+    })
+</script>
+<script>
+ //------------validate date-------------
+         document.addEventListener('DOMContentLoaded', function () {
+        // Cache DOM elements
+        const startDateInput = document.getElementById('startDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+        const notificationMessage = document.getElementById('notificationMessage');
+
+        let oldStartDate = startDateInput.value;
+        let oldEndDate = endDateInput.value;
+
+        // Show old date before changes
+        startDateInput.addEventListener('focus', function () {
+            oldStartDate = startDateInput.value;
+        });
+
+        endDateInput.addEventListener('focus', function () {
+            oldEndDate = endDateInput.value;
+        });
+
+        // Validate dates
+        function validateDates() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            // Clear any previous messages
+            notificationMessage.style.display = 'none';
+            notificationMessage.innerText = '';
+
+            // Check if start date is greater than end date
+            if (startDate > endDate) {
+                notificationMessage.style.display = 'block';
+                notificationMessage.innerText = `Start date (${startDateInput.value}) cannot be after the end date (${endDateInput.value})`;
+                return false;
+            }
+
+            // Check if end date is smaller than start date
+            if (endDate < startDate) {
+                notificationMessage.style.display = 'block';
+                notificationMessage.innerText = `End date (${endDateInput.value}) cannot be before the start date (${startDateInput.value})`;
+                return false;
+            }
+
+            return true;
+        }
+
+        // Validate when user changes the start or end date
+        startDateInput.addEventListener('change', validateDates);
+        endDateInput.addEventListener('change', validateDates);
+
+        // Form submit validation
+        document.querySelector('form').addEventListener('submit', function (event) {
+            if (!validateDates()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    });
+</script>
+
+@* Get all the address information before submit *@
+<script>
+    let cities = document.getElementById("city");
+    let districts = document.getElementById("district");
+    let wards = document.getElementById("ward");
+    let Parameter = {
+        url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+        method: "GET",
+        responseType: "application/json",
+    };
+    let promise = axios(Parameter);
+    promise.then(function (result) {
+        renderCity(result.data);
+    });
+
+    function renderCity(data) {
+        for (const x of data) {
+            cities.options[cities.options.length] = new Option(x.Name, x.Id);
+        }
+        cities.onchange = function () {
+            district.length = 1;
+            ward.length = 1;
+            if (this.value !== "") {
+                const result = data.filter(n => n.Id === this.value);
+
+                for (const k of result[0].Districts) {
+                    district.options[district.options.length] = new Option(k.Name, k.Id);
+                }
+            }
+        };
+        district.onchange = function () {
+            ward.length = 1;
+            const dataCity = data.filter((n) => n.Id === cities.value);
+            if (this.value !== "") {
+                const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+                for (const w of dataWards) {
+                    wards.options[wards.options.length] = new Option(w.Name, w.Id);
+                }
+            }
+        };
+    }
+
+
+    // Get stuff for the addresses
+    let myBtn = document.querySelector('#create__btn');
+    let myForm = document.querySelector('#project-information');
+    console.log(myBtn);
+    console.log(myForm);
+    myForm.addEventListener('submit', (e) => {
+        console.log(myForm)
+        // Get the selected text for city, district, and ward
+        const cityName = cities.options[cities.selectedIndex].text;
+        const districtName = districts.options[districts.selectedIndex].text;
+        const wardName = wards.options[wards.selectedIndex].text;
+        const homeAddr = document.querySelector('#ProjectAddress');
+        console.log("City:", cityName);
+        console.log("District:", districtName);
+        console.log("Ward:", wardName);
+        console.log("Home: ", homeAddr.value);
+        // Set our real user address data here:
+        let projectAddr = document.querySelector("#ProjectAddressStr");
+        projectAddr.value = `${homeAddr.value}, ${wardName}, ${districtName}, ${cityName}`
+    })
+</script>

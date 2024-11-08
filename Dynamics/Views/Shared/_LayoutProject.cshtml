@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Dynamics</title>
+    @* This layout should not contains anybootstrap stuff at all *@
+    <link href="~/css/original.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/output.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/2.1.7/css/dataTables.dataTables.min.css" />
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+
+</head>
+<body class="bg-base-100 relative overflow-x-hidden">
+    <div >
+        <div>
+            <partial name="CustomComponent/_Navbar" />
+             @* <partial name="CustomComponent/_NavbarBox"/> *@
+             <partial name="CustomComponent/_NavbarProject" />
+        </div>
+        <div>
+            @RenderBody()
+        </div>
+    </div>
+<partial name="CustomComponent/_Footer" />
+<partial name="CustomComponent/_SweetAlert"/>
+    @* <partial name="_Notification" /> *@
+    @* This is used for icons *@
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://kit.fontawesome.com/ba8c3661b4.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Toastr JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!--font -->
+
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+    @* <script src="~/js/site.js" asp-append-version="true"></script> *@
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

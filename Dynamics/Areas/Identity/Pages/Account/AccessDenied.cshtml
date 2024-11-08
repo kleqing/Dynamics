@@ -1,0 +1,12 @@
+﻿@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Access denied";
+}
+<link rel="stylesheet" href="~/css/output.css"/>
+
+<div class="w-screen h-screen flex flex-col gap-4 items-center justify-center bg-base-100 font-bold">
+        <h1 class="text-danger text-3xl">@ViewData["Title"]</h1>
+        <p class="text-danger text-3xl">You do not have access to this resource.</p>
+    <img src="https://www.icegif.com/wp-content/uploads/2023/03/icegif-1103.gif" alt="Unauthorized">
+</div>  

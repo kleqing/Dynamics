@@ -1,0 +1,242 @@
+﻿@model Dynamics.Models.Models.Request
+@{
+    ViewData["Title"] = "Create Request";
+}
+<body>
+<main class="w-full h-full flex flex-col gap-6 items-center p-32">
+    <h1 class="text-3xl">
+        Tell us <span class="underline">more</span> about your request for charity
+    </h1>
+    <div class="my-5 px-0 pt-6 w-full flex justify-center">
+        <form asp-action="Create" asp-controller="Request" enctype="multipart/form-data" id="dmForm"
+              method="post" class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
+            <div asp-validation-summary="ModelOnly" class="text-error"></div>
+            <div>
+                <input type="hidden" value="@DateTime.Now" asp-for="@Model.CreationDate"/>
+                <input class="hidden" name="cityNameInput">
+                <input class="hidden" name="districtNameInput"/>
+                <input class="hidden" name="wardNameInput">
+            </div>
+            <div class="form-control w-full">
+                <label class="label label-text font-bold text-lg" for="RequestTitle">
+                    Request Title
+                </label>
+                <input asp-for="RequestTitle"
+                       class="input input-bordered w-full focus:input-primary bg-white"
+                       id="RequestTitle" type="text" placeholder="Enter your request title"/>
+                <span asp-validation-for="RequestTitle" class="text-error"></span>
+            </div>
+            <div class="form-control">
+                <label class="label label-text font-bold text-lg" for="Content">
+                    Request Description
+                </label>
+                <textarea asp-for="Content"
+                           class="textarea textarea-bordered textarea-lg w-full focus:textarea-primary bg-white"
+                           id="Content" placeholder="Enter your request description" rows="7" style="resize: none"></textarea>
+                <span asp-validation-for="Content" class="text-error"></span>
+            </div>
+
+            <label class="form-control">
+                <label for="file-upload" class="file-upload-label label-text font-bold text-lg">
+                    <span>Choose images</span>
+                </label>
+                <input type="file" name="images" multiple class="file-input file-input-bordered focus:file-input-primary bg-white w-full max-w-xs">
+                <span class="label label-text text-">Images will help you appeal to more people</span>
+            </label>
+            <span asp-validation-for="Attachment" class="text-error"></span>
+            <div class="flex gap-12 items-center">
+                <div class="left flex-1">
+                    <!-- Email -->
+                    <div class="form-control w-full">
+                        <label class="label label-text font-bold text-lg">Request email</label>
+                        <input
+                            type="text"
+                            placeholder="Enter request email"
+                            class="input input-bordered w-full focus:input-primary bg-white"
+                            asp-for="@Model.RequestEmail"
+                            id="RequestEmail"
+                        />
+                        <span asp-validation-for="RequestEmail" class="text-error"></span>
+                    </div>
+                    <!-- Phonenumber -->
+                    <div class="form-control w-full">
+                        <label class="label label-text font-bold text-lg">Request phone number </label>
+                        <input
+                            type="text"
+                            placeholder="Enter request phone number"
+                            class="input input-bordered w-full focus:input-primary bg-white"
+                            asp-for="RequestPhoneNumber"
+                            id="RequestPhoneNumber"
+                        />
+                        <span asp-validation-for="RequestPhoneNumber" class="text-error"></span>
+                    </div>
+                    <!-- Address -->
+                    <label class="form-control w-full">
+                        <span class="label label-text font-bold text-lg">Request address </span>
+                        <div>
+                            <select class="select select-bordered w-full mb-4 focus:select-primary bg-white" id="city" aria-label=".form-select-sm">
+                                <option id="pOption" value="" selected>Choose province</option>
+                            </select>
+
+                            <select class="select select-bordered w-full mb-4 focus:select-primary bg-white" id="district" aria-label=".form-select-sm">
+                                <option id="dOption" value="" selected>Choose district</option>
+                            </select>
+
+                            <select class="select select-bordered w-full mb-4 focus:select-primary bg-white" id="ward" aria-label=".form-select-sm">
+                                <option id="wOption" value="" selected>Choose ward/commune</option>
+                            </select>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Enter street and house number"
+                            class="input input-bordered w-full focus:input-primary bg-white"
+                            asp-for="@Model.Location"
+                            id="RequestLocation"
+                        />
+                        <span asp-validation-for="Location" class="text-error"></span>
+                    </label>
+                    <span class="label label-text font-bold text-lg" for="isEmergency">
+                        Is this an emergency request?
+                    </span>
+                    <select id="isEmergency" name="isEmergency"
+                            class="select select-bordered w-full focus:select-primary bg-white"
+                            asp-for="isEmergency">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                <span>Or</span>
+                <div class="right">
+                    <button type="button" onclick="getUserContact()" id="contactBtn" class="btn btn-info">Use my information as contact</button>
+                </div>
+            </div>
+            <div class="w-full flex justify-center mt-4">
+                <button class="btn btn-primary" type="submit" id="submitBtn">
+                    Create Request
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
+<partial name="CustomComponent/_LoadingModalSweet" model="@("dmForm")"/>
+<script>
+let cities = document.getElementById("city");
+let districts = document.getElementById("district");
+let wards = document.getElementById("ward");
+let Parameter = {
+    url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+    method: "GET",
+    responseType: "application/json",
+};
+let promise = axios(Parameter);
+promise.then(function (result) {
+  renderCity(result.data);
+});
+
+function renderCity(data) {
+  for (const x of data) {
+    cities.options[cities.options.length] = new Option(x.Name, x.Id);
+  }
+  cities.onchange = function () {
+    district.length = 1;
+    ward.length = 1;
+    if(this.value != ""){
+      const result = data.filter(n => n.Id === this.value);
+
+      for (const k of result[0].Districts) {
+        district.options[district.options.length] = new Option(k.Name, k.Id);
+      }
+    }
+  };
+  district.onchange = function () {
+    ward.length = 1;
+    const dataCity = data.filter((n) => n.Id === cities.value);
+    if (this.value != "") {
+      const dataWards = dataCity[0].Districts.filter(n => n.Id === this.value)[0].Wards;
+
+      for (const w of dataWards) {
+        wards.options[wards.options.length] = new Option(w.Name, w.Id);
+      }
+    }
+  };
+}
+
+let clicked = 0;
+
+function getUserContact(){
+    clicked++;
+    var address = '@ViewBag.UserAddress';
+    var streetOnly = address.split(',')[0] || ""; // Split the address and handle case where it might be empty
+
+    if (clicked % 2 === 1) {
+        // Set the input fields with user's contact information
+        document.getElementById('RequestEmail').value = '@ViewBag.UserEmail';
+        document.getElementById('RequestPhoneNumber').value = '@ViewBag.UserPhoneNumber';
+        document.getElementById('RequestLocation').value = streetOnly;
+
+        // Change the button element
+        let contactBtn = document.getElementById('contactBtn');
+
+        contactBtn.classList.remove('btn-info');
+        contactBtn.classList.add('btn-success');
+
+        // Append the check icon to the button
+        contactBtn.innerHTML = 'Use my information as contact <i class="bi bi-check2-circle"></i>';
+
+        // Change option for visibility
+        let address = '@Html.Raw(ViewBag.UserAddress)';
+        let parts = address.split(',');
+        document.getElementById('pOption').innerHTML = parts[3].trim();
+        document.getElementById('dOption').innerHTML = parts[2].trim();
+        document.getElementById('wOption').innerHTML = parts[1].trim();
+    }else {
+        // Set the input fields to null
+        document.getElementById('RequestEmail').value = '';
+        document.getElementById('RequestPhoneNumber').value = '';
+        document.getElementById('RequestLocation').value = '';
+
+        // Change the button element
+        let contactBtn = document.getElementById('contactBtn');
+        contactBtn.classList.remove('btn-success');
+        contactBtn.classList.add('btn-info');
+
+        // Un-append the check icon to the button
+        contactBtn.innerHTML = 'Use my information as contact';
+
+        // Remove option
+        document.getElementById('pOption').innerHTML = 'Choose province';
+        document.getElementById('dOption').innerHTML = 'Choose district';
+        document.getElementById('wOption').innerHTML = 'Choose ward/commune';
+    }
+}
+
+let myBtn = document.querySelector('#submitBtn');
+let myForm = document.querySelector('#dmForm');
+
+myBtn.addEventListener('click', (e) => {
+    // e.preventDefault();
+    console.log(myForm)
+    // Get the selected text for city, district, and ward
+    const cityName = cities.options[cities.selectedIndex].text;
+    const districtName = districts.options[districts.selectedIndex].text;
+    const wardName = wards.options[wards.selectedIndex].text;
+
+    console.log("City:", cityName);
+    console.log("District:", districtName);
+    console.log("Ward:", wardName);
+
+    // Set hidden inputs or modify existing ones with the text values
+    document.getElementsByName('cityNameInput')[0].value = cityName;
+    document.getElementsByName('districtNameInput')[0].value = districtName;
+    document.getElementsByName('wardNameInput')[0].value = wardName
+    // Xoa het moi cai if if gi o day
+})
+</script>

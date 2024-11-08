@@ -1,0 +1,39 @@
+﻿@using Dynamics.Utility
+@model Dynamics.Models.Dto.PayRequestDto
+@{
+    ViewData["Title"] = "Test vn pay";
+    Layout = "_Layout";
+}
+<main class="min-h-screen">
+    <h2 class="text-center text-emerald-500 font-bold text-xl">Testing VNPay notification</h2>
+    <form class="w-full flex flex-col items-center justify-center" asp-action="Pay" asp-controller="Payment">
+        @* $1$ Donate to project: Some project that might has a long name#1# *@
+        @* <input type="hidden" asp-for="TargetType" value="@MyConstants.Project"/> *@
+        @* <input type="hidden" asp-for="ResourceID" value="f375ce04-f7ba-4147-a5f1-08dce73d5342" /> *@
+        @* <input type="hidden" asp-for="TargetId" value="9331d3d8-83d4-4d69-89f6-8b9dec0cb149" /> *@
+        @* $1$ Donate to organization: Super evil megacorperation lol 123123 #1# *@
+        @* <input type="hidden" asp-for="TargetType" value="@MyConstants.Organization"/> *@
+        @* <input type="hidden" asp-for="ResourceID" value="14d1b20a-b8af-4f56-1f51-08dce73d0639" /> *@
+        @* <input type="hidden" asp-for="TargetId" value="53280c86-9bd7-4b24-ba20-ce1f6c490055" /> *@
+        @* Allocation from organization to project Nokia *@
+        <input type="hidden" asp-for="TargetType" value="@MyConstants.Allocation"/>
+        <input type="hidden" asp-for="ResourceID" value="14d1b20a-b8af-4f56-1f51-08dce73d0639" /> 
+        <input type="hidden" asp-for="TargetId" value="9331d3d8-83d4-4d69-89f6-8b9dec0cb149" />
+        
+        <label class="form-control w-full max-w-md">
+            <div class="label">Enter money amount</div>
+            <input type="text" placeholder="Money amount"
+                   class="input input-bordered w-full bg-white input-info"
+                   asp-for="Amount"/>
+            <span asp-validation-for="Amount"></span>
+            <br/>
+        </label>
+
+        <label class="form-control w-full max-w-md">
+            <div class="label">Do you want to send some message to your receivers ?</div>
+            <textarea class="textarea textarea-primary textarea-bordered textarea-md" placeholder="Your message" asp-for="Message"></textarea>
+            <br/>
+        </label>
+        <button class="btn btn-success">Yes sir</button>
+    </form>
+</main>

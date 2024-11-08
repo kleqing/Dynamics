@@ -1,0 +1,52 @@
+﻿@using Dynamics.Utility
+@using Newtonsoft.Json
+@inject IHttpContextAccessor Accessor
+@model  Dynamics.Models.Models.OrganizationResource
+
+@{
+    ViewData["Title"] = "AddNewOrganizationResource";
+}
+
+<div class="py-5 pt-12 px-5 my-5 flex justify-center" style="min-height: calc(100vh - 95px - 150px)">
+    <div class="bg-white border border-solid border-gray-500 shadow-xl rounded-box px-5 py-5 w-auto">
+        <h1 class="text-3xl font-semibold mb-10 text-center ">
+            <span class="border-b-2 border-gray-500 border-solid py-2">Manage organization resources</span>
+        </h1>
+
+        <form asp-action="AddNewOrganizationResource" asp-controller="Organization" class="flex flex-col gap-4 w-full">
+
+            <div class="py-5">
+                <h1 class="text-2xl text-center font-medium mb-2">Add resources Organization</h1>
+            </div>
+            <div>
+                <input asp-for="ResourceID" name="ResourceID" class="hidden">
+                <input asp-for="OrganizationID" name="OrganizationID" class="hidden">
+                <input asp-for="Quantity" name="Quantity" class="hidden">
+            </div>
+
+            <div class="flex mb-4 justify-around gap-8">
+                <div>
+                    <label asp-for="ResourceName" class="label label-text">
+                        Enter resource name
+                    </label>
+                    <input asp-for="ResourceName" type="text" class="w-full input input-bordered focus:input-primary bg-white" placeholder="Resource name">
+                    <span asp-validation-for="ResourceName" class="text-red-500"></span>
+                </div>
+                <div>
+                    <label asp-for="Unit" class="label label-text">
+                        Unit
+                    </label>
+                    <input asp-for="Unit" type="text" class="w-full input input-bordered focus:input-primary bg-white" placeholder="Enter unit">
+                    <span asp-validation-for="Unit" class="text-red-500"></span>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 items-center">
+                <button class="btn btn-primary">Add Organization Resource</button>
+            </div>
+        </form>
+        <a href="javascript:history.back()" onclick="this.href = document.referrer;" class="text-start">
+            <p class="link link-primary">&larr; Go back</p>
+        </a>
+    </div>
+</div>

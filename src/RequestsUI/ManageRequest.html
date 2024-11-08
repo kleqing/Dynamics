@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>manage</title>
+    <link rel="stylesheet" href="../../styles/output.css" />
+  </head>
+  <body>
+    <h1 class="text-xl">TODO: INSERT YOUR NAVBAR HERE</h1>
+    <main class="w-full h-full flex flex-col gap-6 items-center p-32">
+      <h1 class="text-3xl">Manage your request</h1>
+      <!-- right search bar -->
+      <div class="flex w-full justify-end items-center gap-2">
+        <!-- TODO: Implement search -->
+        <label class="input input-bordered flex items-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            class="h-4 w-4 opacity-70"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <input type="text" class="grow" placeholder="Search something..." />
+        </label>
+        <!-- TODO: Implement filter dropdown -->
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-outline m-1">Filter</div>
+          <ul
+            tabindex="0"
+            class="dropdown-content menu bg-base-100 rounded-box border z-[1] w-52 p-2 shadow-md"
+          >
+            <li><a>Item 1</a></li>
+            <li><a>Item 2</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Request list -->
+      <ul class="flex flex-col gap-3 w-full shadow-md">
+        <li class="flex justify-between w-full shadow-md p-4 rounded-md">
+          <!-- Left -->
+          <div class="flex gap-8">
+            <div class="font-bold flex flex-col justify-center h-full text-xl">1.</div>
+            <div class="flex flex-col gap-2">
+              <!-- Check if it's already approved or not -->
+              <p>Request name here - <span class="text-success font-bold">Approved</span></p>
+              <span class="text-neutral">24/08/2004</span>
+            </div>
+          </div>
+          <!-- right -->
+          <div class="flex gap-4 items-center">
+            <button class="btn btn-primary w-28">Edit</button>
+            <button class="btn btn-error w-28">Remove</button>
+          </div>
+        </li>
+      </ul>
+      <!-- Add a footer here. -->
+    </main>
+  </body>
+</html>

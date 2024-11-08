@@ -2,7 +2,11 @@
     let searchForm = document.getElementById('searchForm');
     let dateFrom = null;
     let dateTo = null;
-    if (searchForm == null) console.log('Cannot find search form');
+    if (searchForm == null) {
+        console.log('Cannot find search form, searching for input with class dateFrom and dateTo');
+        dateFrom = document.getElementsByClassName('dateFrom')[0];
+        dateTo = document.getElementsByClassName('dateTo')[0];
+    }
     else {
         dateFrom = searchForm.querySelector('input[name="DateFrom"]');
         dateTo = searchForm.querySelector('input[name="DateTo"]');

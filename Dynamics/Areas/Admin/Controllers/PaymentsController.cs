@@ -40,8 +40,8 @@ namespace Dynamics.Areas.Admin.Controllers
                 {
                     var viewWithdraw = await _adminRepository.ReviewWithdraw(w => true);
 
-                    var withdraw = viewWithdraw
-                        .Where(r => r.Project.ProjectResource.FirstOrDefault().ResourceName == "Money")
+                    var withdraw = viewWithdraw.Where(r => r.Project.ProjectResource.FirstOrDefault().ResourceName == "Money");
+                    var transactionBases = withdraw
                         .Select(r => new TransactionBase
                         {
                             WithdrawID = r.WithdrawID,
@@ -60,7 +60,7 @@ namespace Dynamics.Areas.Admin.Controllers
 
                     var model = new Payment
                     {
-                        viewwithdraw = withdraw
+                        viewwithdraw = transactionBases
                     };
                     return View(model);
                 }

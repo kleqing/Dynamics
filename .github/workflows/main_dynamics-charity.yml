@@ -64,5 +64,6 @@ jobs:
         with:
           app-name: 'dynamics-charity'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_DEPLOY }}
           package: .
           

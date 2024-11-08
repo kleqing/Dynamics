@@ -301,7 +301,7 @@
             </div>
             <div>
                 <p>Time left</p>
-                <p class="timeLeftContainer__time"><span class="font-bold" id="d">111</span> d <span class="font-bold" id="h">111</span> h <span class="font-bold" id="m">111</span> m</p>
+                <p class="timeLeftContainer__time"><span class="font-bold" id="d"></span> d <span class="font-bold" id="h"></span> h <span class="font-bold" id="m"></span> m</p>
             </div>
         </div>
         <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
@@ -399,7 +399,7 @@
     let remainingTime = document.querySelector('#daysLeft');
     let days = (Number)(remainingTime.innerText);
     console.log('Days: '  + days);
-    if (days === 0 || isNaN(days)) {
+    if (days === 0 || isNaN(days) || days <= 0) {
         let container = document.getElementsByClassName("timeLeftContainer")[0];
         container.style.display = "none";
     } else {

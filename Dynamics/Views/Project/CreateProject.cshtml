@@ -198,11 +198,11 @@
 
                 if (item.UserID.Equals(Model.OrganizationVM.CEO.Id))
                 {
-                    <option class="text-xl text-black font-semibold" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email]</option>
+                    <option class="" value="@item.UserID">[CEO-Organization-@Model.OrganizationVM.OrganizationName] - [@item.User.UserName] - [@item.User.Email]</option>
                     continue;
                 }
 
-                <option class="text-xl text-black font-semibold" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
+                <option class="" value="@item.UserID">[@item.User.UserName] - [@item.User.Email]</option>
             }
         </select>
     </div>

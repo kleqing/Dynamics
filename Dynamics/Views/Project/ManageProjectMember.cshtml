@@ -153,7 +153,7 @@
                                      alt="@item.User.UserAvatar" class="relative inline-block h-12 w-12 !rounded-full object-cover object-center"/>
                                 <div class="flex flex-col">
                                     <p class="block font-sans antialiased font-normal leading-normal ">
-                                        <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.Id" class="text-black font-bold"> @item.User.UserName</a>
+                                        <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName" class="text-black font-bold focus:underline transition-all"> @item.User.UserName</a>
                                     </p>
                                     <p class="block font-sans antialiased text-sm leading-normal  ">
                                         @item.User.Email

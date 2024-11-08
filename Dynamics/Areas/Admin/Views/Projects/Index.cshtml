@@ -350,7 +350,7 @@
                                                 foreach (var image in images)
                                                 {
                                                     <div class="carousel-item @(isActive ? "active" : "")">
-                                                        <img src="@image.Trim()" class="d-block w-100" alt="Project Image">
+                                                        <img src="@image.Trim()" class="d-block w-100" alt="Project Image" style="height: 200px; object-fit: cover">
                                                     </div>
                                                     isActive = false;
                                                 }

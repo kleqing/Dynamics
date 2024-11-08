@@ -125,11 +125,42 @@
                     <label asp-for="ProjectStatus" class="block mb-2 text-md font-medium text-gray-900">Set status for this project</label>
                     <select asp-for="ProjectStatus"
                             class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)">
+                            asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)"
+                            onchange="checkStatus(this)">
                         <option disabled selected>---Select Status---</option>
                     </select>
                     <span asp-validation-for="ProjectStatus" class="text-danger"></span>
                 </div>
+                <div id="bankDetailsPopup" style="display: none;" class="popup fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Enter Bank Details</h3>
+
+                        <!-- Bank Account Number -->
+                        <label for="bankAccountNumber" class="block text-md font-medium text-gray-900 mb-2">Bank Account Number</label>
+                        <input type="text" id="bankAccountNumber" class="input-field bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 mb-4" />
+
+                        <!-- Bank Name -->
+                        <label for="bankName" class="block text-md font-medium text-gray-900 mb-2">Bank Name</label>
+                        <select id="bankName" class="input-field bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 mb-4">
+                            <option disabled selected>---Select Bank---</option>
+                        </select>
+
+                        <!-- Message -->
+                        <label for="bankMessage" class="block text-md font-medium text-gray-900 mb-2">Message</label>
+                        <textarea id="bankMessage" class="input-field bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2 mb-4"></textarea>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end gap-4 mt-4">
+                            <button type="button" onclick="submitBankDetails()" class="bg-blue-800 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 font-semibold">
+                                Submit
+                            </button>
+                            <button type="button" onclick="closePopup()" class="bg-gray-500 text-black py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-300 font-semibold">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
                     <label asp-for="@Model.ProjectEmail" class="block mb-2 text-md font-medium text-gray-900">Enter project email</label>
                     <input asp-for="@Model.ProjectEmail" type="email" id="email"

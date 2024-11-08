@@ -43,7 +43,8 @@ namespace Dynamics.Areas.Admin.Controllers
                         Message = r.Message,
                         Time = r.Time,
                         Received = r.Project.ProjectName,
-                        Description = r.Project.ProjectDescription
+                        Description = r.Project.ProjectDescription,
+                        Status = r.Status
                     })
                     .GroupBy(t => t.ProjectResourceID)
                     .Select(g => g.First())
@@ -98,6 +99,16 @@ namespace Dynamics.Areas.Admin.Controllers
             {
                 return RedirectToAction("Error", "Home");
             }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> ConfirmWithdraw(Guid id)
+        {
+            if (User.IsInRole(RoleConstants.Admin))
+            {
+                await _adminRepository.ChangeWithdrawStatus(id);
+            }
+            return Json(new { success = true });
         }
         /*[HttpPost]
         public async Task<JsonResult> CreateWithdraw(string projectid, string bankAccountNumber, string bankId, string message)

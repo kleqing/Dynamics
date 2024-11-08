@@ -59,11 +59,11 @@
         @if (currentUser!=null && currentUser.Id.Equals(@Model.CEO.Id))
         {
             <div class="flex justify-center gap-4 mb-8">
-                <a href="#" class="inline-block">
-                    <button class="px-6 py-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 shadow-md">
-                        Invite Members
-                    </button>
-                </a>
+                @* <a href="#" class="inline-block"> *@
+                @*     <button class="px-6 py-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 shadow-md"> *@
+                @*         Invite Members *@
+                @*     </button> *@
+                @* </a> *@
 
                 <a asp-action="ManageRequestJoinOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID" class="inline-block relative">
                     <button class="px-6 py-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2 shadow-md">

@@ -1562,8 +1562,19 @@ namespace Dynamics.Controllers
             var memberToAssignToProject = new List<OrganizationMember>();
             foreach (var mem in currentOrganization.OrganizationMember)
             {
+                var isPrjLeader = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.ProjectLeader);
                 var isCEO = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.HeadOfOrganization);
-                if (!isCEO) memberToAssignToProject.Add(mem);
+                // To become a project leader, the member must: Not leading other organization && not a project leader of a project
+                // If the user is CEO of the CURRENT organization, then the CEO must currently not leading any project 
+                if (mem.Status == 2 && !isPrjLeader)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
+                // If user is not a project leader, but is other organization CEO, don't allow them
+                else if (!isPrjLeader && !isCEO)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
             }
             currentOrganization.OrganizationMember = memberToAssignToProject;
             var projectVM = new ProjectVM()
@@ -1614,13 +1625,24 @@ namespace Dynamics.Controllers
                 return RedirectToAction("MyOrganization", "Organization", new { userId = currentUser.Id });
             }
             
-            // Only get the person that is not the CEO of other organization
+            // Only get the person that is not the CEO of OTHER organization
             // Because a CEO can only lead the project of that CEO
             var memberToAssignToProject = new List<OrganizationMember>();
             foreach (var mem in currentOrganization.OrganizationMember)
             {
+                var isPrjLeader = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.ProjectLeader);
                 var isCEO = await _roleService.IsInRoleAsync(mem.UserID, RoleConstants.HeadOfOrganization);
-                if (!isCEO) memberToAssignToProject.Add(mem);
+                // To become a project leader, the member must: Not leading other organization && not a project leader of a project
+                // If the user is CEO of the CURRENT organization, then the CEO must currently not leading any project 
+                if (mem.Status == 2 && !isPrjLeader)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
+                // If user is not a project leader, but is other organization CEO, don't allow them
+                else if (!isPrjLeader && !isCEO)
+                {
+                    memberToAssignToProject.Add(mem);
+                }
             }
             currentOrganization.OrganizationMember = memberToAssignToProject;
             var projectVM = new ProjectVM()

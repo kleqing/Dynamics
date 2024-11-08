@@ -258,3 +258,4 @@ _Pvt_Extensions
 .idea/
 *.sln.iml
 /Dynamics.DataAccess/Migrations
+Dynamics/wwwroot/css/output.css

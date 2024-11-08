@@ -67,7 +67,7 @@ namespace Dynamics.Utility
                     <tr>
                         <td style=""padding: 30px;"">
                             <h2 style=""color: #0078D4; margin-top: 0; margin-bottom: 20px; font-size: 24px;"">{1}</h2>
-                            <p style=""margin-top: 0; margin-bottom: 20px;"">Hello,{0}</p>
+                            <p style=""margin-top: 0; margin-bottom: 20px;"">Hello, {0}</p>
                             <p style=""margin-top: 0; margin-bottom: 20px;"">{2}</p>
                             <p style=""margin-top: 0; margin-bottom: 20px;"">If you have any questions or need assistance, please don't hesitate to contact our support team at support@dynamics.com.</p>
                             <p style=""margin-top: 0; margin-bottom: 0;"">Best regards,<br>The Dynamics Team</p>
@@ -77,7 +77,7 @@ namespace Dynamics.Utility
                     <tr>
                         <td style=""background-color: #f8f8f8; padding: 20px; text-align: center; font-size: 14px; color: #888888;"">
                             <p style=""margin: 0;"">This is an automated message, please do not reply to this email.</p>
-                            <p style=""margin: 10px 0 0;"">© 2024 Dynamics. All rights reserved.</p>
+                            <p style=""margin: 10px 0 0;"">© <script>document.write(new Date().getFullYear())</script> Dynamics. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>

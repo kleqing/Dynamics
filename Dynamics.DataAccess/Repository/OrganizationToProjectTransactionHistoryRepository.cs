@@ -23,7 +23,7 @@ namespace Dynamics.DataAccess.Repository
         public Task<OrganizationToProjectHistory?> GetAsync(
       Expression<Func<OrganizationToProjectHistory, bool>> filter)
         {
-            return _context.OrganizationToProjectTransactionHistory.Include(x=>x.OrganizationResource).ThenInclude(x=>x.Organization).Where(filter).FirstOrDefaultAsync();
+            return _context.OrganizationToProjectTransactionHistory.Include(x=>x.ProjectResource).Include(x=>x.OrganizationResource).ThenInclude(x=>x.Organization).Where(filter).FirstOrDefaultAsync();
         }
 
         public async Task<List<OrganizationToProjectHistory>> GetAllOrganizationDonateAsync(

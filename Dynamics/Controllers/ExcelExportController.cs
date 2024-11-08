@@ -36,7 +36,6 @@ namespace Dynamics.Controllers
                     worksheet.Cells["B1"].Value = "Quantity";
                     worksheet.Cells["C1"].Value = "Unit";
                     worksheet.Cells["D1"].Value = "Message";
-
                     // Style header
                     using (var range = worksheet.Cells["A1:D1"])
                     {
@@ -62,6 +61,7 @@ namespace Dynamics.Controllers
                         worksheet.Cells[row, 2].Value = 0;
                         worksheet.Cells[row, 3].Value = item.Unit;
                         worksheet.Cells[row, 4].Value = "Message...";
+                        worksheet.Cells[row, 5].Value = item.ResourceID;
                         row++;
                     }
 
@@ -73,6 +73,7 @@ namespace Dynamics.Controllers
                     worksheet.Cells.Style.Locked = true;
                     worksheet.Cells[2, 2, worksheet.Dimension.End.Row, 2].Style.Locked = false;
                     worksheet.Cells[2, 4, worksheet.Dimension.End.Row, 4].Style.Locked = false;
+                    worksheet.Cells[2, 5, worksheet.Dimension.End.Row, 5].Style.Font.Color.SetColor(Color.Transparent);
                     return File(
                         package.GetAsByteArray(),
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -136,7 +137,8 @@ namespace Dynamics.Controllers
                         worksheet.Cells[row, 3].Value = item.Quantity;
                         worksheet.Cells[row, 4].Value = item.ExpectedQuantity;
                         worksheet.Cells[row, 5].Value = item.Unit;
-                        worksheet.Cells[row, 6].Value = "Message...";
+                        worksheet.Cells[row, 6].Value = "Message...";  
+                        worksheet.Cells[row, 7].Value = item.ResourceID;
                         row++;
                     }
 
@@ -148,6 +150,8 @@ namespace Dynamics.Controllers
                     worksheet.Cells.Style.Locked = true;
                     worksheet.Cells[2, 2, worksheet.Dimension.End.Row, 2].Style.Locked = false;
                     worksheet.Cells[2, 6, worksheet.Dimension.End.Row, 6].Style.Locked = false;
+                    worksheet.Cells[2, 7, worksheet.Dimension.End.Row, 7].Style.Font.Color.SetColor(Color.Transparent);
+
                     return File(
                         package.GetAsByteArray(),
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

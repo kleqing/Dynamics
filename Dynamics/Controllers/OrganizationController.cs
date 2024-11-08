@@ -646,7 +646,7 @@ namespace Dynamics.Controllers
             //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
 
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto =>
-                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0);
+                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0); // Dont get the pending ones
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto =>
                 uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
 

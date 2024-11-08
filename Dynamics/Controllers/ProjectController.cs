@@ -898,9 +898,9 @@ namespace Dynamics.Controllers
             }
             // Base query:
             var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
-                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status != 0);
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
-                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status == 1 || utp.Status == -1);
+                utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status != 0);
             
             // Setup search query and pagination
             var transactionDtos = await _transactionViewService.SetupProjectTransactionDtosWithSearchParams(searchRequestDto, userToPrjQueryable, orgToPrjQueryable);

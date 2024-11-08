@@ -20,12 +20,12 @@ namespace Dynamics.Areas.Admin.Controllers
     [Area("Admin")]
     public class PaymentsController : Controller
     {
-
         private readonly IAdminRepository _adminRepository;
         private readonly IWithdrawRepository _withdrawRepository;
         private readonly IEmailSender _emailSender;
 
-        public PaymentsController(IAdminRepository adminRepository, IWithdrawRepository withdrawRepository, IEmailSender emailSender)
+        public PaymentsController(IAdminRepository adminRepository, IWithdrawRepository withdrawRepository,
+            IEmailSender emailSender)
         {
             _adminRepository = adminRepository;
             _withdrawRepository = withdrawRepository;
@@ -34,37 +34,45 @@ namespace Dynamics.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole(RoleConstants.Admin))
+            try
             {
-                
-                var viewWithdraw = await _adminRepository.ReviewWithdraw(w => true);
-                
-                var withdraw = viewWithdraw.Where(r => r.Project.ProjectResource.FirstOrDefault().ResourceName == "Money")
-                    .Select(r => new TransactionBase
-                    {
-                        WithdrawID = r.WithdrawID,
-                        ProjectResourceID = r.Project.ProjectResource.FirstOrDefault().UserToProjectTransactionHistory.FirstOrDefault().ProjectResourceID,
-                        Message = r.Message,
-                        Time = r.Time,
-                        Received = r.Project.ProjectName,
-                        Description = r.Project.ProjectDescription,
-                        Status = r.Status
-                    })
-                    .GroupBy(t => t.ProjectResourceID)
-                    .Select(g => g.First())
-                    .OrderByDescending(r => r.Time)
-                    .ToList();
-                
-                var model = new Payment
+                if (User.IsInRole(RoleConstants.Admin))
                 {
-                    viewwithdraw = withdraw
-                };
+                    var viewWithdraw = await _adminRepository.ReviewWithdraw(w => true);
 
-                return View(model);
+                    var withdraw = viewWithdraw
+                        .Where(r => r.Project.ProjectResource.FirstOrDefault().ResourceName == "Money")
+                        .Select(r => new TransactionBase
+                        {
+                            WithdrawID = r.WithdrawID,
+                            ProjectResourceID = r.Project.ProjectResource.FirstOrDefault()
+                                .UserToProjectTransactionHistory.FirstOrDefault().ProjectResourceID,
+                            Message = r.Message,
+                            Time = r.Time,
+                            Received = r.Project.ProjectName,
+                            Description = r.Project.ProjectDescription,
+                            Status = r.Status
+                        })
+                        .GroupBy(t => t.ProjectResourceID)
+                        .Select(g => g.First())
+                        .OrderByDescending(r => r.Time)
+                        .ToList();
+
+                    var model = new Payment
+                    {
+                        viewwithdraw = withdraw
+                    };
+                    return View(model);
+                }
+                else
+                {
+                    return RedirectToAction("Error", "Home");
+                }
             }
-            else
+            catch (Exception e)
             {
-                return RedirectToAction("Error", "Home");
+                Console.WriteLine(e);
+                throw;
             }
         }
 
@@ -74,7 +82,8 @@ namespace Dynamics.Areas.Admin.Controllers
             if (User.IsInRole(RoleConstants.Admin))
             {
                 var userToProject =
-                    await _adminRepository.ViewUserToProjectTransactionInHistory(u => u.ProjectResource.Project.Withdraw.FirstOrDefault().WithdrawID == id);
+                    await _adminRepository.ViewUserToProjectTransactionInHistory(u =>
+                        u.ProjectResource.Project.Withdraw.FirstOrDefault().WithdrawID == id);
 
                 var projectID = userToProject.FirstOrDefault().ProjectResource.Project.ProjectID;
 
@@ -115,6 +124,7 @@ namespace Dynamics.Areas.Admin.Controllers
                 await _emailSender.SendEmailAsync(withdraw.Project.ProjectEmail, "Withdraw success.",
                     $"Please check your bank account, the withdraw request has been approved. Thank you!");
             }
+
             return Json(new { success = true });
         }
         /*[HttpPost]

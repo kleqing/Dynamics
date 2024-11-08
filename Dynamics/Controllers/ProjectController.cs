@@ -1205,8 +1205,8 @@ namespace Dynamics.Controllers
                             transactionOrgObj);
                     }
 
-                    var link2 = Url.Action(nameof(ManageProjectDonor), "Project",
-                        new { projectID = transactionOrgObj.ProjectResource.ProjectID },
+                    var link2 = Url.Action(nameof(ManageProjectDonor), "Project", 
+                        new { projectID = HttpContext.Session.GetString("currentProjectID") },
                         Request.Scheme);
                     await _notificationService.ProcessProjectDonationNotificationAsync
                     (transactionOrgObj.ProjectResource.ProjectID, transactionOrgObj.TransactionID, link2,

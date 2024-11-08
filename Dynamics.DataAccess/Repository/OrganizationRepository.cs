@@ -201,7 +201,9 @@ namespace Dynamics.DataAccess.Repository
                 Expression<Func<UserToOrganizationTransactionHistory, bool>> filter)
         {
             var userToOrganizationTransactionHistory =
-                await _db.UserToOrganizationTransactionHistories.Where(filter).FirstOrDefaultAsync();
+                await _db.UserToOrganizationTransactionHistories
+                    .Include(uto => uto.OrganizationResource)
+                    .Where(filter).FirstOrDefaultAsync();
             return userToOrganizationTransactionHistory;
         }
 

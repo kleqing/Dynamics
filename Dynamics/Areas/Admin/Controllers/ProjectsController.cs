@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Dynamics.DataAccess;
 using Dynamics.Models.Models;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Services;
 using Dynamics.Utility;
 using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
@@ -19,10 +20,12 @@ namespace Dynamics.Areas.Admin.Controllers
     public class ProjectsController : Controller
     {
         private readonly IAdminRepository _adminRepository = null;
+        private readonly IWalletService _walletService; 
 
-        public ProjectsController(IAdminRepository adminRepository)
+        public ProjectsController(IAdminRepository adminRepository, IWalletService walletService)
         {
             _adminRepository = adminRepository;
+            _walletService = walletService;
         }
 
         // GET: Admin/Projects
@@ -66,6 +69,7 @@ namespace Dynamics.Areas.Admin.Controllers
         {
             var result = await _adminRepository.BanProject(id);
             var project = await _adminRepository.GetProjects(p => p.ProjectID == id);
+            if (result) await _walletService.RefundProjectWalletAsync(project);
 
             return Json(new
             {

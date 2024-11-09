@@ -982,28 +982,40 @@
     <script>
         $(document).ready(function () {
             let withdrawId;
-            // Lấy ID của lần rút tiền khi modal được mở
+
+            // Get Withdraw ID when the modal opens
             $('#standard-modal').on('show.bs.modal', function (event) {
-                let button = $(event.relatedTarget); // Button đã mở modal
-                withdrawId = button.data('id'); // Lấy giá trị WithdrawID từ thuộc tính data-id của button
+                let button = $(event.relatedTarget);
+                withdrawId = button.data('id');
             });
-            // Khi nhấn nút "Confirm" trong modal
+
             $('#confirmWithdrawBtn').click(function () {
                 if (withdrawId) {
+                    $(this).prop('disabled', true);
+                    $('.btn-primary').hide(); // Hide the original confirm button
+                    $('.btn-loading').show(); // Show the loading button
+
+                    // Send the AJAX request
                     $.ajax({
-                        url: '/Admin/Payments/ConfirmWithdraw', // URL đến action ConfirmWithdraw trong controller
+                        url: '/Admin/Payments/ConfirmWithdraw',
                         type: 'POST',
                         data: { id: withdrawId },
                         success: function (response) {
-                            $('#standard-modal').modal('hide');
-                            if (response.success) {
-                                window.location.href = '/Admin/Payments'; // Chuyển hướng nếu thành công
-                            } else {
-                                alert(response.message); // Thông báo lỗi nếu có
-                            }
+                            setTimeout(function () { // Add a delay before redirecting
+                                $('#standard-modal').modal('hide');
+                                if (response.success) {
+                                    window.location.href = '/Admin/Payments';
+                                } else {
+                                    alert(response.message);
+                                }
+                            }, 3000);
                         },
                         error: function (xhr, status, error) {
-                            alert("An error occurred: " + error); // Thông báo lỗi nếu request thất bại
+                            alert("An error occurred: " + error);
+                            // Re-enable the button in case of error
+                            $('#confirmWithdrawBtn').prop('disabled', false);
+                            $('.btn-loading').hide();
+                            $('.btn-primary').show();
                         }
                     });
                 }
@@ -1011,5 +1023,6 @@
         });
     </script>
 
-    </body>
+
+</body>
 

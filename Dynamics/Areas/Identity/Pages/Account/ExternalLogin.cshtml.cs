@@ -139,11 +139,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
-                if (User.IsInRole(RoleConstants.Admin) && result.Succeeded)
-                {
-                    return Redirect("~/Admin/");
-                }
-
                 // Set the session
                 HttpContext.Session.SetString("user", JsonConvert.SerializeObject(businessUser));
                 HttpContext.Session.SetString("currentUserID", businessUser.Id.ToString());

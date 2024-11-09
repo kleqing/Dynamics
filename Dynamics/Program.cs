@@ -88,15 +88,7 @@ namespace Dynamics
             {
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleConstants.Admin));
             });
-
-
-            // Add authorization policy
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleConstants.Admin));
-            });
-
-
+            
             // Repos here
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();

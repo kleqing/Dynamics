@@ -122,15 +122,25 @@
                 </div>
                 <!-- status -->
                 <div>
+                  
                     <label asp-for="ProjectStatus" class="block mb-2 text-md font-medium text-gray-900">Set status for this project</label>
-                    <select asp-for="ProjectStatus"
-                            class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)"
-                            onchange="checkStatus(this)"
-                            id="statusSelect">
-                        <option disabled selected>---Select Status---</option>
-                    </select>
-                    <label class="text-sm text-neutral">If your project has gathered enough donations, set the status to <b>in progress</b></label>
+                    @if (Model.ProjectStatus == 0)
+                    {
+                        <select asp-for="ProjectStatus"
+                                class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                asp-items="@(ViewData["StatusList"] as IEnumerable<SelectListItem>)"
+                                onchange="checkStatus(this)"
+                                id="statusSelect">
+                            <option disabled selected>---Select Status---</option>
+                        </select>
+                        <label class="text-sm text-neutral">If your project has gathered enough donations, set the status to <b>in progress</b></label>
+                    }
+                    else
+                    {
+                        <select asp-for="ProjectStatus" readonly class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option value="1" selected>In progress</option>
+                        </select>
+                    }
                     <span asp-validation-for="ProjectStatus" class="text-danger"></span>
                 </div>
                 <div id="bankDetailsPopup" style="display: none;" class="popup fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">

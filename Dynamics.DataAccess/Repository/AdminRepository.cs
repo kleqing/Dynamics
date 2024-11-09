@@ -251,7 +251,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> BanUserById(Guid id)
         {
-            var user = await GetUser(u => id == u.Id);
+            var user = await _userManager.FindByIdAsync(id.ToString());
             if (user != null)
             {
                 user.isBanned = !user.isBanned;
@@ -261,7 +261,6 @@ namespace Dynamics.DataAccess.Repository
                     var role = await _userManager.GetRolesAsync(user);
                     if (role.Contains(RoleConstants.Admin) || role.Contains(RoleConstants.User))
                     {
-                        await _userManager.RemoveFromRoleAsync(user, RoleConstants.Admin);
                         await _userManager.AddToRoleAsync(user, RoleConstants.Banned);
                     }
                 }
@@ -272,11 +271,11 @@ namespace Dynamics.DataAccess.Repository
                     {
                         await _userManager.RemoveFromRoleAsync(user, RoleConstants.Banned);
                         await _userManager.AddToRoleAsync(user, RoleConstants.User);
+                        
                     }
                 }
-                await _db.SaveChangesAsync();
-                return user.isBanned;  // Return ban value (true/false)
             }
+            await _db.SaveChangesAsync();
             return user.isBanned;
         }
 

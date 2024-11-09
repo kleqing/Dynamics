@@ -1,0 +1,47 @@
+﻿@model string
+<!-- Sidebar -->
+<aside class="p-2 pt-12 w-full max-w-52 relative">
+    <ul class="flex flex-col gap-2 sticky top-1/4">
+        @{
+            if (Model.Equals("Edit", StringComparison.OrdinalIgnoreCase))
+            {
+                <a asp-action="Edit" asp-controller="User" class="btn btn-ghost text-start btn-active"> Change profile </a>
+            }
+            else
+            {
+                <a asp-action="Edit" asp-controller="User" class="btn btn-ghost text-start"> Change profile </a>
+            }
+        }
+        @{
+            if (Model.Equals("Account", StringComparison.OrdinalIgnoreCase))
+            {
+                <a asp-action="Account" asp-controller="User" class="btn btn-ghost text-start btn-active"> Account </a>
+            }
+            else
+            {
+                <a asp-action="Account" asp-controller="User" class="btn btn-ghost text-start"> Account </a>
+            }
+        }
+        @{
+            if (Model.Equals("History", StringComparison.OrdinalIgnoreCase))
+            {
+                <a asp-action="History" asp-controller="User" class="btn btn-ghost text-start btn-active"> History </a>
+            }
+            else
+            {
+                <a asp-action="History" asp-controller="User" class="btn btn-ghost text-start"> History </a>
+            }
+        }
+        @{
+            if (Model.Equals("Wallet", StringComparison.OrdinalIgnoreCase))
+            {
+                <a asp-action="Index" asp-controller="Wallet" class="btn btn-ghost text-start btn-active"> Your wallet </a>
+            }
+            else
+            {
+                <a asp-action="Index" asp-controller="Wallet" class="btn btn-ghost text-start"> Your wallet </a>
+            }
+        }
+    </ul>
+</aside>
+<!-- End sidebar -->

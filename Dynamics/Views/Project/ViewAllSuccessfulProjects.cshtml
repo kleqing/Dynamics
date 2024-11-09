@@ -1,0 +1,59 @@
+﻿@model Dynamics.Models.Models.ViewModel.AllProjectsVM
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="flex justify-center text-3xl font-bold text-success" style="margin-top: 100px;"> Discorver all successful charities project</div>
+
+<!-- container -->
+<div class="w-full min-h-screen p-16">
+    <!-- search bar -->
+    <div class="flex justify-end w-full mb-8">
+        <div class="input input-bordered flex items-center gap-2 bg-white">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 16 16"
+                 fill="currentColor"
+                 class="h-4 w-4 opacity-70">
+                <path fill-rule="evenodd"
+                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                      clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="grow" placeholder="Search something..." name="Query" id="searchInp"/>
+        </div>
+    </div>
+    <!-- list project -->
+    <div class="gap-4 flex flex-wrap justify-center w-full">
+        @foreach(var item in Model.allActiveProjects)
+        {
+            <partial name="CustomComponent/OverviewCard/ProjectsOverview" model="item"/>
+        }
+    </div>
+
+</div>
+<script>
+    // First load all data from the card
+    // An object should be like this: obj {content: abc, node: A node}
+    let cards = document.getElementsByClassName('card');
+    // console.log(cards);
+    let allCardInformation = [];
+    for (card of cards) {
+        let cardSearchContents = card.querySelectorAll('.searchTarget');
+        let searchContent = Array.from(cardSearchContents).reduce((acc, current) => acc + current.innerText + ' ', '');
+        // console.log(cardSearchContents);
+        // console.log(searchContent);
+        allCardInformation.push({
+            search: searchContent,
+            ele: card,
+        });
+    }
+    console.log(allCardInformation)
+    let searchForm = document.getElementById('searchInp');
+    searchForm.addEventListener('input', e => {
+        const query = e.target.value.toLowerCase();
+        allCardInformation.forEach(card => {
+            console.log(card)
+            let isVisible = card.search.toLowerCase().includes(query);
+            card.ele.classList.toggle("hidden", !isVisible);
+        })
+    })
+</script>

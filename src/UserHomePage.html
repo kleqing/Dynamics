@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home page</title>
+    <link rel="stylesheet" href="../styles/output.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="relative">
+      <!-- Navbar -->
+      <div
+        class="navbar bg-white shadow-md fixed top-2 right-8 left-8 border z-20 w-full rounded-lg"
+        style="width: calc(100% - 4rem)"
+      >
+        <!-- Search bar -->
+        <div class="form-control">
+          <input
+            type="text"
+            placeholder="Search for something..."
+            class="input input-ghost input-bordered w-full h-10"
+          />
+        </div>
+        <!-- Logo, press this should return to home -->
+        <div class="flex-1 flex justify-center">
+          <a href="#" class="text-3xl text-center font-bold text-primary"><i>Dynamics</i></a>
+        </div>
+        <div class="flex gap-4">
+          <span>User name here</span>
+          <!-- TODO: Notification system -->
+          <i class="fa-regular fa-bell cursor-pointer"></i>
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">
+              <!-- TODO: Insert username avatar here -->
+              <div class="w-20 rounded-full">
+                <img alt="{user.name}" src="https://i.ytimg.com/vi/pX3l21wyX88/maxresdefault.jpg" />
+              </div>
+            </div>
+            <ul
+              tabindex="0"
+              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li>
+                <a class="justify-between">Profile</a>
+              </li>
+              <li>
+                <a>Settings</a>
+              </li>
+              <li>
+                <a>My organization</a>
+              </li>
+              <li>
+                <a>My projects</a>
+              </li>
+              <li class="text-rose-500">
+                <a class="flex justify-between"> Logout </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End navbar -->
+      <!-- Backgound image for navbar and a button -->
+      <div class="relative flex justify-center items-center z-0">
+        <img
+          class="object-cover w-full h-72"
+          src="https://wallpapers.com/images/featured/anime-scenery-ahd1eqpvwq8aoofp.jpg"
+          alt=""
+        />
+        <button class="btn btn-primary absolute top-100px">Create a request</button>
+      </div>
+      <!-- End background image -->
+    </header>
+
+    <!-- ------------------------------------------------------------------- -->
+
+    <!-- The body of the home page -->
+    <main class="-mt-12 z-10 relative bg-white rounded-3xl py-8 px-8 flex flex-col gap-20">
+      <!-- Help request section -->
+      <section
+        class="flex flex-col justify-center items-center splide"
+        aria-labelledby="carousel-heading"
+      >
+        <h1 class="text-center text-3xl text-primary font-bold carousel-heading">Help requests</h1>
+        <!-- TODO: Replace this with link to view requests -->
+        <a class="w-full text-end text underline text-blue-700 font-bold"
+          >View more request &rarr;</a
+        >
+        <div class="splide__track flex w-10/12 py-8 px-8">
+          <!-- List of cards -->
+          <ul class="splide__list gap-12 w-full">
+            <!-- Card -->
+            <li
+              class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide"
+            >
+              <figure>
+                <img
+                  class="w-full object-cover h-48"
+                  src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                  alt="Shoes"
+                />
+              </figure>
+              <div class="card-body p-4 gap-3 w-full">
+                <!-- Badge left -->
+                <div
+                  class="badge badge-secondary absolute top-0 left-0 bg-error font-bold text-white px-4 py-3"
+                >
+                  Request
+                </div>
+                <div class="flex flex-col">
+                  <h2
+                    class="card-title text-cyan-950 font-bold h-14"
+                    style="
+                      display: -webkit-box;
+                      line-clamp: 2;
+                      -webkit-line-clamp: 2; /* Limit to 2 lines */
+                      -webkit-box-orient: vertical;
+                      overflow: hidden;
+                    "
+                  >
+                    <!-- TODO: Set title -->
+                    A Miracle Chance To Fight for Her Life ( and Heart )
+                  </h2>
+                  <div class="flex justify-between">
+                    <!-- TODO: Set author and location -->
+                    <span class="text-gray-400">Author name</span>
+                    <span>HN</span>
+                  </div>
+                </div>
+                <p
+                  style="
+                    display: -webkit-box;
+                    line-clamp: 3;
+                    -webkit-line-clamp: 3; /* Limit to 3 lines */
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    margin-bottom: 16px;
+                  "
+                >
+                  <!-- TODO: Set the contents -->
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos
+                  tempora odit qui praesentium magni, ratione saepe velit error ad eum in corporis
+                  explicabo eaque iste blanditiis nemo.
+                </p>
+                <div class="card-actions justify-center">
+                  <button class="btn bg-accent h-8 min-h-0 outline-none border-none text-black">
+                    Accept
+                  </button>
+                </div>
+              </div>
+            </li>
+            <!-- End card -->
+          </ul>
+          <!-- End cards -->
+        </div>
+      </section>
+      <!-- End help request section -->
+      <div class="divider"></div>
+      <!-- View charity projects section -->
+      <section
+        class="flex flex-col justify-center items-center splide"
+        aria-labelledby="carousel-heading"
+      >
+        <h1 class="text-center text-3xl text-primary font-bold carousel-heading">
+          On-going charity projects
+        </h1>
+        <!-- TODO: Replace this with link to view requests -->
+        <a class="w-full text-end text underline text-blue-700 font-bold"
+          >View more projects &rarr;</a
+        >
+        <div class="splide__track flex w-10/12 py-8 px-8">
+          <!-- List of cards -->
+          <ul class="splide__list gap-12 w-full">
+            <!-- Card -->
+            <li
+              class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide"
+            >
+              <figure>
+                <img
+                  class="w-full object-cover h-48"
+                  src="https://m.media-amazon.com/images/M/MV5BNGY0NGM5N2UtNzU5MS00MDAwLWFmMWEtZjE4N2Q0Y2M4YjNjXkEyXkFqcGc@._V1_.jpg"
+                  alt="Shoes"
+                />
+              </figure>
+              <div class="card-body p-4 gap-3 w-full">
+                <!-- badge left -->
+                <div
+                  class="badge badge-success absolute top-0 left-0 bg-success font-bold px-4 py-3 outline-none border-none"
+                >
+                  Project
+                </div>
+                <!-- TODO: Look at the status and determine which one is preparing and ongoing -->
+                <!-- badge right -->
+                <div
+                  class="badge badge-secondary absolute top-0 right-0 bg-success font-bold px-4 py-3 outline-none border-none"
+                >
+                  Project
+                </div>
+                <div
+                  class="badge badge-neutral absolute top-0 right-0 font-bold px-4 py-3 outline-none border-none"
+                >
+                  Preparing
+                </div>
+                <!-- <div
+                  class="badge badge-secondary absolute top-0 right-0 bg-error font-bold text-white px-4 py-3 outline-none border-none"
+                >
+                  On-going
+                </div> -->
+
+                <div class="flex flex-col">
+                  <h2
+                    class="card-title text-cyan-950 font-bold h-14"
+                    style="
+                      display: -webkit-box;
+                      line-clamp: 2;
+                      -webkit-line-clamp: 2; /* Limit to 2 lines */
+                      -webkit-box-orient: vertical;
+                      overflow: hidden;
+                    "
+                  >
+                    <!-- TODO: Set title -->
+                    A Miracle Chance To Fight for Her Life ( and Heart )
+                  </h2>
+                  <div class="flex justify-between">
+                    <!-- TODO: Set author and location -->
+                    <span class="text-gray-400">Author name</span>
+                    <span>HN</span>
+                  </div>
+                </div>
+                <p
+                  style="
+                    display: -webkit-box;
+                    line-clamp: 3;
+                    -webkit-line-clamp: 3; /* Limit to 3 lines */
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    margin-bottom: 16px;
+                  "
+                >
+                  <!-- TODO: Set the contents -->
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos
+                  tempora odit qui praesentium magni, ratione saepe velit error ad eum in corporis
+                  explicabo eaque iste blanditiis nemo.
+                </p>
+                <!-- TODO: Calculate the progress here -->
+                <div class="card-actions justify-center flex-col">
+                  <p class="w-full text-base-content">123 volunteer</p>
+                  <progress
+                    class="progress progress-success w-full"
+                    value="40"
+                    max="100"
+                  ></progress>
+                  <p class="w-full text-success">Raised 999.999.999 VND</p>
+                  <!-- <button class="btn bg-gray-400 h-8 min-h-0 outline-none border-none text-white">
+                    Accept
+                  </button> -->
+                </div>
+              </div>
+            </li>
+            <!-- End card -->
+          </ul>
+          <!-- End cards -->
+        </div>
+      </section>
+      <!-- End view charity projects section -->
+      <div class="divider"></div>
+
+      <!-- View charity projects section -->
+      <section
+        class="flex flex-col justify-center items-center splide"
+        aria-labelledby="carousel-heading"
+      >
+        <h1 class="text-center text-3xl text-primary font-bold carousel-heading">
+          Active organizations
+        </h1>
+        <!-- TODO: Replace this with link to view requests -->
+        <a class="w-full text-end text underline text-blue-700 font-bold"
+          >View more organization &rarr;</a
+        >
+        <div class="splide__track flex w-10/12 py-8 px-8">
+          <!-- List of cards -->
+          <ul class="splide__list gap-12 w-full">
+            <!-- Card -->
+            <li
+              class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide"
+            >
+              <figure>
+                <img
+                  class="w-full object-cover h-48"
+                  src="https://m.media-amazon.com/images/M/MV5BNGY0NGM5N2UtNzU5MS00MDAwLWFmMWEtZjE4N2Q0Y2M4YjNjXkEyXkFqcGc@._V1_.jpg"
+                  alt="Shoes"
+                />
+              </figure>
+              <div class="card-body p-4 gap-3 w-full">
+                <!-- badge left -->
+                <div
+                  class="badge badge-secondary absolute top-0 left-0 bg-primary font-bold text-white px-4 py-3 outline-none border-none"
+                >
+                  Organization
+                </div>
+                <div class="flex flex-col">
+                  <h2
+                    class="card-title text-cyan-950 font-bold h-14"
+                    style="
+                      display: -webkit-box;
+                      line-clamp: 2;
+                      -webkit-line-clamp: 2; /* Limit to 2 lines */
+                      -webkit-box-orient: vertical;
+                      overflow: hidden;
+                    "
+                  >
+                    <!-- TODO: Set title -->
+                    Da Nang united
+                  </h2>
+                  <div class="flex justify-between">
+                    <!-- TODO: Set author and location -->
+                    <span class="text-gray-400">Lead by some user</span>
+                    <span>Đà Nẵng</span>
+                  </div>
+                </div>
+                <p
+                  style="
+                    display: -webkit-box;
+                    line-clamp: 3;
+                    -webkit-line-clamp: 3; /* Limit to 3 lines */
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    margin-bottom: 16px;
+                  "
+                >
+                  <!-- TODO: Set the contents -->
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos
+                  tempora odit qui praesentium magni, ratione saepe velit error ad eum in corporis
+                  explicabo eaque iste blanditiis nemo.
+                </p>
+                <!-- TODO: Calculate the progress here -->
+                <div class="card-actions justify-center flex-col items-center">
+                  <p class="w-full text-base-content">123 member</p>
+                  <button class="btn bg-accent h-8 min-h-0 outline-none border-none">
+                    Request to join
+                  </button>
+                </div>
+              </div>
+            </li>
+            <!-- End card -->
+          </ul>
+          <!-- End cards -->
+        </div>
+      </section>
+      <!-- End view charity projects section -->
+
+      <!-- View charity projects section -->
+      <section
+        class="flex flex-col justify-center items-center splide"
+        aria-labelledby="carousel-heading"
+      >
+        <h1 class="text-center text-3xl text-primary font-bold carousel-heading">
+          Succeed charities
+        </h1>
+        <!-- TODO: Replace this with link to view requests -->
+        <a class="w-full text-end text underline text-blue-700 font-bold"
+          >View succeed charities &rarr;</a
+        >
+        <div class="splide__track flex w-10/12 py-8 px-8">
+          <!-- List of cards -->
+          <ul class="splide__list gap-12 w-full">
+            <!-- Card -->
+            <li
+              class="card w-full max-w-[300px] min-h-[432px] shadow-xl mr-4 relative splide__slide"
+            >
+              <figure>
+                <img
+                  class="w-full object-cover h-48"
+                  src="https://m.media-amazon.com/images/M/MV5BNGY0NGM5N2UtNzU5MS00MDAwLWFmMWEtZjE4N2Q0Y2M4YjNjXkEyXkFqcGc@._V1_.jpg"
+                  alt="Shoes"
+                />
+              </figure>
+              <div class="card-body p-4 gap-3 w-full">
+                <!-- badge left -->
+                <div
+                  class="badge badge-success absolute top-0 left-0 bg-success font-bold px-4 py-3 outline-none border-none"
+                >
+                  Project
+                </div>
+
+                <div class="flex flex-col">
+                  <h2
+                    class="card-title text-cyan-950 font-bold h-14"
+                    style="
+                      display: -webkit-box;
+                      line-clamp: 2;
+                      -webkit-line-clamp: 2; /* Limit to 2 lines */
+                      -webkit-box-orient: vertical;
+                      overflow: hidden;
+                    "
+                  >
+                    <!-- TODO: Set title -->
+                    A Miracle Chance To Fight for Her Life ( and Heart )
+                  </h2>
+                  <div class="flex justify-between">
+                    <!-- TODO: Set author and location -->
+                    <span class="text-gray-400">Author name</span>
+                    <span>HN</span>
+                  </div>
+                </div>
+                <p
+                  style="
+                    display: -webkit-box;
+                    line-clamp: 3;
+                    -webkit-line-clamp: 3; /* Limivht to 3 lines */
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    margin-bottom: 16px;
+                  "
+                >
+                  <!-- TODO: Set the contents -->
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis atque est quos
+                  tempora odit qui praesentium magni, ratione saepe velit error ad eum in corporis
+                  explicabo eaque iste blanditiis nemo.
+                </p>
+                <!-- TODO: No need to calcualte because the project is already completed -->
+                <div class="card-actions justify-center flex-col">
+                  <p class="w-full text-base-content">123 volunteer</p>
+                  <progress
+                    class="progress progress-success w-full"
+                    value="100"
+                    max="100"
+                  ></progress>
+                  <!-- TODO: Insert the number of money here -->
+                  <p class="w-full text-success">Raised 999.999.999 VND</p>
+                </div>
+              </div>
+            </li>
+            <!-- End card -->
+          </ul>
+          <!-- End cards -->
+        </div>
+      </section>
+      <!-- End view charity projects section -->
+    </main>
+    <!-- End body -->
+
+    <!-- Footer -->
+    <footer class="footer bg-base-100 text-neutral-content p-10 shadow-sm">
+      <aside>
+        <a href="#" class="text-3xl text-center font-bold text-primary"><i>Dynamics</i></a>
+        <p>Doing charities since 2024</p>
+      </aside>
+      <nav class="flex justify-center w-full flex-col items-center">
+        <h6 class="footer-title">Social</h6>
+        <div class="grid grid-flow-col gap-4">
+          <a>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              class="fill-current"
+            >
+              <path
+                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
+              ></path>
+            </svg>
+          </a>
+          <a>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              class="fill-current"
+            >
+              <path
+                d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"
+              ></path>
+            </svg>
+          </a>
+          <a>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              class="fill-current"
+            >
+              <path
+                d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"
+              ></path>
+            </svg>
+          </a>
+        </div>
+      </nav>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        Splide.defaults = {
+          perPage: 3,
+          rewind: true,
+          // type: "loop",
+          perMove: 1,
+        };
+        var elms = document.getElementsByClassName("splide");
+        for (var i = 0; i < elms.length; i++) {
+          new Splide(elms[i]).mount();
+        }
+      });
+    </script>
+  </body>
+</html>

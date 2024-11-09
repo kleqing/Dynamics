@@ -1,0 +1,160 @@
+﻿@model Dynamics.Models.Models.ViewModel.OrganizationVM
+
+@{
+    ViewData["Title"] = "ManageRequestJoinOrganization";
+    Layout = "_LayoutOrganization";
+}
+
+<div class="bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <!-- Header -->
+            <div class="border-b border-gray-200 bg-white px-6 py-5">
+                <div class="flex items-center justify-center">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        Review Join Requests
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Member List -->
+            <ul class="divide-y divide-gray-200">
+                @{
+                    int i = 0;
+                }
+                @foreach (var item in @Model.OrganizationMember)
+                {
+                    @if (item.Status > 0)
+                    {
+                        continue;
+                    }
+                    <li class="px-6 py-4 hover:bg-gray-50 transition-colors duration-150">
+                        <div class="flex items-center justify-between">
+                            <!-- User Info -->
+                            <div class="flex items-center space-x-4">
+                                <div class="flex-shrink-0 relative">
+                                    <span class="absolute -top-2 -left-2 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                        @(i + 1)
+                                    </span>
+                                    <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName"
+                                       class="block relative hover:opacity-75 transition-opacity">
+                                        <img src="@(item.User.UserAvatar ?? "https://via.placeholder.com/64")"
+                                             alt="@item.User.UserName"
+                                             class="h-16 w-16 rounded-full object-cover border-2 border-gray-200">
+                                    </a>
+                                </div>
+                                <div>
+                                    <a asp-action="Index" asp-controller="User" asp-route-username="@item.User.UserName"
+                                       class="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors">
+                                        @item.User.UserName
+                                    </a>
+                                    <p class="text-sm text-gray-500">Request pending review</p>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center space-x-3">
+                                <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID"
+                                      class="inline-block">
+                                    <input value="@item.UserID" name="userId" type="hidden">
+                                    <button type="submit"
+                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Deny
+                                    </button>
+                                </form>
+
+                                <form asp-action="AcceptRquestJoin" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID"
+                                      class="inline-block">
+                                    <input value="@item.UserID" name="userId" type="hidden">
+                                    <button type="submit"
+                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Accept
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                    i++;
+                }
+            </ul>
+
+            <!-- Empty State -->
+            @if (!Model.OrganizationMember.Any(m => m.Status == 0))
+            {
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No pending requests</h3>
+                    <p class="mt-1 text-sm text-gray-500">There are no pending join requests at this time.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@* <div class="py-5 pt-12 px-5 flex justify-center">
+    <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
+        <h1 class="text-3xl font-semibold mb-4 text-center ">
+            <span class="border-b-2 border-gray-500 border-solid py-2">Review join request</span>
+        </h1>
+
+        <div class="flex justify-center ">
+            <ul class="space-y-2">
+
+                @{int i = 0;}
+                @foreach (var item in @Model.OrganizationMember)
+                {
+                    @if(item.Status > 0)
+                    {
+                        continue;
+                    }
+                    <li class="flex items-center justify-between bg-white shadow-xl px-5 py-1 rounded-box ">
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-500 text-sm font-semibold">@(i + 1).</span>
+                            <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.UserID">
+                                <img src="@(item.User.UserAvatar ?? "https://via.placeholder.com/32")" alt="UserFullName" class=" w-16 h-16 mr-5 rounded-full">
+                            </a>
+                            <a asp-action="Details" asp-controller="EditUser" asp-route-id="@item.User.UserID">
+                                <span class="text-sm mx-5 font-semibold">@item.User.UserFullName</span>
+                            </a>     
+                        </div>
+
+                        <div class="flex space-x-3 mx-5">
+                           <div>
+                                <form asp-action="OutOrganization" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                    <input value="@item.UserID" name="userId" type="hidden">
+                                    <button class="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600" type="submit">Deny</button>
+                                </form>
+                           </div>
+                            
+
+                           <div>
+                                <form asp-action="AcceptRquestJoin" asp-controller="Organization" asp-route-organizationId="@Model.OrganizationID">
+                                    <input value="@item.UserID" name="userId" type="hidden">
+                                    <button class="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600" type="submit">Accept</button>
+                                </form>
+                           </div>
+                            
+                            
+                        </div>
+
+                    </li>
+                    i++;
+                }
+                <!-- Repeat the above <li> element 7 more times for the remaining members, removing the Leader span -->
+            </ul>
+        </div>
+    </div>
+
+
+</div> *@
+

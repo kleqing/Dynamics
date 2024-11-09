@@ -1,0 +1,14 @@
+﻿@using Dynamics.Utility
+@inject IHttpContextAccessor Accessor
+@{
+    Layout = "_Layout";
+}
+
+@{
+    var currentOrganization = Accessor.HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
+}
+
+<partial name="CustomComponent/_DetailOrganization" model="currentOrganization" />
+<partial name="CustomComponent/_SubNavbar" />
+
+@RenderBody()

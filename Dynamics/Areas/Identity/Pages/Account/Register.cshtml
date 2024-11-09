@@ -1,0 +1,118 @@
+﻿@page
+@model RegisterModel
+
+@{
+ViewData["Title"] = "Log in";
+Layout = null;
+}
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Dynamics</title>
+    <link rel="stylesheet" href="~/css/output.css">
+    <link rel="stylesheet" href="~/css/original.css"/>
+</head>
+<body>
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0 0 8px 0;
+        padding: 0
+    }
+    input {
+        height: 2.5rem !important;
+    }
+</style>
+<section class="vh-100">
+    <div class="row flex h-full">
+        @* Left *@
+        <div class="w-1/2 flex flex-col justify-center items-center relative h-full">
+            <div class="flex flex-col gap-4 absolute z-10">
+                <h3 class="text-center text-3xl font-bold text-white">"Happiness doesn’t result from what we get, <br/> but from what we give."</h3>
+                <h4 class="text-center text-xl font-bold text-white">
+                    <i>Ben Carson</i>
+                </h4>
+                @* <form method="post"> *@
+                @*     <input type="hidden" value="true" name="admin"> *@
+                @*     <button class="btn btn-primary">Create admin button</button> *@
+                @* </form> *@
+            </div>
+            <div class="absolute z-0 w-full h-full" style="filter: brightness(0.5)">
+                <img src="~/images/LoginVerticalResized.jpg" class="w-full h-full object-cover" alt="Phone image">
+            </div>
+        </div>
+        @* Right *@
+        <div class="w-1/2 flex flex-col justify-center items-center">
+            <a class="text-3xl text-center font-bold text-primary mb-2" asp-action="Index" asp-controller="Home" asp-area="">
+                <i>Dynamics</i>
+            </a>
+            <div class="flex flex-col px-8 py-2 bg-white shadow-md rounded-md w-full max-w-lg">
+                <h2 class="text-center text-xl">
+                    <b>Register</b>
+                </h2>
+                <form id="registerForm" method="post" class="flex flex-col gap-2" asp-route-returnUrl="@Model.ReturnUrl" autocomplete="off" style="font-size: 14px">
+                    <!-- Email input -->
+                    <div>
+                        <label asp-for="Input.Name" class="label">Name</label>
+                        <input asp-for="Input.Name" type="text" class="input input-md input-primary w-full bg-white"/>
+                        <span asp-validation-for="Input.Name" class="text-error"></span>
+                    </div>
+                    <!-- Email input -->
+                    <div>
+                        <label asp-for="Input.Email" class="label">Email address</label>
+                        <input asp-for="Input.Email" type="email" id="form1Example13" class="input input-md input-primary w-full bg-white"/>
+                        <span asp-validation-for="Input.Email" class="text-error"></span>
+                    </div>
+                    <!-- Password input -->
+                    <div>
+                        <label asp-for="Input.Password" class="label">Password</label>
+                        <input asp-for="Input.Password" type="password" class="input input-md input-primary w-full bg-white"/>
+                        <span asp-validation-for="Input.Password" class="text-error"></span>
+                    </div>
+
+                    <!-- Confirm Password input -->
+                    <div>
+                        <label asp-for="Input.ConfirmPassword" class="label">Confirm Password</label>
+                        <input asp-for="Input.ConfirmPassword" type="password" class="input input-md input-primary w-full bg-white"/>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-error"></span>
+                    </div>
+                    <div asp-validation-summary="ModelOnly" class="text-error" role="alert"></div>
+                    <!-- Submit button -->
+                    <button type="submit" data-mdb-button-init data-mdb-ripple-init
+                            class="btn btn-primary w-full loading-btn mt-2">
+                        Register
+                    </button>
+                    <span>Already have an account ? <a asp-area="Identity" asp-page="/Account/Login" class="link-primary">Login</a></span>
+                </form>
+
+                <div class="divider d-flex align-items-center justify-content-center my-2">
+                    <p class="text-center fw-bold mx-3 mb-0 text-muted">OR</p>
+                </div>
+
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post" class="form-horizontal">
+                    <div class="w-full">
+                        <p style="width: 100%; display:flex; justify-content: center;">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                            <button type="submit" class="login-with-google-btn" name="provider" value="@provider.Name"
+                                    title="Log in using your @provider.DisplayName account">
+                                Register with @provider.DisplayName
+                            </button>
+                            }
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Html.PartialAsync("CustomComponent/_LoadingModal", "registerForm")
+<partial name="CustomComponent/_SweetAlert"/>
+<partial name="_ValidationScriptsPartial"/>
+</body>
+</html>
+
+@* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/> *@

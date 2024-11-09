@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit page</title>
+    <link rel="stylesheet" href="/styles/output.css" />
+    <script src="/scripts/jquery.js"></script>
+    <!-- jQuery -->
+  </head>
+  <body class="h-screen flex flex-col pb-[1000px] relative">
+    <!-- Navbar -->
+    <div
+      class="navbar bg-white shadow-md fixed top-2 right-8 left-8 border z-20 w-full rounded-lg"
+      style="width: calc(100% - 4rem)"
+    >
+      <!-- Search bar -->
+      <div class="form-control">
+        <input
+          type="text"
+          placeholder="Search for something..."
+          class="input input-ghost input-bordered w-full h-10"
+        />
+      </div>
+      <!-- Logo, press this should return to home -->
+      <div class="flex-1 flex justify-center">
+        <a href="#" class="text-3xl text-center font-bold text-primary"><i>Dynamics</i></a>
+      </div>
+
+      <div class="flex gap-4">
+        <span>User name here</span>
+        <!-- TODO: Notification system -->
+        <i class="fa-regular fa-bell cursor-pointer"></i>
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">
+            <!-- TODO: Insert username avatar here -->
+            <div class="w-20 rounded-full">
+              <img alt="{user.name}" src="https://i.ytimg.com/vi/pX3l21wyX88/maxresdefault.jpg" />
+            </div>
+          </div>
+          <ul
+            tabindex="0"
+            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+          >
+            <li>
+              <a class="justify-between">Profile</a>
+            </li>
+            <li>
+              <a>Settings</a>
+            </li>
+            <li>
+              <a>My organization</a>
+            </li>
+            <li>
+              <a>My projects</a>
+            </li>
+            <li class="text-rose-500">
+              <a class="flex justify-between">
+                Logout
+                <FaSignOutAlt />
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- End navbar -->
+
+    <!-- Edit profile -->
+    <div class="flex md:p-6 pb-0 flex-1">
+      <!-- Sidebar -->
+      <div class="p-2 pt-12 w-1/5">
+        <ul class="flex flex-col gap-2">
+          <a href="settings/profile" class="btn btn-ghost text-start"> User profile </a>
+          <a href="settings/history" class="btn btn-ghost text-start"> History </a>
+          <a href="settings/awards" class="btn btn-ghost text-start"> Awards </a>
+        </ul>
+      </div>
+      <!-- End sidebar -->
+      <!-- Main content -->
+      <div class="divider divider-horizontal"></div>
+      <form id="user-information" class="flex flex-col gap-4 justify-center items-center flex-1">
+        <div class="flex justify-around p-12 w-full h-full">
+          <div class="flex flex-col gap-2 w-1/3">
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">User name</span>
+              </div>
+              <!-- TODO: Subtitute the input here and all the input below with correct user values -->
+              <input
+                type="text"
+                placeholder="Enter new name"
+                value="John Doe"
+                class="border border-gray-500 text-sm rounded-lg block w-full p-2.5 focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                name="name"
+              />
+            </label>
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">Email</span>
+              </div>
+              <input
+                type="email"
+                placeholder="Enter new email"
+                value="johndoe@example.com"
+                class="border border-gray-500 text-sm rounded-lg block w-full p-2.5 focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                name="email"
+              />
+            </label>
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">Phone number</span>
+              </div>
+              <input
+                type="tel"
+                placeholder="Enter new phone"
+                value="123-456-7890"
+                class="border border-gray-500 text-sm rounded-lg block w-full p-2.5 focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                name="phone"
+              />
+            </label>
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">Home address</span>
+              </div>
+              <input
+                type="text"
+                placeholder="Enter new address"
+                value="123 Main St"
+                class="border border-gray-500 text-sm rounded-lg block w-full p-2.5 focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                name="address"
+              />
+            </label>
+            <!-- Becareful as this one must strictly follow format YYYY-MM-DD -->
+            <label class="form-control w-full">
+              <div class="label">
+                <span class="label-text">Date of birth (Month/Day/Year)</span>
+              </div>
+              <input
+                type="date"
+                value="1990-01-01"
+                class="border border-gray-500 text-sm rounded-lg block w-full p-2.5 focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+                name="dob"
+              />
+            </label>
+          </div>
+          <div class="flex flex-col gap-2 font-bold">
+            <h3>Profile picture</h3>
+            <label
+              for="changeProfile"
+              class="relative hover:scale-105 duration-150 transition-all hover:cursor-pointer"
+            >
+              <input type="file" name="changeProfile" id="changeProfile" style="display: none" />
+              <!-- TODO: Subtitues the user avatar here -->
+              <img
+                src="https://i.ytimg.com/vi/pX3l21wyX88/maxresdefault.jpg"
+                alt="User's Name"
+                class="avatar w-40 h-40 object-cover rounded-full shadow-md"
+              />
+              <div
+                id="uploadBtn"
+                class="bg-slate-900 text-white flex gap-2 items-center justify-center rounded w-16 p-1 text-sm h-8 absolute bottom-0 left-0 hover:bg-slate-600"
+              >
+                &#x270E; Edit
+              </div>
+            </label>
+          </div>
+        </div>
+        <div id="buttons" class="flex gap-2">
+          <!-- This button should send to the update controller, then redirect to this route again -->
+          <button class="btn btn-primary rounded-btn min-w-40">Save changes</button>
+          <!-- This button redirect user to this page AGAIN to reset their value -->
+          <button class="btn btn-accent rounded-btn min-w-40">Revert default</button>
+        </div>
+      </form>
+      <!-- End content -->
+    </div>
+    <!-- End edit profile -->
+    <script src="https://kit.fontawesome.com/ba8c3661b4.js" crossorigin="anonymous"></script>
+    <!-- jquery -->
+    <script>
+      $(document).ready(function () {
+        // For debug the form only
+        $("#user-information").submit(function (event) {
+          event.preventDefault();
+          // Get the values from the form
+          const formData = new FormData(event.target);
+          // Convert FormData to an array of key-value pairs
+          const dataArray = [...formData.entries()];
+          // Log each key-value pair
+          $.each(dataArray, function (index, [key, value]) {
+            console.log(`${key}: ${value}`);
+          });
+        });
+
+        // Change the profile picture temporary
+        $("#changeProfile").on("change", function (event) {
+          const file = event.target.files[0];
+          const tempUrl = URL.createObjectURL(file);
+          $(".avatar").attr("src", tempUrl);
+        });
+      });
+    </script>
+  </body>
+</html>

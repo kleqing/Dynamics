@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navbar</title>
+    <link rel="stylesheet" href="../../styles/output.css" />
+  </head>
+  <body class="w-screen h-screen">
+    <header class="relative">
+      <!-- Navbar -->
+      <div
+        class="navbar bg-white shadow-md fixed top-2 right-8 left-8 border z-20 w-full rounded-lg"
+        style="width: calc(100% - 4rem)"
+      >
+        <!-- Search bar -->
+        <div class="form-control">
+          <input
+            type="text"
+            placeholder="Search for something..."
+            class="input input-ghost input-bordered w-full h-10"
+          />
+        </div>
+        <!-- Logo, press this should return to home -->
+        <div class="flex-1 flex justify-center">
+          <a href="#" class="text-3xl text-center font-bold text-primary"><i>Dynamics</i></a>
+        </div>
+        <div class="flex gap-4">
+          <span>User name here</span>
+          <!-- TODO: Notification system -->
+          <i class="fa-regular fa-bell cursor-pointer"></i>
+          <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar shadow-md">
+              <!-- TODO: Insert username avatar here -->
+              <div class="w-20 rounded-full">
+                <img alt="{user.name}" src="https://i.ytimg.com/vi/pX3l21wyX88/maxresdefault.jpg" />
+              </div>
+            </div>
+            <ul
+              tabindex="0"
+              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li>
+                <a class="justify-between">Profile</a>
+              </li>
+              <li>
+                <a>Settings</a>
+              </li>
+              <li>
+                <a>My organization</a>
+              </li>
+              <li>
+                <a>My projects</a>
+              </li>
+              <li class="text-rose-500">
+                <a class="flex justify-between">
+                  Logout
+                  <FaSignOutAlt />
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End navbar -->
+      <!-- Backgound image for navbar and a button -->
+      <div class="relative flex justify-center items-center">
+        <img
+          class="object-cover w-full h-72"
+          src="https://wallpapers.com/images/featured/anime-scenery-ahd1eqpvwq8aoofp.jpg"
+          alt=""
+        />
+        <button class="btn btn-primary absolute top-100px">Create a request</button>
+      </div>
+      <!-- End background image -->
+    </header>
+  </body>
+</html>

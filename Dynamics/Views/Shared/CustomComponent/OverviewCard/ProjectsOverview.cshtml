@@ -1,0 +1,101 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Dynamics.Models.Dto.ProjectOverviewDto
+@{
+    string firstImg = "images/defaultPrj.jpg";
+
+    if (Model.Attachment != null && Model.Attachment.Length > 0)
+    {
+        var listImg = Model.Attachment.Split(",");
+        if (listImg.Length > 0) firstImg = listImg[0];
+    }
+}
+<li class="card w-1/5 min-h-[432px] shadow-xl mr-4 relative splide__slide elevate rounded-md">
+    <a asp-action="ManageProject" asp-route-id="@Model.ProjectID" asp-controller="Project">
+        <img class="w-full object-cover h-48 rounded-md"
+             src="@firstImg"
+             alt="@Model.ProjectName"/>
+    </a>
+    <div class="card-body p-2 gap-2 w-full">
+        <!-- badge left -->
+        <div class="badge badge-success absolute top-2 left-2 text-white font-bold px-4 py-3 outline-none border-none">
+            Project
+        </div>
+        <!-- badge right -->
+        @*        <div
+             class="badge  absolute top-2 right-2 bg-green-500/30 font-bold px-4 py-3 outline-none border-none">
+             Project
+         </div> *@
+        @switch (Model.ProjectStatus)
+        {
+            case 1:
+                <div
+                    class="badge badge-error absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    On-going
+                </div>
+                break;
+            case 0:
+                <div class="badge badge-secondary absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    Preparing
+                </div>
+                break;
+            case 2:
+                <div class="badge badge-success absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    Finished
+                </div>
+                break;
+            case -1:
+                <div class="badge badge-error absolute top-2 right-2 font-bold px-4 py-3 outline-none border-none">
+                    Shutdowned
+                </div>
+                break;
+        }
+
+        <div class="flex flex-col">
+            <a class="card-title text-primary font-bold mb-2 line-clamp-2 h-14 searchTarget"
+               asp-action="ManageProject" asp-route-id="@Model.ProjectID"
+               asp-controller="Project">
+                @Model.ProjectName
+            </a>
+            <div class="flex justify-between gap-2">
+                <a class="text-neutral hover:text-primary flex-1 line-clamp-2 text-start"
+                   asp-controller="Organization"
+                   asp-action="Detail"
+                   asp-route-organizationId="@Model.Organization.OrganizationID searchTarget">
+                    By @Model.Organization.OrganizationName
+                </a>
+                <span class="flex-1 text-end line-clamp-2 h-12 searchTarget">
+                    @Model.ProjectAddress
+                </span>
+            </div>
+        </div>
+        <p class="line-clamp-3 mb-4 searchTarget" style="min-height: 72px;">
+            @if (Model.ProjectStatus == -1)
+            {
+                <span class="text-error font-medium searchTarget">Shutdown reason: @Model.ShutdownReason</span>
+            }
+            else
+            {
+                @Model.ProjectDescription
+            }
+        </p>
+        <div class="card-actions justify-center flex-col items-center">
+            <div class="flex w-full flex-start items-center gap-2 text-base">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                </svg>
+                <span>@Model.ProjectMembers volunteers</span>
+            </div>
+            <progress class="progress progress-success w-full"
+                      value="@Model.ProjectProgress"
+                      max="100">
+            </progress>
+            <p class="w-full text-success">Raised @Model.ProjectRaisedMoney.ToString("N0") VND</p>
+            <a class="btn btn-primary h-8 min-h-0 outline-none border-none"
+               asp-action="ManageProject" asp-route-id="@Model.ProjectID"
+               asp-controller="Project">
+                View project
+            </a>
+        </div>
+    </div>
+</li>
+<!-- End card -->

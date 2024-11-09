@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Detail</title>
+      <link rel="stylesheet" href="../../styles/output.css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+   </head>
+   <body>
+      <main class="w-full h-full flex flex-col gap-6 items-center p16">
+         <h1 class="text-3xl text-black font-bold text-center pt-6">Request title smh</h1>
+         <div class="left p-6 shadow-md flex items-center flex-col gap-4 w-full max-w-[850px]">
+            <div
+               id="imgContainer"
+               class="flex"
+               style="width: 100%; max-width: 850px; height: 450px; overflow: hidden; position: relative"
+            >
+               <img
+                  class="image"
+                  style="min-width: 100%; max-height: 450px; object-fit: cover"
+                  src="MumeiNaruhodo.png"
+                  alt=""
+               />
+               <img
+                  class="image"
+                  style="min-width: 100%; max-height: 450px; object-fit: cover"
+                  src="nah, i'd qua môn.jpg"
+                  alt=""
+               />
+               <img
+                  class="image"
+                  style="min-width: 100%; max-height: 450px; object-fit: cover"
+                  src="tròn xoe.png"
+                  alt=""
+               />
+               <img class="image" style="min-width: 100%; max-height: 450px; object-fit: cover" src="xdd.png" alt="" />
+               <img class="image" style="min-width: 100%; max-height: 450px; object-fit: cover" src="xpp.png" alt="" />
+            </div>
+
+            <div class="w-full flex justify-center mt-4">
+               <button class="flex items-center" id="left-btn">
+                  <i class="bi bi-arrow-left-circle" style="font-size: 2rem"></i>
+               </button>
+               <div style="width: 300px"></div>
+               <button class="flex items-center ml-4" id="right-btn">
+                  <i class="bi bi-arrow-right-circle" style="font-size: 2rem"></i>
+               </button>
+            </div>
+            <label class="form-control w-full">
+               <textarea
+                  asp-for="@Model.Content"
+                  class="textarea textarea-bordered textarea-lg w-full"
+                  id="Content"
+                  placeholder="Enter your request description"
+                  rows="7"
+                  style="resize: none"
+                  readonly
+               >
+                  lmao content</textarea
+               >
+            </label>
+            <div class="flex gap-12 items-center w-full">
+               <div class="flex-1">
+                  <span class="label label-text font-bold text-lg">Contact information</span>
+                  <!-- Email -->
+                  <label class="form-control w-full">
+                     <input
+                        type="text"
+                        placeholder="Enter request email"
+                        class="input w-full"
+                        asp-for="@Model.RequestEmail"
+                        id="RequestEmail"
+                        readonly
+                     />
+                  </label>
+                  <!-- Phonenumber -->
+                  <label class="form-control w-full mt-4">
+                     <input
+                        type="text"
+                        placeholder="Enter request phone number"
+                        class="input w-full"
+                        asp-for="RequestPhoneNumber"
+                        id="RequestPhoneNumber"
+                     />
+                  </label>
+                  <!-- Address -->
+                  <label class="form-control w-full mt-4">
+                     <input
+                        type="text"
+                        placeholder="Enter request phone number"
+                        class="input w-full"
+                        asp-for="@Model.Location"
+                        id="RequestLocation"
+                     />
+                  </label>
+               </div>
+            </div>
+            <!-- TODO:Click this to go to user page cuh -->
+            <div class="flex gap-12 items-center w-full"></div>
+         </div>
+      </main>
+   </body>
+</html>
+
+<script>
+   const imgContainer = document.getElementById("imgContainer");
+   const rightBtn = document.getElementById("right-btn");
+   const leftBtn = document.getElementById("left-btn");
+   const imgs = imgContainer.querySelectorAll("img");
+
+   leftBtn.addEventListener("click", () => {
+      const imgs = imgContainer.querySelectorAll("img");
+      const lastImg = imgs[imgs.length - 1];
+      const imgWidth = imgContainer.clientWidth;
+
+      // Move the last image to the front immediately
+      // imgContainer.style.transition = "tranform 0.5s ease-in-out";
+      // imgContainer.style.transform = `translateX(-${imgWidth}px)`;
+      imgContainer.insertBefore(lastImg, imgs[0]);
+   });
+
+   rightBtn.addEventListener("click", () => {
+      const imgs = imgContainer.querySelectorAll("img");
+      const firstImg = imgs[0];
+      const imgWidth = imgContainer.clientWidth;
+
+      imgContainer.appendChild(firstImg);
+   });
+</script>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>activities</title>
+    <link rel="stylesheet" href="../../styles/output.css" />
+  </head>
+  <body>
+    <h1 class="text-xl">TODO: INSERT YOUR NAVBAR HERE</h1>
+    <main class="w-full h-full flex flex-col gap-6 items-center p-32">
+      <h1 class="text-3xl">
+        Tell us <span class="underline">more</span> about your request for charity
+      </h1>
+      <!-- Inputs section -->
+      <form class="p-6 shadow-md flex flex-col gap-4 w-full max-w-[850px]">
+        <!-- Title -->
+        <label class="form-control w-full">
+          <span class="label label-text font-bold text-lg">Request title</span>
+          <input
+            type="text"
+            placeholder="Enter request title"
+            class="input input-bordered w-full"
+          />
+        </label>
+        <!-- Desc -->
+        <!-- TODO: Implement a real editor instead ?? -->
+        <label class="form-control">
+          <span class="label label-text font-bold text-lg">Request description</span>
+          <textarea
+            class="textarea textarea-bordered textarea-lg w-full"
+            placeholder="Bio"
+          ></textarea>
+        </label>
+
+        <!-- Upload images -->
+        <label class="form-control">
+          <span class="label label-text font-bold text-lg">Upload request images</span>
+          <input type="file" class="file-input file-input-bordered w-full max-w-xs" />
+          <span class="label label-text text-">Images will help you appeal to more people</span>
+        </label>
+
+        <!-- Contact information -->
+        <div class="flex gap-12 items-center">
+          <div class="left flex-1">
+            <!-- Email -->
+            <label class="form-control w-full">
+              <span class="label label-text font-bold text-lg">Request email</span>
+              <input
+                type="text"
+                placeholder="Enter request email"
+                class="input input-bordered w-full"
+              />
+            </label>
+            <!-- Phonenumber -->
+            <label class="form-control w-full">
+              <span class="label label-text font-bold text-lg">Request phone number</span>
+              <input
+                type="text"
+                placeholder="Enter request phone number"
+                class="input input-bordered w-full"
+              />
+            </label>
+            <!-- Address -->
+            <label class="form-control w-full">
+              <span class="label label-text font-bold text-lg">Request address</span>
+              <input
+                type="text"
+                placeholder="Enter request address"
+                class="input input-bordered w-full"
+              />
+            </label>
+          </div>
+          <span>Or</span>
+          <div class="right">
+            <button class="btn btn-info">Use my information as contact</button>
+          </div>
+        </div>
+        <div class="w-full flex justify-center mt-4">
+          <button class="btn btn-primary">Create request</button>
+        </div>
+      </form>
+      <!-- End inputs section -->
+    </main>
+  </body>
+</html>

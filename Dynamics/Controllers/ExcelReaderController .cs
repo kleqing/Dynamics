@@ -87,7 +87,7 @@ namespace Dynamics.Controllers
                                 }
 
                                 // get current resource
-                                var currentResource = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit) && or.OrganizationID.Equals(currentOrganization.OrganizationID));
+                                var currentResource = await _organizationRepository.GetOrganizationResourceAsync(or => or.ResourceID.ToString().Equals(worksheet.Cells[row,5].Value.ToString()));
 
                                 var userToOrganizationTransactionHistory = new UserToOrganizationTransactionHistory()
                                 {
@@ -165,7 +165,7 @@ namespace Dynamics.Controllers
                                     Quantity = Convert.ToInt32(worksheet.Cells[row, 2].Value) >= 0 ? Convert.ToInt32(worksheet.Cells[row, 2].Value) : 0,
                                     Unit = worksheet.Cells[row, 5].Value?.ToString(),
                                 };
-                                var currentResource = await _projectResourceRepo.GetAsync(or => or.ResourceName.Equals(resource.ResourceName) && or.Unit.Equals(resource.Unit));
+                                var currentResource = await _projectResourceRepo.GetAsync( x=>x.ResourceID.ToString().Equals(worksheet.Cells[row, 7].Value.ToString()));
                                 if (resource.Quantity == 0)
                                 {
                                     resourceCannotDonate += currentResource.ResourceName + "-" + currentResource.Unit + ", ";

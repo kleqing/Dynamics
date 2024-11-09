@@ -155,35 +155,35 @@
             {
                
                 <tr class="hover:bg-slate-50">
-                    <td class="text-base">@count</td>
-                    <td class="text-base font-semibold">@item.Time</td>
+                    <td class="text-sm">@count</td>
+                    <td class="text-sm font-semibold">@item.Time</td>
                     @if (item.Type.Equals("orgToPrj", StringComparison.OrdinalIgnoreCase))
                     {
-                        <td class="text-base font-semibold text-primary">
+                        <td class="text-sm font-semibold text-primary">
                             @item.Name
                         </td>
                     }
                     else
                     {
-                        <td class="text-base font-semibold">
+                        <td class="text-sm font-semibold">
                             @item.Name
                         </td>
                     }
-                    <td class="text-base font-semibold">@item.ResourceName</td>
-                    <td class="text-base">@item.Amount.ToString("N0")</td>
-                    <td class="text-base">@item.Unit</td>
-                    <td class="text-base">@item.Message</td>
-                    <td class="text-base">
+                    <td class="text-sm font-semibold">@item.ResourceName</td>
+                    <td class="text-sm">@item.Amount.ToString("N0")</td>
+                    <td class="text-sm">@item.Unit</td>
+                    <td class="text-sm">@item.Message</td>
+                    <td class="text-xs">
                         <div class="w-fit">
                             @if (item.Status == 1)
                             {
-                                <div class="relative grid items-center px-2 py-1 font-sans font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
+                                <div class="relative grid items-center px-2 py-1 text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
                                     <span class="">Accepted</span>
                                 </div>
                             }
                             else if (item.Status == -1)
                             {
-                                <div class="relative grid items-center px-2 py-1 font-sans font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                                <div class="relative grid items-center px-2 py-1 text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
                                     <span class="">Denied</span>
                                 </div>
                             }
@@ -193,7 +193,7 @@
                         @* Don't show if there is no attachments *@
                         @if (!string.IsNullOrEmpty(item.Attachments))
                         {
-                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="text-xs py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
                             <!-- You can open the modal using ID.showModal() method -->
                             <dialog id="proofImagesModal_@item.TransactionID" class="modal">
                                 <div class="modal-box w-11/12 max-w-5xl">

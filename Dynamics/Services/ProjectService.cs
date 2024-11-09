@@ -473,7 +473,7 @@ public class ProjectService : IProjectService
             else
             {
                 newProjectLeader.Status = 3;
-                await _roleService.AddUserToRoleAsync(oldProjectLeader.UserID, RoleConstants.ProjectLeader);
+                await _roleService.AddUserToRoleAsync(newProjectLeader.UserID, RoleConstants.ProjectLeader);
             }
             _logger.LogWarning("update new leader is here");
             await _projectMemberRepo.UpdateAsync(newProjectLeader);

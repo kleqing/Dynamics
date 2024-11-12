@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.HttpSys;
+using Microsoft.Extensions.Configuration;
 
 namespace Dynamics.Utility;
 
@@ -10,7 +11,7 @@ public class CloudinaryUploader
     private string CLOUDINARY_URL;
     private Cloudinary cloudinary;
 
-    public CloudinaryUploader()
+    public CloudinaryUploader(IConfiguration configuration)
     {
         CLOUDINARY_URL = "cloudinary://999623478143232:kevxumf-9F3oYg9drXSre13APdc@dv1zgaj5y";
         cloudinary = new Cloudinary(CLOUDINARY_URL);

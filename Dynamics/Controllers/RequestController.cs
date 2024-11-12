@@ -163,7 +163,15 @@ namespace Dynamics.Controllers
                 {
                     ModelState.AddModelError("", "Please choose province of your request.");
                 }
-                
+                obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
+                var reqList = await _requestRepo.GetRequestsAsync();
+                foreach (var request in reqList)
+                {
+                    if (obj.Location == request.Location)
+                    {
+                        ModelState.AddModelError("Location", "A request with the same location already exists.");
+                    }
+                }
                 if (!ModelState.IsValid)
                 {
                     return View();
@@ -179,7 +187,6 @@ namespace Dynamics.Controllers
                 obj.RequestID = Guid.NewGuid();
                 /*var date = DateOnly.FromDateTime(DateTime.Now);
                 obj.CreationDate = date;*/
-                obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
                 obj.UserID = user.Id;
                 if (images != null && images.Count > 0)
                 {

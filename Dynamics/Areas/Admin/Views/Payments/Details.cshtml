@@ -355,7 +355,16 @@
                                             <div class="col-sm-8">
                                                 <div class="text-sm-end">
                                                     <!--Replace qr here-->
-                                                    <img src="https://img.vietqr.io/image/@Model.Withdraw.BankName-@Model.Withdraw.BankAccountNumber-qr_only.png" alt="barcode-image" class="img-fluid me-2" style="width: 150px; height: 150px;"/>
+                                                    @{
+                                                        int? money = 0;
+                                                        foreach (var item in Model.listUserDonateToProjectTable.Where(p => p.ResourceName.Contains("Money")))
+                                                        {
+                                                            money = item.Quantity;
+                                                        }
+
+                                                        money = money * 99 / 100;
+                                                    }
+                                                    <img src="https://img.vietqr.io/image/@Model.Withdraw.BankName-@Model.Withdraw.BankAccountNumber-qr_only.png?amount=@money" alt="barcode-image" class="img-fluid me-2" style="width: 150px; height: 150px;"/>
                                                 </div>
                                             </div> <!-- end col-->
                                         </div>

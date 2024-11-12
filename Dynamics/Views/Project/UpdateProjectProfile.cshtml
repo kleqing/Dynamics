@@ -451,13 +451,25 @@
                     },
                     buttonsStyling: false // Disable default styling to use custom classes
                 });
-                swalWithTailwind.fire({
-                    title: "Withdraw request sent",
-                    icon: "success",
-                    text: 'Please wait and check your email regularly in the meantime.'
-                }).then(() => {
-                    closePopup(false);
-                })
+                if (response.failed) {
+                    // Display failure notification if `failed` is true in response
+                    swalWithTailwind.fire({
+                        title: "Withdraw request sent unsuccessfully",
+                        icon: "error",
+                        text: response.message
+                    }).then(() => {
+                        closePopup(false);
+                    });
+                } else {
+                    // Display success notification if `failed` is false or not present
+                    swalWithTailwind.fire({
+                        title: "Withdraw request sent",
+                        icon: "success",
+                        text: 'Please wait and check your email regularly in the meantime.\nNote: We will take 1% of the donation as maintenance fee ' 
+                    }).then(() => {
+                        closePopup(false);
+                    });
+                }
             },
             error: function(xhr) {
                 alert("Error: " + xhr.responseText);

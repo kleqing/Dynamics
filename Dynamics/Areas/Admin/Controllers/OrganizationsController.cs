@@ -22,11 +22,13 @@ namespace Dynamics.Areas.Admin.Controllers
     {
         private readonly IAdminRepository _adminRepository;
         private readonly IWalletService _walletService;
+        private readonly INotificationService _notificationService;
 
-        public OrganizationsController(IAdminRepository adminRepository, IWalletService walletService)
+        public OrganizationsController(IAdminRepository adminRepository, IWalletService walletService, INotificationService notificationService)
         {
             _adminRepository = adminRepository;
             _walletService = walletService;
+            _notificationService = notificationService;
         }
 
         // GET: Admin/Organizations
@@ -84,6 +86,20 @@ namespace Dynamics.Areas.Admin.Controllers
             var result = await _adminRepository.ChangeOrganizationStatus(id);
             var org = await _adminRepository.GetOrganization(o => o.OrganizationID == id);
             if (result == -1) await _walletService.RefundOrganizationWalletAsync(org);
+            var link = Url.Action(
+                action: "Detail",
+                controller: "Organization",
+                values: new { area = "", organizationId = id }, // Set `area` to an empty string
+                protocol: Request.Scheme
+            );
+            if (result == 1)
+            {
+                await _notificationService.AdminVerificationNotificationAsync(id, link, "ApproveOrg");
+            }
+            else if (result == -1)
+            {
+                await _notificationService.AdminVerificationNotificationAsync(id, link, "BanOrg");
+            }
             return Json(new
             {
                 Status = result

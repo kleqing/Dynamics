@@ -961,7 +961,12 @@ namespace Dynamics.Controllers
                     _projectService.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectID);
                 HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
             }
-
+            // If the search request dto is empty, then we set the default filter to accepted
+            if (searchRequestDto.Filter == null)
+            {
+                searchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
+            
             // Base query:
             var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
                 utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status != 0);
@@ -1277,14 +1282,16 @@ namespace Dynamics.Controllers
                 HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
             }
 
-            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
+            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(
+                p => p.ProjectID.Equals(projectID));
             if (allResource.Count() == 0)
             {
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });
             }
             // Pagination
-            var paginated = _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
-            ViewBag.pagination = paginationRequestDto;
+            var paginated =
+                _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
+            ViewBag.PaginationRequestDto = paginationRequestDto;
             return View(paginated);
         }
 

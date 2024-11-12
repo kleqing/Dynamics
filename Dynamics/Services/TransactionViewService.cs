@@ -19,7 +19,7 @@ public class TransactionViewService : ITransactionViewService
         _context = context;
         _searchService = searchService;
     }
-    
+
 
     public async Task<List<UserTransactionDto>> GetUserToOrganizationTransactionDTOs(
         IQueryable<UserToOrganizationTransactionHistory> query = null)
@@ -31,7 +31,8 @@ public class TransactionViewService : ITransactionViewService
             Message = ut.Message,
             Status = ut.Status,
             ResourceName = ut.OrganizationResource.ResourceName,
-            Name = "Organization - " + ut.OrganizationResource.Organization.OrganizationName, // Target organization name
+            Name = "Organization - " +
+                   ut.OrganizationResource.Organization.OrganizationName, // Target organization name
             Time = ut.Time,
             Unit = ut.OrganizationResource.Unit,
             Avatar = ut.User.UserAvatar,
@@ -61,46 +62,48 @@ public class TransactionViewService : ITransactionViewService
         return await result.ToListAsync();
     }
 
-    public async Task<List<OrganizationTransactionDto>> GetTransactionOrganizationReceivedFromUserDtosAsync(IQueryable<UserToOrganizationTransactionHistory> query)
+    public async Task<List<OrganizationTransactionDto>> GetTransactionOrganizationReceivedFromUserDtosAsync(
+        IQueryable<UserToOrganizationTransactionHistory> query)
     {
         var organizationTransactionDtos = query
             .Include(x => x.User)
             .Select(uto => new OrganizationTransactionDto
-        {
-            TransactionID = uto.TransactionID,
-            Name = uto.User.UserName, // The name of the user that org received
-            Unit = uto.OrganizationResource.Unit,
-            Amount = uto.Amount,
-            Message = uto.Message,
-            ResourceName = uto.OrganizationResource.ResourceName,
-            Status = uto.Status,
-            Time = uto.Time,
-            Attachments = uto.Attachments,
-            Type = "UserToOrg",
-        });
+            {
+                TransactionID = uto.TransactionID,
+                Name = uto.User.UserName, // The name of the user that org received
+                Unit = uto.OrganizationResource.Unit,
+                Amount = uto.Amount,
+                Message = uto.Message,
+                ResourceName = uto.OrganizationResource.ResourceName,
+                Status = uto.Status,
+                Time = uto.Time,
+                Attachments = uto.Attachments,
+                Type = "UserToOrg",
+            });
 
         return await organizationTransactionDtos.ToListAsync();
     }
 
-    public async Task<List<OrganizationTransactionDto>> GetOrganizationToProjectTransactionDtosAsync(IQueryable<OrganizationToProjectHistory> query)
+    public async Task<List<OrganizationTransactionDto>> GetOrganizationToProjectTransactionDtosAsync(
+        IQueryable<OrganizationToProjectHistory> query)
     {
         var organizationTransactionDtos = query
             .Include(x => x.ProjectResource)
-                .ThenInclude(pr => pr.Project)
+            .ThenInclude(pr => pr.Project)
             .Select(uto => new OrganizationTransactionDto
-        {
-            TransactionID = uto.TransactionID,
-            Name = uto.ProjectResource.Project.ProjectName, // The name of the project organization sent to
-            Project = uto.ProjectResource.Project,
-            Unit = uto.OrganizationResource.Unit,
-            ResourceName = uto.OrganizationResource.ResourceName,
-            Amount = uto.Amount,
-            Message = uto.Message,
-            Status = uto.Status,
-            Time = uto.Time,
-            Attachments = uto.Attachments,
-            Type = "OrgToPrj",
-        });
+            {
+                TransactionID = uto.TransactionID,
+                Name = uto.ProjectResource.Project.ProjectName, // The name of the project organization sent to
+                Project = uto.ProjectResource.Project,
+                Unit = uto.OrganizationResource.Unit,
+                ResourceName = uto.OrganizationResource.ResourceName,
+                Amount = uto.Amount,
+                Message = uto.Message,
+                Status = uto.Status,
+                Time = uto.Time,
+                Attachments = uto.Attachments,
+                Type = "OrgToPrj",
+            });
 
         return await organizationTransactionDtos.ToListAsync();
     }
@@ -124,7 +127,8 @@ public class TransactionViewService : ITransactionViewService
         return await result.ToListAsync();
     }
 
-    public async Task<List<UserTransactionDto>> GetTransactionProjectReceivedFromUserDtosAsync(IQueryable<UserToProjectTransactionHistory> query)
+    public async Task<List<UserTransactionDto>> GetTransactionProjectReceivedFromUserDtosAsync(
+        IQueryable<UserToProjectTransactionHistory> query)
     {
         var result = query.Select(opt => new UserTransactionDto
         {
@@ -142,13 +146,14 @@ public class TransactionViewService : ITransactionViewService
         });
         return await result.ToListAsync();
     }
-    
+
     /**
      * Things that are different:
      * Query: user to prj && user to org
      * The kind of filter (prj only or org only)
      */
-    public async Task<List<UserTransactionDto>> SetupUserTransactionDtosWithSearchParams(SearchRequestDto searchOptions, IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
+    public async Task<List<UserTransactionDto>> SetupUserTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
+        IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
         IQueryable<UserToOrganizationTransactionHistory> userToOrgQueryable)
     {
         // Building up queries with search
@@ -182,12 +187,14 @@ public class TransactionViewService : ITransactionViewService
         total.AddRange(userToPrjTransactionDtos);
         return total.OrderByDescending(utd => utd.Time).ToList();
     }
+
     /**
      * Things that are different:
      * Query: org to prj && user to prj
      * The kind of filter (user only or org only)
      */
-    public async Task<List<UserTransactionDto>> SetupProjectTransactionDtosWithSearchParams(SearchRequestDto searchOptions, IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
+    public async Task<List<UserTransactionDto>> SetupProjectTransactionDtosWithSearchParams(
+        SearchRequestDto searchOptions, IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
         IQueryable<OrganizationToProjectHistory> orgToPrjQueryable)
     {
         // Building up queries with search
@@ -221,20 +228,23 @@ public class TransactionViewService : ITransactionViewService
         total.AddRange(userToPrjTransactionDtos);
         return total.OrderByDescending(utd => utd.Time).ToList();
     }
+
     /**
      * Things that are different:
      * Query: org to prj && user to org
      * The kind of filter (user only or prj only)
      */
-    public async Task<List<OrganizationTransactionDto>> SetupOrganizationTransactionDtosWithSearchParams(SearchRequestDto searchOptions, IQueryable<OrganizationToProjectHistory> organizationToProjectQueryable,
+    public async Task<List<OrganizationTransactionDto>> SetupOrganizationTransactionDtosWithSearchParams(
+        SearchRequestDto searchOptions, IQueryable<OrganizationToProjectHistory> organizationToProjectQueryable,
         IQueryable<UserToOrganizationTransactionHistory> userToOrgQueryable)
     {
         // Building up queries with search
         userToOrgQueryable = _searchService.GetUserToOrgQueryWithSearchParams(searchOptions, userToOrgQueryable);
-        organizationToProjectQueryable = _searchService.GetOrgToPrjQueryWithSearchParams(searchOptions, organizationToProjectQueryable);
+        organizationToProjectQueryable =
+            _searchService.GetOrgToPrjQueryWithSearchParams(searchOptions, organizationToProjectQueryable);
         // Preparing the dtos
         var userToOrgTransactionDtos = new List<OrganizationTransactionDto>();
-        var userToPrjTransactionDtos = new List<OrganizationTransactionDto>();
+        var orgToPrjTransactionDtos = new List<OrganizationTransactionDto>();
         // Check if user only want organization or project and only execute on that one
         if (searchOptions.Filter != null &&
             searchOptions.Filter.Equals(MyConstants.User, StringComparison.OrdinalIgnoreCase))
@@ -245,19 +255,45 @@ public class TransactionViewService : ITransactionViewService
         else if (searchOptions.Filter != null &&
                  searchOptions.Filter.Equals(MyConstants.Project, StringComparison.OrdinalIgnoreCase))
         {
-            userToPrjTransactionDtos = await GetOrganizationToProjectTransactionDtosAsync(organizationToProjectQueryable);
+            orgToPrjTransactionDtos =
+                await GetOrganizationToProjectTransactionDtosAsync(organizationToProjectQueryable);
         }
         else
         {
             // Get both for display if no filter for organization / project selected
             userToOrgTransactionDtos = await GetTransactionOrganizationReceivedFromUserDtosAsync(userToOrgQueryable);
-            userToPrjTransactionDtos = await GetOrganizationToProjectTransactionDtosAsync(organizationToProjectQueryable);
+            orgToPrjTransactionDtos =
+                await GetOrganizationToProjectTransactionDtosAsync(organizationToProjectQueryable);
         }
 
         // Merge into a list and display
         var total = new List<OrganizationTransactionDto>();
         total.AddRange(userToOrgTransactionDtos);
-        total.AddRange(userToPrjTransactionDtos);
+        total.AddRange(orgToPrjTransactionDtos);
+        return total.OrderByDescending(utd => utd.Time).ToList();
+    }
+
+    public async Task<List<OrganizationTransactionDto>> SetupUserToOrgTransactionDtosWithSearchParams(
+        SearchRequestDto searchOptions, IQueryable<UserToOrganizationTransactionHistory> userToOrgQueryable)
+    {
+        userToOrgQueryable = _searchService.GetUserToOrgQueryWithSearchParams(searchOptions, userToOrgQueryable);
+        var userToOrgTransactionDtos = new List<OrganizationTransactionDto>();
+        userToOrgTransactionDtos = await GetTransactionOrganizationReceivedFromUserDtosAsync(userToOrgQueryable);
+        
+        var total = new List<OrganizationTransactionDto>();
+        total.AddRange(userToOrgTransactionDtos);
+        return total.OrderByDescending(utd => utd.Time).ToList();
+    }
+    
+    public async Task<List<OrganizationTransactionDto>> SetupOrgToPrjTransactionDtosWithSearchParams(
+        SearchRequestDto searchOptions, IQueryable<OrganizationToProjectHistory> organizationToProjectQueryable)
+    {
+        organizationToProjectQueryable = _searchService.GetOrgToPrjQueryWithSearchParams(searchOptions, organizationToProjectQueryable);
+        var userToOrgTransactionDtos = new List<OrganizationTransactionDto>();
+        userToOrgTransactionDtos = await GetOrganizationToProjectTransactionDtosAsync(organizationToProjectQueryable);
+        
+        var total = new List<OrganizationTransactionDto>();
+        total.AddRange(userToOrgTransactionDtos);
         return total.OrderByDescending(utd => utd.Time).ToList();
     }
 }

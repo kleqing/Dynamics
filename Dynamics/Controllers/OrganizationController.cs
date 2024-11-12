@@ -60,7 +60,8 @@ namespace Dynamics.Controllers
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
             IProjectService projectService,
             IMapper mapper, IProjectResourceRepository projectResourceRepository,
-            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository, IWalletService walletService)
+            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService,
+            IProjectMemberRepository projectMemberRepository, IWalletService walletService)
         {
             _organizationRepository = organizationRepository;
             _userRepository = userRepository;
@@ -207,11 +208,13 @@ namespace Dynamics.Controllers
                             organizationId = organization.OrganizationID, status = 2, userId = currentUser.Id
                         }); //status 2 : CEOID   0 : processing   1 : membert
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 TempData[MyConstants.Error] = "Create organization failed!";
                 TempData[MyConstants.Subtitle] = e.Message;
             }
+
             TempData[MyConstants.Error] = "Create organization failed!";
             return View(organization);
         }
@@ -230,7 +233,7 @@ namespace Dynamics.Controllers
                 else otherOrgs.Add(organizationMember.Organization);
             }
             // Get real organizations based on the project members
-            
+
             var MyOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(myOrgs);
             var OtherOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(otherOrgs);
             return View(new MyOrganizationVM
@@ -340,12 +343,14 @@ namespace Dynamics.Controllers
             }
             else if (!boolOrganizationResource)
             {
-                TempData[MyConstants.Error] = "Shut Down organization Failed because exist at least a organization resource available!";
+                TempData[MyConstants.Error] =
+                    "Shut Down organization Failed because exist at least a organization resource available!";
                 return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
             }
             else
             {
-                TempData[MyConstants.Error] = "Shut Down organization Failed because exist at least a project available!";
+                TempData[MyConstants.Error] =
+                    "Shut Down organization Failed because exist at least a project available!";
                 return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
             }
         }
@@ -631,42 +636,47 @@ namespace Dynamics.Controllers
 
 
         //Manage history
-        public async Task<IActionResult> ManageOrganizationTranactionHistory(SearchRequestDto searchRequestDto,
-            PaginationRequestDto paginationRequestDto)
+        public async Task<IActionResult> ManageOrganizationTranactionHistory(
+            SearchRequestDto userSearchRequestDto, PaginationRequestDto userPaginationRequestDto,
+            SearchRequestDto organizationSearchRequestDto, PaginationRequestDto organizationPaginationRequestDto)
         {
             var currentOrganization =
                 HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
+            if (userSearchRequestDto.Filter == null)
+            {
+                userSearchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
 
-            //var UserToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryIsAccept(currentOrganization.OrganizationID);
-
-            //var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryAsync(currentOrganization.OrganizationID);
-            //var OrganizationToProjectHistorysAccepting = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByAcceptingAsync(currentOrganization.OrganizationID);
-
-            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key, OrganizationToProjectHistorysPending);
-            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
-
+            if (organizationSearchRequestDto.Filter == null)
+            {
+                organizationSearchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto =>
-                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0); // Dont get the pending ones
+                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) &&
+                uto.Status != 0); // Dont get the pending ones
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto =>
                 uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
 
-            var total = await _transactionViewService.SetupOrganizationTransactionDtosWithSearchParams(searchRequestDto,
-                orgToPrjQueryable, userToOrgQueryable);
-            var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchRequestDto);
-
-            // var userToOrgTransactionDtos = await _transactionViewService.GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
-            // var orgToPrjTransactionDtos = await _transactionViewService.GetOrganizationToProjectTransactionDtosAsync(orgToPrjQueryable);
-            //
-            // var total = new List<OrganizationTransactionDto>();
-            // total.AddRange(userToOrgTransactionDtos);
-            // total.AddRange(orgToPrjTransactionDtos);
+            var totalUserDonations =
+                await _transactionViewService.SetupUserToOrgTransactionDtosWithSearchParams(userSearchRequestDto,
+                    userToOrgQueryable);
+            var totalOrgAllocations =
+                await _transactionViewService.SetupOrgToPrjTransactionDtosWithSearchParams(organizationSearchRequestDto,
+                    orgToPrjQueryable);
+            
+            var paginatedUserDonations = _pagination.Paginate(totalUserDonations, HttpContext, userPaginationRequestDto, userSearchRequestDto);
+            var paginatedOrganizationDonations = _pagination.Paginate(totalOrgAllocations, HttpContext, organizationPaginationRequestDto, organizationSearchRequestDto);
 
             return View(new ManageOrganizationTransactionHistoryVM
             {
-                Transactions = paginated,
-                SearchRequestDto = searchRequestDto,
-                PaginationRequestDto = paginationRequestDto,
+                OrganizationTransactions = paginatedOrganizationDonations,
+                OrganizationSearchRequestDto = organizationSearchRequestDto,
+                OrganizationPaginationRequestDto = organizationPaginationRequestDto,
+                
+                UserTransactions = paginatedUserDonations,
+                UserSearchRequestDto = userSearchRequestDto,
+                UserPaginationRequestDto = userPaginationRequestDto,
             });
         }
 

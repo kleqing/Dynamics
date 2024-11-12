@@ -111,7 +111,9 @@ public class WalletService : IWalletService
     {
         var userWallet = await FindUserWalletByIdAsync(userId);
         if (userWallet == null) throw new Exception("User wallet not found");
-        userWallet.Amount -= amount; // Key difference
+        var newAmount = userWallet.Amount - amount;
+        if (newAmount < 0) throw new Exception("Something went wrong please try again");
+        userWallet.Amount -= amount;
         await UpdateWalletAsync(userWallet);
         await _userWalletTransactionService.AddNewTransactionAsync(new UserWalletTransaction
         {

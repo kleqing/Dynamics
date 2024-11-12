@@ -8,10 +8,6 @@ namespace Dynamics.Services;
 public interface ITransactionViewService
 {
     /**
-     * Get all transactions from 
-     */
-    
-    /**
      *  Execute the query user to org and map it to dtos
      */
     Task<List<UserTransactionDto>> GetUserToOrganizationTransactionDTOs(IQueryable<UserToOrganizationTransactionHistory> query);
@@ -36,7 +32,14 @@ public interface ITransactionViewService
     Task<List<OrganizationTransactionDto>> SetupOrganizationTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
      IQueryable<OrganizationToProjectHistory> organizationToProjectQueryable,
      IQueryable<UserToOrganizationTransactionHistory> userToOrgQueryable);
+    // NEW method (Splitted from the upper one)
+    Task<List<OrganizationTransactionDto>> SetupUserToOrgTransactionDtosWithSearchParams(
+     SearchRequestDto searchOptions, IQueryable<UserToOrganizationTransactionHistory> userToOrgQueryable);
 
+    Task<List<OrganizationTransactionDto>> SetupOrgToPrjTransactionDtosWithSearchParams(
+     SearchRequestDto searchOptions, IQueryable<OrganizationToProjectHistory> organizationToProjectQueryable);
+    
+    
     Task<List<UserTransactionDto>> SetupProjectTransactionDtosWithSearchParams(SearchRequestDto searchOptions,
      IQueryable<UserToProjectTransactionHistory> userToPrjQueryable,
      IQueryable<OrganizationToProjectHistory> orgToPrjQueryable);

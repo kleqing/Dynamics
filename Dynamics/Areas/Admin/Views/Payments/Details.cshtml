@@ -978,12 +978,13 @@
 
     <!-- App js -->
     <script src="~/Admin/assets/js/app.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function () {
             let withdrawId;
 
-            // Get Withdraw ID when the modal opens
+            // Get withdraw ID when modal is shown
             $('#standard-modal').on('show.bs.modal', function (event) {
                 let button = $(event.relatedTarget);
                 withdrawId = button.data('id');
@@ -991,37 +992,54 @@
 
             $('#confirmWithdrawBtn').click(function () {
                 if (withdrawId) {
-                    $(this).prop('disabled', true);
-                    $('.btn-primary').hide(); // Hide the original confirm button
-                    $('.btn-loading').show(); // Show the loading button
+                    $(this).prop('disabled', true).html(`
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Loading...
+                        `);
 
-                    // Send the AJAX request
                     $.ajax({
                         url: '/Admin/Payments/ConfirmWithdraw',
                         type: 'POST',
                         data: { id: withdrawId },
                         success: function (response) {
-                            setTimeout(function () { // Add a delay before redirecting
+                            if (response && response.success) {
                                 $('#standard-modal').modal('hide');
-                                if (response.success) {
-                                    window.location.href = '/Admin/Payments';
-                                } else {
-                                    alert(response.message);
-                                }
-                            }, 3000);
+
+                                // Hiển thị SweetAlert
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: response.message || 'Withdraw confirmed successfully!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: response.message || 'An unknown error occurred.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                                $('#confirmWithdrawBtn').prop('disabled', false).text('Confirm');
+                            }
                         },
                         error: function (xhr, status, error) {
-                            alert("An error occurred: " + error);
-                            // Re-enable the button in case of error
-                            $('#confirmWithdrawBtn').prop('disabled', false);
-                            $('.btn-loading').hide();
-                            $('.btn-primary').show();
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'An error occurred: ' + error,
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                            $('#confirmWithdrawBtn').prop('disabled', false).text('Confirm');
                         }
                     });
                 }
             });
         });
     </script>
+
+
 
 
 </body>

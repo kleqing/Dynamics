@@ -59,29 +59,14 @@
                             bool isFilteredBefore = !string.IsNullOrEmpty(Model.SearchRequestDto.Filter);
                             foreach (var filterOptions in Model.FilterOptions)
                             {
-                                if (filterOptions.Key.Equals(SearchOptionsConstants.Filter, StringComparison.OrdinalIgnoreCase))
+                                // If a filter exist, select that filter automatically
+                                if (isFilteredBefore && filterOptions.Value.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    // If there is no selected filter before, we make the Filter option selected and disabled
-                                    if (!isFilteredBefore)
-                                    {
-                                        <option value="@filterOptions.Value" selected disabled>@filterOptions.Key</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@filterOptions.Value" disabled>@filterOptions.Key</option>
-                                    }
+                                    <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
                                 }
                                 else
                                 {
-                                    // If a filter exist, select that filter automatically
-                                    if (isFilteredBefore && filterOptions.Value.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@filterOptions.Value"> @filterOptions.Key</option>
-                                    }
+                                    <option value="@filterOptions.Value"> @filterOptions.Key</option>
                                 }
                             }
                         }

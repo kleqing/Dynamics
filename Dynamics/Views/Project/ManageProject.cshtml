@@ -156,24 +156,24 @@
                            @Model.CurrentLeaderProject.UserName
                         </a>
                     </p>
-                        <p class="text-gray-400 font-normal  text-sm ">Address: @Model.CurrentLeaderProject.UserAddress</p>
+                        <p class="text-neutral font-normal text-sm ">Address: @Model.CurrentLeaderProject.UserAddress</p>
                 </div>
             </div>
             @if (Model.CurrentProject.Request != null)
             {
                 <div class="flex justify-start">
                     <div>
-                        <img class="rounded-full w-14 h-14 mx-4 mb-4"
+                        <img class="rounded-full w-14 h-14 mx-4 mb-4 object-cover"
                              src="@Model.CurrentProject.Request?.User.UserAvatar"
                              alt="avatar">
                     </div>
                     <div class="flex flex-col ">
-                        <p class="text-gray-600 font-normal">
+                        <a asp-controller="User" asp-action="Index" asp-route-username="Model.CurrentProject.Request?.User.UserName" class="text-black font-bold text-sm cursor-pointer hover:underline">
                             Requester: <span class="text-black font-bold  text-sm">
                                 @Model.CurrentProject.Request?.User.UserName
                             </span>
-                        </p>
-                        <p class="text-gray-400 font-normal  text-sm ">Address: @Model.CurrentProject.Request?.User.UserAddress</p>
+                        </a>
+                        <p class="text-neutral font-normal text-sm ">Address: @Model.CurrentProject.Request?.User.UserAddress</p>
                     </div>
                 </div>
             }          

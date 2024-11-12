@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Dynamics.Models.Models.ProjectResource>
+@model IEnumerable<Dynamics.Models.Models.ProjectResource>
 @using Dynamics.Models.Dto
 @using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json
@@ -12,12 +12,12 @@
     Layout = "~/Views/Shared/_LayoutProject.cshtml";
     var currentUserID = Accessor.HttpContext.Session.GetString("currentUserID");
     var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
-   
+
     ProjectResource projectResource = new ProjectResource();
     projectResource.ProjectID = new Guid(currentProjectID);
     List<ProjectMember> ProjectMemberOfUser = null;
     int? statusProjectMemberOfUser = -1;
-    
+
     if (!string.IsNullOrEmpty(currentUserID))
     {
         ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(currentUserID)));
@@ -31,285 +31,289 @@
 }
 <!-- container -->
 <div class="flex items-center justify-center">
-<div class=" py-12  flex flex-col items-center justify-center relative" style="width:85%;">
+    <div class=" py-12  flex flex-col items-center justify-center relative" style="width:85%;">
 
-    <!-- new table-->
-    <div class="w-full flex justify-between items-center mb-3 pl-3" >
-        <div>
-            <h2 class=" text-black font-bold text-xl text-left ">Project resources</h2>
+        <!-- new table-->
+        <div class="w-full flex justify-between items-center mb-3 pl-3">
+            <div>
+                <h2 class=" text-black font-bold text-xl text-left ">Project resources</h2>
 
-            <p class="text-slate-500">Overview of the current resources.</p>
-        </div>
-        <div class="ml-3 flex justify-end gap-x-2">
+                <p class="text-slate-500">Overview of the current resources.</p>
+            </div>
+            <div class="ml-3 flex justify-end gap-x-2">
                 <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
                     <button type="button"
                             class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
                         Donate this project
                     </button>
                 </a>
-@if (statusProjectMemberOfUser >= 2){
-                <button type="button" onclick="add_form.showModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                </button>
-            }
-
-            <div class=" max-w-sm min-w-[200px] relative">
-                <div class="relative">
-                    <input class="bg-white w-full pr-11 text-xs h-8 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
-                           placeholder="Search for resource..." />
-                    <button class="absolute h-8 w-8 right-1 top-0 my-auto px-2 flex items-center bg-white rounded "
-                            type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-slate-600">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                @if (statusProjectMemberOfUser >= 2)
+                {
+                    <button type="button" onclick="add_form.showModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
                         </svg>
                     </button>
+                }
+
+                <div class=" max-w-sm min-w-[200px] relative hidden">
+                    <form class="relative" asp-controller="Project" asp-action="ManageProjectResource" asp-route-projectID="@currentProjectID" id="searchForm">
+                        <input type="hidden" name="PageNumber"/>
+                        <input type="hidden" name="PageSize"/>
+                        <input type="hidden" name="TotalPages"/>
+                        <input type="hidden" name="TotalRecords"/>
+                        <input class="bg-white w-full pr-11 text-xs h-8 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                               placeholder="Search for resource..."/>
+                        <button class="absolute h-8 w-8 right-1 top-0 my-auto px-2 flex items-center bg-white rounded "
+                                type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-slate-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border" >
-        <div style="height:60vh">
-        <table class="w-full text-left table-xs min-w-max" >
-                <thead class="bg-gray-300/20 ">
-                <tr class="text-md font-bold text-gray-900">
-                    <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Resource type
-                        </p>
-                    </th>
-                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Quantity
-                        </p>
-                    </th>
-                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased leading-none text-blue-gray-900 ">
-                            Expected quantity
-                        </p>
-                    </th>
-                        <th class=" text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Unit
-                        </p>
-                    </th>
-                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Status
-                        </p>
-                    </th>
-                      @if (statusProjectMemberOfUser >= 2)
-                        {
-                    <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Action
-                        </p>
-                    </th>
-                        }
-                </tr>
-            </thead>
-            <tbody class="text-base text-gray-900">
-           
-            @foreach (var item in Model)
-            {
-                <tr class="hover:bg-slate-50 border-b border-slate-200">
-                    <td class="p-4 border-b border-blue-gray-50">
-                        <div class="flex items-center gap-3">
-                            <span class="items-center ">@(count++)</span>
-                            <p class="block font-sans antialiased font-bold leading-normal text-blue-gray-900">
-                                @item.ResourceName
+        <div class="relative flex flex-col w-full h-full text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
+            <div>
+                <table class="w-full text-left table-xs min-w-max overflow-scroll" style="height:60vh">
+                    <thead class="bg-gray-300/20">
+                    <tr class="text-md font-bold text-gray-900">
+                        <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Resource type
                             </p>
-                        </div>
-                    </td>
-                    <td class="p-4 border-b border-blue-gray-50">
-                        <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
-                            @if (item.Quantity != null)
-                            {
-                                @item.Quantity.Value.ToString("N0")
-                            }
-                        </p>
-                    </td>
-                    <td class="p-4 border-b border-blue-gray-50">
-                        <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
-                            @item.ExpectedQuantity.ToString("N0")
-                        </p>
-                    </td>
-                    <td class="p-4 border-b border-blue-gray-50">
-                        <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
-                            @item.Unit
-                        </p>
-                    </td>
-                    <td class="p-4 border-b border-blue-gray-50">
-                        @if (item.Quantity < item.ExpectedQuantity)
+                        </th>
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Quantity
+                            </p>
+                        </th>
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased leading-none text-blue-gray-900 ">
+                                Expected quantity
+                            </p>
+                        </th>
+                        <th class=" text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Unit
+                            </p>
+                        </th>
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Status
+                            </p>
+                        </th>
+                        @if (statusProjectMemberOfUser >= 2)
                         {
-                            <div class="w-max">
-                                <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap bg-amber-500/20 text-amber-900">
-                                    <span class="">In progress</span>
-                                </div>
-                            </div>
+                            <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                                <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                    Action
+                                </p>
+                            </th>
                         }
-                        else
-                        {
-                            <div class="w-max">
-                                <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
-                                    <span class="">completed</span>
-                                </div>
-                            </div>
-                        }
-                    </td>
-                    @if (statusProjectMemberOfUser >= 2)
+                    </tr>
+                    </thead>
+                    <tbody class="text-base text-gray-900">
+
+                    @foreach (var item in Model)
                     {
-                        <td class="p-4 border-b border-blue-gray-50">
-
-                                <button onClick="document.getElementById('editModal-@item.ResourceID').showModal()" type="button" class=" w-fit h-fit mx-2 my-2 p-2">
-                                    <i class="fa-regular fa-pen-to-square text-xl text-gray-900"></i>
-                                </button>
-                                <a asp-action="DeleteResourceType" asp-route-resourceid="@item.ResourceID">
-                                    <button type="button" class=" w-fit h-fit mx-2 my-2 p-2">
-                                        <i class="fa-solid fa-trash text-xl text-gray-900"></i>
-                                    </button>
-                                </a>
-                                <dialog id="editModal-@item.ResourceID" class="modal">
-                                    <div class="modal-box w-11/12 max-w-5xl">
-                                        <div class="m-0 modal-action  flex flex-col">
-                                            <h2 class=" text-black font-bold text-2xl text-center mb-4">Edit resource</h2>
-                                            <form asp-action="UpdateResourceType" method="post">
-                                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                                <input id="currentResourceID" type="hidden" name="ResourceID" value="@item.ResourceID" />
-                                                <input type="hidden" name="ProjectID" value="@item.ProjectID" />
-
-                                                <div class="grid grid-cols-3 gap-x-6 gap-y-3">
-                                                    <div>
-                                                        <label for="ResourceName" class="block mb-2 text-md font-medium text-gray-900">
-                                                            Enter resource name
-                                                        </label>
-                                                        <input id="ResourceNameUpdateInput" readonly name="ResourceName" type="text" value="@item.ResourceName"
-                                                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                               required />
-                                                        <span asp-validation-for="@item.ResourceName" class="text-danger"></span>
-                                                    </div>
-                                                    <div>
-                                                        <label asp-for="@item.ExpectedQuantity" class="block mb-2 text-md font-medium text-gray-900">
-                                                            Enter expected quantity
-                                                        </label>
-                                                            <input min="@item.ExpectedQuantity" name="ExpectedQuantity" type="number" asp-for="@item.ExpectedQuantity"
-                                                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                               required />
-                                                        <span asp-validation-for="@item.ExpectedQuantity" class="text-error"></span>
-                                                    </div>
-
-                                                <div>
-
-                                                    <label asp-for="@item.Unit" class="block mb-2 text-md font-medium text-gray-900">
-                                                        Enter resource unit
-                                                    </label>
-                                                    @if (item.Unit.ToLower().Trim().Equals("vnd") && item.ResourceName.ToLower().Trim().Equals("money"))
-                                                    {
-                                                        <input readonly name="Unit" type="text" asp-for="@item.Unit"
-                                                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                               required/>
-                                                    }
-                                                    else
-                                                    {
-                                                        <input name="Unit" type="text" asp-for="@item.Unit"
-                                                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                               required/>
-                                                    }
-
-                                                    <span asp-validation-for="@item.Unit" class="text-error"></span>
-                                                </div>
-                                            </div>
-
-                                            <div class="flex justify-center gap-x-6">
-                                                <button type="submit"
-                                                        class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
-                                                    Update
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                        <tr class="hover:bg-slate-50 border-b border-slate-200">
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <div class="flex items-center gap-3">
+                                    <span class="items-center ">@(count++)</span>
+                                    <p class="block font-sans antialiased font-bold leading-normal text-blue-gray-900">
+                                        @item.ResourceName
+                                    </p>
                                 </div>
-                                <form method="dialog" class="modal-backdrop">
-                                    <button>close</button>
-                                </form>
-                            </dialog>
-                        </td>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
+                                    @if (item.Quantity != null)
+                                    {
+                                        @item.Quantity.Value.ToString("N0")
+                                    }
+                                </p>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
+                                    @item.ExpectedQuantity.ToString("N0")
+                                </p>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
+                                    @item.Unit
+                                </p>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                @if (item.Quantity < item.ExpectedQuantity)
+                                {
+                                    <div class="w-max">
+                                        <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap bg-amber-500/20 text-amber-900">
+                                            <span class="">In progress</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-max">
+                                        <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
+                                            <span class="">completed</span>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                            @if (statusProjectMemberOfUser >= 2)
+                            {
+                                <td class="p-4 border-b border-blue-gray-50">
+
+                                    <button onClick="document.getElementById('editModal-@item.ResourceID').showModal()" type="button" class=" w-fit h-fit mx-2 my-2 p-2">
+                                        <i class="fa-regular fa-pen-to-square text-xl text-gray-900"></i>
+                                    </button>
+                                    <a asp-action="DeleteResourceType" asp-route-resourceid="@item.ResourceID">
+                                        <button type="button" class=" w-fit h-fit mx-2 my-2 p-2">
+                                            <i class="fa-solid fa-trash text-xl text-gray-900"></i>
+                                        </button>
+                                    </a>
+                                    <dialog id="editModal-@item.ResourceID" class="modal">
+                                        <div class="modal-box w-11/12 max-w-5xl">
+                                            <div class="m-0 modal-action  flex flex-col">
+                                                <h2 class=" text-black font-bold text-2xl text-center mb-4">Edit resource</h2>
+                                                <form asp-action="UpdateResourceType" method="post">
+                                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                                    <input id="currentResourceID" type="hidden" name="ResourceID" value="@item.ResourceID"/>
+                                                    <input type="hidden" name="ProjectID" value="@item.ProjectID"/>
+
+                                                    <div class="grid grid-cols-3 gap-x-6 gap-y-3">
+                                                        <div>
+                                                            <label for="ResourceName" class="block mb-2 text-md font-medium text-gray-900">
+                                                                Enter resource name
+                                                            </label>
+                                                            <input id="ResourceNameUpdateInput" readonly name="ResourceName" type="text" value="@item.ResourceName"
+                                                                   class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                                   required/>
+                                                            <span asp-validation-for="@item.ResourceName" class="text-danger"></span>
+                                                        </div>
+                                                        <div>
+                                                            <label asp-for="@item.ExpectedQuantity" class="block mb-2 text-md font-medium text-gray-900">
+                                                                Enter expected quantity
+                                                            </label>
+                                                            <input min="@item.ExpectedQuantity" name="ExpectedQuantity" type="number" asp-for="@item.ExpectedQuantity"
+                                                                   class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                                   required/>
+                                                            <span asp-validation-for="@item.ExpectedQuantity" class="text-error"></span>
+                                                        </div>
+
+                                                        <div>
+
+                                                            <label asp-for="@item.Unit" class="block mb-2 text-md font-medium text-gray-900">
+                                                                Enter resource unit
+                                                            </label>
+                                                            @if (item.Unit.ToLower().Trim().Equals("vnd") && item.ResourceName.ToLower().Trim().Equals("money"))
+                                                            {
+                                                                <input readonly name="Unit" type="text" asp-for="@item.Unit"
+                                                                       class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                                       required/>
+                                                            }
+                                                            else
+                                                            {
+                                                                <input name="Unit" type="text" asp-for="@item.Unit"
+                                                                       class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                                       required/>
+                                                            }
+
+                                                            <span asp-validation-for="@item.Unit" class="text-error"></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex justify-center gap-x-6">
+                                                        <button type="submit"
+                                                                class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                                                            Update
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <form method="dialog" class="modal-backdrop">
+                                            <button>close</button>
+                                        </form>
+                                    </dialog>
+                                </td>
+                            }
+                        </tr>
                     }
-
-                </tr>
-            }
-            </tbody>
-        </table>
-        </div>
-        <partial name="CustomComponent/_PaginationFooter" model="@(new HTMLPaginationVM { FormId = "searchForm", PaginationDivId = "pDiv1", PaginationRequestDto = ViewBag.PaginationRequestDto ?? new PaginationRequestDto() })"/>
-    </div>
-    </div>
-    <!-- end new table-->
-   </div>
-
-    <!-- You can open the modal using ID.showModal() method -->
-    <dialog id="add_form" class="modal ">
-        <div class="modal-box  w-[50vw] max-w-[800px] h-fit p-0 m-0">
-            <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <div class="w-full mx-auto flex-col shadow-lg p-6 rounded-3xl">
-                <h2 class=" text-black font-bold mb-4 text-xl text-center ">Add new resource</h2>
-                <!-- form 1 -->
-                <form id="formAdd" method="post" asp-action="AddProjectResourceType" asp-controller="Project" enctype="multipart/form-data">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="@projectResource.ProjectID" />
-                    <div class="grid grid-cols-3 gap-x-6 gap-y-3">
-                        <div>
-                            <label asp-for="@projectResource.ResourceName" class="block mb-2 text-md font-medium text-gray-900">
-                                Enter resource
-                                name
-                            </label>
-                            <input id="ResourceNameInput" asp-for="@projectResource.ResourceName" type="text"
-                                   class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                   placeholder="Blanket" required />
-                            <span asp-validation-for="@projectResource.ResourceName" class="text-error text-red-500 font-semibold"></span>
-                        </div>
-                        <div>
-                            <label asp-for="@projectResource.ExpectedQuantity" class="block mb-2 text-md font-medium text-gray-900">
-                                Enter
-                                expected quantity
-                            </label>
-                            <input min="0" asp-for="@projectResource.ExpectedQuantity" type="number"
-                                   class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                   placeholder="164" required />
-                            <span asp-validation-for="@projectResource.ExpectedQuantity" class="text-error text-red-500 font-semibold"></span>
-                        </div>
-                        <div>
-                            <label asp-for="@projectResource.Unit" class="block mb-2 text-md font-medium text-gray-900">
-                                Enter resource
-                                unit
-                            </label>
-                            <input id="UnitInput" asp-for="@projectResource.Unit" type="text"
-                                   class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                   placeholder="..." required />
-                            <span asp-validation-for="@projectResource.Unit" class="text-error text-red-500 font-semibold"></span>
-                            <span id="unitError" class="text-error text-red-500 font-semibold "></span>
-                        </div>
-                    </div>
-                    <div class="flex justify-center">
-                        <button type="button" id="addResourceBtn"
-                                class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
-                            Add
-                        </button>
-                    </div>
-
-                </form>
+                    </tbody>
+                </table>
+                <partial name="CustomComponent/_PaginationFooter" model="@(new HTMLPaginationVM { FormId = "searchForm", PaginationDivId = "pDiv1", PaginationRequestDto = ViewBag.PaginationRequestDto ?? new PaginationRequestDto() })"/>
             </div>
         </div>
+    </div>
+    <!-- end new table-->
+</div>
+
+<!-- You can open the modal using ID.showModal() method -->
+<dialog id="add_form" class="modal ">
+    <div class="modal-box  w-[50vw] max-w-[800px] h-fit p-0 m-0">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <div class="w-full mx-auto flex-col shadow-lg p-6 rounded-3xl">
+            <h2 class=" text-black font-bold mb-4 text-xl text-center ">Add new resource</h2>
+            <!-- form 1 -->
+            <form id="formAdd" method="post" asp-action="AddProjectResourceType" asp-controller="Project" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="@projectResource.ProjectID"/>
+                <div class="grid grid-cols-3 gap-x-6 gap-y-3">
+                    <div>
+                        <label asp-for="@projectResource.ResourceName" class="block mb-2 text-md font-medium text-gray-900">
+                            Enter resource
+                            name
+                        </label>
+                        <input id="ResourceNameInput" asp-for="@projectResource.ResourceName" type="text"
+                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               placeholder="Blanket" required/>
+                        <span asp-validation-for="@projectResource.ResourceName" class="text-error text-red-500 font-semibold"></span>
+                    </div>
+                    <div>
+                        <label asp-for="@projectResource.ExpectedQuantity" class="block mb-2 text-md font-medium text-gray-900">
+                            Enter
+                            expected quantity
+                        </label>
+                        <input min="0" asp-for="@projectResource.ExpectedQuantity" type="number"
+                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               placeholder="164" required/>
+                        <span asp-validation-for="@projectResource.ExpectedQuantity" class="text-error text-red-500 font-semibold"></span>
+                    </div>
+                    <div>
+                        <label asp-for="@projectResource.Unit" class="block mb-2 text-md font-medium text-gray-900">
+                            Enter resource
+                            unit
+                        </label>
+                        <input id="UnitInput" asp-for="@projectResource.Unit" type="text"
+                               class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               placeholder="..." required/>
+                        <span asp-validation-for="@projectResource.Unit" class="text-error text-red-500 font-semibold"></span>
+                        <span id="unitError" class="text-error text-red-500 font-semibold "></span>
+                    </div>
+                </div>
+                <div class="flex justify-center">
+                    <button type="button" id="addResourceBtn"
+                            class="mt-4 text-md text-white bg-blue-800 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg w-full sm:w-auto px-5 py-2.5 text-center">
+                        Add
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
     </form>
-    </dialog>
+</dialog>
 
- 
+
 <!-- end container -->
 <script>
 
@@ -382,6 +386,3 @@
 
     });
 </script>
-
-
-

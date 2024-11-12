@@ -83,11 +83,9 @@
 
 	<ItemGroup>
 	  <AdditionalFiles Include="Views\Error\PageNotFound.cshtml" />
-	  <AdditionalFiles Include="Views\Payment\Index.cshtml" />
 		<PackageReference Include="Serilog" Version="4.0.2" />
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-	  <AdditionalFiles Include="Views\Payment\Index.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>

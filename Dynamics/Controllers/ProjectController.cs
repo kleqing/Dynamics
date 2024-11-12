@@ -658,11 +658,12 @@ namespace Dynamics.Controllers
         {
             _logger.LogWarning("JoinProjectRequest get");
             var projectObj = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
-            if (projectObj?.ProjectStatus == -1)
+            if (projectObj?.ProjectStatus == -1 || projectObj.ProjectStatus == 2)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
+            
 
             var res = await _projectService.SendJoinProjectRequestAsync(projectID, memberID);
 
@@ -1282,7 +1283,8 @@ namespace Dynamics.Controllers
                 HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
             }
 
-            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
+            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(
+                p => p.ProjectID.Equals(projectID));
             if (allResource.Count() == 0)
             {
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });

@@ -92,7 +92,28 @@
                         <td class="p-2 text-sm font-semibold">@Html.DisplayFor(model => item.Time)</td>
                         <td class="p-2 text-sm font-semibold">@item.Name</td>
                         <td class="p-2 text-sm font-semibold">@item.ResourceName</td>
-                        <td class="p-2 text-sm font-semibold">@item.Amount.ToString("N0")</td>
+                        @if (item.Type.Equals("OrgToPrj"))
+                        {
+                            <td class="p-2 text-sm text-red-900">
+                                -@item.Amount.ToString("N0")
+                            </td>
+                        }
+                        else
+                        {
+                            @if (item.Status == 1)
+                            {
+                                <td class="p-2 text-sm text-green-900">
+                                    +@item.Amount.ToString("N0")
+                                </td>
+                            }
+                            else if (item.Status == -1)
+                            {
+                                <td class="p-2 text-sm text-red-900">
+                                    @item.Amount.ToString("N0")
+                                </td>
+                            }
+                        }
+
                         <td class="p-2 text-sm">@item.Unit</td>
                         <td class="p-2 text-sm">@item.Message</td>
                         <td class="p-2 ">
@@ -233,6 +254,7 @@
     </div>
 </div>
 <div class="divider"></div>
+
 @* ORGANIZATION TO PROJECT TRANSACTION *@
 <div class="m-w-screen-2xl flex flex-col items-center justify-center relative mt-6">
     <!--SECTION 1: USER DONATE-->

@@ -2,10 +2,9 @@
 @* How to use: *@
 @* Don't put this in another element with relative position (In short, put at the end of <body></body> *@
 @* Only pass an ID string of the form into the partial, if you want to apply to multiple forms, just re-use the script multiple times *@
-
 <link rel="stylesheet" href="~/css/original.css"/>
 @* backdrop *@
-<div class="w-full h-full bg-black fixed z-50 opacity-50 transition-all loadingModal" style="display: none; top: 0; min-height: 100vh;">
+<div class="w-full h-full bg-black fixed z-50 opacity-50 transition-all loadingModal fadeIn" style="display: none; top: 0; min-height: 100vh;">
     @* This one will always be centered in the backdrop *@
     <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="loader"></div>

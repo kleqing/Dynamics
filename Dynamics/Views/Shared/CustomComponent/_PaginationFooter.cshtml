@@ -1,29 +1,29 @@
-﻿@model Dynamics.Models.Dto.PaginationRequestDto
+﻿@model Dynamics.Models.Models.ViewModel.HTMLPaginationVM
 @* TODO: Handle multiple search form ? *@
 @{
-    var startRecords = ((Model.PageNumber - 1) * Model.PageSize) + 1; // page 2 , size 9 => Showing from 10 -> 18
-    if (Model.TotalRecords == 0) startRecords = 0;
-    var endRecords = Model.PageNumber * Model.PageSize;
-    if (endRecords > Model.TotalRecords) endRecords = Model.TotalRecords;
+    var startRecords = ((Model.PaginationRequestDto.PageNumber - 1) * Model.PaginationRequestDto.PageSize) + 1; // page 2 , size 9 => Showing from 10 -> 18
+    if (Model.PaginationRequestDto.TotalRecords == 0) startRecords = 0;
+    var endRecords = Model.PaginationRequestDto.PageNumber * Model.PaginationRequestDto.PageSize;
+    if (endRecords > Model.PaginationRequestDto.TotalRecords) endRecords = Model.PaginationRequestDto.TotalRecords;
 }
 
-<div class="flex justify-between items-center px-4 py-3">
+<div class="flex justify-between items-center px-4 py-3" id="@Model.PaginationDivId">
     <div class="text-sm text-slate-500">
-        Showing <b>@startRecords-@endRecords</b> of @Model.TotalRecords
+        Showing <b>@startRecords-@endRecords</b> of @Model.PaginationRequestDto.TotalRecords
     </div>
     <div class="flex space-x-1">
-        @if (Model.PageNumber > 1)
+        @if (Model.PaginationRequestDto.PageNumber > 1)
         {
             <button id="prePageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
                 Previous
             </button>
         }
-        @if (Model.TotalPages >= 10)
+        @if (Model.PaginationRequestDto.TotalPages >= 10)
         {
             // 2 left pages
             for (int i = 1; i <= 2; i++)
             {
-                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                <button id="pageBtn_@i" class="@(Model.PaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
                     @i
                 </button>
             }
@@ -31,10 +31,10 @@
                 ...
             </button>
             // 3 middle pages
-            var nextThreePages = Model.PageNumber + 3;
-            for (int i = Model.PageNumber; i < nextThreePages; i++)
+            var nextThreePages = Model.PaginationRequestDto.PageNumber + 3;
+            for (int i = Model.PaginationRequestDto.PageNumber; i < nextThreePages; i++)
             {
-                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                <button id="pageBtn_@i" class="@(Model.PaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
                     @i
                 </button>
             }
@@ -42,25 +42,25 @@
                 ...
             </button>
             // 2 Right page
-            for (int i = Model.TotalPages; i >= Model.TotalPages - 2; i--)
+            for (int i = Model.PaginationRequestDto.TotalPages; i >= Model.PaginationRequestDto.TotalPages - 2; i--)
             {
-                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                <button id="pageBtn_@i" class="@(Model.PaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
                     @i
                 </button>
             }
         }
         else
         {
-            for (int i = 1; i <= Model.TotalPages; i++)
+            for (int i = 1; i <= Model.PaginationRequestDto.TotalPages; i++)
             {
-                <button id="pageBtn_@i" class="@(Model.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                <button id="pageBtn_@i" class="@(Model.PaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
                     @i
                 </button>
             }
         }
 
 
-        @if (Model.PageNumber < Model.TotalPages)
+        @if (Model.PaginationRequestDto.PageNumber < Model.PaginationRequestDto.TotalPages)
         {
             <button id="nextPageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
                 Next
@@ -71,10 +71,10 @@
 
 @* Scripts used to set the hidden pagination related input in the search bar *@
 <script>
-    let previousPage = @Model.PageNumber - 1
-    let nextPage = @Model.PageNumber + 1
-    let totalPage = @Model.TotalPages;
-    let targetSearchForm = document.getElementById('searchForm')
+    let previousPage = @Model.PaginationRequestDto.PageNumber - 1
+    let nextPage = @Model.PaginationRequestDto.PageNumber + 1
+    let totalPage = @Model.PaginationRequestDto.TotalPages;
+    let targetSearchForm = document.getElementById('@Html.Raw(Model.FormId)')
     let pageNumberElement = targetSearchForm.querySelector('input[name="PageNumber"]');
     
     // Handle click on numbers

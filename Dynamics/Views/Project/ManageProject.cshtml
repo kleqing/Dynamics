@@ -51,31 +51,29 @@
         <div class="ml-0  w-full justify-center items-center">
             <div class="relative items-center">
                 <!-- Main image container -->
-                <div id="carousel" class="w-full bg-gray-300 rounded-lg overflow-hidden" style="height:32rem;">
+                <div id="carousel" class="w-full bg-gray-200 rounded-lg overflow-hidden" style="height:32rem;">
                     <!-- Images will be inserted here by JavaScript -->
                 </div>
             </div>
-
-            <!-- Indicator dots  -->
-            <div class="flex justify-center my-10 mt-4 space-x-2 relative">
-                <!-- Navigation buttons -->
-                
-                @foreach (var img in projectImages)
-                {
-                    <div onclick="updateCarouselAsUserWant('@img')" class=" relative w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
-                        <img src="@img" class="w-full h-full items-center rounded-xl">
-                        </div>
-                }
+            <div class="flex justify-between items-center gap-12 px-4 py-6 w-full relative">
                 <button id="prevBtn"
-                        class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:11rem;">
+                        class="bg-white rounded-full p-2 shadow-md opacity-80 hover:opacity-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
                         </path>
                     </svg>
                 </button>
+                <div class="flex justify-center gap-2">
+                    @foreach (var img in projectImages)
+                    {
+                        <div onclick="updateCarouselAsUserWant('@img')" class="relative w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
+                            <img src="@img" class="w-full h-full items-center rounded-xl object-cover carouselImg">
+                        </div>
+                    }
+                </div>
                 <button id="nextBtn"
-                        class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:11rem;">
+                        class="bg-white rounded-full p-2 shadow-md opacity-80 hover:opacity-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -459,10 +457,10 @@
 
     function updateCarouselAsUserWant(src) {
         // Update the carousel with the selected image
-        carousel.innerHTML = `<img src="${src}" class="w-full object-cover items-center cursor-pointer" alt="Project image" style="height: 40rem;">`;
+        carousel.innerHTML = `<img src="${src}" class="w-full object-contain items-center cursor-pointer" alt="Project image" style="height: 32rem;">`;
 
         const srcFilename = src.split('/').pop(); // Get the file name from the src
-        const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-2 > div > img');
+        const indicators = document.querySelectorAll('.carouselImg');
 
         // Loop through each indicator to compare its src with the selected image src
         indicators.forEach((indicator) => {
@@ -479,7 +477,7 @@
         });
     }
     function updateCarousel() {
-        carousel.innerHTML = `<img src="${images[currentIndex]}" class="w-full object-cover items-center" alt="Project image" style="height: 40rem;">`;
+        carousel.innerHTML = `<img src="${images[currentIndex]}" class="w-full object-contain items-center" alt="Project image" style="height: 32rem;">`;
         updateIndicators();
     }
 

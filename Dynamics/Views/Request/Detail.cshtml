@@ -22,31 +22,31 @@
             <div class="w-full justify-end items-center relative">
                 <div class=" items-center relative">
                     <!-- Main image container -->
-                    <div id="carousel" class=" bg-gray-300 rounded-lg overflow-hidden relative" style="height:25rem; margin: 0 auto">
+                    <div id="carousel" class=" bg-gray-200 rounded-lg overflow-hidden relative" style="height:25rem; margin: 0 auto">
                         <!-- Images will be inserted here by JavaScript -->
                     </div>
                 </div>
 
                 <!-- Indicator dots  -->
-                <div class="flex justify-center my-10 mt-4 space-x-2 relative" id="indicator">
-                    <!-- Navigation buttons -->
-
-                    @foreach (var img in projectImages)
-                    {
-                        <div onclick="updateCarouselAsUserWant('@img')" class="w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
-                            <img src="@img" class="w-full h-full items-center rounded-xl" alt="Request image">
-                        </div>
-                    }
+                <div class="flex justify-between items-center gap-12 px-4 py-6 w-full relative">
                     <button id="prevBtn"
-                            class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:14rem;">
+                            class="bg-white rounded-full p-2 shadow-md opacity-80 hover:opacity-100">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
                             </path>
                         </svg>
                     </button>
+                    <div class="flex justify-center gap-2">
+                        @foreach (var img in projectImages)
+                        {
+                            <div onclick="updateCarouselAsUserWant('@img')" class="relative w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
+                                <img src="@img" class="w-full h-full items-center rounded-xl object-cover carouselImg">
+                            </div>
+                        }
+                    </div>
                     <button id="nextBtn"
-                            class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:14rem;">
+                            class="bg-white rounded-full p-2 shadow-md opacity-80 hover:opacity-100">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                              xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -106,17 +106,28 @@
                 if (Model.UserID.Equals(new Guid(userIDString)))
                 {
                     <div class="bg-white rounded-3xl shadow-2xl flex flex-col gap-4 justify-start p-6 w-1/4 flex-shrink-0 h-full top-32 sticky">
-                        <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
-                            <button type="button" class="flex items-center gap-8">
-                                Edit request detail <i class="fa-solid fa-pen-to-square text-xl"></i>
-                            </button>
-                        </a>
-                        <form id="deleteForm" class="btn btn-error btn-md" asp-action="Delete" asp-controller="Request" method="post">
-                            <input type="hidden" name="id" value="@Model.RequestID"/>
-                            <button type="button" class="flex items-center gap-8">
-                                Delete request <i class="fa-regular fa-circle-xmark text-xl"></i>
-                            </button>
-                        </form>
+                        @if (Model.Status == 2 && ViewBag.projectId != null)
+                        {
+                            <a asp-controller="Project" asp-action="ManageProject" asp-route-id="@ViewBag.projectId" title="Edit request profile" class="btn btn-success btn-md">
+                                <button type="button" class="flex items-center gap-8">
+                                    View project of this request <i class="fa-regular fa-paper-plane"></i>
+                                </button>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.RequestID" title="Edit request profile" class="btn btn-primary btn-md">
+                                <button type="button" class="flex items-center gap-8">
+                                    Edit request detail <i class="fa-solid fa-pen-to-square text-xl"></i>
+                                </button>
+                            </a>
+                            <form id="deleteForm" class="btn btn-error btn-md" asp-action="Delete" asp-controller="Request" method="post">
+                                <input type="hidden" name="id" value="@Model.RequestID"/>
+                                <button type="button" class="flex items-center gap-8">
+                                    Delete request <i class="fa-regular fa-circle-xmark text-xl"></i>
+                                </button>
+                            </form>
+                        }
                     </div>
                 }
                 else
@@ -191,10 +202,10 @@
 
     function updateCarouselAsUserWant(src) {
         // Update the carousel with the selected image
-        carousel.innerHTML = `<img src="${src}" class="w-full object-cover items-center cursor-pointer" alt="Project image" style="height: 25rem;">`;
+        carousel.innerHTML = `<img src="${src}" class="w-full object-contain items-center cursor-pointer" alt="Project image" style="height: 25rem;">`;
 
         const srcFilename = src.split('/').pop(); // Get the file name from the src
-        const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-2 > div > img');
+        const indicators = document.querySelectorAll('.carouselImg');
 
         // Loop through each indicator to compare its src with the selected image src
         indicators.forEach((indicator) => {

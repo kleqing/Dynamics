@@ -20,12 +20,13 @@ namespace Dynamics.Controllers
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IRoleService _roleService;
+        private readonly IProjectRepository _projectRepository;
 
         public RequestController(IRequestRepository requestRepository, UserManager<User> userManager,
             ILogger<RequestController> logger,
             IRequestService? requestService, CloudinaryUploader? cloudinaryUploader, 
             IOrganizationMemberRepository organizationMemberRepository, 
-            IRoleService roleService)
+            IRoleService roleService, IProjectRepository projectRepository)
         {
             _requestRepo = requestRepository;
             _userManager = userManager;
@@ -34,6 +35,7 @@ namespace Dynamics.Controllers
             _cloudinaryUploader = cloudinaryUploader;
             _organizationMemberRepository = organizationMemberRepository;
             _roleService = roleService;
+            _projectRepository = projectRepository;
         }
 
         public async Task<IActionResult> Index(string searchQuery, string filterQuery,
@@ -115,6 +117,11 @@ namespace Dynamics.Controllers
             if (request == null)
             {
                 return NotFound();
+            }
+            // Check to see if the request is accepted, pass in a link to view the project
+            if (request.Status == 2 && request.Project != null)
+            {
+                ViewBag.projectId = request.Project.ProjectID;
             }
 
             return View(request);

@@ -637,15 +637,11 @@ namespace Dynamics.Controllers
             var currentOrganization =
                 HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
-
-            //var UserToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryIsAccept(currentOrganization.OrganizationID);
-
-            //var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryAsync(currentOrganization.OrganizationID);
-            //var OrganizationToProjectHistorysAccepting = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByAcceptingAsync(currentOrganization.OrganizationID);
-
-            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key, OrganizationToProjectHistorysPending);
-            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
-
+            if (searchRequestDto.Filter == null)
+            {
+                searchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
+            
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto =>
                 uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0); // Dont get the pending ones
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto =>
@@ -654,13 +650,6 @@ namespace Dynamics.Controllers
             var total = await _transactionViewService.SetupOrganizationTransactionDtosWithSearchParams(searchRequestDto,
                 orgToPrjQueryable, userToOrgQueryable);
             var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchRequestDto);
-
-            // var userToOrgTransactionDtos = await _transactionViewService.GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
-            // var orgToPrjTransactionDtos = await _transactionViewService.GetOrganizationToProjectTransactionDtosAsync(orgToPrjQueryable);
-            //
-            // var total = new List<OrganizationTransactionDto>();
-            // total.AddRange(userToOrgTransactionDtos);
-            // total.AddRange(orgToPrjTransactionDtos);
 
             return View(new ManageOrganizationTransactionHistoryVM
             {

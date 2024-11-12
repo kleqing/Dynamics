@@ -658,11 +658,12 @@ namespace Dynamics.Controllers
         {
             _logger.LogWarning("JoinProjectRequest get");
             var projectObj = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
-            if (projectObj?.ProjectStatus == -1)
+            if (projectObj?.ProjectStatus == -1 || projectObj.ProjectStatus == 2)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
+            
 
             var res = await _projectService.SendJoinProjectRequestAsync(projectID, memberID);
 

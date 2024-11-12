@@ -1,7 +1,40 @@
 ﻿@* backdrop *@
-<div id="loadingModal" class="w-full h-full bg-black fixed z-50 opacity-50" style="display: none; top: 0; min-height: 100vh;">
+<link href="~/css/original.css"/>
+<div id="loadingModal" class="w-full h-full bg-black fixed z-50 transition-all fadeIn" style="display: none; top: 0; min-height: 100vh;">
     @* This one will always be centered in the backdrop *@
     <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="loader"></div>
     </div>
 </div>
+
+<script>
+    // Function to show loading screen
+    function showLoadingScreen() {
+        const loadingModal = document.querySelector("#loadingModal");
+        if (loadingModal) {
+            loadingModal.style.display = 'block'; // Ensures it becomes visible
+        }
+    }
+    
+    function hideLoadingScreen() {
+        const loadingModal = document.querySelector("#loadingModal");
+        if (loadingModal) {
+            loadingModal.style.display = 'none'; // Hides completely
+            console.log('hiding the screen')
+        }
+    }
+    
+
+    // Also handle anchor tag clicks to show the loading screen
+    document.addEventListener('DOMContentLoaded', () => {
+        hideLoadingScreen(); // Ensure it's hidden when DOM is ready
+        document.querySelectorAll('a').forEach((a) => {
+            a.addEventListener('click', (event) => {
+                // Only show the loading screen if the link is navigating to a new page
+                showLoadingScreen();
+            });
+        });
+    });
+    
+    window.addEventListener('pageshow', hideLoadingScreen)    
+</script>

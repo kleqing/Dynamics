@@ -60,7 +60,8 @@ namespace Dynamics.Controllers
             IOrganizationToProjectTransactionHistoryRepository organizationToProjectTransactionHistoryRepository,
             IProjectService projectService,
             IMapper mapper, IProjectResourceRepository projectResourceRepository,
-            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService, IProjectMemberRepository projectMemberRepository, IWalletService walletService)
+            ITransactionViewService transactionViewService, IPagination pagination, IRoleService roleService,
+            IProjectMemberRepository projectMemberRepository, IWalletService walletService)
         {
             _organizationRepository = organizationRepository;
             _userRepository = userRepository;
@@ -207,11 +208,13 @@ namespace Dynamics.Controllers
                             organizationId = organization.OrganizationID, status = 2, userId = currentUser.Id
                         }); //status 2 : CEOID   0 : processing   1 : membert
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 TempData[MyConstants.Error] = "Create organization failed!";
                 TempData[MyConstants.Subtitle] = e.Message;
             }
+
             TempData[MyConstants.Error] = "Create organization failed!";
             return View(organization);
         }
@@ -230,7 +233,7 @@ namespace Dynamics.Controllers
                 else otherOrgs.Add(organizationMember.Organization);
             }
             // Get real organizations based on the project members
-            
+
             var MyOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(myOrgs);
             var OtherOrgDtos = _orgDisplayService.MapToOrganizationOverviewDtoList(otherOrgs);
             return View(new MyOrganizationVM
@@ -340,12 +343,14 @@ namespace Dynamics.Controllers
             }
             else if (!boolOrganizationResource)
             {
-                TempData[MyConstants.Error] = "Shut Down organization Failed because exist at least a organization resource available!";
+                TempData[MyConstants.Error] =
+                    "Shut Down organization Failed because exist at least a organization resource available!";
                 return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
             }
             else
             {
-                TempData[MyConstants.Error] = "Shut Down organization Failed because exist at least a project available!";
+                TempData[MyConstants.Error] =
+                    "Shut Down organization Failed because exist at least a project available!";
                 return RedirectToAction("Detail", new { organizationId = organization.OrganizationID });
             }
         }
@@ -457,14 +462,14 @@ namespace Dynamics.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid Id)
+        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid userId)
         {
             var organizationMember =
                 await _organizationRepository.GetOrganizationMemberAsync(om =>
-                    om.OrganizationID == organizationId && om.UserID == Id);
+                    om.OrganizationID == organizationId && om.UserID == userId);
             var statusUserOut = organizationMember.Status;
 
-            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, Id);
+            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, userId);
 
             var organizationVM =
                 await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
@@ -482,7 +487,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User request denied successfully.";
                 var link = Url.Action(nameof(Detail), "Organization", new { organizationId },
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(Id, organizationId, link,
+                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link,
                     "deny");
                 return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
             }
@@ -491,7 +496,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "You have successfully left the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new { organizationId },
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link, "left");
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "left");
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -499,7 +504,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new { organizationId },
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link,
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link,
                     "remove");
                 return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
@@ -518,8 +523,8 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
-            var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
-            var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
+            //var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
+            //var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
 
             if (!newCEOID.Equals(currentCEOID))
             {
@@ -527,7 +532,7 @@ namespace Dynamics.Controllers
                 var projects =
                     await _projectRepository.GetAllProjectsByOrganizationIDAsync(p =>
                         p.OrganizationID.Equals(organizationId));
-                if (await _roleService.IsInRoleAsync(newCEO, RoleConstants.ProjectLeader) &&
+                if (await _roleService.IsInRoleAsync(newCEOID, RoleConstants.ProjectLeader) &&
                     await _roleService.IsInRoleAsync(currentCEOID, RoleConstants.ProjectLeader))
                 {
                     TempData[MyConstants.Error] = "both is being head of project so not transfer!.";
@@ -587,11 +592,10 @@ namespace Dynamics.Controllers
                         pm.Status == 3 && pm.ProjectID.Equals(project.ProjectID));
                     if (leaderProject == null)
                     {
-                        await _roleService.AddUserToRoleAsync(newCEO, RoleConstants.ProjectLeader);
-                        await _roleService.DeleteRoleFromUserAsync(currentCEO, RoleConstants.ProjectLeader);
+                        await _roleService.AddUserToRoleAsync(newCEOID, RoleConstants.ProjectLeader);
+                        await _roleService.DeleteRoleFromUserAsync(currentCEOID, RoleConstants.ProjectLeader);
                     }
-
-
+                    
                     var projectMember1 = await _projectMemberRepository.GetAsync(pm =>
                         pm.UserID.Equals(currentCEOID) && pm.ProjectID.Equals(project.ProjectID));
                     projectMember1.Status = 1;
@@ -631,42 +635,47 @@ namespace Dynamics.Controllers
 
 
         //Manage history
-        public async Task<IActionResult> ManageOrganizationTranactionHistory(SearchRequestDto searchRequestDto,
-            PaginationRequestDto paginationRequestDto)
+        public async Task<IActionResult> ManageOrganizationTranactionHistory(
+            SearchRequestDto userSearchRequestDto, PaginationRequestDto userPaginationRequestDto,
+            SearchRequestDto organizationSearchRequestDto, PaginationRequestDto organizationPaginationRequestDto)
         {
             var currentOrganization =
                 HttpContext.Session.Get<OrganizationVM>(MySettingSession.SESSION_Current_Organization_KEY);
 
+            if (userSearchRequestDto.Filter == null)
+            {
+                userSearchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
 
-            //var UserToOrganizationTransactionHistoryInAOrganizations = await _userToOragnizationTransactionHistoryVMService.GetTransactionHistoryIsAccept(currentOrganization.OrganizationID);
-
-            //var OrganizationToProjectHistorysPending = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryAsync(currentOrganization.OrganizationID);
-            //var OrganizationToProjectHistorysAccepting = await _organizationToProjectHistoryVMService.GetAllOrganizationToProjectHistoryByAcceptingAsync(currentOrganization.OrganizationID);
-
-            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key, OrganizationToProjectHistorysPending);
-            //HttpContext.Session.Set<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key, OrganizationToProjectHistorysAccepting);
-
+            if (organizationSearchRequestDto.Filter == null)
+            {
+                organizationSearchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto =>
-                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) && uto.Status != 0); // Dont get the pending ones
+                uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) &&
+                uto.Status != 0); // Dont get the pending ones
             var orgToPrjQueryable = _organizationToProjectTransactionHistoryRepository.GetAllAsQueryable(uto =>
                 uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID));
 
-            var total = await _transactionViewService.SetupOrganizationTransactionDtosWithSearchParams(searchRequestDto,
-                orgToPrjQueryable, userToOrgQueryable);
-            var paginated = _pagination.Paginate(total, HttpContext, paginationRequestDto, searchRequestDto);
-
-            // var userToOrgTransactionDtos = await _transactionViewService.GetUserToOrganizationTransactionDtosAsync(userToOrgQueryable);
-            // var orgToPrjTransactionDtos = await _transactionViewService.GetOrganizationToProjectTransactionDtosAsync(orgToPrjQueryable);
-            //
-            // var total = new List<OrganizationTransactionDto>();
-            // total.AddRange(userToOrgTransactionDtos);
-            // total.AddRange(orgToPrjTransactionDtos);
+            var totalUserDonations =
+                await _transactionViewService.SetupUserToOrgTransactionDtosWithSearchParams(userSearchRequestDto,
+                    userToOrgQueryable);
+            var totalOrgAllocations =
+                await _transactionViewService.SetupOrgToPrjTransactionDtosWithSearchParams(organizationSearchRequestDto,
+                    orgToPrjQueryable);
+            
+            var paginatedUserDonations = _pagination.Paginate(totalUserDonations, HttpContext, userPaginationRequestDto, userSearchRequestDto);
+            var paginatedOrganizationDonations = _pagination.Paginate(totalOrgAllocations, HttpContext, organizationPaginationRequestDto, organizationSearchRequestDto);
 
             return View(new ManageOrganizationTransactionHistoryVM
             {
-                Transactions = paginated,
-                SearchRequestDto = searchRequestDto,
-                PaginationRequestDto = paginationRequestDto,
+                OrganizationTransactions = paginatedOrganizationDonations,
+                OrganizationSearchRequestDto = organizationSearchRequestDto,
+                OrganizationPaginationRequestDto = organizationPaginationRequestDto,
+                
+                UserTransactions = paginatedUserDonations,
+                UserSearchRequestDto = userSearchRequestDto,
+                UserPaginationRequestDto = userPaginationRequestDto,
             });
         }
 
@@ -923,6 +932,7 @@ namespace Dynamics.Controllers
 
 
         // This method is shared between user donate to org and org allocate to project
+        [Authorize]
         public IActionResult DonateByMoney(string organizationId, string resourceId)
         {
             var userString = HttpContext.Session.GetString("user");
@@ -1015,6 +1025,7 @@ namespace Dynamics.Controllers
             return Redirect(returnUrl);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> DonateByResource(Guid resourceId)
         {

@@ -58,41 +58,30 @@
                     </div>
                 </div>
             </div>
-                <select class="h-8 text-xs border border-gray-300 join-item bg-white" name="Filter">
+            <select class="h-8 text-xs border border-gray-300 join-item bg-white" name="Filter">
                 @{
-                    bool first = true;
-                    // Keep the old filter back
-                    for (int i = 0; i < Model.FilterOptions.Length; i++)
+                    // Check if user already has filter before
+                    bool isFilteredBefore = !string.IsNullOrEmpty(Model.SearchRequestDto.Filter);
+                    foreach (var filterOptions in Model.FilterOptions)
                     {
-                        var modelFilterOption = Model.FilterOptions.ElementAt(i);
-                        // If we already has a filter, select it
-                        if (modelFilterOption.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                        // If a filter exist, select that filter automatically
+                        if (isFilteredBefore && filterOptions.Value.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
                         {
-                            <option selected>@modelFilterOption</option>
-                            first = false;
+                            <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
                         }
                         else
                         {
-                            // Else, discover the first option and select it
-                            if (first)
-                            {
-                                <option selected value="@modelFilterOption">@modelFilterOption</option>
-                                first = false;
-                            }
-                            else
-                            {
-                                <option value="@modelFilterOption">@modelFilterOption</option>
-                            }
+                            <option value="@filterOptions.Value"> @filterOptions.Key</option>
                         }
                     }
                 }
             </select>
-                <input name="DateFrom" type="date" placeholder="From date" class="h-8 text-xs input input-bordered join-item bg-white"
+            <input name="DateFrom" type="date" placeholder="From date" class="h-8 text-xs input input-bordered join-item bg-white"
                    max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
             <input name="DateTo" type="date" placeholder="To date" class="h-8 text-xs input input-bordered join-item bg-white rounded-md"
                    max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
         </div>
-            <button class="bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
+        <button class="bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
     </form>
     <!-- End right search bar -->
 
@@ -134,26 +123,25 @@
 
 <!-- PART 2 -->
 <!-- list transaction -->
-    <div class="flex flex-col relative  gap-y-2 mb-10" style="width:85%;">
+<div class="flex flex-col relative  gap-y-2 mb-10" style="width:85%;">
     <div class="overflow-x-auto" style="height:70vh;">
-          <table class="table table-xs">
-                <thead class="bg-gray-300/20 ">
-                    <tr class="text-gray-900 ">
-                        <th></th>
-                        <th class="text-md">Date</th>
-                        <th class="text-md">Name</th>
-                        <th class="text-md">Resource</th>
-                        <th class="text-md">Quantity</th>
-                        <th class="text-md">Unit</th>
-                        <th class="text-md">Message</th>
-                        <th class="text-md">Status</th>
-                                <th class="text-md">Action</th>
-                    </tr>
-                </thead>
-                <tbody >
-                      @foreach (var item in Model.Transactions)
+        <table class="table table-xs">
+            <thead class="bg-gray-300/20 ">
+            <tr class="text-gray-900 ">
+                <th></th>
+                <th class="text-md">Date</th>
+                <th class="text-md">Name</th>
+                <th class="text-md">Resource</th>
+                <th class="text-md">Quantity</th>
+                <th class="text-md">Unit</th>
+                <th class="text-md">Message</th>
+                <th class="text-md">Status</th>
+                <th class="text-md">Action</th>
+            </tr>
+            </thead>
+            <tbody >
+            @foreach (var item in Model.Transactions)
             {
-               
                 <tr class="hover:bg-slate-50">
                     <td class="text-sm">@count</td>
                     <td class="text-sm font-semibold">@item.Time</td>
@@ -235,8 +223,7 @@
             </tbody>
         </table>
     </div>
-    <partial name="CustomComponent/_PaginationFooter" model="Model.PaginationRequestDto"/>
-
+    <partial name="CustomComponent/_PaginationFooter" model="@(new HTMLPaginationVM { FormId = "searchForm", PaginationDivId = "pDiv1", PaginationRequestDto = Model.PaginationRequestDto })"/>
 </div>
 @* *@
 @* <!-- SECTION 2: ORGANIZATION DONATE--> *@

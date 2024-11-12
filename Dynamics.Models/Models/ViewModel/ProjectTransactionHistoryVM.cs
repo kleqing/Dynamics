@@ -14,6 +14,16 @@ namespace Dynamics.Models.Models.ViewModel
         public List<UserTransactionDto> Transactions { get; set; }
         public SearchRequestDto SearchRequestDto { get; set; }
         public PaginationRequestDto PaginationRequestDto { get; set; }
-        public readonly string[] FilterOptions = { "Filter", "Organization", "User", "Denied", "Accepted" };
+        
+        public Dictionary<string, string> FilterOptions { get; set; } = new()
+        {
+            { "Show all", "All" },
+            { "Only resource donations", "Resource" },
+            { "Only money donations", "Money" },
+            { "Only accepted donations", "Accepted" },
+            { "Only user donations", "User" },
+            { "Only organization donations", "Organization" },
+        };
+        // public readonly string[] FilterOptions = { "Filter", "Organization", "User", "Denied", "Accepted" };
     }
 }

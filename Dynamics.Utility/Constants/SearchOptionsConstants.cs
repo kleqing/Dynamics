@@ -8,9 +8,9 @@ public static class SearchOptionsConstants
     public const string Title  = "Title";
     public const string Content  = "Content";
     public const string Filter  = "Filter";
-    public const string StatusPending = "StatusPending";
-    public const string StatusAccepted = "StatusAccepted";
-    public const string StatusDenied = "StatusDenied";
+    public const string StatusPending = "Pending";
+    public const string StatusAccepted = "Accepted";
+    public const string StatusDenied = "Denied";
 }
 
 public enum TransactionSearchOptions

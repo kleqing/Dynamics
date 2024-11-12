@@ -12,7 +12,6 @@ public class UserHistoryViewModel
      */
     public Dictionary<string, string> FilterOptions { get; set; } = new()
     {
-        { "Filter", string.Empty },
         { "Show all", "All" },
         { "Only resource donations", "Resource" },
         { "Only money donations", "Money" },

@@ -45,40 +45,6 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
-        // Get all organization information
-        [HttpGet]
-        public async Task<JsonResult> GetOrganizationInfo(Guid id)
-        {
-            var organization = await _adminRepository.GetOrganizationInformation(o => o.OrganizationID == id);
-            if (organization == null)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Organization not found"
-                });
-            }
-
-            var memberCount = await _adminRepository.MemberJoinedOrganization(id); // Count member joined organization
-
-            // return to js with ajax
-            return Json(new
-            {
-                success = true,
-                data = new
-                {
-                    organization.OrganizationName,
-                    organization.OrganizationDescription,
-                    organization.OrganizationEmail,
-                    organization.OrganizationPhoneNumber,
-                    organization.OrganizationAddress,
-                    organization.StartTime,
-                    organization.ShutdownDay,
-                    memberCount = memberCount
-                }
-            });
-        }
-
         // Change organization status
         [HttpPost]
         public async Task<JsonResult> ChangeStatus(Guid id)

@@ -26,7 +26,7 @@
         {
             <h1 class="text-2xl font-bold mb-6 text-center">Donate money to organization</h1>
             <span class="text-neutral text-center max-w-md mx-auto block">Money from your <a class="link link-primary" asp-action="Index" asp-controller="Wallet">Dynamics wallet</a> will be spent first. If you don't have enough, you will be redirected to top up page.</span>
-            <form asp-controller="Payment" asp-action="Pay" id="donateByMoneyForm" class="flex justify-center items-center gap-6">
+            <form asp-controller="Wallet" asp-action="SpendDynamicsMoney" id="donateByMoneyForm" class="flex justify-center items-center gap-6">
                 <input type="hidden" name="TargetType" value="@Model.TargetType"/>
                 <input type="hidden" name="ResourceID" value="@Model.ResourceID"/>
                 <input type="hidden" name="TargetID" value="@Model.TargetId"/>

@@ -1282,7 +1282,8 @@ namespace Dynamics.Controllers
                 HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
             }
 
-            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
+            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(
+                p => p.ProjectID.Equals(projectID));
             if (allResource.Count() == 0)
             {
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });

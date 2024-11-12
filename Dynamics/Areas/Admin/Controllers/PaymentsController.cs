@@ -123,10 +123,13 @@ namespace Dynamics.Areas.Admin.Controllers
                 await _adminRepository.ChangeWithdrawStatus(id);
                 await _emailSender.SendEmailAsync(withdraw.Project.ProjectEmail, "Withdraw success.",
                     $"Please check your bank account, the withdraw request has been approved. Thank you!");
+
+                return Json(new { success = true, message = "Withdraw confirmed successfully!" });
             }
 
-            return Json(new { success = true });
+            return Json(new { success = false, message = "You do not have permission to perform this action." });
         }
+
         /*[HttpPost]
         public async Task<JsonResult> CreateWithdraw(string projectid, string bankAccountNumber, string bankId, string message)
         {

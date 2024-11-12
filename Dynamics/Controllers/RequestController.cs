@@ -59,6 +59,7 @@ namespace Dynamics.Controllers
             var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
             var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
             var dtos = _requestService.MapToListRequestOverviewDto(paginatedRequests);
+            
             ViewBag.currentPage = pageNumber;
             ViewBag.totalPages = totalPages;
             return View(dtos);
@@ -155,6 +156,11 @@ namespace Dynamics.Controllers
                 {
                     ModelState.AddModelError("", "Please choose province of your request.");
                 }
+                
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
 
                 var userJson = HttpContext.Session.GetString("user");
                 var user = JsonConvert.DeserializeObject<User>(userJson);
@@ -162,12 +168,7 @@ namespace Dynamics.Controllers
                 ViewBag.UserEmail = user.Email;
                 ViewBag.UserPhoneNumber = user.PhoneNumber;
                 ViewBag.UserAddress = user.UserAddress;
-
-                if (!ModelState.IsValid)
-                {
-                    return View();
-                }
-
+                
                 obj.RequestID = Guid.NewGuid();
                 /*var date = DateOnly.FromDateTime(DateTime.Now);
                 obj.CreationDate = date;*/

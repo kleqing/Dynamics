@@ -71,16 +71,17 @@
 
 @* Scripts used to set the hidden pagination related input in the search bar *@
 <script>
+    let paginationDiv = @Model.PaginationDivId;
     let previousPage = @Model.PaginationRequestDto.PageNumber - 1
     let nextPage = @Model.PaginationRequestDto.PageNumber + 1
     let totalPage = @Model.PaginationRequestDto.TotalPages;
     let targetSearchForm = document.getElementById('@Html.Raw(Model.FormId)')
     let pageNumberElement = targetSearchForm.querySelector('input[name="PageNumber"]');
-    
+    console.log(targetSearchForm)
     // Handle click on numbers
     // Handle click on page number buttons
     for (let i = 1; i <= totalPage; i++) {
-        document.getElementById('pageBtn_' + i)?.addEventListener('click', function(e) {
+        paginationDiv.querySelector(`#pageBtn_${i}`)?.addEventListener('click', function(e) {
             e.preventDefault(); // Prevent default behavior
             pageNumberElement.value = i; // Set the page number to the clicked button number
             targetSearchForm.submit(); // Submit the form
@@ -88,7 +89,7 @@
     }
     
     // Handle previous button click
-    document.getElementById('prePageBtn')?.addEventListener('click', function(e) {
+    paginationDiv.querySelector('#prePageBtn')?.addEventListener('click', function(e) {
         e.preventDefault(); // Prevent default behavior
         if (previousPage > 0) { // Ensure valid page number
             pageNumberElement.value = previousPage; // Set the previous page number
@@ -97,11 +98,12 @@
     });
 
     // Handle next button click
-    document.getElementById('nextPageBtn')?.addEventListener('click', function(e) {
+    paginationDiv.querySelector('#nextPageBtn')?.addEventListener('click', function(e) {
         e.preventDefault(); // Prevent default behavior
         if (nextPage <= totalPage) { // Ensure valid page number
             pageNumberElement.value = nextPage; // Set the next page number
             targetSearchForm.submit(); // Submit the form
         }
     });
+
 </script>

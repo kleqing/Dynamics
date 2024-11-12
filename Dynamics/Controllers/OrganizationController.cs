@@ -652,7 +652,6 @@ namespace Dynamics.Controllers
             {
                 organizationSearchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
             }
-
             var userToOrgQueryable = _userToOrganziationTransactionHistoryRepository.GetAllAsQueryable(uto =>
                 uto.OrganizationResource.OrganizationID.Equals(currentOrganization.OrganizationID) &&
                 uto.Status != 0); // Dont get the pending ones

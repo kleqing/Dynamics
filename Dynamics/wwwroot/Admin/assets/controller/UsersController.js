@@ -11,18 +11,38 @@
             $.ajax({
                 url: "/Admin/Users/BanUser",
                 data: { id: id },
-                datatype: "json",
+                dataType: "json",
                 type: "POST",
                 success: function (response) {
-                    console.log(response);
-                    if (response.isBanned == true) {
+                    if (response.isBanned === true) {
                         btn.text('Banned');
-                        btn.removeClass('badge badge-success-lighten').addClass('badge badge-danger-lighten');
+                        btn.removeClass('badge-success-lighten').addClass('badge-danger-lighten');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'User Banned',
+                            text: 'The user has been banned!',
+                            confirmButtonText: 'OK'
+                        });
                     } else {
                         btn.text('Active');
-                        btn.removeClass('badge badge-danger-lighten').addClass('badge badge-success-lighten');
+                        btn.removeClass('badge-danger-lighten').addClass('badge-success-lighten');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'User Activated',
+                            text: 'The user has been activated!',
+                            confirmButtonText: 'OK'
+                        });
                     }
-                    location.reload();
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while banning the user. Please try again later.',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         });
@@ -39,20 +59,39 @@
                 dataType: "json",
                 type: "POST",
                 success: function (response) {
-                    // Check the response to see if the user is now an admin
                     if (response.isAdmin) {
                         btn.text('Admin');
-                        btn.removeClass('badge badge-primary-lighten').addClass('badge badge-warning-lighten');
+                        btn.removeClass('badge-primary-lighten').addClass('badge-warning-lighten');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Role Updated',
+                            text: 'The user has been promoted to admin!',
+                            confirmButtonText: 'OK'
+                        });
                     } else {
                         btn.text('User');
-                        btn.removeClass('badge badge-warning-lighten').addClass('badge badge-primary-lighten');
+                        btn.removeClass('badge-warning-lighten').addClass('badge-primary-lighten');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Role Updated',
+                            text: 'The user role has been changed to user!',
+                            confirmButtonText: 'OK'
+                        });
                     }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while updating the user role. Please try again later.',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         });
     }
+};
 
-
-
-}
 common.init();

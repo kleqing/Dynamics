@@ -88,6 +88,7 @@ namespace Dynamics.DataAccess.Repository
 
         public async Task<bool> UpdateOrganizationMemberAsync(OrganizationMember entity)
         {
+            _db.Entry(entity).State = EntityState.Detached;
             var organizationItem = await GetOrganizationMemberAsync(om =>
                 om.OrganizationID == entity.OrganizationID && om.UserID == entity.UserID);
 

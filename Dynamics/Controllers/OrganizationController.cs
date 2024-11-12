@@ -523,8 +523,8 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
-            var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
-            var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
+            // var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
+            // var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
 
             if (!newCEOID.Equals(currentCEOID))
             {
@@ -532,7 +532,7 @@ namespace Dynamics.Controllers
                 var projects =
                     await _projectRepository.GetAllProjectsByOrganizationIDAsync(p =>
                         p.OrganizationID.Equals(organizationId));
-                if (await _roleService.IsInRoleAsync(newCEO, RoleConstants.ProjectLeader) &&
+                if (await _roleService.IsInRoleAsync(newCEOID, RoleConstants.ProjectLeader) &&
                     await _roleService.IsInRoleAsync(currentCEOID, RoleConstants.ProjectLeader))
                 {
                     TempData[MyConstants.Error] = "both is being head of project so not transfer!.";
@@ -592,11 +592,10 @@ namespace Dynamics.Controllers
                         pm.Status == 3 && pm.ProjectID.Equals(project.ProjectID));
                     if (leaderProject == null)
                     {
-                        await _roleService.AddUserToRoleAsync(newCEO, RoleConstants.ProjectLeader);
-                        await _roleService.DeleteRoleFromUserAsync(currentCEO, RoleConstants.ProjectLeader);
+                        await _roleService.AddUserToRoleAsync(newCEOID, RoleConstants.ProjectLeader);
+                        await _roleService.DeleteRoleFromUserAsync(currentCEOID, RoleConstants.ProjectLeader);
                     }
-
-
+                    
                     var projectMember1 = await _projectMemberRepository.GetAsync(pm =>
                         pm.UserID.Equals(currentCEOID) && pm.ProjectID.Equals(project.ProjectID));
                     projectMember1.Status = 1;

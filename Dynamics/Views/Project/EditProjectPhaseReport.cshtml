@@ -29,7 +29,7 @@
         <div class="w-full flex-col shadow-md p-6 rounded-3xl  mb-10">
             <h2 class=" text-black font-bold text-xl text-center ">Update phase report</h2>
             <!-- form 1 -->
-            <form asp-action="EditProjectPhaseReport" asp-controller="Project" enctype="multipart/form-data" method="post">
+            <form id="editPhaseForm" asp-action="EditProjectPhaseReport" asp-controller="Project" enctype="multipart/form-data" method="post">
                 <input type="hidden" asp-for="@Model.HistoryID" />
                 <input type="hidden" asp-for="@Model.ProjectID" />
                 <div asp-validation-summary="ModelOnly" class="text-error"></div>
@@ -125,6 +125,7 @@
     </dialog>
     <!-- container end -->
 </div>
+<partial name="CustomComponent/_LoadingForm" model="@("editPhaseForm")"/>
 <script>
     //modal
     function openModal(imgSrc, modalid) {

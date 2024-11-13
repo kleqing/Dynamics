@@ -355,7 +355,7 @@
 </div>
 <!-- container end -->
 </div>
-
+@await Html.PartialAsync("CustomComponent/_LoadingModalSweet", "user-information")
 @*Bank script*@
 <script>
     document.addEventListener("DOMContentLoaded", getBanks);
@@ -662,6 +662,17 @@
 
                 // Submit the form if validation passes
                 updateProjectForm.submit();
+                Swal.fire({
+                    title: "Processing...",
+                    text: "Please wait while your request is being processed",
+                    icon: "info",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
             }
         });
     });

@@ -1,0 +1,22 @@
+@model string
+<script src="~/js/sweetalert2.js"></script>
+<script>
+    try {
+        document.getElementById('@Model').addEventListener('submit', function (event) {
+            document.getElementById('@Model').submit();
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your request is being processed",
+                icon: "info",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        });
+    } catch (e) {
+        console.log(e)
+    }
+</script>

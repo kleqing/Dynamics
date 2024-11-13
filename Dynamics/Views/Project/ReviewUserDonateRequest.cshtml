@@ -30,6 +30,7 @@
     <!-- title -->
     <div class="my-12">
         <h2 class="text-black font-bold text-2xl text-center ">Review donate request</h2>
+        <button class="bg-blue-700 rounded-md text-white font-bold" onclick="openLoading()">dien roi</button>
         <span class="text-gray-400 text-lg font-normal">Make sure you <span class="font-bold">contacted and received</span> the resources before marking as accepted!</span>
     </div> <!-- PART 1 -->
     <!-- list resource -->
@@ -119,6 +120,7 @@
                                     <div class="modal-box w-11/12 max-w-5xl">
                                         <div class="modal-action flex flex-col">
                                             <h2 class=" text-black font-bold text-3xl text-center mb-4">Accept request</h2>
+                                            @* <partial name="CustomComponent/_LoadingForm" model="@("acceptForm")"/> *@
                                             <form id="acceptForm" method="post" asp-action="AcceptDonateRequest" asp-controller="Project" enctype="multipart/form-data" >
                                                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                                                 <input type="hidden" asp-for="@reviewProjectDonateRequestVM.TransactionID" value="@item.TransactionID" />
@@ -151,7 +153,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <form method="dialog" class="modal-backdrop">
+                                    <form id="closeAcceptModel" method="dialog" class="modal-backdrop">
                                         <button>close</button>
                                     </form>
                                 </dialog>
@@ -222,7 +224,8 @@
     </div>
 </div>
 <!-- end container -->
-    <script>
+<script src="~/js/sweetalert2.js"></script>
+<script>
         //show files have uploaded
     const maxFiles = 4;
     // Event listener to update the file name after the file is selected
@@ -247,7 +250,17 @@
 
         }
     });
+   
+        //modal of proof image
+    function openImageModal(imgSrc) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById('proof_image').showModal();
+    }
+    //drag
+    </script>
+<script>
     document.querySelector('#acceptForm').addEventListener('submit', function (event) {
+        event.preventDefault();
         const attachmentInput = document.getElementById("dropzone-file");
         const notificationMessage = document.getElementById("notificationImgMessage");
 
@@ -256,16 +269,26 @@
             notificationMessage.innerText = "Please upload at least one proof image.";
             notificationMessage.style.display = "block";
         } else {
-            notificationMessage.style.display = "none";  // Hide the message if files are selected
+            debugger
+            notificationMessage.style.display = "none";
+            this.submit();
+            document.getElementById("closeAcceptModel").submit();
+            openLoading();
         }
-    }); 
-        //modal of proof image
-    function openImageModal(imgSrc) {
-        document.getElementById('modalImage').src = imgSrc;
-        document.getElementById('proof_image').showModal();
+    });
+    function openLoading(){
+        Swal.fire({
+            title: "Processing...",
+            text: "Please wait while your request is being processed",
+            icon: "info",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
     }
-    //drag
-    </script>
-
+</script>
 
 

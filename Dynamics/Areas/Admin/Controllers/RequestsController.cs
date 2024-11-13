@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Dynamics.DataAccess;
 using Dynamics.Models.Models;
 using Dynamics.DataAccess.Repository;
+using Dynamics.Services;
 using Microsoft.AspNetCore.Authorization;
 using Dynamics.Utility;
 using OfficeOpenXml;
@@ -19,10 +20,12 @@ namespace Dynamics.Areas.Admin.Controllers
     public class RequestsController : Controller
     {
         private readonly IAdminRepository _adminRepository;
+        private readonly INotificationService _notificationService;
 
-        public RequestsController(IAdminRepository adminRepository)
+        public RequestsController(IAdminRepository adminRepository, INotificationService notificationService)
         {
             _adminRepository = adminRepository;
+            _notificationService = notificationService;
         }
 
         // GET: Admin/Requests
@@ -44,6 +47,20 @@ namespace Dynamics.Areas.Admin.Controllers
         public async Task<JsonResult> ChangeStatus(Guid id, int status)
         {
             var result = await _adminRepository.ChangeRequestStatus(id);
+            var link = Url.Action(
+                action: "Detail",
+                controller: "Request",
+                values: new { area = "", id = id }, // Set `area` to an empty string
+                protocol: Request.Scheme
+            );
+            if (result == 1)
+            {
+                await _notificationService.AdminVerificationNotificationAsync(id, link, "ApproveReq");
+            }
+            else if (result == -1)
+            {
+                await _notificationService.AdminVerificationNotificationAsync(id, link, "BanReq");
+            }
             return Json(new
             {
                 status = result

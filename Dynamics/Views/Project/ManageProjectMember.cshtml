@@ -200,9 +200,8 @@
                 </tbody>
             </table>
         </div>
-      
+        <partial name="CustomComponent/_PaginationFooter" model="@(new HTMLPaginationVM { FormId = "searchForm", PaginationDivId = "pDiv1", PaginationRequestDto = Model.PaginationRequestDto })"/>
     </div>
-        <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
 </div>
 </div>
 <script>
@@ -255,6 +254,7 @@
                     const userDiv = document.createElement('div');
                     userDiv.classList.add('flex', 'justify-between', 'my-4');
                     userDiv.innerHTML = `
+  <div class="flex justify-between my-4">
                     <div class="flex justify-start items-center mx-0 my-0">
                         <div>
                             <img class="rounded-full w-14 h-14 mr-4" src="${user.avatarUrl}" alt="avatar">
@@ -274,6 +274,7 @@
                             </span>
                         </label>
                     </div>
+</div>
                 `;
 
                     usersContainer.appendChild(userDiv);

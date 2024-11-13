@@ -8,81 +8,59 @@
     ViewData["Title"] = "ManageOrganizationTransactionHistory";
     Layout = "_LayoutOrganization";
     // Layout = "_LayoutOrganization";
-    int count = ((Model.PaginationRequestDto.PageNumber - 1) * Model.PaginationRequestDto.PageSize) + 1;
 }
-
-@{
-    // var OrganizationToProjectHistorysPending = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Pending_Key);
-    // var OrganizationToProjectHistorysAccepting = Accessor.HttpContext.Session.Get<List<OrganizationToProjectHistory>>(MySettingSession.SESSION_OrganizzationToProjectHistory_For_Organization_Accepting_Key);
-}
-
-
-<div class="m-w-screen-2xl flex flex-col items-center justify-center relative">
+@* USER TO ORGANIZATION TRANSACTION *@
+<div class="m-w-screen-2xl flex flex-col items-center justify-center relative mb-6">
     <!--SECTION 1: USER DONATE-->
     <!-- title -->
-    <h2 class=" text-black font-bold text-2xl text-center my-4">Organization transaction history</h2>
+    <h2 class=" text-black font-bold text-2xl text-center my-4">User donations history</h2>
     <!-- PART 1 -->
     <div class="flex relative justify-between my-2" style="width:85%">
         <div class="flex gap-x-6">
-            <form class="flex justify-start items-center gap-2 " id="searchForm" method="get" asp-action="ManageOrganizationTranactionHistory">
+            <form class="flex justify-start items-center gap-2 " id="searchFormUser" method="get" asp-action="ManageOrganizationTranactionHistory">
                 @* Hidden pagination inputs *@
-                <input type="hidden" value="@Model.PaginationRequestDto.PageNumber" name="PageNumber"/>
-                <input type="hidden" value="@Model.PaginationRequestDto.PageSize" name="PageSize"/>
-                <input type="hidden" value="@Model.PaginationRequestDto.TotalPages" name="TotalPage"/>
-                <input type="hidden" value="@Model.PaginationRequestDto.TotalRecords" name="TotalRecords"/>
+                <input type="hidden" asp-for="@Model.UserPaginationRequestDto.PageNumber"/>
+                <input type="hidden" asp-for="@Model.UserPaginationRequestDto.PageSize"/>
+                <input type="hidden" asp-for="@Model.UserPaginationRequestDto.TotalPages"/>
+                <input type="hidden" asp-for="@Model.UserPaginationRequestDto.TotalRecords"/>
                 @* Search bar *@
                 <div class="join text-xs">
-                    <div>
-                        <div>
-                            <div class="h-8 input input-bordered flex items-center gap-2 rounded-r-none bg-white">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     viewBox="0 0 16 16"
-                                     fill="currentColor"
-                                     class="h-4 w-4 opacity-70">
-                                    <path fill-rule="evenodd"
-                                          d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                                          clip-rule="evenodd"/>
-                                </svg>
-                                <input type="text" class="grow text-xs" placeholder="Search something..." name="Query" value="@Model.SearchRequestDto.Query"/>
-                            </div>
-                        </div>
+                    <div class="h-8 input input-bordered flex items-center gap-2 rounded-r-none bg-white">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 16 16"
+                             fill="currentColor"
+                             class="h-4 w-4 opacity-70">
+                            <path fill-rule="evenodd"
+                                  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                        <input type="text" class="grow text-xs" placeholder="Search something..." name="Query" value="@Model.UserSearchRequestDto.Query"/>
                     </div>
-                    <select class="h-8 text-xs border border-gray-300 join-item bg-white" name="Filter">
+                    <select class="h-8 text-xs border border-gray-300 join-item bg-white" asp-for="@Model.UserSearchRequestDto.Filter">
                         @{
-                        bool first = true;
-                        // Keep the old filter back
-                        for (int i = 0; i < Model.FilterOptions.Length; i++)
-                        {
-                        var modelFilterOption = Model.FilterOptions.ElementAt(i);
-                        // If we already has a filter, select it
-                        if (modelFilterOption.Equals(Model.SearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
-                        {
-                        <option selected>@modelFilterOption</option>
-                        first = false;
-                        }
-                        else
-                        {
-                        // Else, discover the first option and select it
-                        if (first)
-                        {
-                        <option selected value="@modelFilterOption">@modelFilterOption</option>
-                        first = false;
-                        }
-                        else
-                        {
-                        <option value="@modelFilterOption">@modelFilterOption</option>
-                        }
-                        }
-                        }
+                            // Check if user already has filter before
+                            bool isFilteredBefore = !string.IsNullOrEmpty(Model.UserSearchRequestDto.Filter);
+                            foreach (var filterOptions in Model.FilterOptions)
+                            {
+                                // If a filter exist, select that filter automatically
+                                if (isFilteredBefore && filterOptions.Value.Equals(Model.UserSearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
+                                }
+                                else
+                                {
+                                    <option value="@filterOptions.Value"> @filterOptions.Key</option>
+                                }
+                            }
                         }
                     </select>
                     <input name="DateFrom" type="date" placeholder="From date" class="h-8 text-xs input input-bordered join-item bg-white"
-                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateFrom.HasValue ? Model.SearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.UserSearchRequestDto.DateFrom.HasValue ? Model.UserSearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
                     <input name="DateTo" type="date" placeholder="To date" class="h-8 text-xs input input-bordered join-item bg-white rounded-md"
-                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.UserSearchRequestDto.DateTo.HasValue ? Model.UserSearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
                 </div>
                 <button class="bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
-            </form>        
+            </form>
         </div>
 
     </div>
@@ -96,7 +74,7 @@
                 <tr class="text-gray-900 ">
                     <th></th>
                     <th class="text-md">Date</th>
-                    <th class="text-md">Name</th>
+                    <th class="text-md">Donator name</th>
                     <th class="text-md">Resource</th>
                     <th class="text-md">Quantity</th>
                     <th class="text-md">Unit</th>
@@ -106,9 +84,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                @for (int i = 0; i < Model.Transactions.Count(); i++)
+                @for (int i = 0; i < Model.UserTransactions.Count(); i++)
                 {
-                    var item = Model.Transactions.ElementAt(i);
+                    var item = Model.UserTransactions.ElementAt(i);
                     <tr class="hover:bg-slate-50">
                         <td class="p-2 text-sm">@(i + 1)</td>
                         <td class="p-2 text-sm font-semibold">@Html.DisplayFor(model => item.Time)</td>
@@ -122,9 +100,18 @@
                         }
                         else
                         {
-                            <td class="p-2 text-sm text-green-900">
-                                +@item.Amount.ToString("N0")
-                            </td>
+                            @if (item.Status == 1)
+                            {
+                                <td class="p-2 text-sm text-green-900">
+                                    +@item.Amount.ToString("N0")
+                                </td>
+                            }
+                            else if (item.Status == -1)
+                            {
+                                <td class="p-2 text-sm text-red-900">
+                                    @item.Amount.ToString("N0")
+                                </td>
+                            }
                         }
 
                         <td class="p-2 text-sm">@item.Unit</td>
@@ -142,7 +129,7 @@
                                 {
                                     <div class="relative grid items-center px-2 py-1 text-xs font-bold text-blue-800 uppercase rounded-md select-none whitespace-nowrap bg-blue-100">
 
-                                        <span class="">pending</span>
+                                        <span class="">Pending</span>
                                     </div>
                                 }
                                 else if (item.Status == -1)
@@ -194,151 +181,390 @@
                 </tbody>
             </table>
         </div>
-        <partial name="CustomComponent/_PaginationFooter" model="@Model.PaginationRequestDto"/>
+        @* This if for the first transaction table *@
+        @{
+            var startRecords = ((Model.UserPaginationRequestDto.PageNumber - 1) * Model.UserPaginationRequestDto.PageSize) + 1; // page 2 , size 9 => Showing from 10 -> 18
+            if (Model.UserPaginationRequestDto.TotalRecords == 0) startRecords = 0;
+            var endRecords = Model.UserPaginationRequestDto.PageNumber * Model.UserPaginationRequestDto.PageSize;
+            if (endRecords > Model.UserPaginationRequestDto.TotalRecords) endRecords = Model.UserPaginationRequestDto.TotalRecords;
+        }
+        <div class="flex justify-between items-center px-4 py-3" id="userTransacPaginationDiv">
+            <div class="text-sm text-slate-500">
+                Showing <b>@startRecords-@endRecords</b> of @Model.UserPaginationRequestDto.TotalRecords
+            </div>
+            <div class="flex space-x-1">
+                @if (Model.UserPaginationRequestDto.PageNumber > 1)
+                {
+                    <button id="prePageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        Previous
+                    </button>
+                }
+                @if (Model.UserPaginationRequestDto.TotalPages >= 10)
+                {
+                    // 2 left pages
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.UserPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+
+                    <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        ...
+                    </button>
+                    // 3 middle pages
+                    var nextThreePages = Model.UserPaginationRequestDto.PageNumber + 3;
+                    for (int i = Model.UserPaginationRequestDto.PageNumber; i < nextThreePages; i++)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.UserPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+
+                    <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        ...
+                    </button>
+                    // 2 Right page
+                    for (int i = Model.UserPaginationRequestDto.TotalPages; i >= Model.UserPaginationRequestDto.TotalPages - 2; i--)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.UserPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i <= Model.UserPaginationRequestDto.TotalPages; i++)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.UserPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+                }
+
+
+                @if (Model.UserPaginationRequestDto.PageNumber < Model.UserPaginationRequestDto.TotalPages)
+                {
+                    <button id="nextPageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        Next
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="divider"></div>
+
+@* ORGANIZATION TO PROJECT TRANSACTION *@
+<div class="m-w-screen-2xl flex flex-col items-center justify-center relative mt-6">
+    <!--SECTION 1: USER DONATE-->
+    <!-- title -->
+    <h2 class=" text-black font-bold text-2xl text-center my-4">Organization resource allocation history</h2>
+    <!-- PART 1 -->
+    <div class="flex relative justify-between my-2" style="width:85%">
+        <div class="flex gap-x-6">
+            <form class="flex justify-start items-center gap-2 " id="searchFormOrg" method="get" asp-action="ManageOrganizationTranactionHistory">
+                @* Hidden pagination inputs *@
+                <input type="hidden" asp-for="@Model.OrganizationPaginationRequestDto.PageNumber"/>
+                <input type="hidden" asp-for="@Model.OrganizationPaginationRequestDto.PageSize"/>
+                <input type="hidden" asp-for="@Model.OrganizationPaginationRequestDto.TotalPages"/>
+                <input type="hidden" asp-for="@Model.OrganizationPaginationRequestDto.TotalRecords"/>
+                @* Search bar *@
+                <div class="join text-xs">
+                    <div class="h-8 input input-bordered flex items-center gap-2 rounded-r-none bg-white">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 16 16"
+                             fill="currentColor"
+                             class="h-4 w-4 opacity-70">
+                            <path fill-rule="evenodd"
+                                  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                        <input type="text" class="grow text-xs" placeholder="Search something..." name="Query" value="@Model.OrganizationSearchRequestDto.Query"/>
+                    </div>
+                    <select class="h-8 text-xs border border-gray-300 join-item bg-white" asp-for="@Model.OrganizationSearchRequestDto.Filter">
+                        @{
+                            // Check if user already has filter before
+                            bool isFilteredBefore = !string.IsNullOrEmpty(Model.OrganizationSearchRequestDto.Filter);
+                            foreach (var filterOptions in Model.FilterOptions)
+                            {
+                                // If a filter exist, select that filter automatically
+                                if (isFilteredBefore && filterOptions.Value.Equals(Model.OrganizationSearchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <option value="@filterOptions.Value" selected>@filterOptions.Key</option>
+                                }
+                                else
+                                {
+                                    <option value="@filterOptions.Value"> @filterOptions.Key</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <input name="DateFrom" type="date" placeholder="From date" class="h-8 text-xs input input-bordered join-item bg-white"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.OrganizationSearchRequestDto.DateFrom.HasValue ? Model.OrganizationSearchRequestDto.DateFrom.Value.ToString("yyyy-MM-dd") : "")"/>
+                    <input name="DateTo" type="date" placeholder="To date" class="h-8 text-xs input input-bordered join-item bg-white rounded-md"
+                           max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.OrganizationSearchRequestDto.DateTo.HasValue ? Model.OrganizationSearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
+                </div>
+                <button class="bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
+            </form>
+        </div>
+
     </div>
 
+    <!-- PART 2 -->
+    <!-- list transaction -->
+    <div class="flex flex-col relative  gap-y-6 mb-10" style="width:85%;">
+        <div class="overflow-x-auto" style="height:70vh;">
+            <table class="table table-md">
+                <thead class="bg-gray-300/20 ">
+                <tr class="text-gray-900 ">
+                    <th></th>
+                    <th class="text-md">Date</th>
+                    <th class="text-md">Destination project</th>
+                    <th class="text-md">Resource</th>
+                    <th class="text-md">Quantity</th>
+                    <th class="text-md">Unit</th>
+                    <th class="text-md">Message</th>
+                    <th class="text-md">Status</th>
+                    <th class="text-md">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @for (int i = 0; i < Model.OrganizationTransactions.Count(); i++)
+                {
+                    var item = Model.OrganizationTransactions.ElementAt(i);
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2 text-sm">@(i + 1)</td>
+                        <td class="p-2 text-sm font-semibold">@Html.DisplayFor(model => item.Time)</td>
+                        <td class="p-2 text-sm font-semibold">@item.Name</td>
+                        <td class="p-2 text-sm font-semibold">@item.ResourceName</td>
+                        <td class="p-2 text-sm font-semibold">@item.Amount.ToString("N0")</td>
+                        <td class="p-2 text-sm">@item.Unit</td>
+                        <td class="p-2 text-sm">@item.Message</td>
+                        <td class="p-2 ">
+                            <div class="w-fit">
+                                @if (item.Status == 1)
+                                {
+                                    <div class="relative grid items-center px-2 py-1 text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
 
-    @* <!-- pagination --> *@
-    @* <div class="pagination mt-4 flex justify-center space-x-1.5"> *@
-    @*     @if (ViewBag.currentPageUD > 1) *@
-    @*     { *@
-    @*         <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD - 1, *@
-    @*     pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })"> *@
-    @*             <button class="btn bg-white text-black rounded-lg border-solid">Previous</button> *@
-    @*         </a> *@
-    @*     } *@
-    @* *@
-    @*     @for (int i = 1; i <= ViewBag.totalPagesUD; i++) *@
-    @*     { *@
-    @*         <a href="@Url.Action("Index", new { pageNumberUD = i, *@
-    @*     pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })" *@
-    @*            class="@(ViewBag.currentPageUD == i ? "btn-primary" : "")"> *@
-    @*             <button class="btn bg-white text-black rounded-lg border-solid">@i</button> *@
-    @*         </a> *@
-    @*     } *@
-    @*     @if (ViewBag.currentPageUD < ViewBag.totalPagesUD) *@
-    @*     { *@
-    @*         <a href="@Url.Action("Index", new { pageNumberUD = ViewBag.currentPageUD + 1, *@
-    @*     pageNumberOD = ViewBag.currentPageOD, pageSize = 10 })"> *@
-    @*             <button class="btn bg-white text-black rounded-lg border-solid">Next</button> *@
-    @*         </a> *@
-    @*     } *@
-    @* </div> *@
+                                        <span class="">Accepted</span>
+                                    </div>
+                                }
+                                else if (item.Status == 0)
+                                {
+                                    <div class="relative grid items-center px-2 py-1 text-xs font-bold text-blue-800 uppercase rounded-md select-none whitespace-nowrap bg-blue-100">
+
+                                        <span class="">Pending</span>
+                                    </div>
+                                }
+                                else if (item.Status == -1)
+                                {
+                                    <div class="relative grid items-center px-2 py-1 text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                                        <span class="">Denied</span>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <button type="button" onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()" class="text-xs py-2 px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">View proof images</button>
+                            <!-- You can open the modal using ID.showModal() method -->
+                            <dialog id="proofImagesModal_@item.TransactionID" class="modal">
+                                <div class="modal-box w-11/12 max-w-5xl">
+                                    <h2 class=" text-black font-bold text-xl text-center mb-4">Proof images</h2>
+                                    @{
+                                        string[] proofImages = new string[1] { "," };
+                                        if (item.Attachments != null)
+                                        {
+                                            proofImages = item.Attachments.TrimEnd(',', ' ').Split(",");
+                                        }
+                                    }
+                                    <div class="flex flex-wrap items-start gap-6" style="height:50vh;">
+                                        @foreach (var img in proofImages)
+                                        {
+                                            <button onclick="openModal('@img','proof_image')">
+                                                <img src="@img" alt="proof-img" class="h-40 w-40 rounded-xl shadow-md cursor-pointer"/>
+                                            </button>
+                                            <dialog id="proof_image" class="modal">
+                                                <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
+                                                    <img id="modalImage" alt="current-proof-img" class="w-auto rounded-xl shadow-md cursor-pointer"/>
+                                                </div>
+                                                <form method="dialog" class="modal-backdrop ">
+                                                    <button>close</button>
+                                                </form>
+                                            </dialog>
+                                        }
+                                    </div>
+
+                                </div>
+                                <form method="dialog" class="modal-backdrop">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @* This if for the first transaction table *@
+        @{
+            var orgStartRecord = ((Model.OrganizationPaginationRequestDto.PageNumber - 1) * Model.OrganizationPaginationRequestDto.PageSize) + 1; // page 2 , size 9 => Showing from 10 -> 18
+            if (Model.OrganizationPaginationRequestDto.TotalRecords == 0) orgStartRecord = 0;
+            var orgEndRecord = Model.OrganizationPaginationRequestDto.PageNumber * Model.OrganizationPaginationRequestDto.PageSize;
+            if (orgEndRecord > Model.OrganizationPaginationRequestDto.TotalRecords) orgEndRecord = Model.OrganizationPaginationRequestDto.TotalRecords;
+        }
+        <div class="flex justify-between items-center px-4 py-3" id="orgTransactionPaginationDiv">
+            <div class="text-sm text-slate-500">
+                Showing <b>@orgStartRecord-@orgEndRecord</b> of @Model.OrganizationPaginationRequestDto.TotalRecords
+            </div>
+            <div class="flex space-x-1">
+                @if (Model.OrganizationPaginationRequestDto.PageNumber > 1)
+                {
+                    <button id="prePageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        Previous
+                    </button>
+                }
+                @if (Model.OrganizationPaginationRequestDto.TotalPages >= 10)
+                {
+                    // 2 left pages
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.OrganizationPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+
+                    <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        ...
+                    </button>
+                    // 3 middle pages
+                    var nextThreePages = Model.OrganizationPaginationRequestDto.PageNumber + 3;
+                    for (int i = Model.OrganizationPaginationRequestDto.PageNumber; i < nextThreePages; i++)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.OrganizationPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+
+                    <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        ...
+                    </button>
+                    // 2 Right page
+                    for (int i = Model.OrganizationPaginationRequestDto.TotalPages; i >= Model.OrganizationPaginationRequestDto.TotalPages - 2; i--)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.OrganizationPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i <= Model.OrganizationPaginationRequestDto.TotalPages; i++)
+                    {
+                        <button id="pageBtn_@i" class="@(Model.OrganizationPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
+                            @i
+                        </button>
+                    }
+                }
+
+
+                @if (Model.OrganizationPaginationRequestDto.PageNumber < Model.OrganizationPaginationRequestDto.TotalPages)
+                {
+                    <button id="nextPageBtn" class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
+                        Next
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
 </div>
 
-@* <div class="py-5 pt-12 px-5 flex justify-center">
-    <div class="border border-solid border-gray-500 rounded-box px-5 py-5 w-auto">
-        <h1 class="text-3xl font-semibold mb-4 text-center ">
-            <span class="border-b-2 border-gray-500 border-solid py-2">Organization Transaction History</span>
-        </h1>
 
-        <!-- filter dropdown -->
-        <div class="text-end">
-            <div class="relative inline-block text-left py-2 text-2xl">
-                <div>
-                    <button type="button"
-                            class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                            id="menu-button" aria-expanded="false" aria-haspopup="true" onclick="toggleDropdown()">
-                        Filter
-                        <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
-                             aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                  clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-                <!-- Dropdown menu -->
-                <div id="dropdown-menu"
-                     class="hidden absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none
-                        transition ease-out duration-100 transform opacity-0 scale-95"
-                     role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
-                    <div class="py-1" role="none">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Name</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Date</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Type resource</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-
-        <div class="py-5">
-            <div class="max-w-2xl mx-auto space-y-4">
-               
-                @foreach (var item in OrganizationToProjectHistorysPending)
-                {
-                    <!-- Negative Manual Transaction -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center">
-                                <img src="@item.ProjectResource.Project.Attachment" alt="User avatar"
-                                     class="w-12 h-12 rounded-full mr-4 border-2 border-gray-200">
-                                <div>
-                                    <h2 class="text-lg font-semibold">@item.ProjectResource.Project.ProjectName</h2>
-                                    <p class="text-sm text-gray-500">Donated on @item.Time</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-bold text-red-500">- @item.Amount @item.ProjectResource.ResourceName @item.OrganizationResource.Unit</p>
-                                <span class="bg-orange-100 text-orange-800 text-xs font-medium px-3 py-1 rounded-full">Processing</span>
-                            </div>
-                        </div>
-                        <p class="text-gray-700 mt-2">Spent @item.ProjectResource.ResourceName to project @item.ProjectResource.Project.ProjectName</p>
-                    </div>
-                }
-                @foreach (var item in OrganizationToProjectHistorysAccepting)
-                {
-                    <!-- Negative Manual Transaction -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center">
-                                <img src="@item.ProjectResource.Project.Attachment" alt="User avatar"
-                                     class="w-12 h-12 rounded-full mr-4 border-2 border-gray-200">
-                                <div>
-                                    <h2 class="text-lg font-semibold">@item.ProjectResource.Project.ProjectName</h2>
-                                    <p class="text-sm text-gray-500">Donated on @item.Time</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-bold text-red-500">- @item.Amount @item.ProjectResource.ResourceName @item.OrganizationResource.Unit</p>
-                                <span class="bg-red-500 text-white text-xs font-medium px-3 py-1 rounded-full">Is Accepted</span>
-                            </div>
-                        </div>
-                        <p class="text-gray-700 mt-2">Spent @item.ProjectResource.ResourceName to project @item.ProjectResource.Project.ProjectName</p>
-                    </div>
-                }
-
-                @foreach(var item in Model)
-                {
-                    <!-- Positive Automatic Transaction -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-start justify-between mb-2">
-                            <div class="flex items-center">
-                                <img src="@(item.User.UserAvatar)" alt="User avatar"
-                                     class="w-12 h-12 rounded-full mr-4 border-2 border-gray-200">
-                                <div>
-                                    <h2 class="text-lg font-semibold">@(item.User.UserFullName)</h2>
-                                    <p class="text-sm text-gray-500">@item.Time</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-lg font-bold text-green-500">+ @item.Amount @item.OrganizationResource.Unit @(item.OrganizationResource.ResourceName)</p>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">Automatic</span>
-                            </div>
-                        </div>
-                        <p class="text-gray-700 mt-2">@item.Message</p>
-                    </div>
-                }
-               
-            </div>
-
-        </div>
-
-
-    </div>
-</div> *@
 <partial name="_ValidationDatePartial"/>
+@* Script for pagination of the first transaction (user) table *@
+<script>
+    function HandlePaginationOfUserTransTable() {
+            let paginationDiv = document.getElementById('userTransacPaginationDiv');
+            let previousPage = @Model.UserPaginationRequestDto.PageNumber - 1
+            let nextPage = @Model.UserPaginationRequestDto.PageNumber + 1
+            let totalPage = @Model.UserPaginationRequestDto.TotalPages;
+            let targetSearchForm = document.getElementById('searchFormUser')
+            console.log(targetSearchForm)
+            let pageNumberElement = targetSearchForm.querySelector('input[name="UserPaginationRequestDto.PageNumber.PageNumber"]');
+            // Handle click on numbers
+            // Handle click on page number buttons
+            for (let i = 1; i <= totalPage; i++) {
+                paginationDiv.querySelector(`#pageBtn_${i}`)?.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default behavior
+                    pageNumberElement.value = i; // Set the page number to the clicked button number
+                    targetSearchForm.submit(); // Submit the form
+                });
+            }
+
+            // Handle previous button click
+            paginationDiv.querySelector('#prePageBtn')?.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default behavior
+                if (previousPage > 0) { // Ensure valid page number
+                    pageNumberElement.value = previousPage; // Set the previous page number
+                    targetSearchForm.submit(); // Submit the form
+                }
+            });
+
+            // Handle next button click
+            paginationDiv.querySelector('#nextPageBtn')?.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default behavior
+                if (nextPage <= totalPage) { // Ensure valid page number
+                    pageNumberElement.value = nextPage; // Set the next page number
+                    targetSearchForm.submit(); // Submit the form
+                }
+            });
+        }
+        HandlePaginationOfUserTransTable();
+</script>
+
+@* Script for pagination of the second transaction (org) table *@
+<script>
+    function HandlePaginationOfOrgTransTable() {
+        let paginationDiv = document.getElementById('orgTransactionPaginationDiv');
+        let previousPage = @Model.OrganizationPaginationRequestDto.PageNumber - 1
+        let nextPage = @Model.OrganizationPaginationRequestDto.PageNumber + 1
+        let totalPage = @Model.OrganizationPaginationRequestDto.TotalPages;
+        let targetSearchForm = document.getElementById('searchFormOrg')
+        console.log(targetSearchForm)
+        let pageNumberElement = targetSearchForm.querySelector('input[name="OrganizationPaginationRequestDto.PageNumber"]');
+        console.log('org pagenumber ' + pageNumberElement)
+        // Handle click on numbers
+        // Handle click on page number buttons
+        for (let i = 1; i <= totalPage; i++) {
+            paginationDiv.querySelector(`#pageBtn_${i}`)?.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default behavior
+                pageNumberElement.value = i; // Set the page number to the clicked button number
+                targetSearchForm.submit(); // Submit the form
+            });
+        }
+
+        // Handle previous button click
+        paginationDiv.querySelector('#prePageBtn')?.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default behavior
+            if (previousPage > 0) { // Ensure valid page number
+                pageNumberElement.value = previousPage; // Set the previous page number
+                targetSearchForm.submit(); // Submit the form
+            }
+        });
+
+        // Handle next button click
+        paginationDiv.querySelector('#nextPageBtn')?.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default behavior
+            if (nextPage <= totalPage) { // Ensure valid page number
+                pageNumberElement.value = nextPage; // Set the next page number
+                targetSearchForm.submit(); // Submit the form
+            }
+        });
+    }
+    HandlePaginationOfOrgTransTable();
+</script>
+
 <script>
     function toggleDropdown() {
         var dropdownMenu = document.getElementById("dropdown-menu");

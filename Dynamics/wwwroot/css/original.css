@@ -232,3 +232,16 @@
     background-color: #696E78 !important;
     border-radius: 8px !important;
 }
+
+.fadeIn {
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}

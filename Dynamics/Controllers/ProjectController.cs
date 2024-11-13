@@ -664,11 +664,12 @@ namespace Dynamics.Controllers
         {
             _logger.LogWarning("JoinProjectRequest get");
             var projectObj = await _projectRepo.GetProjectAsync(p => p.ProjectID.Equals(projectID));
-            if (projectObj?.ProjectStatus == -1)
+            if (projectObj?.ProjectStatus == -1 || projectObj.ProjectStatus == 2)
             {
                 TempData[MyConstants.Warning] = "Action is not allowed once the project is not in progress!";
                 return RedirectToAction(nameof(ManageProject), new { id = projectID });
             }
+            
 
             var res = await _projectService.SendJoinProjectRequestAsync(projectID, memberID);
 
@@ -808,48 +809,6 @@ namespace Dynamics.Controllers
             return RedirectToAction(nameof(ReviewJoinRequest), new { id = currentProjectID });
         }
 
-        public async Task<IActionResult> AcceptJoinRequestAll()
-        {
-            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-
-            var res = await _projectService.AcceptJoinProjectRequestAllAsync(new Guid(currentProjectID));
-            if (!res)
-            {
-                TempData[MyConstants.Error] = "Failed to accept the join request!";
-                return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-            }
-
-            //send notification to accepted members
-            var link = Url.Action(nameof(ManageProject), "Project", new { id = new Guid(currentProjectID) },
-                Request.Scheme);
-            await _notificationService.ProcessAllJoinRequestsNotificationAsync(new Guid(currentProjectID), link,
-                "join");
-
-            TempData[MyConstants.Success] = "All join request accepted successfully!";
-            return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-        }
-
-        public async Task<IActionResult> DenyJoinRequestAll()
-        {
-            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-
-            var res = await _projectService.DenyJoinProjectRequestAllAsync(new Guid(currentProjectID));
-            if (!res)
-            {
-                TempData[MyConstants.Error] = "Failed to deny the join request!";
-                return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-            }
-
-            //send notification to denied members
-            var link = Url.Action(nameof(ManageProject), "Project", new { id = new Guid(currentProjectID) },
-                Request.Scheme);
-            await _notificationService.ProcessAllJoinRequestsNotificationAsync(new Guid(currentProjectID), link,
-                "deny");
-
-            TempData[MyConstants.Success] = "All join request denied successfully!";
-            return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-        }
-
         //-------------------manage transaction history of project------------------------
         [Authorize]
         [HttpGet]
@@ -967,7 +926,12 @@ namespace Dynamics.Controllers
                     _projectService.FilterMemberOfProject(x => x.Status == 2 && x.ProjectID == projectID);
                 HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
             }
-
+            // If the search request dto is empty, then we set the default filter to accepted
+            if (searchRequestDto.Filter == null)
+            {
+                searchRequestDto.Filter = SearchOptionsConstants.StatusAccepted;
+            }
+            
             // Base query:
             var userToPrjQueryable = _userToProjectTransactionHistoryRepo.GetAllAsQueryable(utp =>
                 utp.ProjectResource.ProjectID.Equals(projectID) && utp.Status != 0);
@@ -1283,14 +1247,16 @@ namespace Dynamics.Controllers
                 HttpContext.Session.SetString("currentProjectCEOID", ceoOfProject[0].Id.ToString());
             }
 
-            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(p => p.ProjectID.Equals(projectID));
+            var allResource = await _projectResourceRepo.FilterProjectResourceAsync(
+                p => p.ProjectID.Equals(projectID));
             if (allResource.Count() == 0)
             {
                 return RedirectToAction("NoData", new { msg = "No resource has been created" });
             }
             // Pagination
-            var paginated = _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
-            ViewBag.pagination = paginationRequestDto;
+            var paginated =
+                _pagination.Paginate<ProjectResource>(allResource.ToList(), HttpContext, paginationRequestDto, null);
+            ViewBag.PaginationRequestDto = paginationRequestDto;
             return View(paginated);
         }
 

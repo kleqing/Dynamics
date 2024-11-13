@@ -277,7 +277,6 @@ namespace Dynamics.DataAccess.Repository
                     return await projects.Where(p => p.ProjectDescription.ToLower().Contains(searchQuery.ToLower())).ToListAsync();
                 
             }
-
             return null;
         }
     }

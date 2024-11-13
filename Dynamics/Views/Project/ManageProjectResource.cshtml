@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Dynamics.Models.Models.ProjectResource>
+@model IEnumerable<Dynamics.Models.Models.ProjectResource>
 @using Dynamics.Models.Dto
 @using Microsoft.AspNetCore.Http
 @using Newtonsoft.Json
@@ -12,12 +12,12 @@
     Layout = "~/Views/Shared/_LayoutProject.cshtml";
     var currentUserID = Accessor.HttpContext.Session.GetString("currentUserID");
     var currentProjectID = Accessor.HttpContext.Session.GetString("currentProjectID");
-   
+
     ProjectResource projectResource = new ProjectResource();
     projectResource.ProjectID = new Guid(currentProjectID);
     List<ProjectMember> ProjectMemberOfUser = null;
     int? statusProjectMemberOfUser = -1;
-    
+
     if (!string.IsNullOrEmpty(currentUserID))
     {
         ProjectMemberOfUser = ProjectMemberRepository.FilterProjectMember(p => p.ProjectID.Equals(new Guid(currentProjectID)) && p.UserID.Equals(new Guid(currentUserID)));
@@ -31,16 +31,16 @@
 }
 <!-- container -->
 <div class="flex items-center justify-center">
-<div class=" py-12  flex flex-col items-center justify-center relative" style="width:85%;">
+    <div class=" py-12  flex flex-col items-center justify-center relative" style="width:85%;">
 
-    <!-- new table-->
-    <div class="w-full flex justify-between items-center mb-3 pl-3" >
-        <div>
-            <h2 class=" text-black font-bold text-xl text-left ">Project resources</h2>
+        <!-- new table-->
+        <div class="w-full flex justify-between items-center mb-3 pl-3">
+            <div>
+                <h2 class=" text-black font-bold text-xl text-left ">Project resources</h2>
 
-            <p class="text-slate-500">Overview of the current resources.</p>
-        </div>
-        <div class="ml-3 flex justify-end gap-x-2">
+                <p class="text-slate-500">Overview of the current resources.</p>
+            </div>
+            <div class="ml-3 flex justify-end gap-x-2">
                 <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
                     <button type="button"
                             class="splide__slide elevate cursor-pointer  rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
@@ -48,120 +48,124 @@
                     </button>
                 </a>
 @if (statusProjectMemberOfUser >= 2){
-                <button type="button" onclick="add_form.showModal()" class="splide__slide elevate cursor-pointer bg-transparent rounded-full">
+                <button type="button" onclick="add_form.showModal()" class="splide__slide elevate cursor-pointer rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 </button>
             }
 
-            <div class="splide__slide elevate cursor-pointer  max-w-sm min-w-[200px] relative">
-                <div class="relative">
-                    <input class="bg-white w-full pr-11 text-xs h-8 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
-                           placeholder="Search for resource..." />
-                    <button class="absolute h-8 w-8 right-1 top-0 my-auto px-2 flex items-center bg-white rounded "
-                            type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-slate-600">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </button>
+                <div class="splide__slide elevate cursor-pointer max-w-sm min-w-[200px] relative hidden">
+                    <form class="relative" asp-controller="Project" asp-action="ManageProjectResource" asp-route-projectID="@currentProjectID" id="searchForm">
+                        <input type="hidden" name="PageNumber"/>
+                        <input type="hidden" name="PageSize"/>
+                        <input type="hidden" name="TotalPages"/>
+                        <input type="hidden" name="TotalRecords"/>
+                        <input class="bg-white w-full pr-11 text-xs h-8 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                               placeholder="Search for resource..."/>
+                        <button class="absolute h-8 w-8 right-1 top-0 my-auto px-2 flex items-center bg-white rounded "
+                                type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-8 h-8 text-slate-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border" >
-        <div style="height:51rem" class="overflow-hidden">
-            <table class=" w-full text-left table-xs min-w-max" >
-                <thead class=" bg-gray-300/20 ">
-                <tr class="text-md font-bold text-gray-900">
-                    <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Resource type
-                        </p>
-                    </th>
-                    <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Quantity
-                        </p>
-                    </th>
-                    <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased leading-none text-blue-gray-900 ">
-                            Expected quantity
-                        </p>
-                    </th>
-                    <th class=" text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Unit
-                        </p>
-                    </th>
-                    <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
-                        <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                            Status
-                        </p>
-                    </th>
-                    @if (statusProjectMemberOfUser >= 2)
-                    {
-                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+        <div class="relative flex flex-col w-full h-full text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
+            <div>
+                <table class="w-full text-left table-xs min-w-max" style="height:51rem" class="overflow-hidden">
+                    <thead class="bg-gray-300/20">
+                    <tr class="text-md font-bold text-gray-900">
+                        <th class="p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
                             <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
-                                Action
+                                Resource type
                             </p>
                         </th>
-                    }
-                </tr>
-                </thead>
-                <tbody class="text-base text-gray-900">
-           
-                @foreach (var item in Model)
-                {
-                    <tr class="hover:bg-slate-50 border-b border-slate-200">
-                        <td class="p-4 border-b border-blue-gray-50">
-                            <div class="flex items-center gap-3">
-                                <span class="items-center ">@(count++)</span>
-                                <p class="block font-sans antialiased font-bold text-sm text-blue-gray-900">
-                                    @item.ResourceName
-                                </p>
-                            </div>
-                        </td>
-                        <td class="p-4 border-b border-blue-gray-50">
-                            <p class="block font-sans antialiased text-sm text-blue-gray-900">
-                                @if (item.Quantity != null)
-                                {
-                                    @item.Quantity.Value.ToString("N0")
-                                }
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Quantity
                             </p>
-                        </td>
-                        <td class="p-4 border-b border-blue-gray-50">
-                            <p class="block font-sans antialiased text-sm text-blue-gray-900">
-                                @item.ExpectedQuantity.ToString("N0")
+                        </th>
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased leading-none text-blue-gray-900 ">
+                                Expected quantity
                             </p>
-                        </td>
-                        <td class="p-4 border-b border-blue-gray-50">
-                            <p class="block font-sans antialiased text-sm text-blue-gray-900">
-                                @item.Unit
+                        </th>
+                        <th class=" text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Unit
                             </p>
-                        </td>
-                        <td class="p-4 border-b border-blue-gray-50">
-                            @if (item.Quantity < item.ExpectedQuantity)
-                            {
-                                <div class="w-max">
-                                    <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap bg-amber-500/20 text-amber-900">
-                                        <span class="">In progress</span>
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="w-max">
-                                    <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
-                                        <span class="">completed</span>
-                                    </div>
-                                </div>
-                            }
-                        </td>
+                        </th>
+                        <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                            <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                Status
+                            </p>
+                        </th>
                         @if (statusProjectMemberOfUser >= 2)
                         {
+                            <th class="text-md font-bold text-gray-900 p-4 border-y border-blue-gray-100 bg-blue-gray-50/50">
+                                <p class="block font-sans antialiased  leading-none text-blue-gray-900 ">
+                                    Action
+                                </p>
+                            </th>
+                        }
+                    </tr>
+                    </thead>
+                    <tbody class="text-base text-gray-900">
+
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-slate-50 border-b border-slate-200">
                             <td class="p-4 border-b border-blue-gray-50">
+                                <div class="flex items-center gap-3">
+                                    <span class="items-center ">@(count++)</span>
+                                    <p class="block font-sans antialiased font-bold leading-normal text-blue-gray-900">
+                                        @item.ResourceName
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
+                                    @if (item.Quantity != null)
+                                    {
+                                        @item.Quantity.Value.ToString("N0")
+                                    }
+                                </p>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
+                                    @item.ExpectedQuantity.ToString("N0")
+                                </p>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                <p class="block font-sans antialiased text-sm leading-normal text-blue-gray-900">
+                                    @item.Unit
+                                </p>
+                            </td>
+                            <td class="p-4 border-b border-blue-gray-50">
+                                @if (item.Quantity < item.ExpectedQuantity)
+                                {
+                                    <div class="w-max">
+                                        <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold uppercase rounded-md select-none whitespace-nowrap bg-amber-500/20 text-amber-900">
+                                            <span class="">In progress</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-max">
+                                        <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
+                                            <span class="">completed</span>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                            @if (statusProjectMemberOfUser >= 2)
+                            {
+                                <td class="p-4 border-b border-blue-gray-50">
 
                                 <button onClick="document.getElementById('editModal-@item.ResourceID').showModal()" type="button" class="splide__slide elevate cursor-pointer  w-fit h-fit mx-2 my-2 p-2">
                                     <i class="fa-regular fa-pen-to-square text-xl text-gray-900"></i>
@@ -248,7 +252,7 @@
     <partial name="CustomComponent/_PaginationFooter" model="@(ViewBag.pagination ?? new PaginationRequestDto())"/>
     </div>
     <!-- end new table-->
-   </div>
+</div>
 
     <!-- You can open the modal using ID.showModal() method -->
     <dialog id="add_form" class="modal ">
@@ -302,15 +306,15 @@
                         </button>
                     </div>
 
-                </form>
-            </div>
+            </form>
         </div>
+    </div>
     <form method="dialog" class="modal-backdrop">
         <button>close</button>
     </form>
-    </dialog>
+</dialog>
 
- 
+
 <!-- end container -->
 <script>
 
@@ -383,6 +387,3 @@
 
     });
 </script>
-
-
-

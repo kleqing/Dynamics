@@ -25,24 +25,24 @@ public class Pagination : IPagination
         SearchRequestDto? searchRequestDto = null) where T : class
     {
         var pages = query.Count();
-        var total = await query
-                                .Skip((paginationRequestDto.PageNumber - 1) * paginationRequestDto.PageSize)
-                                .Take(paginationRequestDto.PageSize)
-                                .ToListAsync();
         var currentFilter = context.Session.GetString("currentFilter");
+        var totalPages = (int)Math.Ceiling((double)(pages) / paginationRequestDto.PageSize);
         if (searchRequestDto != null && searchRequestDto.Filter != null)
         {
-            if (currentFilter != null && !currentFilter.Equals(searchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
-            {
-                // If the filter is different from the last one, we reset the page number
-                paginationRequestDto.PageNumber = 1;
-            }
             context.Session.SetString("currentFilter", searchRequestDto.Filter);
         }
-        
+        // Calculate if the page number exceeds the total pages
+        if (paginationRequestDto.PageNumber > totalPages)
+        {
+            paginationRequestDto.PageNumber = 1;
+        }
         // Setup for display
-        paginationRequestDto.TotalPages = (int)Math.Ceiling((double)(pages) / paginationRequestDto.PageSize);
+        paginationRequestDto.TotalPages = totalPages;
         paginationRequestDto.TotalRecords = pages;
+        var total = await query
+            .Skip((paginationRequestDto.PageNumber - 1) * paginationRequestDto.PageSize)
+            .Take(paginationRequestDto.PageSize)
+            .ToListAsync();
         return total;
     }
 
@@ -64,19 +64,20 @@ public class Pagination : IPagination
     public List<T> Paginate<T>(List<T> total, HttpContext context, PaginationRequestDto? paginationRequestDto = null, 
         SearchRequestDto? searchRequestDto = null) where T : class
     {
+        var totalPages = (int)Math.Ceiling((double)(total.Count) / paginationRequestDto.PageSize);
         var currentFilter = context.Session.GetString("currentFilter");
         if (searchRequestDto != null && searchRequestDto.Filter != null)
         {
-            if (currentFilter != null && !currentFilter.Equals(searchRequestDto.Filter, StringComparison.OrdinalIgnoreCase))
-            {
-                // If the filter is different from the last one, we reset the page number
-                paginationRequestDto.PageNumber = 1;
-            }
             context.Session.SetString("currentFilter", searchRequestDto.Filter);
+        }
+        // Calculate if the page number exceeds the total pages
+        if (paginationRequestDto.PageNumber > totalPages)
+        {
+            paginationRequestDto.PageNumber = 1;
         }
         
         // Setup for display
-        paginationRequestDto.TotalPages = (int)Math.Ceiling((double)(total.Count) / paginationRequestDto.PageSize);
+        paginationRequestDto.TotalPages = totalPages;
         paginationRequestDto.TotalRecords = total.Count;
         return total
             .Skip((paginationRequestDto.PageNumber - 1) * paginationRequestDto.PageSize)

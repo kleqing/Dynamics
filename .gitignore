@@ -259,5 +259,6 @@ _Pvt_Extensions
 # JetBrains Rider
 .idea/
 *.sln.iml
-/Dynamics.DataAccess/Migrations
+
+# Tailwindcss
 Dynamics/wwwroot/css/output.css

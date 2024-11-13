@@ -7,7 +7,7 @@
     if (endRecords > Model.PaginationRequestDto.TotalRecords) endRecords = Model.PaginationRequestDto.TotalRecords;
 }
 
-<div class="w-full flex justify-between items-center px-4 py-3" id="@Model.PaginationDivId">
+<div class="flex justify-between items-center px-4 py-3" id="@Model.PaginationDivId">
     <div class="text-sm text-slate-500">
         Showing <b>@startRecords-@endRecords</b> of @Model.PaginationRequestDto.TotalRecords
     </div>

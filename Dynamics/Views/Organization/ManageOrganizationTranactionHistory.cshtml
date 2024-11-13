@@ -433,22 +433,6 @@
                             @i
                         </button>
                     }
-
-                    <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
-                        ...
-                    </button>
-                    // 3 middle pages
-                    var nextThreePages = Model.OrganizationPaginationRequestDto.PageNumber + 3;
-                    for (int i = Model.OrganizationPaginationRequestDto.PageNumber; i < nextThreePages; i++)
-                    {
-                        <button id="pageBtn_@i" class="@(Model.OrganizationPaginationRequestDto.PageNumber == i ? "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-white bg-slate-800 border border-slate-800 rounded hover:bg-slate-600 hover:border-slate-600 transition duration-200 ease" : "px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease")">
-                            @i
-                        </button>
-                    }
-
-                    <button class="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-400 transition duration-200 ease">
-                        ...
-                    </button>
                     // 2 Right page
                     for (int i = Model.OrganizationPaginationRequestDto.TotalPages; i >= Model.OrganizationPaginationRequestDto.TotalPages - 2; i--)
                     {

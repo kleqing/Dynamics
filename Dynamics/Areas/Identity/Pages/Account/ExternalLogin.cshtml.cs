@@ -120,11 +120,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name,
                     info.LoginProvider);
                 await _signInManager.SignInAsync(existingUser, isPersistent: false, authenticationMethod: null);
-                if (User.IsInRole(RoleConstants.Admin))
-                {
-                    return RedirectToAction("Index", "Home", new { area = "Admin" });
-                }
-
                 if (returnUrl.Contains("JoinProjectRequest"))
                 {
                     returnUrl = returnUrl.Replace("memberid=00000000-0000-0000-0000-000000000000",
@@ -144,10 +139,6 @@ namespace Dynamics.Areas.Identity.Pages.Account
                 HttpContext.Session.SetString("currentUserID", businessUser.Id.ToString());
                 _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name,
                     info.LoginProvider);
-                if (User.IsInRole(RoleConstants.Admin) && result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Home", new { area = "Admin" });
-                }
 
                 return Redirect(returnUrl);
             }

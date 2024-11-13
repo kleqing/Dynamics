@@ -289,14 +289,14 @@ else
                                 <p class="text-xs text-gray-500">Download data in Excel format</p>
                             </div>
                         </div>
-                        <a asp-action="ExportExcel" asp-controller="ExcelExport">
-                            <button class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                        <form asp-action="ExportExcel" asp-controller="ExcelExport" target="_blank">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 Export Excel
                             </button>
-                        </a>
+                        </form>
                     </div>
 
                     <!-- Upload Section -->

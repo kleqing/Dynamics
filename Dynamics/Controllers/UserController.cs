@@ -280,6 +280,10 @@ namespace Dynamics.Controllers
             PaginationRequestDto paginationRequestDto)
         {
             _logger.LogWarning("STARTING REQUEST STATUS");
+            if (searchRequestDto.Filter == null)
+            {
+                searchRequestDto.Filter = SearchOptionsConstants.StatusPending;
+            }
             // Get current userID
             var userString = HttpContext.Session.GetString("user");
             User currentUser = null;

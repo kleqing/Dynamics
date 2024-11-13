@@ -20,12 +20,13 @@ namespace Dynamics.Controllers
         private readonly CloudinaryUploader _cloudinaryUploader;
         private readonly IOrganizationMemberRepository _organizationMemberRepository;
         private readonly IRoleService _roleService;
+        private readonly IProjectRepository _projectRepository;
 
         public RequestController(IRequestRepository requestRepository, UserManager<User> userManager,
             ILogger<RequestController> logger,
             IRequestService? requestService, CloudinaryUploader? cloudinaryUploader, 
             IOrganizationMemberRepository organizationMemberRepository, 
-            IRoleService roleService)
+            IRoleService roleService, IProjectRepository projectRepository)
         {
             _requestRepo = requestRepository;
             _userManager = userManager;
@@ -34,6 +35,7 @@ namespace Dynamics.Controllers
             _cloudinaryUploader = cloudinaryUploader;
             _organizationMemberRepository = organizationMemberRepository;
             _roleService = roleService;
+            _projectRepository = projectRepository;
         }
 
         public async Task<IActionResult> Index(string searchQuery, string filterQuery,
@@ -59,6 +61,7 @@ namespace Dynamics.Controllers
             var totalPages = (int)Math.Ceiling((double)totalRequest / pageSize);
             var paginatedRequests = await _requestRepo.PaginateAsync(requests, pageNumber, pageSize);
             var dtos = _requestService.MapToListRequestOverviewDto(paginatedRequests);
+            
             ViewBag.currentPage = pageNumber;
             ViewBag.totalPages = totalPages;
             return View(dtos);
@@ -115,6 +118,11 @@ namespace Dynamics.Controllers
             {
                 return NotFound();
             }
+            // Check to see if the request is accepted, pass in a link to view the project
+            if (request.Status == 2 && request.Project != null)
+            {
+                ViewBag.projectId = request.Project.ProjectID;
+            }
 
             return View(request);
         }
@@ -155,6 +163,19 @@ namespace Dynamics.Controllers
                 {
                     ModelState.AddModelError("", "Please choose province of your request.");
                 }
+                obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
+                var reqList = await _requestRepo.GetRequestsAsync();
+                foreach (var request in reqList)
+                {
+                    if (obj.Location == request.Location)
+                    {
+                        ModelState.AddModelError("Location", "A request with the same location already exists.");
+                    }
+                }
+                if (!ModelState.IsValid)
+                {
+                    return View();
+                }
 
                 var userJson = HttpContext.Session.GetString("user");
                 var user = JsonConvert.DeserializeObject<User>(userJson);
@@ -162,16 +183,10 @@ namespace Dynamics.Controllers
                 ViewBag.UserEmail = user.Email;
                 ViewBag.UserPhoneNumber = user.PhoneNumber;
                 ViewBag.UserAddress = user.UserAddress;
-
-                if (!ModelState.IsValid)
-                {
-                    return View();
-                }
-
+                
                 obj.RequestID = Guid.NewGuid();
                 /*var date = DateOnly.FromDateTime(DateTime.Now);
                 obj.CreationDate = date;*/
-                obj.Location += ", " + wardNameInput + ", " + districtNameInput + ", " + cityNameInput;
                 obj.UserID = user.Id;
                 if (images != null && images.Count > 0)
                 {

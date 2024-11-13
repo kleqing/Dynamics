@@ -142,7 +142,6 @@ public class WalletController : Controller
             // Setup redirect to the page
             HttpContext.Session.SetString("paymentRedirect", Url.Action("Index", "Wallet", null, Request.Scheme));
         }
-
         var user = HttpContext.Session.GetCurrentUser();
         if (user == null) throw new UnauthorizedAccessException();
         var createPaymentDto = new VnPayCreatePaymentDto
@@ -201,7 +200,7 @@ public class WalletController : Controller
         {
             // See if there is a payrequestDto in session
             var temp = HttpContext.Session.Get<PayRequestDto>("donateRequest");
-            if (temp != null)
+            if (temp != null && payRequestDto.Amount == 0)
             {
                 payRequestDto = temp;
                 // CLEAR OR ELSE DISASTER

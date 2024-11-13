@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <p class="text-base line-clamp-3 mb-4 searchTarget" style="min-height: 72px;">
+        <p class="text-base line-clamp-3 mb-4 searchTarget" style="height: 72px;">
             @Model.Content
         </p>
 
@@ -58,6 +58,12 @@
                             <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
                                class="btn btn-neutral btn-sm h-8 outline-none border-none ">
                                 View your request
+                            </a>
+                            break;
+                        case 2:
+                            <a asp-action="Detail" asp-controller="Request" asp-route-id="@Model.RequestID"
+                               class="btn btn-success btn-sm h-8 outline-none border-none ">
+                                Request accepted!
                             </a>
                             break;
                         case -1:

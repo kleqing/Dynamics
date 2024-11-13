@@ -22,11 +22,13 @@ namespace Dynamics.Areas.Admin.Controllers
     {
         private readonly IAdminRepository _adminRepository;
         private readonly IWalletService _walletService;
+        private readonly INotificationService _notificationService;
 
-        public OrganizationsController(IAdminRepository adminRepository, IWalletService walletService)
+        public OrganizationsController(IAdminRepository adminRepository, IWalletService walletService, INotificationService notificationService)
         {
             _adminRepository = adminRepository;
             _walletService = walletService;
+            _notificationService = notificationService;
         }
 
         // GET: Admin/Organizations
@@ -43,40 +45,6 @@ namespace Dynamics.Areas.Admin.Controllers
             }
         }
 
-        // Get all organization information
-        [HttpGet]
-        public async Task<JsonResult> GetOrganizationInfo(Guid id)
-        {
-            var organization = await _adminRepository.GetOrganizationInformation(o => o.OrganizationID == id);
-            if (organization == null)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Organization not found"
-                });
-            }
-
-            var memberCount = await _adminRepository.MemberJoinedOrganization(id); // Count member joined organization
-
-            // return to js with ajax
-            return Json(new
-            {
-                success = true,
-                data = new
-                {
-                    organization.OrganizationName,
-                    organization.OrganizationDescription,
-                    organization.OrganizationEmail,
-                    organization.OrganizationPhoneNumber,
-                    organization.OrganizationAddress,
-                    organization.StartTime,
-                    organization.ShutdownDay,
-                    memberCount = memberCount
-                }
-            });
-        }
-
         // Change organization status
         [HttpPost]
         public async Task<JsonResult> ChangeStatus(Guid id)
@@ -84,6 +52,20 @@ namespace Dynamics.Areas.Admin.Controllers
             var result = await _adminRepository.ChangeOrganizationStatus(id);
             var org = await _adminRepository.GetOrganization(o => o.OrganizationID == id);
             if (result == -1) await _walletService.RefundOrganizationWalletAsync(org);
+            var link = Url.Action(
+                action: "Detail",
+                controller: "Organization",
+                values: new { area = "", organizationId = id }, // Set `area` to an empty string
+                protocol: Request.Scheme
+            );
+            if (result == 1)
+            {
+                await _notificationService.AdminVerificationNotificationAsync(id, link, "ApproveOrg");
+            }
+            else if (result == -1)
+            {
+                await _notificationService.AdminVerificationNotificationAsync(id, link, "BanOrg");
+            }
             return Json(new
             {
                 Status = result

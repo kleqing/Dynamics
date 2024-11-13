@@ -523,8 +523,8 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
-            //var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
-            //var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
+            // var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
+            // var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
 
             if (!newCEOID.Equals(currentCEOID))
             {

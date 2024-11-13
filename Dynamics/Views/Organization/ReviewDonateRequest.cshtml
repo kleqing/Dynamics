@@ -134,7 +134,7 @@
                             }
                         </div>
                     </div>
-                    <form method="dialog" class="modal-backdrop">
+                    <form  method="dialog" class="modal-backdrop">
                         <button>close</button>
                     </form>
                 </dialog>
@@ -178,7 +178,7 @@
                             </div>
                         </form>
                     </div>
-                    <form method="dialog" class="modal-backdrop">
+                    <form id="closeAcceptModel" method="dialog" class="modal-backdrop">
                         <button>close</button>
                     </form>
                 </dialog>
@@ -458,9 +458,25 @@
             notificationMessage.innerText = "Please upload at least one proof image.";
             notificationMessage.style.display = "block";
         } else {
-            notificationMessage.style.display = "none";  // Hide the message if files are selected
+            notificationMessage.style.display = "none";
+            this.submit();
+            document.getElementById("closeAcceptModel").submit();
+            openLoading();
         }
-    }); 
+    });
+        function openLoading(){
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your request is being processed",
+                icon: "info",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
         //modal of proof image
     function openImageModal(imgSrc) {
         document.getElementById('modalImage').src = imgSrc;

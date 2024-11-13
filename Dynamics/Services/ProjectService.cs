@@ -541,7 +541,6 @@ public class ProjectService : IProjectService
             {
                 return MyConstants.Success;
             }
-
             return MyConstants.Error;
         }
         if (existingJoinRequest.Status == -1) // Denied, update from -1 -> 0

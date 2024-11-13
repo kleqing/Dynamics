@@ -73,9 +73,9 @@
                                 <div class="dropdown dropdown-hover dropdown-end">
                                     <div tabindex="0" role="button" class="py-2 text-sm px-4 border border-solid border-gray-300 shadow-sm rounded-md m-1 bg-gray-100 text-black font-bold">Menu</div>
                                     <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                                        <li class="hover:bg-gray-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()">View proof image</a></li>
-                                        <li class="hover:bg-green-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('AcceptModal').showModal()">Accept</a></li>
-                                        <li class="hover:bg-red-500/30 hover:font-bold rounded-xl"><a onClick="document.getElementById('DenyModal').showModal()">Deny</a></li>
+                                        <li class="hover:bg-gray-500/30 hover:font-bold rounded-xl"><p onClick="document.getElementById('proofImagesModal_@item.TransactionID').showModal()">View proof image</p></li>
+                                        <li class="hover:bg-green-500/30 hover:font-bold rounded-xl"><p onClick="document.getElementById('AcceptModal').showModal()">Accept</p></li>
+                                        <li class="hover:bg-red-500/30 hover:font-bold rounded-xl"><p onClick="document.getElementById('DenyModal').showModal()">Deny</p></li>
                                     </ul>
                                 </div>
                                 <!-- You can open the modal using ID.showModal() method -->
@@ -150,7 +150,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                    <form method="dialog" class="modal-backdrop">
+                                    <form id="closeAcceptModel" method="dialog" class="modal-backdrop">
                                         <button>close</button>
                                     </form>
                                 </dialog>
@@ -222,7 +222,7 @@
 </div>
 
 <!-- end container -->
-    <script>
+<script>
         //show files have uploaded
     const maxFiles = 4;
     // Event listener to update the file name after the file is selected
@@ -256,14 +256,30 @@
             notificationMessage.innerText = "Please upload at least one proof image.";
             notificationMessage.style.display = "block";
         } else {
-            notificationMessage.style.display = "none";  // Hide the message if files are selected
+            notificationMessage.style.display = "none";
+            this.submit();
+            document.getElementById("closeAcceptModel").submit();
+            openLoading();
         }
-    }); 
+    });
+        function openLoading(){
+            Swal.fire({
+                title: "Processing...",
+                text: "Please wait while your request is being processed",
+                icon: "info",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
         //modal of proof image
     function openImageModal(imgSrc) {
         document.getElementById('modalImage').src = imgSrc;
         document.getElementById('proof_image').showModal();
     }
     //drag
-
+   
     </script>

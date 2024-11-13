@@ -92,7 +92,7 @@
             <input name="DateTo" type="date" placeholder="To date" class="h-8 text-xs input input-bordered join-item bg-white rounded-md"
                    max="@DateTime.Now.ToString("yyyy-MM-dd")" value="@(Model.SearchRequestDto.DateTo.HasValue ? Model.SearchRequestDto.DateTo.Value.ToString("yyyy-MM-dd") : "")"/>
         </div>
-            <button class="bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
+            <button class=" bg-blue-800 text-white text-xs px-4 py-2 m-0 rounded-md font-semibold">Search</button>
     </form>
     <!-- End right search bar -->
 
@@ -101,7 +101,7 @@
         @if (statusProjectMemberOfUser >= 2)
         {
             <a asp-action="ReviewUserDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                <div class="relative indicator">
+                <div class="splide__slide elevate relative indicator">
                     <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Review user donate request
                     </button>
@@ -115,7 +115,7 @@
                 </div>
             </a>
             <a asp-action="ReviewOrgDonateRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                <div class="relative indicator">
+                <div class="splide__slide elevate relative indicator">
                     <button class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Review organization donate request
                     </button>
@@ -140,9 +140,9 @@
                 <thead class="bg-gray-300/20 ">
                     <tr class="text-gray-900 ">
                         <th></th>
-                        <th class="text-md">Date</th>
-                        <th class="text-md">Name</th>
-                        <th class="text-md">Resource</th>
+                        <th class="leading-none">Date</th>
+                        <th class="leading-none">Name</th>
+                        <th class="leading-none">Resource</th>
                         <th class="text-md">Quantity</th>
                         <th class="text-md">Unit</th>
                         <th class="text-md">Message</th>

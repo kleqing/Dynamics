@@ -41,7 +41,7 @@
         <!-- edit button -->
         <a asp-action="UpdateProjectProfile" asp-route-id="@Model.CurrentProject.ProjectID" title="Edit project profile">
             <button type="button"
-            class="absolute  w-fit h-fit mx-2  p-2 top-2 " style="right:-5px;">
+            class="cursor-pointer absolute  w-fit h-fit mx-2  p-2 top-2 shadow-lg" style="right:-5px;">
                 <i class="fa-solid fa-pen-to-square text-3xl text-gray-900"></i>
             </button>
         </a>
@@ -51,23 +51,23 @@
         <div class="ml-0  w-full justify-center items-center">
             <div class="relative items-center">
                 <!-- Main image container -->
-                <div id="carousel" class="w-full bg-gray-300 rounded-lg overflow-hidden" style="height:32rem;">
+                <div id="carousel" class="shadow-lg cursor-pointer card splide__slide elevate w-full bg-gray-300 rounded-lg overflow-hidden" style="height:32rem;">
                     <!-- Images will be inserted here by JavaScript -->
                 </div>
             </div>
 
             <!-- Indicator dots  -->
-            <div class="flex justify-center my-10 mt-4 space-x-2 relative">
+            <div class="flex justify-center my-10 mt-4 space-x-4 relative">
                 <!-- Navigation buttons -->
                 
                 @foreach (var img in projectImages)
                 {
-                    <div onclick="updateCarouselAsUserWant('@img')" class=" relative w-20 h-20 bg-gray-300 rounded-xl mr-2 hover:ring-4 hover:ring-blue-500 cursor-pointer">
-                        <img src="@img" class="w-full h-full items-center rounded-xl">
+                    <div onclick="updateCarouselAsUserWant('@img')" class="shadow-lg card splide__slide elevate relative w-20 h-20 bg-gray-300 rounded-xl hover:ring-4 hover:ring-blue-500 cursor-pointer">
+                        <img src="@img" class=" cursor-pointer w-full h-full items-center rounded-xl">
                         </div>
                 }
                 <button id="prevBtn"
-                        class="absolute top-10  transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="left:11rem;">
+                        class="cursor-pointer card splide__slide elevate absolute  bg-white rounded-full p-2 shadow-md" style="left:11rem;top:1.5rem;">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
@@ -75,7 +75,7 @@
                     </svg>
                 </button>
                 <button id="nextBtn"
-                        class="absolute top-10 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md" style="right:11rem;">
+                        class="cursor-pointer card splide__slide elevate absolute bg-white rounded-full p-2 shadow-md" style="right:11rem;top:1.5rem;">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -270,7 +270,7 @@
             </table>
         </div>
 
-                <a asp-action="ManageProjectDonor" asp-route-projectID="@currentProjectID" class="text-gray-400 flex justify-center font-normal">See more donors...</a>
+                <a asp-action="ManageProjectDonor" asp-route-projectID="@currentProjectID" class="cursor-pointer text-gray-400 flex justify-center font-normal">See more donors...</a>
               </div>
         }       
 
@@ -278,7 +278,7 @@
     <!-- part 1-fundraising -->
     <!-- when using fixed+relative, need to modify top-bottom-left-right to specify the object at fixed/absolute -->
         <div  class="sticky top-20 right-15 h-fit ml-12 mr-12 " style="width:28%;">
-    <div class=" flex flex-col gap-2 justify-start shadow-2xl p-6 my-10 mx-2 rounded-3xl bg-white w-full">
+    <div class="card splide__slide elevate  flex flex-col gap-2 justify-start shadow-xl p-6 my-10 mx-2 rounded-3xl bg-white w-full">
         <span class="font-bold text-success text-center text-2xl">@Model.CurrentAmountOfMoneyDonate.ToString("N0") VND</span>
         <span class=" font-normal text-neutral text-center mb-2">
             raised of <span class="font-bold">@Model.ExpectedAmountOfMoneyDonate.ToString("N0")</span> VND goal
@@ -306,7 +306,7 @@
         </div>
         <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
                 <button type="button" style="width:100%;"
-                class="text-white hover:text-black bg-success transition-all ease-in duration-75 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 font-medium rounded-lg text-sm btn btn-success btn-lg text-center me-2 mb-2">
+                class="cursor-pointer text-white hover:text-black bg-success transition-all ease-in duration-75 hover:bg-gradient-to-l hover:from-teal-200 hover:to-lime-200 focus:ring-4 font-medium rounded-lg text-sm btn btn-success btn-lg text-center me-2 mb-2">
                 Donate this project
         </button>
             </a>
@@ -314,7 +314,7 @@
             {
                 <a asp-action="JoinProjectRequest" asp-route-memberid="@(!string.IsNullOrEmpty(userIDString)?new Guid(userIDString):Guid.Empty)" asp-route-projectid="@currentProjectID">
                     <button style="width:100%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
-                        <span class="relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
+                        <span class="cursor-pointer relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                         Join this project
                     </span>
                 </button>
@@ -324,7 +324,7 @@
             {
                 <a asp-action="JoinProjectRequest" asp-route-memberid="@(new Guid(userIDString))" asp-route-projectid="@currentProjectID">
                     <button style="width:100%;" class=" relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800">
-                        <span class=" relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
+                        <span class="cursor-pointer relative w-full px-5 py-2.5  transition-all ease-in duration-75 bg-white rounded-md group-hover:bg-opacity-0">
                             Processing join request
                         </span>
                     </button>
@@ -459,10 +459,10 @@
 
     function updateCarouselAsUserWant(src) {
         // Update the carousel with the selected image
-        carousel.innerHTML = `<img src="${src}" class="w-full object-cover items-center cursor-pointer" alt="Project image" style="height: 40rem;">`;
+        carousel.innerHTML = `<img src="${src}" class="w-full object-cover items-center cursor-pointer shadow-xl" alt="Project image" style="height: 40rem;">`;
 
         const srcFilename = src.split('/').pop(); // Get the file name from the src
-        const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-2 > div > img');
+        const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-4 > div > img');
 
         // Loop through each indicator to compare its src with the selected image src
         indicators.forEach((indicator) => {
@@ -479,13 +479,13 @@
         });
     }
     function updateCarousel() {
-        carousel.innerHTML = `<img src="${images[currentIndex]}" class="w-full object-cover items-center" alt="Project image" style="height: 40rem;">`;
+        carousel.innerHTML = `<img src="${images[currentIndex]}" class="w-full object-cover items-center cursor-pointer shadow-xl" alt="Project image" style="height: 40rem;">`;
         updateIndicators();
     }
 
     function updateIndicators() {
         // Select all the image indicators
-        const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-2 > div > img');
+        const indicators = document.querySelectorAll('.flex.justify-center.mt-4.space-x-4 > div > img');
         indicators.forEach((indicator, index) => {
             if (index === currentIndex) {
                 // Apply special class to highlight the current image (e.g., a mask or border)

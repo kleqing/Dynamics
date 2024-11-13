@@ -12,7 +12,7 @@ public interface INotificationService
     Task ProcessProjectDonationNotificationAsync(Guid projectId,Guid? transId, string link, string type);
     Task ProcessProjectPhaseNotificationAsync(Guid projectId, string link, string type);
     Task AddProjectResourceNotificationAsync(Guid projectId, string link);
-    Task InviteProjectMemberRequestNotificationAsync(Project projectObj, User member, string linkUser, string linkLeader);
+    Task InviteProjectMemberRequestNotificationAsync(Project projectObj, User member,User sender, string linkUser, string linkLeader);
     Task ProcessInviteProjectMemberRequestNotificationAsync(Project project, User member, string link, string type);
     Task UpdateOrganizationNotificationAsync(Guid organizationId, string link);
     Task ProcessOrganizationDonationNotificationAsync(Guid organizationId, Guid? transId, string link, string type);

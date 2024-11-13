@@ -64,7 +64,7 @@
                 <label for="project" class="block text-sm font-medium text-gray-700 mb-1">Select a project</label>
                 <select name="projectId" id="project" class="w-full p-2 input input-neutral input-bordered rounded-md appearance-none bg-white">
                     <option>Options</option>
-                    @foreach (var item in currentOrganization.Project.Where(x=> x.ProjectStatus!=-1 &&x.ProjectStatus!=2))
+                    @foreach (var item in currentOrganization.Project.Where(x=> x.ProjectStatus==0))
                     {
                         <option value="@item.ProjectID">@item.ProjectName</option>
                     }

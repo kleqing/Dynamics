@@ -502,7 +502,7 @@ namespace Dynamics.Controllers
             var users = await _userRepository.GetAllUsersAsync();
             var usersInProject =
                 _projectService.FilterMemberOfProject(p =>
-                    p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status > 0);
+                    p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status >= 0 || p.Status ==-2);
             var usersNotInProject = users.Where(u => !usersInProject.Any(up => up.Id == u.Id));
             // Return as JSON (you could also return a PartialView)
             if (!string.IsNullOrEmpty(key))
@@ -563,7 +563,13 @@ namespace Dynamics.Controllers
                 var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project",
                     new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                 //send to user and leader
-                await _notificationService.InviteProjectMemberRequestNotificationAsync(projectObj, user, linkUser,
+                var userString = HttpContext.Session.GetString("user");
+                User currentUser = null;
+                if (userString != null)
+                {
+                    currentUser = JsonConvert.DeserializeObject<User>(userString);
+                }
+                await _notificationService.InviteProjectMemberRequestNotificationAsync(projectObj, user, currentUser,linkUser,
                     linkLeader);
             }
 
@@ -678,7 +684,7 @@ namespace Dynamics.Controllers
             }
             else if (res.Equals(MyConstants.Warning))
             {
-                TempData[MyConstants.Warning] = "Already sent another join request!";
+                TempData[MyConstants.Warning] = "Already sent another join request or has received an invitation from this project!";
                 TempData[MyConstants.Subtitle] = "Please wait for the project leader response!";
             }
             else if (res.Equals(MyConstants.Error))

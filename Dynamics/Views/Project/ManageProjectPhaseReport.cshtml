@@ -29,8 +29,8 @@
         {
             <!-- add button -->
             <a asp-action="AddProjectPhaseReport" asp-controller="Project" asp-route-projectid="@currentProjectID" title="Add new phase report">
-                <button type="button" class="mx-4 timeline-middle">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-12">
+                <button type="button" class="splide__slide elevate cursor-pointer mx-4 timeline-middle rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="gray" class="size-10">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 </button>
@@ -51,7 +51,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
-                    class="h-5 w-5">
+                    class="h-5 w-5 splide__slide elevate cursor-pointer rounded-full">
                         <path fill-rule="evenodd"
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
                         clip-rule="evenodd" />
@@ -68,7 +68,7 @@
                         {
                             if (string.IsNullOrEmpty(img.Trim()) || img.Trim().Equals(",")) continue;
                             <button onclick="openModal('@img')">
-                                <img src="@img" alt="current-phase-img" class="h-48 w-48 rounded-xl shadow-md cursor-pointer" />
+                                <img src="@img" alt="current-phase-img" class="splide__slide elevate h-48 w-48 rounded-xl shadow-md cursor-pointer" />
                             </button>
                             <dialog id="phase_image" class="modal">
                                 <div class="modal-box w-fit h-fit p-0 m-0" style=" background-color: rgba(0, 0, 0, 0);">
@@ -85,12 +85,12 @@
                         {
                             <!-- edit button -->
                             <a asp-action="EditProjectPhaseReport" asp-route-projectid="@item.ProjectID" asp-route-historyid="@item.HistoryID" title="Edit project phase report">
-                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:45px;">
+                                <button type="button" class="splide__slide elevate cursor-pointer absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:45px;">
                                     <i class="fa-solid fa-pen-to-square text-2xl text-gray-900 hover:text-primary transition-all"></i>
                                 </button>
                             </a>
                             <a asp-action="DeleteProjectPhaseReport" asp-route-id="@item.HistoryID" title="Delete project phase report">
-                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:-5px;">
+                                <button type="button" class="splide__slide elevate cursor-pointer absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="left:-5px;">
                                     <i class="fa-solid fa-trash text-2xl text-gray-900 hover:text-error transition-all"></i>
                                 </button>
                             </a>
@@ -126,12 +126,12 @@
                         {
                             <!-- edit button -->
                             <a asp-action="EditProjectPhaseReport" asp-route-projectid="@item.ProjectID" asp-route-historyid="@item.HistoryID" title="Edit project phase report">
-                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:45px;">
+                                <button type="button" class="splide__slide elevate cursor-pointer absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:45px;">
                                     <i class="fa-solid fa-pen-to-square text-2xl text-gray-900"></i>
                                 </button>
                             </a>
                             <a asp-action="DeleteProjectPhaseReport" asp-route-id="@item.HistoryID" title="Delete project phase report">
-                                <button type="button" class="absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:-5px;">
+                                <button type="button" class="splide__slide elevate cursor-pointer absolute top-0 w-fit h-fit mx-2 my-2 p-2 " style="right:-5px;">
                                     <i class="fa-solid fa-trash text-2xl text-gray-900"></i>
                                 </button>
                             </a>
@@ -151,7 +151,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg"
                              viewBox="0 0 20 20"
                              fill="currentColor"
-                             class="h-5 w-5">
+                             class="h-5 w-5 splide__slide elevate cursor-pointer rounded-full">
                             <path fill-rule="evenodd"
                                   d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
                                   clip-rule="evenodd" />

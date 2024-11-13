@@ -54,7 +54,7 @@ public class NotificationService : INotificationService
         };
         await _notifRepo.AddNotificationAsync(notif);
     }
-    public async Task InviteProjectMemberRequestNotificationAsync(Project projectObj, User member, string linkUser, string linkLeader)
+    public async Task InviteProjectMemberRequestNotificationAsync(Project projectObj, User member,User sender, string linkUser, string linkLeader)
     {
         var notif = new Notification
         {
@@ -66,12 +66,11 @@ public class NotificationService : INotificationService
             Status = 0 // Unread
         };
         await _notifRepo.AddNotificationAsync(notif);
-
-        var leaderOfProject = await GetProjectLeaderAsync(projectObj.ProjectID);
+        
         var notifLeader = new Notification
         {
             NotificationID = Guid.NewGuid(),
-            UserID = leaderOfProject.Id,
+            UserID = sender.Id,
             Message = $"You have sent an invitation to \"{member.UserName}\" to join your project {projectObj.ProjectName}.\nClick this notification to cancel the invitation!",
             Date = DateTime.Now,
             Link = linkLeader,

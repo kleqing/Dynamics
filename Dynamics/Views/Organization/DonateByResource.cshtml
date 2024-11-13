@@ -24,7 +24,7 @@
 
             <div class="mb-8">
                 <h2 class="text-xl font-semibold mb-4">1. Register the form</h2>
-                <form asp-action="DonateByResource" asp-controller="Organization" asp-route-resourceId="@Model.ResourceID" enctype="multipart/form-data" method="post">
+                <form id="donateResourceForm" asp-action="DonateByResource" asp-controller="Organization" asp-route-resourceId="@Model.ResourceID" enctype="multipart/form-data" method="post">
                     <input asp-for="UserID" name="UserID" class="hidden">
                     <input asp-for="Status" name="Status" class="hidden">
                     <input type="date" asp-for="Time" name="Time" class="hidden">
@@ -38,7 +38,7 @@
 
                     <div class="mb-4">
                         <label asp-for="Amount" class="block text-sm font-medium text-gray-700 mb-1">Input the quantity</label>
-                        <input asp-for="Amount" type="number" name="Amount" id="quantity" placeholder="Enter Amount"
+                        <input asp-for="Amount" type="number" name="Amount" id="quantity" placeholder="Enter Amount" min="1" value="1"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         @* <span asp-validation-for="Amount" class="text-red-500"></span> *@
                         @if (ViewBag.Amount != null)
@@ -123,5 +123,5 @@
         </div>
     </div>
 </div>
-
+<partial name="CustomComponent/_LoadingForm" model="@("donateResourceForm")"/>
 

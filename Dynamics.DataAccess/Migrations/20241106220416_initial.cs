@@ -481,10 +481,7 @@ namespace Dynamics.DataAccess.Migrations
                 {
                     WithdrawID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProjectID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    BankAccountNumber = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    BankName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Message = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Time = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>

@@ -39,7 +39,7 @@
         <div class="ml-3 flex justify-end gap-x-2">
             @if (statusProjectMemberOfUser >= 2)
             {
-                <div class=" relative inline-flex ">
+                <div class="splide__slide elevate cursor-pointer  relative inline-flex ">
                     <button onclick="getUsers()" class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                         Invite members
                     </button>
@@ -90,20 +90,23 @@
 
 
                 <a asp-action="ReviewJoinRequest" asp-route-id="@currentProjectID" asp-controller="Project">
-                    <div class=" relative">
+                    <div class="splide__slide elevate cursor-pointer relative indicator ">
                         <button class="w-40 rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
                             Review join request
                         </button>
                         @if (ViewData["hasJoinRequest"] != null && (bool)ViewData["hasJoinRequest"])
                         {
-                            <span class="absolute top-0.5 right-0.5 grid min-h-[18px] min-w-[18px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-xs text-white">
-                            </span>
+                           
+                            <div class="indicator-item">
+                                <div class="absolute rounded-full w-4 h-4 bg-red-500 animate-ping"></div>
+                                <div class="relative rounded-full w-4 h-4 bg-red-500"></div>
+                            </div>
                         }
                     </div>
 
                 </a>
             }
-            <div class="w-full max-w-sm min-w-[200px] relative">
+            <div class="splide__slide elevate cursor-pointer w-full max-w-sm min-w-[200px] relative">
                 <form class="relative" id="searchForm">
                     <input class="bg-white w-full pr-11 h-8 pl-3 py-2 bg-transparent placeholder:text-slate-400 text-slate-700 text-xs border border-slate-200 rounded transition duration-200 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
                            placeholder="Search for member..."/>
@@ -119,7 +122,7 @@
     </div>
 
     <div class="relative flex flex-col w-full h-full overflow-scroll text-gray-700 bg-white shadow-md rounded-lg bg-clip-border">
-        <div style="height:60vh">
+        <div style="height:51rem">
             <table class="w-full text-left table-auto min-w-max">
                 <thead class="bg-gray-300/20 ">
                 <tr class="font-bold text-gray-900">
@@ -186,7 +189,7 @@
                             <td class="p-4 border-b border-blue-gray-50">
                                 @if (item.Status == 1)
                                 {
-                                    <a asp-action="DeleteProjectMember" asp-controller="Project" asp-route-id="@item.User.Id" type="button" class="h-10 text-white  bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Remove</a>
+                                    <a asp-action="DeleteProjectMember" asp-controller="Project" asp-route-id="@item.User.Id" type="button" class="splide__slide elevate cursor-pointer  h-10 text-white  bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">Remove</a>
                                 }
                             </td>
                         }
@@ -206,14 +209,36 @@
         event.preventDefault(); // Prevent the default form submission
         getUsers(); // Call the function to get users
     });
+//load from and save to local storage
+    function saveSelectedUsers() {
+        const selectedUsers = [];
+        document.querySelectorAll('.user-checkbox:checked').forEach(checkbox => {
+            selectedUsers.push(checkbox.dataset.userId);  // Store the user IDs of selected users
+        });
+        localStorage.setItem('selectedUsers', JSON.stringify(selectedUsers));  // Save to localStorage
+    }
+    function loadSelectedUsers() {
+        const selectedUsers = JSON.parse(localStorage.getItem('selectedUsers')) || [];  // Get selected users from localStorage
+        // Iterate over all checkboxes and check those that are in the selected users list
+        document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+            const userId = checkbox.dataset.userId;
+            if (selectedUsers.includes(userId)) {
+                checkbox.checked = true;  // Check the checkbox if the user is selected
+                addUserToSelected(userId, checkbox.dataset.userName, checkbox.dataset.userEmail, checkbox.dataset.userAvatar);
+            }
+        });
+    }
+
+  
+
+
 
     // Update the getUsers function to retrieve the value from the input field
     function getUsers() {
-        // Open the modal
         const usersContainer = document.getElementById('users-container');
-        usersContainer.innerHTML = ''; // Clear any previous content
+        usersContainer.innerHTML = '';  // Clear any previous content
         const usersSelectedDiv = document.getElementById('users-selected');
-        usersSelectedDiv.innerHTML = ''; // Clear any previous content
+        usersSelectedDiv.innerHTML = '';  // Clear any previous content
 
         document.getElementById('inviteForm').showModal();
         var key = document.getElementById('key').value; // Get the value from the search field
@@ -225,34 +250,38 @@
             .then(response => response.json()) // Assuming the server returns JSON
             .then(data => {
                 // Populate the users list in the modal
-                const usersContainer = document.getElementById('users-container');
-                usersContainer.innerHTML = ''; // Clear any previous content
-
                 data.forEach(user => {
-                    usersContainer.innerHTML += `
-                    <div class="flex justify-between my-4">
-                        <div class="flex justify-start items-center mx-0 my-0">
-                            <div>
-                                <img class="rounded-full w-14 h-14 mr-4" src="${user.avatarUrl}" alt="avatar">
-                            </div>
-                            <div class="flex flex-col ">
-                                <p class="text-black font-bold">${user.name}</p>
-                                <p class="text-gray-400 font-normal text-base ">${user.email}</p>
-                            </div>
+                    const userDiv = document.createElement('div');
+                    userDiv.classList.add('flex', 'justify-between', 'my-4');
+                    userDiv.innerHTML = `
+  <div class="flex justify-between my-4">
+                    <div class="flex justify-start items-center mx-0 my-0">
+                        <div>
+                            <img class="rounded-full w-14 h-14 mr-4" src="${user.avatarUrl}" alt="avatar">
                         </div>
-                        <div class="inline-flex items-center">
-                            <label class="relative flex cursor-pointer items-center rounded-full p-3" for="ripple-on" data-ripple-dark="true">
-                                <input id="ripple-on" type="checkbox" value="${user.id}" data-user-id="${user.id}" data-user-name="${user.name}" data-user-email="${user.email}" data-user-avatar="${user.avatarUrl}" class="user-checkbox peer relative h-6 w-6 cursor-pointer appearance-none rounded border border-slate-300 shadow hover:shadow-md transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-slate-400 before:opacity-0 before:transition-opacity checked:border-slate-800 checked:bg-slate-800 checked:before:bg-slate-400 hover:before:opacity-10" />
-                                <span class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
-                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                    </svg>
-                                </span>
-                            </label>
+                        <div class="flex flex-col ">
+                            <p class="text-black font-bold">${user.name}</p>
+                            <p class="text-gray-400 font-normal text-base ">${user.email}</p>
                         </div>
                     </div>
+                    <div class="inline-flex items-center">
+                        <label class="relative flex cursor-pointer items-center rounded-full p-3" for="ripple-on" data-ripple-dark="true">
+                            <input id="ripple-on" type="checkbox" value="${user.id}" data-user-id="${user.id}" data-user-name="${user.name}" data-user-email="${user.email}" data-user-avatar="${user.avatarUrl}" class="user-checkbox peer relative h-6 w-6 cursor-pointer appearance-none rounded border border-slate-300 shadow hover:shadow-md transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-slate-400 before:opacity-0 before:transition-opacity checked:border-slate-800 checked:bg-slate-800 checked:before:bg-slate-400 hover:before:opacity-10" />
+                            <span class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </label>
+                    </div>
+</div>
                 `;
+
+                    usersContainer.appendChild(userDiv);
                 });
+
+                // Reload selected users after populating the users list
+                loadSelectedUsers();
             })
             .catch(error => console.error('Error fetching users:', error));
     }
@@ -271,9 +300,11 @@
             } else {
                 removeUserFromSelected(userId);
             }
-            updateSelectedCount(); // Cập nhật số lượng user đã chọn
+            updateSelectedCount();  // Update the selected user count
+            saveSelectedUsers();  // Save the selected users to localStorage
         }
     });
+
 
     // Hàm để thêm user vào div #users-selected
     function addUserToSelected(userId, userName, userEmail, userAvatar) {

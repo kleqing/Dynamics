@@ -17,6 +17,11 @@ public class WithdrawController : Controller
     {
         try
         {
+            var withdraw = await _withdrawRepository.GetWithdraw(w => w.ProjectID.Equals(new Guid(projectid)));
+            if (withdraw != null)
+            {
+                return Json(new { failed = true, message = "This project already sent a withdraw." });
+            }
             var newWithdraw = new Withdraw
             {
                 WithdrawID = new Guid(),

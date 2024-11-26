@@ -502,7 +502,7 @@ namespace Dynamics.Controllers
             var users = await _userRepository.GetAllUsersAsync();
             var usersInProject =
                 _projectService.FilterMemberOfProject(p =>
-                    p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status > 0);
+                    p.ProjectID.Equals(new Guid(currentProjectID)) && p.Status >= 0 || p.Status ==-2);
             var usersNotInProject = users.Where(u => !usersInProject.Any(up => up.Id == u.Id));
             // Return as JSON (you could also return a PartialView)
             if (!string.IsNullOrEmpty(key))
@@ -563,7 +563,13 @@ namespace Dynamics.Controllers
                 var linkLeader = Url.Action(nameof(CancelJoinInvitation), "Project",
                     new { projectId = new Guid(currentProjectID), memberId = userId }, Request.Scheme);
                 //send to user and leader
-                await _notificationService.InviteProjectMemberRequestNotificationAsync(projectObj, user, linkUser,
+                var userString = HttpContext.Session.GetString("user");
+                User currentUser = null;
+                if (userString != null)
+                {
+                    currentUser = JsonConvert.DeserializeObject<User>(userString);
+                }
+                await _notificationService.InviteProjectMemberRequestNotificationAsync(projectObj, user, currentUser,linkUser,
                     linkLeader);
             }
 
@@ -679,7 +685,7 @@ namespace Dynamics.Controllers
             }
             else if (res.Equals(MyConstants.Warning))
             {
-                TempData[MyConstants.Warning] = "Already sent another join request!";
+                TempData[MyConstants.Warning] = "Already sent another join request or has received an invitation from this project!";
                 TempData[MyConstants.Subtitle] = "Please wait for the project leader response!";
             }
             else if (res.Equals(MyConstants.Error))
@@ -801,48 +807,6 @@ namespace Dynamics.Controllers
 
             TempData[MyConstants.Error] = "Failed to deny the join request!";
             return RedirectToAction(nameof(ReviewJoinRequest), new { id = currentProjectID });
-        }
-
-        public async Task<IActionResult> AcceptJoinRequestAll()
-        {
-            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-
-            var res = await _projectService.AcceptJoinProjectRequestAllAsync(new Guid(currentProjectID));
-            if (!res)
-            {
-                TempData[MyConstants.Error] = "Failed to accept the join request!";
-                return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-            }
-
-            //send notification to accepted members
-            var link = Url.Action(nameof(ManageProject), "Project", new { id = new Guid(currentProjectID) },
-                Request.Scheme);
-            await _notificationService.ProcessAllJoinRequestsNotificationAsync(new Guid(currentProjectID), link,
-                "join");
-
-            TempData[MyConstants.Success] = "All join request accepted successfully!";
-            return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-        }
-
-        public async Task<IActionResult> DenyJoinRequestAll()
-        {
-            var currentProjectID = HttpContext.Session.GetString("currentProjectID");
-
-            var res = await _projectService.DenyJoinProjectRequestAllAsync(new Guid(currentProjectID));
-            if (!res)
-            {
-                TempData[MyConstants.Error] = "Failed to deny the join request!";
-                return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
-            }
-
-            //send notification to denied members
-            var link = Url.Action(nameof(ManageProject), "Project", new { id = new Guid(currentProjectID) },
-                Request.Scheme);
-            await _notificationService.ProcessAllJoinRequestsNotificationAsync(new Guid(currentProjectID), link,
-                "deny");
-
-            TempData[MyConstants.Success] = "All join request denied successfully!";
-            return RedirectToAction(nameof(ReviewJoinRequest), new { id = new Guid(currentProjectID) });
         }
 
         //-------------------manage transaction history of project------------------------

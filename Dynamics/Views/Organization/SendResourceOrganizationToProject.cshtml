@@ -64,7 +64,9 @@
                 <label for="project" class="block text-sm font-medium text-gray-700 mb-1">Select a project</label>
                 <select name="projectId" id="project" class="bg-white select border-neutral w-full focus:select-primary">
                     <option>Options</option>
-                    @foreach (var item in currentOrganization.Project.Where(x=> x.ProjectStatus!=-1 && x.ProjectStatus >= 1)) // Dont display project that is in progress!
+
+                   
+                    @foreach (var item in currentOrganization.Project.Where(x=> x.ProjectStatus == 0)) // Dont display project that is in progress!
                     {
                         <option value="@item.ProjectID">@item.ProjectName</option>
                     }

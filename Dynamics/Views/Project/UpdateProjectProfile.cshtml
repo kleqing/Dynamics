@@ -134,6 +134,7 @@
                             <option disabled selected>---Select Status---</option>
                         </select>
                         <label class="text-sm text-neutral">If your project has gathered enough donations, set the status to <b>in progress</b></label>
+                        <label class="text-sm text-neutral">You CANNOT create project withdraw request if your project does not have any donations!</label>
                     }
                     else
                     {
@@ -355,7 +356,7 @@
 </div>
 <!-- container end -->
 </div>
-
+@await Html.PartialAsync("CustomComponent/_LoadingModalSweet", "user-information")
 @*Bank script*@
 <script>
     document.addEventListener("DOMContentLoaded", getBanks);
@@ -451,13 +452,25 @@
                     },
                     buttonsStyling: false // Disable default styling to use custom classes
                 });
-                swalWithTailwind.fire({
-                    title: "Withdraw request sent",
-                    icon: "success",
-                    text: 'Please wait and check your email regularly in the meantime.'
-                }).then(() => {
-                    closePopup(false);
-                })
+                if (response.failed) {
+                    // Display failure notification if `failed` is true in response
+                    swalWithTailwind.fire({
+                        title: "Withdraw request sent unsuccessfully",
+                        icon: "error",
+                        text: response.message
+                    }).then(() => {
+                        closePopup(false);
+                    });
+                } else {
+                    // Display success notification if `failed` is false or not present
+                    swalWithTailwind.fire({
+                        title: "Withdraw request sent",
+                        icon: "success",
+                        text: 'Please wait and check your email regularly in the meantime.\nNote: We will take 1% of the donation as maintenance fee ' 
+                    }).then(() => {
+                        closePopup(false);
+                    });
+                }
             },
             error: function(xhr) {
                 alert("Error: " + xhr.responseText);
@@ -650,6 +663,17 @@
 
                 // Submit the form if validation passes
                 updateProjectForm.submit();
+                Swal.fire({
+                    title: "Processing...",
+                    text: "Please wait while your request is being processed",
+                    icon: "info",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
             }
         });
     });

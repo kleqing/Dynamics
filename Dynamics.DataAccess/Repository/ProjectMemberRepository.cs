@@ -68,13 +68,21 @@ public class ProjectMemberRepository : IProjectMemberRepository
     {
         var existingMember = await _context.ProjectMembers
             .FirstOrDefaultAsync(pm => pm.UserID == p.UserID && pm.ProjectID == p.ProjectID);
-
         if (existingMember != null)
         {
-            // Optionally handle the case where the member already exists
-            return false; // or throw an exception as appropriate
+            if (existingMember.Status == 0 || existingMember.Status == -2)//has sent join request or has been invited
+            {
+                // Optionally handle the case where the member already exists
+                return false; // or throw an exception as appropriate
+            }
+            if(existingMember.Status == -1 )
+            {
+                existingMember.Status = 0;
+                _context.ProjectMembers.Update(existingMember);
+                await _context.SaveChangesAsync();
+                return true;
+            }
         }
-
         await _context.ProjectMembers.AddAsync(p);
         await _context.SaveChangesAsync();
         return true;
@@ -115,6 +123,14 @@ public class ProjectMemberRepository : IProjectMemberRepository
     }
     public async Task<bool> InviteMemberAsync(Guid memberID, Guid projectID)
     {
+        var existingObj = await GetAsync(x=>x.UserID.Equals(memberID) && x.ProjectID.Equals(projectID));
+        if (existingObj != null)
+        {
+            existingObj.Status = -2;
+            _context.ProjectMembers.Update(existingObj);
+            await _context.SaveChangesAsync();
+            return true;
+        }
         await _context.ProjectMembers.AddAsync(new ProjectMember()
         {
             UserID = memberID,

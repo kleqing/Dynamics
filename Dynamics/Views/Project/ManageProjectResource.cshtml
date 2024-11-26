@@ -43,7 +43,7 @@
             <div class="ml-3 flex justify-end gap-x-2">
                 <a asp-action="SendDonateRequest" asp-route-projectid="@currentProjectID" asp-route-donor="User">
                     <button type="button"
-                            class="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+                            class="splide__slide elevate cursor-pointer  rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-xs text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
                         Donate this project
                     </button>
                 </a>
@@ -281,7 +281,7 @@
                             Enter
                             expected quantity
                         </label>
-                        <input min="0" asp-for="@projectResource.ExpectedQuantity" type="number"
+                        <input min="0" asp-for="@projectResource.ExpectedQuantity" type="number" value="1"
                                class="bg-white border border-gray-300 text-navy-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                placeholder="164" required/>
                         <span asp-validation-for="@projectResource.ExpectedQuantity" class="text-error text-red-500 font-semibold"></span>

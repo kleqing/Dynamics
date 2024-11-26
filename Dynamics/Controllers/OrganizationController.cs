@@ -462,14 +462,14 @@ namespace Dynamics.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid Id)
+        public async Task<IActionResult> OutOrganization(Guid organizationId, Guid userId)
         {
             var organizationMember =
                 await _organizationRepository.GetOrganizationMemberAsync(om =>
-                    om.OrganizationID == organizationId && om.UserID == Id);
+                    om.OrganizationID == organizationId && om.UserID == userId);
             var statusUserOut = organizationMember.Status;
 
-            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, Id);
+            await _organizationRepository.DeleteOrganizationMemberByOrganizationIDAndUserIDAsync(organizationId, userId);
 
             var organizationVM =
                 await _organizationService.GetOrganizationVMAsync(o => o.OrganizationID.Equals(organizationId));
@@ -487,7 +487,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User request denied successfully.";
                 var link = Url.Action(nameof(Detail), "Organization", new { organizationId },
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(Id, organizationId, link,
+                await _notificationService.ProcessOrganizationJoinRequestNotificationAsync(userId, organizationId, link,
                     "deny");
                 return RedirectToAction(nameof(ManageRequestJoinOrganization), new { organizationId = organizationId });
             }
@@ -496,7 +496,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "You have successfully left the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new { organizationId },
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link, "left");
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link, "left");
                 return RedirectToAction(nameof(Index));
             }
             else
@@ -504,7 +504,7 @@ namespace Dynamics.Controllers
                 TempData[MyConstants.Success] = "User has been removed or banned from the organization.";
                 var link = Url.Action(nameof(Detail), "Organization", new { organizationId },
                     Request.Scheme);
-                await _notificationService.ProcessOrganizationLeaveNotificationAsync(Id, organizationId, link,
+                await _notificationService.ProcessOrganizationLeaveNotificationAsync(userId, organizationId, link,
                     "remove");
                 return RedirectToAction(nameof(ManageOrganizationMember), new { organizationId = organizationId });
             }
@@ -523,8 +523,8 @@ namespace Dynamics.Controllers
         [HttpPost]
         public async Task<IActionResult> TransferCeoOrganization(Guid organizationId, Guid currentCEOID, Guid newCEOID)
         {
-            // var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
-            // var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
+            //var newCEO = await _userRepository.GetAsync(u => u.Id.Equals(newCEOID));
+            //var currentCEO = await _userRepository.GetAsync(u => u.Id.Equals(currentCEOID));
 
             if (!newCEOID.Equals(currentCEOID))
             {
@@ -932,6 +932,7 @@ namespace Dynamics.Controllers
 
 
         // This method is shared between user donate to org and org allocate to project
+        [Authorize]
         public IActionResult DonateByMoney(string organizationId, string resourceId)
         {
             var userString = HttpContext.Session.GetString("user");
@@ -1024,6 +1025,7 @@ namespace Dynamics.Controllers
             return Redirect(returnUrl);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> DonateByResource(Guid resourceId)
         {

@@ -28,7 +28,7 @@
         <div class="w-full flex-col shadow-md p-6 rounded-3xl my-10">
             <h2 class=" text-black font-bold text-xl text-center ">Create phase report</h2>
             <!-- form 1 -->
-            <form asp-action="AddProjectPhaseReport" asp-controller="Project" enctype="multipart/form-data" method="post">
+            <form id="addPhaseForm" asp-action="AddProjectPhaseReport" asp-controller="Project" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="ProjectID" value="@currentProjectID" />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="grid grid-cols-2 gap-x-10 gap-y-3">
@@ -36,7 +36,7 @@
                         <label asp-for="@Model.Phase" class="block mb-2 text-md font-medium text-gray-900">Enter phase title</label>
                         <input asp-for="@Model.Phase" type="text" id="phase_title"
                                class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                required />
+                               required />
                         <span asp-validation-for="Phase" class="text-danger"></span>
                     </div>
                     <div class="flex flex-col mt-4">
@@ -64,14 +64,14 @@
                     
                     <div>
                         <label asp-for="Date" class="block mb-2 text-md font-medium text-gray-900">Select start time of phase</label>
-                       <input type="date" asp-for="Date"
-                       class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        <input type="date" asp-for="Date"
+                               class="bg-white border border-gray-300 text-navy-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                id="dateInput" max="@ViewBag.currentDate"
-                       required />
-                       <div class="flex flex-col">
-                        <span class="text-gray-400 text-sm">The date that your phase starts.</span>
-                        <span asp-validation-for="Date" class="text-danger"></span>
-                        <div id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
+                               required />
+                        <div class="flex flex-col">
+                            <span class="text-gray-400 text-sm">The date that your phase starts.</span>
+                            <span asp-validation-for="Date" class="text-danger"></span>
+                            <div id="notificationMessage" class="text-red-500 text-sm font-bold" style="display:none;"></div>
                         </div>
                     </div>
                    
@@ -88,6 +88,7 @@
     </div>
     <!-- container end -->
 </div>
+<partial name="CustomComponent/_LoadingForm" model="@("addPhaseForm")"/>
 <script>
     function thisFileUpload() {
         document.getElementById("Attachment").click();

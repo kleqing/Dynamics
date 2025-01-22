@@ -12,8 +12,8 @@ namespace Dynamics.Utility
             try
             {
                 // My Google information
-                string fromMail = "kietpmde180889@fpt.edu.vn";
-                string fromPassword = @"pucw aypg zxws tjcb";
+                // string fromMail = "insert_email_here";
+                // string fromPassword = @"google_email_password";
                 SmtpClient smtpClient = new SmtpClient
                 {
                     Host = "smtp.gmail.com", // SMTP server
